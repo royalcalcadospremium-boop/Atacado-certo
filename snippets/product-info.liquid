@@ -626,12 +626,17 @@
           {%- endfor -%}
         {%- endunless -%}
 
-        <!-- SIZE SELECTOR -->
+        <!-- SIZE / OPTION SELECTOR (qualquer opção que não seja cor) -->
         {%- unless product.has_only_default_variant -%}
           {%- for option in product.options_with_values -%}
-            {%- if option.name == 'Tamanho' or option.name == 'tamanho' or option.name == 'Size' or option.name == 'size' -%}
+            {%- assign opt_lower = option.name | downcase -%}
+            {%- assign is_color_opt = false -%}
+            {%- if opt_lower == 'cor' or opt_lower == 'color' or opt_lower == 'colour' or opt_lower == 'cores' or opt_lower == 'color' -%}
+              {%- assign is_color_opt = true -%}
+            {%- endif -%}
+            {%- unless is_color_opt -%}
               <div class="size-section" data-size-option-position="{{ option.position }}">
-                <span class="section-label">Selecione o tamanho</span>
+                <span class="section-label">Selecione {{ option.name | downcase }}</span>
                 <div class="size-rows">
                   <div class="size-grid size-grid-row-1">
                     {%- for value in option.values -%}
@@ -661,7 +666,7 @@
                   {%- endif -%}
                 </div>
               </div>
-            {%- endif -%}
+            {%- endunless -%}
           {%- endfor -%}
         {%- endunless -%}
 

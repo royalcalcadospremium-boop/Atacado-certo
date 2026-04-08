@@ -16,6 +16,61 @@
 }
 {%- endcapture -%}
  
+<style>
+  /* ===== GALERIA: sem margens laterais no mobile ===== */
+  @media (max-width: 767px) {
+    .product-block-list__item--gallery {
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+
+    /* Remove card container da galeria (bordas, sombra, padding) */
+    .product-block-list__item--gallery .card {
+      border: none !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      padding: 0 !important;
+      background: transparent !important;
+    }
+
+    .product-block-list__item--gallery .card__section,
+    .product-block-list__item--gallery .card__section--tight {
+      padding: 0 !important;
+    }
+
+    /* Container flush sem padding lateral */
+    .container--flush {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+
+    /* Remove espaçamento cinza entre galeria e info */
+    .product-block-list__wrapper {
+      gap: 0 !important;
+    }
+
+    .product-block-list__item--gallery {
+      margin-bottom: 0 !important;
+    }
+
+    .product-block-list__item--info {
+      margin-top: 0 !important;
+      padding-top: 0 !important;
+    }
+
+    /* Thumbnails com padding lateral */
+    .product-gallery__thumbnail-list {
+      padding: 8px 16px !important;
+    }
+
+    .scroller {
+      padding-left: 16px !important;
+    }
+  }
+</style>
+
 <section data-section-id="{{ section.id }}" data-section-type="product" data-section-settings='{{ section_settings }}'>
   {% render 'royal-overlap', id: section.id %}
 
