@@ -17,14 +17,28 @@
 {%- endcapture -%}
  
 <style>
-  /* ===== GALERIA: sem margens laterais no mobile ===== */
+  /* ===== ELIMINAR TODOS OS ESPAÇOS NA PÁGINA DE PRODUTO (mobile) ===== */
   @media (max-width: 767px) {
+
+    /* Breadcrumb oculto — era o espaço branco entre dots e título */
+    .page__sub-header {
+      display: none !important;
+    }
+
+    /* Container sem padding lateral */
+    .container--flush {
+      padding: 0 !important;
+    }
+
+    /* Galeria sem margens */
     .product-block-list__item--gallery {
       margin: 0 !important;
       padding: 0 !important;
     }
 
-    .product-block-list__item--gallery .card {
+    .product-block-list__item--gallery .card,
+    .product-block-list__item--gallery .card__section,
+    .product-block-list__item--gallery .card__section--tight {
       border: none !important;
       box-shadow: none !important;
       border-radius: 0 !important;
@@ -33,18 +47,7 @@
       background: transparent !important;
     }
 
-    .product-block-list__item--gallery .card__section,
-    .product-block-list__item--gallery .card__section--tight {
-      padding: 0 !important;
-      margin: 0 !important;
-    }
-
-    .container--flush {
-      padding-left: 0 !important;
-      padding-right: 0 !important;
-    }
-
-    /* Zera gap entre galeria e bloco de info */
+    /* Zera gap entre todos os itens do product-block-list */
     .product-block-list,
     .product-block-list__wrapper {
       gap: 0 !important;
@@ -52,9 +55,16 @@
       margin: 0 !important;
     }
 
-    .product-block-list__item--info {
+    .product-block-list__item {
       margin: 0 !important;
-      padding-top: 0 !important;
+      padding: 0 !important;
+    }
+
+    /* Bloco de descrição externo (card separado) — sem margens */
+    .product-block-list__item--description .card {
+      margin: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
     }
 
     /* Esconde thumbnails */

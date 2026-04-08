@@ -76,18 +76,36 @@
     margin-bottom: 18px;
   }
 
+  .price-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
   .product-price {
     font-size: 32px;
     font-weight: 700;
     color: #111111;
     line-height: 1;
-    margin-bottom: 4px;
   }
 
-  .product-installment {
-    font-size: 14px;
-    color: #555555;
-    margin-top: 2px;
+  .price-compare {
+    font-size: 15px;
+    color: #BBBBBB;
+    text-decoration: line-through;
+    font-weight: 400;
+    margin-top: 3px;
+  }
+
+  .discount-badge {
+    background: #D42B2B;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    line-height: 1.5;
   }
 
   /* ====== SECTION LABEL ====== */
@@ -561,7 +579,16 @@
 
       <!-- PRICE -->
       <div class="price-section">
-        <div class="product-price" data-product-price>{{ selected_variant.price | money_without_trailing_zeros }}</div>
+        {%- if selected_variant.compare_at_price > selected_variant.price -%}
+          {%- assign discount_pct = selected_variant.compare_at_price | minus: selected_variant.price | times: 100 | divided_by: selected_variant.compare_at_price | round -%}
+          <div class="price-row">
+            <div class="product-price" data-product-price>{{ selected_variant.price | money_without_trailing_zeros }}</div>
+            <span class="discount-badge">-{{ discount_pct }}%</span>
+          </div>
+          <div class="price-compare">{{ selected_variant.compare_at_price | money_without_trailing_zeros }}</div>
+        {%- else -%}
+          <div class="product-price" data-product-price>{{ selected_variant.price | money_without_trailing_zeros }}</div>
+        {%- endif -%}
       </div>
 
       {%- form 'product', product, class: 'product-form' -%}
