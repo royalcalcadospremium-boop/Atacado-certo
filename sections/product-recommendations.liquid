@@ -13,25 +13,50 @@
   {% render 'royal-overlap', id: section.id %}
 
   <style>
-    /* Ocultar badge (Lançamento, etc.) na seção de recomendações */
+    /* === Ocultar badge (Lançamento, etc.) === */
     #shopify-section-{{ section.id }} .product-item__label-list,
     #shopify-section-{{ section.id }} .product-label,
     #shopify-section-{{ section.id }} .product-item__label {
       display: none !important;
     }
 
-    /* Ocultar ícone de coração / wishlist na seção de recomendações */
-    #shopify-section-{{ section.id }} .wishlist-icon,
-    #shopify-section-{{ section.id }} .wishlist-btn,
-    #shopify-section-{{ section.id }} [data-wishlist],
-    #shopify-section-{{ section.id }} .product-item__wishlist,
-    #shopify-section-{{ section.id }} button[aria-label*="ishlist"],
-    #shopify-section-{{ section.id }} button[aria-label*="avorito"],
-    #shopify-section-{{ section.id }} .js-wishlist,
-    #shopify-section-{{ section.id }} .heart-icon,
+    /* === Ocultar coração / wishlist === */
     #shopify-section-{{ section.id }} [class*="wishlist"],
     #shopify-section-{{ section.id }} [class*="favorite"],
     #shopify-section-{{ section.id }} [class*="heart"] {
+      display: none !important;
+    }
+
+    /* === Ocultar "ou 12x de..." === */
+    #shopify-section-{{ section.id }} .product-item__info p,
+    #shopify-section-{{ section.id }} .product-item__info-inner > p {
+      display: none !important;
+    }
+
+    /* === Ocultar estrelas === */
+    #shopify-section-{{ section.id }} .areviews_product_item,
+    #shopify-section-{{ section.id }} .areviews_header_stars,
+    #shopify-section-{{ section.id }} .product-item__reviews-badge,
+    #shopify-section-{{ section.id }} .spr-badge,
+    #shopify-section-{{ section.id }} .fa-star,
+    #shopify-section-{{ section.id }} [class*="star"],
+    #shopify-section-{{ section.id }} [class*="review"] {
+      display: none !important;
+    }
+
+    /* === Ocultar botão "Comprar agora" / Quick Buy === */
+    #shopify-section-{{ section.id }} .product-item__action-list,
+    #shopify-section-{{ section.id }} .product-item__quick-buy,
+    #shopify-section-{{ section.id }} .quick-buy,
+    #shopify-section-{{ section.id }} .button--add-to-cart,
+    #shopify-section-{{ section.id }} [data-action="add-to-cart"],
+    #shopify-section-{{ section.id }} form[action="/cart/add"],
+    #shopify-section-{{ section.id }} .product-item__action {
+      display: none !important;
+    }
+
+    /* === Ocultar "FRETE GRÁTIS" nos cards === */
+    #shopify-section-{{ section.id }} .barradefundo {
       display: none !important;
     }
   </style>
