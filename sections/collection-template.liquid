@@ -658,6 +658,223 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
     }
 
     html.rcm-lock, body.rcm-lock{ overflow:hidden !important; height: 100% !important; }
+
+    /* ═══════════════════════════════════════════
+       NB STYLE OVERRIDES
+    ═══════════════════════════════════════════ */
+
+    /* Card: visual limpo */
+    #royal-collection-gummy-{{ section.id }} .rc-card{
+      border-radius: 6px !important;
+      min-height: 0 !important;
+      box-shadow: none !important;
+      border: 1px solid #ececec !important;
+      transition: transform .2s ease, box-shadow .2s ease !important;
+    }
+    #royal-collection-gummy-{{ section.id }} .rc-card:hover{
+      transform: translateY(-2px) !important;
+      box-shadow: 0 6px 20px rgba(0,0,0,.10) !important;
+    }
+
+    /* Badge de desconto: estilo preto flat */
+    #royal-collection-gummy-{{ section.id }} .rc-badge{
+      background: #1a1a1a !important;
+      color: #fff !important;
+      border-radius: 2px !important;
+      font-size: 9px !important;
+      letter-spacing: .6px !important;
+      padding: 3px 7px !important;
+      font-weight: 700 !important;
+    }
+    #royal-collection-gummy-{{ section.id }} .rc-badge::before{ display:none !important; }
+
+    /* Badge "Lançamento" NB */
+    #royal-collection-gummy-{{ section.id }} .nb-badge{
+      position: absolute;
+      top: 8px; left: 8px;
+      background: #1a1a1a;
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 3px 7px;
+      border-radius: 2px;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      z-index: 3;
+      pointer-events: none;
+      line-height: 1;
+    }
+
+    /* Botão coração */
+    #royal-collection-gummy-{{ section.id }} .nb-fav{
+      position: absolute;
+      top: 8px; right: 8px;
+      background: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 1px 5px rgba(0,0,0,.16);
+      z-index: 4;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    #royal-collection-gummy-{{ section.id }} .nb-fav:hover{ background: #f5f5f5; }
+    #royal-collection-gummy-{{ section.id }} .nb-fav svg{ width:15px; height:15px; pointer-events:none; }
+
+    /* Botão sacola sobre a imagem */
+    #royal-collection-gummy-{{ section.id }} .nb-bag{
+      position: absolute;
+      bottom: 8px; right: 8px;
+      background: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 1px 5px rgba(0,0,0,.16);
+      z-index: 4;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+      color: #1a1a1a;
+    }
+    #royal-collection-gummy-{{ section.id }} .nb-bag:hover{ background: #1a1a1a; }
+    #royal-collection-gummy-{{ section.id }} .nb-bag:hover svg{ stroke: #fff; }
+    #royal-collection-gummy-{{ section.id }} .nb-bag svg{ width:15px; height:15px; pointer-events:none; transition: stroke .15s; }
+
+    /* Ocultar botão "Comprar" original */
+    #royal-collection-gummy-{{ section.id }} .rc-buywrap{ display:none !important; }
+
+    /* Ocultar "Por:" e parcelamento */
+    #royal-collection-gummy-{{ section.id }} .rc-price-label{ display:none !important; }
+    #royal-collection-gummy-{{ section.id }} .rc-installments{ display:none !important; }
+
+    /* Nome do produto */
+    #royal-collection-gummy-{{ section.id }} .rc-name{
+      font-size: 13px !important;
+      font-weight: 600 !important;
+      white-space: normal !important;
+      overflow: visible !important;
+      text-overflow: unset !important;
+      min-height: 0 !important;
+      margin-bottom: 5px !important;
+    }
+
+    /* Preço menor e mais compacto */
+    #royal-collection-gummy-{{ section.id }} .rc-price-value{
+      font-size: 15px !important;
+      font-weight: 700 !important;
+      letter-spacing: 0 !important;
+    }
+
+    /* Body compacto */
+    #royal-collection-gummy-{{ section.id }} .rc-body{
+      padding: 9px 9px 14px !important;
+    }
+
+    /* Toolbar: estilo NB */
+    #royal-collection-gummy-{{ section.id }} .rc-select{
+      border-radius: 4px !important;
+      border: 1.5px solid #333 !important;
+      background: #fff !important;
+      padding: 7px 12px !important;
+    }
+    #royal-collection-gummy-{{ section.id }} .rc-tool-btn{
+      border: 1.5px solid #333 !important;
+      border-radius: 4px !important;
+      padding: 8px 16px !important;
+      font-weight: 600 !important;
+    }
+
+    /* ── NB Quick Buy Modal ── */
+    .nb-qb-overlay{
+      position:fixed; inset:0;
+      background:rgba(0,0,0,.50);
+      z-index:999998;
+      display:none;
+    }
+    .nb-qb-overlay.nb-open{ display:block; }
+
+    .nb-qb-wrap{
+      position:fixed; inset:0;
+      z-index:999999;
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+    }
+    .nb-qb-wrap.nb-open{ display:flex; }
+
+    .nb-qb-modal{
+      background:#fff;
+      width:100%;
+      max-width:500px;
+      max-height:92vh;
+      border-radius:14px 14px 0 0;
+      overflow-y:auto;
+      transform:translateY(110%);
+      transition:transform .3s ease;
+      position:relative;
+    }
+    @media(min-width:768px){
+      .nb-qb-modal{ border-radius:14px; margin-bottom:24px; }
+    }
+    .nb-qb-modal.nb-in{ transform:translateY(0); }
+
+    .nb-qb__close{
+      position:absolute; top:12px; right:14px;
+      background:rgba(255,255,255,.92); border:none;
+      font-size:18px; color:#333;
+      width:32px; height:32px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      z-index:2; box-shadow:0 1px 5px rgba(0,0,0,.15);
+      cursor:pointer; line-height:1;
+    }
+    .nb-qb__img{
+      width:100%; aspect-ratio:1; object-fit:contain;
+      background:#f5f5f5; display:block;
+    }
+    .nb-qb__body{ padding:16px 20px 28px; }
+    .nb-qb__badge{
+      display:inline-block; background:#1a1a1a; color:#fff;
+      font-size:9px; font-weight:700; padding:3px 8px;
+      border-radius:2px; letter-spacing:.6px;
+      margin-bottom:10px; text-transform:uppercase;
+    }
+    .nb-qb__title{ font-size:16px; font-weight:700; margin-bottom:6px; line-height:1.3; }
+    .nb-qb__price{ font-size:22px; font-weight:700; margin-bottom:18px; }
+    .nb-qb__lbl{ font-size:13px; color:#666; margin-bottom:8px; }
+    .nb-qb__lbl span{ color:#1a1a1a; font-weight:600; }
+
+    .nb-sz-list{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+    .nb-sz{
+      min-width:46px; padding:9px 10px;
+      border:1.5px solid #e0e0e0; background:#fff;
+      font-size:13px; border-radius:4px;
+      cursor:pointer; text-align:center;
+      transition:all .15s; font-family:inherit;
+    }
+    .nb-sz:hover, .nb-sz.nb-sel{
+      border-color:#1a1a1a; background:#1a1a1a; color:#fff;
+    }
+    .nb-sz.nb-unavail{ opacity:.4; cursor:not-allowed; }
+    .nb-sz.nb-unavail:hover{ border-color:#e0e0e0; background:#fff; color:#1a1a1a; }
+
+    .nb-qb__add{
+      width:100%; padding:16px;
+      background:#CC0000; color:#fff; border:none;
+      font-size:13px; font-weight:700;
+      letter-spacing:1.2px; text-transform:uppercase;
+      border-radius:4px; cursor:pointer;
+      transition:background .2s; font-family:inherit;
+    }
+    .nb-qb__add:hover{ background:#aa0000; }
+    .nb-qb__add:disabled{ opacity:.55; cursor:not-allowed; }
+    .nb-qb__det{
+      display:block; text-align:center;
+      padding:12px; font-size:13px; color:#333;
+      text-decoration:underline; margin-top:6px;
+      background:none; border:none; width:100%;
+      cursor:pointer; font-family:inherit;
+    }
   </style>
 
   <div class="rc-container">
@@ -865,6 +1082,8 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
                     <div class="rc-badge">-{{ pct_int }}%</div>
                   {%- endif -%}
 
+                  <span class="nb-badge">Lançamento</span>
+
                   <a class="rc-media" href="{{ purl }}">
                     {%- if product.featured_image -%}
                       <img
@@ -872,6 +1091,8 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
                         alt="{{ product.featured_image.alt | escape }}"
                         loading="lazy">
                     {%- endif -%}
+                    <button class="nb-fav" type="button" aria-label="Favoritar" onclick="event.stopPropagation();event.preventDefault();nbFav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+                    <button class="nb-bag" type="button" aria-label="Compra rápida" data-product-id="{{ product.id }}" onclick="event.stopPropagation();event.preventDefault();nbQB(this.dataset.productId)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
                   </a>
 
                   <div class="rc-body">
@@ -1841,6 +2062,159 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
         });
     });
 
+  })();
+  </script>
+
+  <!-- NB QUICK BUY MODAL -->
+  <div class="nb-qb-overlay" id="nb-qb-overlay-{{ section.id }}"></div>
+  <div class="nb-qb-wrap"    id="nb-qb-wrap-{{ section.id }}">
+    <div class="nb-qb-modal" id="nb-qb-modal-{{ section.id }}"></div>
+  </div>
+
+  <script>
+  (function(){
+    var SID   = '{{ section.id }}';
+    var ovl   = document.getElementById('nb-qb-overlay-' + SID);
+    var wrap  = document.getElementById('nb-qb-wrap-' + SID);
+    var modal = document.getElementById('nb-qb-modal-' + SID);
+    var activeVid = null;
+
+    /* ── open ── */
+    window.nbQB = function(productId){
+      var script = document.getElementById('rcp-' + SID + '-' + productId);
+      if(!script) return;
+      var data;
+      try{ data = JSON.parse(script.textContent || script.innerText || '{}'); }catch(e){ return; }
+
+      activeVid = null;
+
+      /* imagem: tenta pegar a src atual do card antes de fallback */
+      var imgSrc = '';
+      var card = document.querySelector('.rc-card[data-product-id="' + productId + '"]');
+      if(card){ var ci = card.querySelector('.rc-media img'); if(ci) imgSrc = ci.currentSrc || ci.src; }
+      if(!imgSrc) imgSrc = data.image || '';
+
+      /* variantes */
+      var variants = Array.isArray(data.variants) ? data.variants.slice() : [];
+      variants.sort(function(a,b){
+        var la = String((a.opt1 && a.opt1 !== 'Default Title') ? a.opt1 : (a.title||''));
+        var lb = String((b.opt1 && b.opt1 !== 'Default Title') ? b.opt1 : (b.title||''));
+        return la.localeCompare(lb,'pt-BR',{numeric:true});
+      });
+
+      var hasSizes = variants.length > 1 || (variants[0] && variants[0].opt1 && variants[0].opt1 !== 'Default Title');
+
+      var szHTML = '';
+      if(hasSizes){
+        szHTML = variants.map(function(v){
+          var lbl = (v.opt1 && v.opt1 !== 'Default Title') ? v.opt1 : (v.title||'');
+          var cls = 'nb-sz' + (v.available ? '' : ' nb-unavail');
+          return '<button class="' + cls + '" type="button" data-vid="' + v.id + '" onclick="nbSzPick(this)">' + lbl + '</button>';
+        }).join('');
+      } else if(variants[0]){
+        activeVid = variants[0].id;
+      }
+
+      /* preço */
+      var priceFmt = '';
+      if(data.price_cents){
+        priceFmt = 'R$\u00a0' + (data.price_cents / 100).toLocaleString('pt-BR',{minimumFractionDigits:2});
+      }
+
+      modal.innerHTML =
+        '<button class="nb-qb__close" onclick="nbQBClose()" aria-label="Fechar">\u2715</button>' +
+        '<img class="nb-qb__img" src="' + imgSrc + '" alt="' + (data.title||'') + '" loading="lazy" />' +
+        '<div class="nb-qb__body">' +
+          '<span class="nb-qb__badge">Lan\u00e7amento</span>' +
+          '<h2 class="nb-qb__title">' + (data.title||'') + '</h2>' +
+          (priceFmt ? '<p class="nb-qb__price">' + priceFmt + '</p>' : '') +
+          (hasSizes ?
+            '<p class="nb-qb__lbl">Tamanho: <span id="nb-szval-' + SID + '">Selecione um tamanho</span></p>' +
+            '<div class="nb-sz-list">' + szHTML + '</div>' : '') +
+          '<button class="nb-qb__add" id="nb-qb-add-' + SID + '" onclick="nbQBAdd()" ' +
+            (hasSizes ? 'disabled' : '') + '>ADICIONAR \u00c0 SACOLA</button>' +
+          '<a href="' + (data.url||'/') + '" class="nb-qb__det">Ver mais detalhes do produto</a>' +
+        '</div>';
+
+      ovl.classList.add('nb-open');
+      wrap.classList.add('nb-open');
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){ modal.classList.add('nb-in'); });
+      });
+      document.documentElement.style.overflow = 'hidden';
+    };
+
+    /* ── size pick ── */
+    window.nbSzPick = function(btn){
+      var all = modal.querySelectorAll('.nb-sz');
+      all.forEach(function(b){ b.classList.remove('nb-sel'); });
+      btn.classList.add('nb-sel');
+      activeVid = Number(btn.getAttribute('data-vid'));
+      var lbl = document.getElementById('nb-szval-' + SID);
+      if(lbl) lbl.textContent = btn.textContent;
+      var add = document.getElementById('nb-qb-add-' + SID);
+      if(add) add.disabled = false;
+    };
+
+    /* ── close ── */
+    window.nbQBClose = function(){
+      modal.classList.remove('nb-in');
+      setTimeout(function(){
+        ovl.classList.remove('nb-open');
+        wrap.classList.remove('nb-open');
+        document.documentElement.style.overflow = '';
+      }, 300);
+    };
+
+    /* ── add to cart ── */
+    window.nbQBAdd = function(){
+      if(!activeVid) return;
+      var btn = document.getElementById('nb-qb-add-' + SID);
+      if(btn){ btn.disabled = true; btn.textContent = 'Adicionando...'; }
+
+      fetch('/cart/add.js',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Accept':'application/json'},
+        body:JSON.stringify({id:Number(activeVid), quantity:1})
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(){
+        nbQBClose();
+        /* dispara eventos para o cart drawer do tema */
+        ['cart:refresh','cart:updated','cart:open','product:added'].forEach(function(ev){
+          try{ document.dispatchEvent(new CustomEvent(ev,{bubbles:true})); }catch(e){}
+          try{ window.dispatchEvent(new CustomEvent(ev,{bubbles:true})); }catch(e){}
+        });
+        /* fallback: tenta abrir o cart drawer via API pública ou clique */
+        setTimeout(function(){
+          if(window.RoyalCartDrawer && typeof window.RoyalCartDrawer.open === 'function'){ window.RoyalCartDrawer.open(); return; }
+          var sel = ['[data-action="open-drawer"][aria-controls*="cart"]','[data-action="open-drawer"][aria-controls*="RoyalCartDrawer"]','button[aria-controls="RoyalCartDrawer"]','a[href="#cart"]'];
+          for(var i=0;i<sel.length;i++){
+            var el = document.querySelector(sel[i]);
+            if(el){ try{ el.click(); }catch(e){} break; }
+          }
+        }, 120);
+      })
+      .catch(function(){
+        if(btn){ btn.disabled = false; btn.textContent = 'ADICIONAR \u00c0 SACOLA'; }
+      });
+    };
+
+    /* ── favorito ── */
+    window.nbFav = function(btn){
+      var on = btn.getAttribute('data-fav') === '1';
+      btn.setAttribute('data-fav', on ? '0' : '1');
+      var path = btn.querySelector('path');
+      if(path){
+        path.setAttribute('fill', on ? 'none' : '#CC0000');
+        path.setAttribute('stroke', on ? 'currentColor' : '#CC0000');
+      }
+    };
+
+    if(ovl) ovl.addEventListener('click', window.nbQBClose);
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape' && wrap && wrap.classList.contains('nb-open')) window.nbQBClose();
+    });
   })();
   </script>
 
