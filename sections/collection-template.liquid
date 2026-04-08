@@ -420,7 +420,33 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({ items: [{ id: window.selectedId, quantity: 1 }] })
         }).then(() => {
-          window.location.href = '/cart';
+          btn.innerText = "ADICIONAR À SACOLA";
+          // Fechar o modal do Quick Buy
+          document.getElementById('modal-quick-buy').classList.remove('nb-open');
+          // Tentar abrir o drawer de carrinho
+          setTimeout(() => {
+            // Método 1: Procurar por drawer do carrinho
+            const cartDrawer = document.querySelector('[id*="CartDrawer"], [class*="cart-drawer"], [class*="Cart-drawer"]');
+            if (cartDrawer) {
+              cartDrawer.classList.add('is-open') || cartDrawer.classList.add('active');
+              return;
+            }
+            // Método 2: Procurar por botão de carrinho e clicar
+            const cartBtn = document.querySelector('[data-cart-drawer], [class*="cart-toggle"], button[aria-label*="Cart"]');
+            if (cartBtn) {
+              cartBtn.click();
+              return;
+            }
+            // Método 3: Disparar evento customizado
+            document.dispatchEvent(new CustomEvent('cart:open'));
+            window.dispatchEvent(new CustomEvent('cart:open'));
+            // Fallback: mostrar sucesso
+            alert("✅ Produto adicionado à sacola com sucesso!");
+          }, 300);
+        }).catch((err) => {
+          btn.innerText = "ADICIONAR À SACOLA";
+          console.error(err);
+          alert("❌ Erro ao adicionar. Tente novamente.");
         });
       };
 
