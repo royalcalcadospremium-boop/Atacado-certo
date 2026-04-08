@@ -1,8 +1,8 @@
 {%- if product.media.size > 0 -%}
   {%- assign show_thumbnails_if_one_media = true -%}
 
-  <div class="card">
-    <div class="card__section card__section--tight">
+  <div class="card" style="border:none!important;box-shadow:none!important;border-radius:0!important;margin:0!important;">
+    <div class="card__section card__section--tight" style="padding:0!important;margin:0!important;">
       <div class="product-gallery {% if show_thumbnails_if_one_media %}product-gallery--with-thumbnails{% endif %}">
         {%- assign selected_media = product.selected_variant.featured_media | default: product.featured_media -%}
 
@@ -108,7 +108,7 @@
         </div>
 
         {%- if show_thumbnails_if_one_media -%}
-          <div class="scroller">
+          <div class="scroller" style="display:none!important;height:0!important;overflow:hidden!important;">
             <div class="scroller__inner">
               <div class="product-gallery__thumbnail-list">
                 {%- for media in product.media -%}
