@@ -750,7 +750,7 @@ ROYAL • Share via WhatsApp (v1.2)
 
     const slot = document.createElement('div');
     slot.className = 'rc-badge-slot rc-after-title';
-    slot.appendChild(buildBtn());
+    // slot.appendChild(buildBtn()); // DESATIVADO: botão de compartilhar WhatsApp removido
 
     if($('#rc-whats-anchor', root)){
       $('#rc-whats-anchor', root).replaceWith(slot);
