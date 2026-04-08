@@ -588,6 +588,74 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
     }
 
     html.rcm-lock, body.rcm-lock{ overflow:hidden !important; height: 100% !important; }
+
+    /* ===== CARD — IDÊNTICO AO COLLECTION-TEMPLATE ===== */
+    #royal-tabs-cards-{{ section.id }} .card {
+      background: #ffffff !important;
+      border-radius: 6px !important;
+      border: 1px solid #f0f0f0 !important;
+      box-shadow: none !important;
+      height: auto !important;
+    }
+    #royal-tabs-cards-{{ section.id }} .toprow {
+      background: #f9f9f9 !important;
+      border-radius: 0 !important;
+      overflow: hidden !important;
+    }
+    #royal-tabs-cards-{{ section.id }} .imgwrap img {
+      object-fit: contain !important;
+    }
+    #royal-tabs-cards-{{ section.id }} .badge {
+      background: #1a1a1a !important;
+      color: #fff !important;
+      border-radius: 2px !important;
+      padding: 3px 6px !important;
+      font-size: 10px !important;
+      font-weight: 700 !important;
+      top: 8px !important;
+      left: 8px !important;
+    }
+    #royal-tabs-cards-{{ section.id }} .badge::before { display: none !important; }
+    #royal-tabs-cards-{{ section.id }} .nb-bag {
+      position: absolute !important;
+      bottom: 8px !important;
+      right: 8px !important;
+      background: #fff !important;
+      border: none !important;
+      border-radius: 50% !important;
+      width: 34px !important;
+      height: 34px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12) !important;
+      cursor: pointer !important;
+      z-index: 3 !important;
+    }
+    #royal-tabs-cards-{{ section.id }} .content {
+      padding: 12px !important;
+      gap: 4px !important;
+      flex: 0 0 auto !important;
+      text-decoration: none !important;
+    }
+    #royal-tabs-cards-{{ section.id }} .title {
+      font-size: 13px !important;
+      font-weight: 600 !important;
+      color: #333333 !important;
+      text-align: left !important;
+      padding: 0 !important;
+      height: 34px !important;
+      min-height: 0 !important;
+      margin: 0 0 4px !important;
+    }
+    #royal-tabs-cards-{{ section.id }} .now {
+      font-size: 15px !important;
+      font-weight: 800 !important;
+      color: #111111 !important;
+    }
+    #royal-tabs-cards-{{ section.id }} .compare,
+    #royal-tabs-cards-{{ section.id }} .installments,
+    #royal-tabs-cards-{{ section.id }} .buyform { display: none !important; }
   </style>
 
   <div class="container">
@@ -687,7 +755,7 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
                         <span class="badge">-{{ off }}%</span>
                       {% endif %}
 
-                      <div class="imgwrap">
+                      <a class="imgwrap" href="{{ p.url }}">
                         {% if featured %}
                           <img
                             src="{{ img_url }}"
@@ -697,57 +765,22 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
                         {% else %}
                           {{ 'product-1' | placeholder_svg_tag }}
                         {% endif %}
-                      </div>
+                      </a>
+
+                      <button class="nb-bag" type="button"
+                        {% if has_variants %}data-rc-open-modal data-product-id="{{ p.id }}"{% else %}data-rc-add-single data-variant-id="{{ first_av.id }}"{% endif %}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2">
+                          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                          <line x1="3" y1="6" x2="21" y2="6"/>
+                          <path d="M16 10a4 4 0 0 1-8 0"/>
+                        </svg>
+                      </button>
                     </div>
 
-                    <div class="content">
+                    <a href="{{ p.url }}" class="content" style="text-decoration:none;">
                       <div class="title">{{ p.title }}</div>
-
-                      <div class="prices">
-                        <div class="compare">
-                          {% if has_compare %}
-                            {{ compare | money }}
-                          {% endif %}
-                        </div>
-
-                        <div class="now">{{ price | money }}</div>
-
-                        <div class="installments">
-                          {% if price > 0 %}
-                            ou até 6× de {{ price | divided_by: 6 | money }}
-                          {% endif %}
-                        </div>
-                      </div>
-
-                      <div class="buyform">
-                        {% form 'product', p, novalidate: 'novalidate' %}
-                          <input type="hidden" name="id" value="{{ first_av.id }}">
-                          <button type="submit" class="visually-hidden" data-rtc-submit>Adicionar</button>
-
-                          {% if has_variants %}
-                            <button class="buybtn" type="button" data-rc-open-modal data-product-id="{{ p.id }}">
-                              Comprar
-                              <svg viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M7 7h14l-2 8H9L7 7z" />
-                                <path d="M7 7L6 3H3" />
-                                <circle cx="9" cy="20" r="1.6"></circle>
-                                <circle cx="18" cy="20" r="1.6"></circle>
-                              </svg>
-                            </button>
-                          {% else %}
-                            <button class="buybtn" type="button" data-rc-add-single data-variant-id="{{ first_av.id }}">
-                              Comprar
-                              <svg viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M7 7h14l-2 8H9L7 7z" />
-                                <path d="M7 7L6 3H3" />
-                                <circle cx="9" cy="20" r="1.6"></circle>
-                                <circle cx="18" cy="20" r="1.6"></circle>
-                              </svg>
-                            </button>
-                          {% endif %}
-                        {% endform %}
-                      </div>
-                    </div>
+                      <div class="now">{{ price | money }}</div>
+                    </a>
 
                     <script type="application/json" id="rcp-{{ section.id }}-{{ p.id }}">
                     {
@@ -855,7 +888,7 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
                           <span class="badge">-{{ off }}%</span>
                         {% endif %}
 
-                        <div class="imgwrap">
+                        <a class="imgwrap" href="{{ p.url }}">
                           {% if featured %}
                             <img
                               src="{{ img_url }}"
@@ -865,57 +898,22 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
                           {% else %}
                             {{ 'product-1' | placeholder_svg_tag }}
                           {% endif %}
-                        </div>
+                        </a>
+
+                        <button class="nb-bag" type="button"
+                          {% if has_variants %}data-rc-open-modal data-product-id="{{ p.id }}"{% else %}data-rc-add-single data-variant-id="{{ first_av.id }}"{% endif %}>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2">
+                            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                            <line x1="3" y1="6" x2="21" y2="6"/>
+                            <path d="M16 10a4 4 0 0 1-8 0"/>
+                          </svg>
+                        </button>
                       </div>
 
-                      <div class="content">
+                      <a href="{{ p.url }}" class="content" style="text-decoration:none;">
                         <div class="title">{{ p.title }}</div>
-
-                        <div class="prices">
-                          <div class="compare">
-                            {% if has_compare %}
-                              {{ compare | money }}
-                            {% endif %}
-                          </div>
-
-                          <div class="now">{{ price | money }}</div>
-
-                          <div class="installments">
-                            {% if price > 0 %}
-                              ou até 6× de {{ price | divided_by: 6 | money }}
-                            {% endif %}
-                          </div>
-                        </div>
-
-                        <div class="buyform">
-                          {% form 'product', p, novalidate: 'novalidate' %}
-                            <input type="hidden" name="id" value="{{ first_av.id }}">
-                            <button type="submit" class="visually-hidden" data-rtc-submit>Adicionar</button>
-
-                            {% if has_variants %}
-                              <button class="buybtn" type="button" data-rc-open-modal data-product-id="{{ p.id }}">
-                                Comprar
-                                <svg viewBox="0 0 24 24" aria-hidden="true">
-                                  <path d="M7 7h14l-2 8H9L7 7z" />
-                                  <path d="M7 7L6 3H3" />
-                                  <circle cx="9" cy="20" r="1.6"></circle>
-                                  <circle cx="18" cy="20" r="1.6"></circle>
-                                </svg>
-                              </button>
-                            {% else %}
-                              <button class="buybtn" type="button" data-rc-add-single data-variant-id="{{ first_av.id }}">
-                                Comprar
-                                <svg viewBox="0 0 24 24" aria-hidden="true">
-                                  <path d="M7 7h14l-2 8H9L7 7z" />
-                                  <path d="M7 7L6 3H3" />
-                                  <circle cx="9" cy="20" r="1.6"></circle>
-                                  <circle cx="18" cy="20" r="1.6"></circle>
-                                </svg>
-                              </button>
-                            {% endif %}
-                          {% endform %}
-                        </div>
-                      </div>
+                        <div class="now">{{ price | money }}</div>
+                      </a>
 
                       <script type="application/json" id="rcp-{{ section.id }}-{{ p.id }}">
                       {
