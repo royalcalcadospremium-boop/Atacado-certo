@@ -118,21 +118,7 @@ body {
    COLOR & SIZE CUSTOMIZATIONS
    ============================================ */
 
-.color-grid {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(48px, 1fr));
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.color-item {
-  position: relative;
-}
-
-.color-item input:checked + .color-thumbnail {
-  outline: 2px solid #D42B2B;
-  outline-offset: 2px;
-}
+/* Color grid overrides moved to product-info.liquid */
 
 .size-grid-row-1 {
   display: grid;

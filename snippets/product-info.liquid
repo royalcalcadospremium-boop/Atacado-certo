@@ -1,18 +1,17 @@
 {%- assign selected_variant = product.selected_or_first_available_variant -%}
 
 <style>
-  /* ====== RESET STYLES ====== */
+  /* ====== BASE ====== */
   .product-info-refactored {
     max-width: 100%;
     background: white;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
   }
 
   .product-info-refactored * {
     box-sizing: border-box;
   }
 
-  /* ====== CONTAINER ====== */
   .product-container {
     max-width: 100%;
     margin: 0 auto;
@@ -21,55 +20,20 @@
     flex-direction: column;
   }
 
-  /* ====== GALLERY ====== */
-  .product-gallery {
-    width: 100%;
-    background: #f5f5f5;
-  }
-
-  .gallery-image {
-    width: 100%;
-    height: 300px;
-    object-fit: cover;
-    display: block;
-  }
-
-  .gallery-dots {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    padding: 12px 0;
-    background: white;
-  }
-
-  .gallery-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #EEEEEE;
-    cursor: pointer;
-    border: none;
-    transition: background 0.3s;
-  }
-
-  .gallery-dot.active {
-    background: #D42B2B;
-  }
-
   /* ====== PRODUCT INFO BLOCK ====== */
   .product-info-block {
-    padding: 16px;
-    flex: 1;
+    padding: 20px 16px 0;
   }
 
   /* ====== TITLE ====== */
   .product-title {
     font-size: 22px;
-    font-weight: 600;
+    font-weight: 700;
     color: #111111;
     line-height: 1.3;
-    margin: 20px 0 8px;
+    margin: 0 0 10px;
     word-wrap: break-word;
+    letter-spacing: -0.2px;
   }
 
   /* ====== RATINGS ====== */
@@ -78,31 +42,38 @@
     align-items: center;
     gap: 6px;
     font-size: 14px;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
   }
 
   .product-ratings .stars {
-    color: #FFCE00;
+    color: #F5A623;
     display: flex;
-    gap: 2px;
+    gap: 1px;
+    font-size: 16px;
+    letter-spacing: -1px;
   }
 
-  .product-ratings .count {
-    color: #0086FF;
+  .product-ratings .rating-link {
+    color: #F5A623;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .product-ratings .rating-link:hover {
     text-decoration: underline;
-    cursor: pointer;
   }
 
   /* ====== SKU ====== */
   .product-sku {
     font-size: 13px;
     color: #888888;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
   }
 
-  /* ====== PRICE SECTION ====== */
+  /* ====== PRICE ====== */
   .price-section {
-    margin-bottom: 16px;
+    margin-bottom: 18px;
   }
 
   .product-price {
@@ -116,64 +87,91 @@
   .product-installment {
     font-size: 14px;
     color: #555555;
-    margin-top: 4px;
+    margin-top: 2px;
   }
 
-  /* ====== COLOR SELECTOR ====== */
+  /* ====== SECTION LABEL ====== */
+  .section-label {
+    font-size: 14px;
+    color: #222222;
+    margin-bottom: 10px;
+    font-weight: 400;
+    display: block;
+  }
+
+  .section-label .selected-option-value {
+    font-weight: 500;
+  }
+
+  /* ====== COLOR SWATCHES ====== */
   .color-section {
     margin-bottom: 16px;
   }
 
-  .section-label {
-    font-size: 14px;
-    color: #333333;
-    margin-bottom: 10px;
-    font-weight: 500;
-  }
-
   .color-grid {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 8px;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
   }
 
   .color-item {
-    position: relative;
-    width: 52px;
-    height: 52px;
-    border-radius: 4px;
-    border: 2px solid transparent;
-    overflow: hidden;
     cursor: pointer;
-    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
   }
 
-  .color-item input {
+  .color-item input[type="radio"] {
     display: none;
   }
 
-  .color-item input:checked + .color-thumbnail {
-    border-color: #D42B2B;
+  .color-thumbnail-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
   }
 
   .color-thumbnail {
     width: 100%;
-    height: 100%;
-    border-radius: 4px;
-    border: 2px solid transparent;
-    transition: border 0.2s;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 2px;
+    border: 1px solid #e5e5e5;
+    display: block;
+  }
+
+  .color-underline {
+    display: block;
+    height: 3px;
+    width: 100%;
+    background: transparent;
+    margin-top: 3px;
+    border-radius: 1px;
+    transition: background 0.2s;
+  }
+
+  .color-item.is-selected .color-underline,
+  .color-item:has(input:checked) .color-underline {
+    background: #D42B2B;
   }
 
   /* ====== SIZE SELECTOR ====== */
   .size-section {
-    margin-bottom: 16px;
+    margin-bottom: 18px;
+  }
+
+  .size-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
   }
 
   .size-grid {
     display: grid;
     gap: 8px;
-    margin-bottom: 8px;
   }
 
   .size-grid-row-1 {
@@ -181,28 +179,27 @@
   }
 
   .size-grid-row-2 {
-    display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
   }
 
   .size-button {
     height: 48px;
     border: 1px solid #CCCCCC;
-    border-radius: 4px;
+    border-radius: 3px;
     background: white;
-    font-size: 16px;
-    font-weight: 500;
+    font-size: 15px;
+    font-weight: 400;
     color: #111111;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.15s;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 0;
   }
 
   .size-button:hover {
-    border-color: #999999;
+    border-color: #888888;
   }
 
   .size-button.active {
@@ -214,14 +211,15 @@
     color: #CCCCCC;
     cursor: not-allowed;
     background: #FAFAFA;
+    text-decoration: line-through;
   }
 
-  /* ====== BUTTON SECTION ====== */
+  /* ====== BUY BUTTONS ====== */
   .button-section {
     display: flex;
     gap: 8px;
-    margin-bottom: 16px;
-    align-items: center;
+    margin-bottom: 14px;
+    align-items: stretch;
   }
 
   .btn-buy {
@@ -230,7 +228,7 @@
     background: #D42B2B;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 3px;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
@@ -238,42 +236,67 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    letter-spacing: 0.2px;
   }
 
   .btn-buy:hover {
     background: #B91F1F;
   }
 
+  .btn-buy:active {
+    transform: scale(0.98);
+  }
+
   .btn-cart {
+    position: relative;
     width: 52px;
     height: 52px;
+    flex-shrink: 0;
     border: 1px solid #CCCCCC;
-    border-radius: 4px;
+    border-radius: 3px;
     background: white;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s;
-    font-size: 20px;
+    color: #111111;
   }
 
   .btn-cart:hover {
-    border-color: #999999;
+    border-color: #888888;
   }
 
-  /* ====== FEATURES SECTION ====== */
+  .cart-plus-badge {
+    position: absolute;
+    top: -7px;
+    right: -7px;
+    width: 18px;
+    height: 18px;
+    background: #111111;
+    color: white;
+    border-radius: 50%;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    border: 1.5px solid white;
+  }
+
+  /* ====== FEATURES (Provador / Medidas) ====== */
   .features-section {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 8px;
-    margin: 16px 0;
+    margin-bottom: 14px;
   }
 
   .feature-btn {
     height: 44px;
     border: 1px solid #CCCCCC;
-    border-radius: 4px;
+    border-radius: 3px;
     background: white;
     font-size: 13px;
     color: #333333;
@@ -281,17 +304,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    transition: all 0.2s;
+    gap: 7px;
+    transition: border-color 0.2s;
+    font-weight: 400;
   }
 
   .feature-btn:hover {
-    border-color: #999999;
+    border-color: #888888;
   }
 
   .feature-icon {
-    width: 14px;
-    height: 14px;
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
   }
 
   /* ====== WISHLIST ====== */
@@ -306,7 +331,7 @@
     border: none;
     cursor: pointer;
     font-size: 14px;
-    color: #333333;
+    color: #111111;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -314,18 +339,27 @@
     transition: color 0.2s;
   }
 
-  .wishlist-btn:hover {
+  .wishlist-btn:hover .wishlist-text {
     color: #D42B2B;
   }
 
   .wishlist-icon {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    color: #111111;
   }
 
-  /* ====== SHIPPING CALC ====== */
+  .wishlist-text {
+    text-decoration: underline;
+    color: #111111;
+    font-size: 14px;
+    transition: color 0.2s;
+  }
+
+  /* ====== SHIPPING ====== */
   .shipping-section {
-    margin: 16px 0;
+    margin-bottom: 16px;
   }
 
   .shipping-header {
@@ -339,10 +373,22 @@
   }
 
   .shipping-help {
-    color: #0086FF;
+    color: #1A6EC7;
     cursor: pointer;
     text-decoration: none;
     font-size: 13px;
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .shipping-help:hover {
+    text-decoration: underline;
+  }
+
+  .shipping-help svg {
+    flex-shrink: 0;
   }
 
   .shipping-form {
@@ -351,30 +397,36 @@
   }
 
   .shipping-input {
-    flex: 0 1 55%;
+    flex: 0 1 50%;
     height: 48px;
     border: 1px solid #CCCCCC;
-    border-radius: 4px;
-    padding: 0 12px;
-    font-size: 14px;
+    border-radius: 3px;
+    padding: 0 14px;
+    font-size: 15px;
     color: #111111;
+    outline: none;
   }
 
   .shipping-input::placeholder {
-    color: #CCCCCC;
+    color: #BBBBBB;
+  }
+
+  .shipping-input:focus {
+    border-color: #888888;
   }
 
   .shipping-btn {
-    flex: 0 1 43%;
+    flex: 1;
     height: 48px;
     background: #D42B2B;
     color: white;
     border: none;
-    border-radius: 4px;
-    font-size: 13px;
+    border-radius: 3px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition: background 0.2s;
+    letter-spacing: 0.2px;
   }
 
   .shipping-btn:hover {
@@ -384,7 +436,6 @@
   /* ====== ACCORDION ====== */
   .accordion-section {
     border-top: 1px solid #EEEEEE;
-    margin-top: 16px;
   }
 
   .accordion-item {
@@ -392,7 +443,7 @@
   }
 
   .accordion-header {
-    height: 56px;
+    height: 58px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -404,7 +455,7 @@
     font-size: 15px;
     font-weight: 500;
     color: #111111;
-    transition: all 0.2s;
+    transition: background 0.15s;
   }
 
   .accordion-header:hover {
@@ -412,21 +463,23 @@
   }
 
   .accordion-toggle {
-    width: 18px;
-    height: 18px;
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #D42B2B;
-    font-size: 20px;
+    color: #111111;
+    font-size: 22px;
+    font-weight: 300;
+    flex-shrink: 0;
   }
 
   .accordion-content {
     display: none;
-    padding: 16px 0;
+    padding: 4px 0 18px;
     color: #555555;
     font-size: 14px;
-    line-height: 1.6;
+    line-height: 1.65;
   }
 
   .accordion-content.open {
@@ -440,15 +493,16 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: 52px;
+    height: 56px;
     background: #D42B2B;
     color: white;
     border: none;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    z-index: 1000;
+    z-index: 9999;
     width: 100%;
+    letter-spacing: 0.2px;
   }
 
   .floating-buy-btn.visible {
@@ -460,12 +514,11 @@
   /* ====== RESPONSIVE ====== */
   @media (max-width: 640px) {
     .product-info-block {
-      padding: 16px;
+      padding: 16px 16px 0;
     }
 
     .product-title {
-      font-size: 18px;
-      margin: 16px 0 8px;
+      font-size: 19px;
     }
 
     .product-price {
@@ -473,46 +526,38 @@
     }
 
     .color-grid {
-      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
     }
 
-    .size-grid-row-1,
+    .size-grid-row-1 {
+      grid-template-columns: repeat(6, 1fr);
+    }
+
     .size-grid-row-2 {
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(5, 1fr);
     }
+  }
 
-    .features-section {
-      grid-template-columns: 1fr;
-    }
-
-    .shipping-form {
-      flex-direction: column;
-    }
-
-    .shipping-input,
-    .shipping-btn {
-      flex: 1;
-      width: 100%;
+  @media (min-width: 768px) {
+    .floating-buy-btn {
+      display: none !important;
     }
   }
 </style>
 
 <div class="product-info-refactored">
   <div class="product-container">
-    <!-- GALLERY (rendered separately in product-template) -->
-
-    <!-- PRODUCT INFO BLOCK -->
     <div class="product-info-block">
-      
+
       <!-- TITLE -->
       <h1 class="product-title">{{ product.title }}</h1>
 
       <!-- RATINGS -->
       <div class="product-ratings">
         <span class="stars">
-          <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+          <span>&#9733;</span><span>&#9733;</span><span>&#9733;</span><span>&#9733;</span><span>&#9733;</span>
         </span>
-        <span class="count" data-review-count>1.248</span>
+        <a href="#reviews" class="rating-link" data-review-count>(5) Clique e veja!</a>
       </div>
 
       <!-- SKU -->
@@ -520,116 +565,154 @@
 
       <!-- PRICE -->
       <div class="price-section">
-        <div class="product-price">{{ selected_variant.price | money_without_trailing_zeros }}</div>
-        {%- if selected_variant.compare_at_price > selected_variant.price -%}
-          <div class="product-installment">
-            {%- assign monthly = selected_variant.price | divided_by: 12 | money_without_trailing_zeros -%}
-            ou 12x de {{ monthly }}
-          </div>
-        {%- endif -%}
+        <div class="product-price" data-product-price>{{ selected_variant.price | money_without_trailing_zeros }}</div>
+        <div class="product-installment" data-product-installment>
+          {%- assign monthly_price = selected_variant.price | divided_by: 12 | money_without_trailing_zeros -%}
+          ou 12x de {{ monthly_price }}
+        </div>
       </div>
 
-      <!-- COLOR SELECTOR -->
       {%- form 'product', product, class: 'product-form' -%}
-      {%- unless product.has_only_default_variant -%}
-        {%- for option in product.options_with_values -%}
-          {%- if option.name == 'Cor' or option.name == 'cor' or option.name == 'Color' or option.name == 'color' -%}
-            <div class="color-section">
-              <label class="section-label">Cor: <span id="selected-color">{{ option.selected_value }}</span></label>
-              <div class="color-grid">
-                {%- for value in option.values -%}
-                  <div class="color-item">
-                    <input 
-                      type="radio" 
-                      name="option-{{ forloop.index0 }}" 
-                      value="{{ value }}"
-                      {% if value == option.selected_value %}checked{% endif %}
-                      onchange="document.getElementById('selected-color').textContent = this.value"
-                    >
-                    <img class="color-thumbnail" src="{{ product.featured_image.src | img_url: '52x' }}" alt="{{ value }}">
-                  </div>
-                {%- endfor -%}
-              </div>
-            </div>
-          {%- endif -%}
-        {%- endfor -%}
-      {%- endunless -%}
 
-      <!-- SIZE SELECTOR -->
-      {%- unless product.has_only_default_variant -%}
-        {%- for option in product.options_with_values -%}
-          {%- if option.name == 'Tamanho' or option.name == 'tamanho' or option.name == 'Size' or option.name == 'size' -%}
-            <div class="size-section">
-              <label class="section-label">Selecione o tamanho</label>
-              <div style="display: grid; gap: 8px;">
-                <!-- Row 1: 6 sizes -->
-                <div class="size-grid size-grid-row-1">
-                  {%- for value in option.values | slice: 0, 6 -%}
-                    <button 
-                      type="button" 
-                      class="size-button {% if value == option.selected_value %}active{% endif %}"
-                      onclick="this.parentElement.querySelectorAll('.size-button').forEach(b => b.classList.remove('active')); this.classList.add('active'); document.querySelector('select[name*=option]').value = '{{ value }}'; document.querySelector('select[name*=option]').dispatchEvent(new Event('change'));"
-                    >
-                      {{ value }}
-                    </button>
+        <!-- COLOR SELECTOR -->
+        {%- unless product.has_only_default_variant -%}
+          {%- for option in product.options_with_values -%}
+            {%- if option.name == 'Cor' or option.name == 'cor' or option.name == 'Color' or option.name == 'color' -%}
+              <div class="color-section">
+                <span class="section-label">Cor: <span class="selected-option-value" id="selected-color-{{ forloop.index }}">{{ option.selected_value }}</span></span>
+                <div class="color-grid">
+                  {%- for value in option.values -%}
+                    {%- comment -%}Find first variant with this color to get variant image{%- endcomment -%}
+                    {%- assign color_swatch_img = nil -%}
+                    {%- for variant in product.variants -%}
+                      {%- if option.position == 1 and variant.option1 == value -%}
+                        {%- assign color_swatch_img = variant.featured_media -%}
+                        {%- break -%}
+                      {%- elsif option.position == 2 and variant.option2 == value -%}
+                        {%- assign color_swatch_img = variant.featured_media -%}
+                        {%- break -%}
+                      {%- elsif option.position == 3 and variant.option3 == value -%}
+                        {%- assign color_swatch_img = variant.featured_media -%}
+                        {%- break -%}
+                      {%- endif -%}
+                    {%- endfor -%}
+
+                    {%- if color_swatch_img -%}
+                      {%- assign swatch_url = color_swatch_img | img_url: '100x' -%}
+                    {%- else -%}
+                      {%- assign swatch_url = product.featured_image | img_url: '100x' -%}
+                    {%- endif -%}
+
+                    <label class="color-item {% if value == option.selected_value %}is-selected{% endif %}"
+                           data-color-label-id="selected-color-{{ forloop.parentloop.index }}">
+                      <input
+                        type="radio"
+                        name="option{{ option.position }}"
+                        value="{{ value | escape }}"
+                        {% if value == option.selected_value %}checked{% endif %}
+                        class="color-radio"
+                        data-color-value="{{ value | escape }}"
+                        data-color-label-id="selected-color-{{ forloop.parentloop.index }}"
+                      >
+                      <span class="color-thumbnail-wrapper">
+                        <img
+                          class="color-thumbnail"
+                          src="{{ swatch_url }}"
+                          alt="{{ value | escape }}"
+                          loading="lazy"
+                          width="52"
+                          height="52"
+                        >
+                        <span class="color-underline"></span>
+                      </span>
+                    </label>
                   {%- endfor -%}
                 </div>
-                
-                <!-- Row 2: Remaining sizes -->
-                {%- if option.values.size > 6 -%}
-                  <div class="size-grid size-grid-row-2">
-                    {%- for value in option.values | slice: 6, 10 -%}
-                      <button 
-                        type="button" 
-                        class="size-button {% if value == option.selected_value %}active{% endif %}"
-                        onclick="this.parentElement.querySelectorAll('.size-button').forEach(b => b.classList.remove('active')); this.classList.add('active'); document.querySelector('select[name*=option]').value = '{{ value }}'; document.querySelector('select[name*=option]').dispatchEvent(new Event('change'));"
-                      >
-                        {{ value }}
-                      </button>
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endunless -%}
+
+        <!-- SIZE SELECTOR -->
+        {%- unless product.has_only_default_variant -%}
+          {%- for option in product.options_with_values -%}
+            {%- if option.name == 'Tamanho' or option.name == 'tamanho' or option.name == 'Size' or option.name == 'size' -%}
+              <div class="size-section" data-size-option-position="{{ option.position }}">
+                <span class="section-label">Selecione o tamanho</span>
+                <div class="size-rows">
+                  <div class="size-grid size-grid-row-1">
+                    {%- for value in option.values -%}
+                      {%- if forloop.index <= 6 -%}
+                        <button
+                          type="button"
+                          class="size-button {% if value == option.selected_value %}active{% endif %}"
+                          data-size="{{ value | escape }}"
+                          data-option-position="{{ option.position }}"
+                        >{{ value }}</button>
+                      {%- endif -%}
                     {%- endfor -%}
                   </div>
-                {%- endif -%}
+                  {%- if option.values.size > 6 -%}
+                    <div class="size-grid size-grid-row-2">
+                      {%- for value in option.values -%}
+                        {%- if forloop.index > 6 -%}
+                          <button
+                            type="button"
+                            class="size-button {% if value == option.selected_value %}active{% endif %}"
+                            data-size="{{ value | escape }}"
+                            data-option-position="{{ option.position }}"
+                          >{{ value }}</button>
+                        {%- endif -%}
+                      {%- endfor -%}
+                    </div>
+                  {%- endif -%}
+                </div>
               </div>
-            </div>
-          {%- endif -%}
-        {%- endfor -%}
-      {%- endunless -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endunless -%}
 
-      <!-- BUY BUTTONS -->
-      <div class="button-section">
-        <button type="submit" class="btn-buy" data-action="add-to-cart">Comprar Agora</button>
-        <button type="button" class="btn-cart" title="Adicionar ao carrinho">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="9" cy="21" r="1"></circle>
-            <circle cx="20" cy="21" r="1"></circle>
-            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-          </svg>
-        </button>
-      </div>
+        <input type="hidden" name="id" value="{{ selected_variant.id }}" class="product-variant-id">
 
-      <!-- FEATURES -->
-      <div class="features-section">
-        <button type="button" class="feature-btn">
-          <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path>
-          </svg>
-          Provador Virtual
-        </button>
-        <button type="button" class="feature-btn">
-          <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-          </svg>
-          Tabela de Medidas
-        </button>
-      </div>
+        <!-- BUY BUTTONS -->
+        <div class="button-section">
+          <button type="submit" class="btn-buy" name="add">Comprar Agora</button>
+          <button type="button" class="btn-cart" title="Adicionar ao carrinho" onclick="document.querySelector('.btn-buy').click();">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="9" cy="21" r="1"></circle>
+              <circle cx="20" cy="21" r="1"></circle>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+            </svg>
+            <span class="cart-plus-badge">+</span>
+          </button>
+        </div>
+
+        <!-- VIRTUAL TRY-ON / SIZE GUIDE -->
+        <div class="features-section">
+          <button type="button" class="feature-btn">
+            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/>
+              <path d="M20 21a8 8 0 1 0-16 0"/>
+            </svg>
+            Provador Virtual
+          </button>
+          <button type="button" class="feature-btn">
+            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+            </svg>
+            Tabela de Medidas
+          </button>
+        </div>
+
+      {%- endform -%}
 
       <!-- WISHLIST -->
       <div class="wishlist-section">
-        <button type="button" class="wishlist-btn">
-          <svg class="wishlist-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <button type="button" class="wishlist-btn" id="wishlist-btn">
+          <svg class="wishlist-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
           </svg>
-          Adicionar a lista de desejo
+          <span class="wishlist-text">Adicionar a lista de desejo</span>
         </button>
       </div>
 
@@ -637,35 +720,50 @@
       <div class="shipping-section">
         <div class="shipping-header">
           <span>Entregar para:</span>
-          <a href="#" class="shipping-help">Não sei meu CEP</a>
+          <a href="https://buscacepinter.correios.com.br/" class="shipping-help" target="_blank" rel="noopener">
+            Não sei meu CEP
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+              <polyline points="15 3 21 3 21 9"/>
+              <line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+          </a>
         </div>
         <div class="shipping-form">
-          <input type="text" class="shipping-input" placeholder="00000-000" maxlength="9">
-          <button type="button" class="shipping-btn">Calcular Frete</button>
+          <input
+            type="text"
+            class="shipping-input"
+            id="shipping-cep-input"
+            placeholder="00000-000"
+            maxlength="9"
+            inputmode="numeric"
+          >
+          <button type="button" class="shipping-btn" id="shipping-calc-btn">Calcular Frete</button>
         </div>
+        <div id="shipping-result" style="font-size:13px; margin-top:8px; color:#333;"></div>
       </div>
 
       <!-- ACCORDIONS -->
       <div class="accordion-section">
         <div class="accordion-item">
-          <button type="button" class="accordion-header" onclick="this.nextElementSibling.classList.toggle('open'); this.querySelector('.accordion-toggle').textContent = this.nextElementSibling.classList.contains('open') ? '−' : '+'; ">
+          <button type="button" class="accordion-header" data-accordion-btn>
             <span>Descrição do Produto</span>
             <span class="accordion-toggle">+</span>
           </button>
           <div class="accordion-content">
-            {{ product.description | strip_html | truncatewords: 50 }}
+            {{ product.description | strip_html | truncatewords: 80 }}
           </div>
         </div>
 
         <div class="accordion-item">
-          <button type="button" class="accordion-header" onclick="this.nextElementSibling.classList.toggle('open'); this.querySelector('.accordion-toggle').textContent = this.nextElementSibling.classList.contains('open') ? '−' : '+'; ">
+          <button type="button" class="accordion-header" data-accordion-btn>
             <span>Especificações Técnicas</span>
             <span class="accordion-toggle">+</span>
           </button>
           <div class="accordion-content">
             <strong>Marca:</strong> {{ product.vendor }}<br>
             <strong>SKU:</strong> {{ selected_variant.sku | default: product.id }}<br>
-            {%- if selected_variant.weight -%}
+            {%- if selected_variant.weight > 0 -%}
               <strong>Peso:</strong> {{ selected_variant.weight }} {{ shop.weight_unit }}<br>
             {%- endif -%}
             <strong>Disponibilidade:</strong> {% if selected_variant.available %}Em estoque{% else %}Esgotado{% endif %}
@@ -673,44 +771,124 @@
         </div>
       </div>
 
-      {%- endform -%}
     </div>
   </div>
 </div>
 
-<!-- FLOATING BUY BUTTON (Mobile) -->
-<button class="floating-buy-btn visible" onclick="document.querySelector('.btn-buy').click();">Comprar Agora</button>
+<!-- STICKY FLOATING BUY BUTTON (Mobile) -->
+<button class="floating-buy-btn visible" id="floating-buy-btn">Comprar Agora</button>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Show floating button on mobile
-  if (window.innerWidth < 641) {
-    document.querySelector('.floating-buy-btn').classList.add('visible');
-  }
-
-  // Color selector functionality
-  const colorInputs = document.querySelectorAll('input[name^="option"]');
-  colorInputs.forEach(input => {
-    input.addEventListener('change', function() {
-      document.getElementById('selected-color').textContent = this.value;
+(function() {
+  // ---- Accordion ----
+  document.querySelectorAll('[data-accordion-btn]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var content = this.nextElementSibling;
+      var toggle = this.querySelector('.accordion-toggle');
+      var isOpen = content.classList.contains('open');
+      content.classList.toggle('open');
+      toggle.textContent = isOpen ? '+' : '−';
     });
   });
 
-  // Wishlist button
-  document.querySelector('.wishlist-btn').addEventListener('click', function(e) {
-    e.preventDefault();
-    this.style.color = '#D42B2B';
-    this.querySelector('.wishlist-icon').style.fill = 'currentColor';
+  // ---- Color swatch selection ----
+  document.querySelectorAll('.color-radio').forEach(function(radio) {
+    radio.addEventListener('change', function() {
+      var labelId = this.dataset.colorLabelId;
+      var labelEl = document.getElementById(labelId);
+      if (labelEl) labelEl.textContent = this.dataset.colorValue;
+
+      // Update selected state
+      this.closest('.color-grid').querySelectorAll('.color-item').forEach(function(item) {
+        item.classList.remove('is-selected');
+      });
+      this.closest('.color-item').classList.add('is-selected');
+    });
   });
 
-  // Shipping calculator
-  document.querySelector('.shipping-btn').addEventListener('click', function() {
-    const cep = document.querySelector('.shipping-input').value;
-    if (cep.length === 9) {
-      alert('Frete calculado para CEP: ' + cep);
-    } else {
-      alert('Por favor, insira um CEP válido');
-    }
+  // ---- Size button selection ----
+  document.querySelectorAll('.size-button').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var sectionEl = this.closest('.size-section');
+      var optionPos = parseInt(this.dataset.optionPosition, 10);
+      var sizeValue = this.dataset.size;
+
+      // Update active button
+      sectionEl.querySelectorAll('.size-button').forEach(function(b) {
+        b.classList.remove('active');
+      });
+      this.classList.add('active');
+
+      // Update hidden select (if theme uses one)
+      var selects = document.querySelectorAll('select[name*="option"]');
+      selects.forEach(function(sel) {
+        // Try to match by position
+        var nameNum = parseInt((sel.name || '').replace(/[^0-9]/g, ''), 10);
+        if (nameNum === optionPos || selects.length === 1) {
+          sel.value = sizeValue;
+          sel.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+    });
   });
-});
+
+  // ---- CEP mask ----
+  var cepInput = document.getElementById('shipping-cep-input');
+  if (cepInput) {
+    cepInput.addEventListener('input', function() {
+      var v = this.value.replace(/\D/g, '');
+      if (v.length > 5) v = v.slice(0, 5) + '-' + v.slice(5, 8);
+      this.value = v;
+    });
+  }
+
+  // ---- Shipping calculator ----
+  var shippingBtn = document.getElementById('shipping-calc-btn');
+  var shippingResult = document.getElementById('shipping-result');
+  if (shippingBtn) {
+    shippingBtn.addEventListener('click', function() {
+      var cep = (cepInput ? cepInput.value : '').replace(/\D/g, '');
+      if (cep.length === 8) {
+        shippingResult.textContent = 'Calculando...';
+        fetch('/apps/shipping?zip=' + cep + '&variant=' + document.querySelector('.product-variant-id').value)
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            shippingResult.textContent = data.message || 'Frete calculado com sucesso.';
+          })
+          .catch(function() {
+            shippingResult.textContent = 'Não foi possível calcular o frete agora.';
+          });
+      } else {
+        shippingResult.textContent = 'Por favor, insira um CEP válido (ex: 01310-100).';
+      }
+    });
+  }
+
+  // ---- Wishlist button ----
+  var wishlistBtn = document.getElementById('wishlist-btn');
+  if (wishlistBtn) {
+    wishlistBtn.addEventListener('click', function() {
+      var icon = this.querySelector('.wishlist-icon');
+      var text = this.querySelector('.wishlist-text');
+      if (icon.getAttribute('fill') === 'none') {
+        icon.setAttribute('fill', '#D42B2B');
+        icon.setAttribute('stroke', '#D42B2B');
+        text.textContent = 'Adicionado à lista de desejo';
+      } else {
+        icon.setAttribute('fill', 'none');
+        icon.setAttribute('stroke', 'currentColor');
+        text.textContent = 'Adicionar a lista de desejo';
+      }
+    });
+  }
+
+  // ---- Floating buy button ----
+  var floatingBtn = document.getElementById('floating-buy-btn');
+  if (floatingBtn) {
+    floatingBtn.addEventListener('click', function() {
+      var buyBtn = document.querySelector('.btn-buy');
+      if (buyBtn) buyBtn.click();
+    });
+  }
+})();
 </script>
