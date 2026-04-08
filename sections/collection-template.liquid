@@ -36,6 +36,8 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
       --green: {{ section.settings.green | default: '#B6E35C' }};
       --text: {{ section.settings.text | default: '#333333' }};
       --radius: {{ section.settings.card_radius | default: 6 }}px;
+      --badge-bg: {{ section.settings.badge_bg | default: '#1a1a1a' }};
+      --badge-opacity: {{ section.settings.badge_opacity | default: 100 | times: 0.01 }};
       background: var(--bg);
       padding: 18px 0 34px;
       overflow-x: hidden;
@@ -96,7 +98,7 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     #royal-collection-gummy-{{ section.id }} .rc-price-value{ font-size: 15px; font-weight: 800; color: #111; }
 
     #royal-collection-gummy-{{ section.id }} .rc-badge{
-      position: absolute; top: 8px; left: 8px; background: #1a1a1a; color: #fff;
+      position: absolute; top: 8px; left: 8px; background: var(--badge-bg); opacity: var(--badge-opacity); color: #fff;
       border-radius: 2px; font-size: 10px; font-weight: 700; padding: 3px 6px; z-index: 2;
     }
 
@@ -149,7 +151,8 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
               {%- assign v = product.selected_or_first_available_variant -%}
               <article class="rc-card" data-product-id="{{ product.id }}">
                 {%- if v.compare_at_price > v.price -%}
-                  <div class="rc-badge">OFERTA</div>
+                  {%- assign discount_pct = v.compare_at_price | minus: v.price | times: 100 | divided_by: v.compare_at_price | round -%}
+                  <div class="rc-badge">-{{ discount_pct }}%</div>
                 {%- endif -%}
 
                 <a class="rc-media" href="{{ product.url }}">
@@ -354,7 +357,9 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     { "type": "color", "id": "card_bg", "label": "Fundo do Card", "default": "#FFFFFF" },
     { "type": "color", "id": "primary", "label": "Cor de Texto", "default": "#111111" },
     { "type": "link_list", "id": "quick_links", "label": "Menu de Filtros Lateral" },
-    { "type": "checkbox", "id": "show_filters", "label": "Habilitar Filtros", "default": true }
+    { "type": "checkbox", "id": "show_filters", "label": "Habilitar Filtros", "default": true },
+    { "type": "color", "id": "badge_bg", "label": "Cor do Badge de Desconto", "default": "#1a1a1a" },
+    { "type": "range", "id": "badge_opacity", "min": 0, "max": 100, "step": 10, "unit": "%", "label": "Opacidade do Badge", "default": 100 }
   ]
 }
 {% endschema %}
