@@ -560,16 +560,9 @@
         <a href="#reviews" class="rating-link" data-review-count>(5) Clique e veja!</a>
       </div>
 
-      <!-- SKU -->
-      <div class="product-sku">SKU: {{ selected_variant.sku | default: product.id }}</div>
-
       <!-- PRICE -->
       <div class="price-section">
         <div class="product-price" data-product-price>{{ selected_variant.price | money_without_trailing_zeros }}</div>
-        <div class="product-installment" data-product-installment>
-          {%- assign monthly_price = selected_variant.price | divided_by: 12 | money_without_trailing_zeros -%}
-          ou 12x de {{ monthly_price }}
-        </div>
       </div>
 
       {%- form 'product', product, class: 'product-form' -%}
@@ -674,74 +667,12 @@
 
         <input type="hidden" name="id" value="{{ selected_variant.id }}" class="product-variant-id">
 
-        <!-- BUY BUTTONS -->
+        <!-- BUY BUTTON -->
         <div class="button-section">
           <button type="submit" class="btn-buy" name="add">Comprar Agora</button>
-          <button type="button" class="btn-cart" title="Adicionar ao carrinho" onclick="document.querySelector('.btn-buy').click();">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="9" cy="21" r="1"></circle>
-              <circle cx="20" cy="21" r="1"></circle>
-              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-            </svg>
-            <span class="cart-plus-badge">+</span>
-          </button>
-        </div>
-
-        <!-- VIRTUAL TRY-ON / SIZE GUIDE -->
-        <div class="features-section">
-          <button type="button" class="feature-btn">
-            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/>
-              <path d="M20 21a8 8 0 1 0-16 0"/>
-            </svg>
-            Provador Virtual
-          </button>
-          <button type="button" class="feature-btn">
-            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
-            </svg>
-            Tabela de Medidas
-          </button>
         </div>
 
       {%- endform -%}
-
-      <!-- WISHLIST -->
-      <div class="wishlist-section">
-        <button type="button" class="wishlist-btn" id="wishlist-btn">
-          <svg class="wishlist-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-          </svg>
-          <span class="wishlist-text">Adicionar a lista de desejo</span>
-        </button>
-      </div>
-
-      <!-- SHIPPING CALCULATOR -->
-      <div class="shipping-section">
-        <div class="shipping-header">
-          <span>Entregar para:</span>
-          <a href="https://buscacepinter.correios.com.br/" class="shipping-help" target="_blank" rel="noopener">
-            Não sei meu CEP
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-              <polyline points="15 3 21 3 21 9"/>
-              <line x1="10" y1="14" x2="21" y2="3"/>
-            </svg>
-          </a>
-        </div>
-        <div class="shipping-form">
-          <input
-            type="text"
-            class="shipping-input"
-            id="shipping-cep-input"
-            placeholder="00000-000"
-            maxlength="9"
-            inputmode="numeric"
-          >
-          <button type="button" class="shipping-btn" id="shipping-calc-btn">Calcular Frete</button>
-        </div>
-        <div id="shipping-result" style="font-size:13px; margin-top:8px; color:#333;"></div>
-      </div>
 
       <!-- ACCORDIONS -->
       <div class="accordion-section">
