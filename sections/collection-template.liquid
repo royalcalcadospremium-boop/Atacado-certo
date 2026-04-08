@@ -1,10 +1,10 @@
-{% comment %}
-Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC DIRETO (SEM ZIP)
-- ✅ LIMITA SEMPRE em 10 produtos por página (fixo, sem seletor).
-- ✅ PC: ao clicar em “Baixar fotos + numerações”, baixa automaticamente os arquivos (JPG) no padrão do navegador (normalmente Pasta Downloads).
-  Obs.: não dá pra forçar a pasta via código; se o navegador estiver configurado para “Perguntar onde salvar”, ele vai perguntar.
-- ✅ Mantém overlay: título (até 4 palavras, 1 linha) + “Disponível: ...” + “ref.: 0179” na MESMA linha das variações
-- ✅ Ref sempre 4 dígitos (0 à esquerda): 179 -> 0179
+﻿{% comment %}
+Royal â€¢ Collection Gummy Style (v1.2.6) â€” 10 PRODUTOS/PÃGINA + DOWNLOAD PC DIRETO (SEM ZIP)
+- âœ… LIMITA SEMPRE em 10 produtos por pÃ¡gina (fixo, sem seletor).
+- âœ… PC: ao clicar em â€œBaixar fotos + numeraÃ§Ãµesâ€, baixa automaticamente os arquivos (JPG) no padrÃ£o do navegador (normalmente Pasta Downloads).
+  Obs.: nÃ£o dÃ¡ pra forÃ§ar a pasta via cÃ³digo; se o navegador estiver configurado para â€œPerguntar onde salvarâ€, ele vai perguntar.
+- âœ… MantÃ©m overlay: tÃ­tulo (atÃ© 4 palavras, 1 linha) + â€œDisponÃ­vel: ...â€ + â€œref.: 0179â€ na MESMA linha das variaÃ§Ãµes
+- âœ… Ref sempre 4 dÃ­gitos (0 Ã  esquerda): 179 -> 0179
 {% endcomment %}
 
 {%- assign items_per_page = 10 -%}
@@ -659,9 +659,9 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
 
     html.rcm-lock, body.rcm-lock{ overflow:hidden !important; height: 100% !important; }
 
-    /* ═══════════════════════════════════════════
+    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
        NB STYLE OVERRIDES
-    ═══════════════════════════════════════════ */
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
     /* Card: visual limpo */
     #royal-collection-gummy-{{ section.id }} .rc-card{
@@ -688,7 +688,7 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
     }
     #royal-collection-gummy-{{ section.id }} .rc-badge::before{ display:none !important; }
 
-    /* Badge "Lançamento" NB */
+    /* Badge "LanÃ§amento" NB */
     #royal-collection-gummy-{{ section.id }} .nb-badge{
       position: absolute;
       top: 8px; left: 8px;
@@ -705,7 +705,7 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
       line-height: 1;
     }
 
-    /* Botão coração */
+    /* BotÃ£o coraÃ§Ã£o */
     #royal-collection-gummy-{{ section.id }} .nb-fav{
       position: absolute;
       top: 8px; right: 8px;
@@ -722,7 +722,7 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
     #royal-collection-gummy-{{ section.id }} .nb-fav:hover{ background: #f5f5f5; }
     #royal-collection-gummy-{{ section.id }} .nb-fav svg{ width:15px; height:15px; pointer-events:none; }
 
-    /* Botão sacola sobre a imagem */
+    /* BotÃ£o sacola sobre a imagem */
     #royal-collection-gummy-{{ section.id }} .nb-bag{
       position: absolute;
       bottom: 8px; right: 8px;
@@ -741,7 +741,7 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
     #royal-collection-gummy-{{ section.id }} .nb-bag:hover svg{ stroke: #fff; }
     #royal-collection-gummy-{{ section.id }} .nb-bag svg{ width:15px; height:15px; pointer-events:none; transition: stroke .15s; }
 
-    /* Ocultar botão "Comprar" original */
+    /* Ocultar botÃ£o "Comprar" original */
     #royal-collection-gummy-{{ section.id }} .rc-buywrap{ display:none !important; }
 
     /* Ocultar "Por:" e parcelamento */
@@ -759,7 +759,7 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
       margin-bottom: 5px !important;
     }
 
-    /* Preço menor e mais compacto */
+    /* PreÃ§o menor e mais compacto */
     #royal-collection-gummy-{{ section.id }} .rc-price-value{
       font-size: 15px !important;
       font-weight: 700 !important;
@@ -785,7 +785,7 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
       font-weight: 600 !important;
     }
 
-    /* ── NB Quick Buy Modal ── */
+    /* â”€â”€ NB Quick Buy Modal â”€â”€ */
     .nb-qb-overlay{
       position:fixed; inset:0;
       background:rgba(0,0,0,.50);
@@ -1089,7 +1089,7 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
                         alt="{{ product.featured_image.alt | escape }}"
                         loading="lazy">
                     {%- endif -%}
-                    <button class="nb-bag" type="button" aria-label="Compra rápida" data-product-id="{{ product.id }}" onclick="event.stopPropagation();event.preventDefault();nbQB(this.dataset.productId)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
+                    <button class="nb-bag" type="button" aria-label="Compra rÃ¡pida" data-product-id="{{ product.id }}" onclick="event.stopPropagation();event.preventDefault();nbQB(this.dataset.productId)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
                   </a>
 
                   <div class="rc-body">
@@ -1159,11 +1159,11 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
               {%- endfor -%}
             </div>
 
-            <nav class="rc-pagination" role="navigation" aria-label="Paginação">
+            <nav class="rc-pagination" role="navigation" aria-label="PaginaÃ§Ã£o">
               {%- if paginate.pages > 1 -%}
                 <a class="rc-page {% unless paginate.previous %}is-disabled{% endunless %}"
                    {% if paginate.previous %}href="{{ paginate.previous.url }}"{% else %}href="#"{% endif %}
-                   aria-label="Página anterior">‹</a>
+                   aria-label="PÃ¡gina anterior">â€¹</a>
 
                 {%- for part in paginate.parts -%}
                   {%- if part.is_link -%}
@@ -1179,11 +1179,11 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
 
                 <a class="rc-page {% unless paginate.next %}is-disabled{% endunless %}"
                    {% if paginate.next %}href="{{ paginate.next.url }}"{% else %}href="#"{% endif %}
-                   aria-label="Próxima página">›</a>
+                   aria-label="PrÃ³xima pÃ¡gina">â€º</a>
               {%- endif -%}
 
               <button type="button" class="rc-zip-btn" data-rc-zip>
-                Baixar fotos + numerações
+                Baixar fotos + numeraÃ§Ãµes
               </button>
               <span class="rc-zip-status" data-rc-zip-status></span>
             </nav>
@@ -1310,9 +1310,9 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
     </div>
   {%- endif -%}
 
-  <!-- MODAL PREMIUM (ÚNICO) -->
+  <!-- MODAL PREMIUM (ÃšNICO) -->
   <div class="rcm-overlay" data-rcm-overlay aria-hidden="true">
-    <div class="rcm-modal" role="dialog" aria-modal="true" aria-label="Escolha as variações">
+    <div class="rcm-modal" role="dialog" aria-modal="true" aria-label="Escolha as variaÃ§Ãµes">
       <div class="rcm-head">
         <div class="rcm-thumb"><img data-rcm-img alt=""></div>
         <div class="rcm-titlewrap">
@@ -1439,8 +1439,8 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
     }
 
     /* ===========================
-       DOWNLOAD: fotos + numerações (SEM ZIP)
-       - Com 10 produtos/página, downloads ficam leves e mais “automáticos” no PC.
+       DOWNLOAD: fotos + numeraÃ§Ãµes (SEM ZIP)
+       - Com 10 produtos/pÃ¡gina, downloads ficam leves e mais â€œautomÃ¡ticosâ€ no PC.
     ============================ */
 
     function zipStatus(msg){
@@ -1528,7 +1528,7 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
       if(!t) return '';
       if(ctx.measureText(t).width <= maxW) return t;
 
-      var ell = '…';
+      var ell = 'â€¦';
       var lo = 0, hi = t.length;
       while(lo < hi){
         var mid = Math.floor((lo + hi) / 2);
@@ -1555,6 +1555,7 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
       return ref.padStart(4, '0');
     }
 
+    // Gera o overlay visual (faixa preta, tÃ­tulo e variaÃ§Ãµes)
     function drawOverlay(baseImg, title, variantsText, refNumber){
       var w = baseImg.naturalWidth || baseImg.width || 1200;
       var h = baseImg.naturalHeight || baseImg.height || 1200;
@@ -1567,16 +1568,12 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
 
       var pad = Math.round(w * 0.028);
       var maxW = w - pad*2;
-
       var titleSize = Math.max(26, Math.round(w * 0.032));
-      var varSize   = Math.max(20, Math.round(w * 0.026));
-      var gapY      = Math.round(varSize * 0.22);
-
-      var minBox  = Math.round(h * 0.095);
-      var needBox = (Math.round(pad*0.75) + titleSize + gapY + varSize + Math.round(pad*0.75));
-      var boxH = Math.max(minBox, needBox);
+      var varSize = Math.max(20, Math.round(w * 0.026));
+      var boxH = Math.max(Math.round(h * 0.095), (Math.round(pad*0.75) + titleSize + 10 + varSize));
       var y = h - boxH;
 
+      // Faixa preta com opacidade
       ctx.save();
       ctx.globalAlpha = 0.72;
       ctx.fillStyle = '#000';
@@ -1586,62 +1583,32 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
       ctx.fillStyle = '#fff';
       ctx.textBaseline = 'top';
 
-      ctx.font = '800 ' + titleSize + 'px system-ui,-apple-system,Segoe UI,Roboto,Arial';
-      var cleanTitle = titleMaxWords(title, 4);
-      var t = fitOneLine(ctx, cleanTitle, maxW);
-      var titleY = y + Math.round(pad * 0.75);
-      ctx.fillText(t, pad, titleY);
+      // Texto: TÃ­tulo
+      ctx.font = '800 ' + titleSize + 'px system-ui';
+      var cleanTitle = titleMaxWords(title, 3);
+      ctx.fillText(fitOneLine(ctx, cleanTitle, maxW), pad, y + Math.round(pad * 0.75));
 
-      var vRaw = String(variantsText || '');
-      var vLabel = (vRaw && vRaw !== 'SEM ESTOQUE') ? ('Disponível: ' + vRaw) : 'SEM ESTOQUE';
-      var vY = titleY + titleSize + gapY;
-
-      var refText = '';
+      // Texto: VariaÃ§Ãµes e ReferÃªncia
+      var vLabel = (variantsText && variantsText !== 'SEM ESTOQUE') ? ('DisponÃ­vel: ' + variantsText) : 'SEM ESTOQUE';
+      var vY = y + Math.round(pad * 0.75) + titleSize + 5;
+      
       if(refNumber){
-        refText = 'ref.: ' + String(refNumber);
+        var refText = 'ref.: ' + String(refNumber);
+        ctx.font = '700 ' + Math.max(14, Math.round(varSize * 0.78)) + 'px system-ui';
+        var refW = ctx.measureText(refText).width;
+        ctx.fillText(refText, w - pad - refW, vY);
       }
 
-      var refSize = Math.max(14, Math.round(varSize * 0.78));
-      var refW = 0;
-      var refGap = 0;
-
-      if(refText){
-        ctx.font = '700 ' + refSize + 'px system-ui,-apple-system,Segoe UI,Roboto,Arial';
-        refW = ctx.measureText(refText).width;
-        refGap = Math.round(w * 0.018);
-      }
-
-      var xRight = w - pad - refW;
-      if(xRight < pad) xRight = pad;
-
-      if(refText){
-        ctx.font = '700 ' + refSize + 'px system-ui,-apple-system,Segoe UI,Roboto,Arial';
-        var dy = Math.max(0, Math.round((varSize - refSize) * 0.5));
-        ctx.fillText(refText, xRight, vY + dy);
-      }
-
-      ctx.font = '700 ' + varSize + 'px system-ui,-apple-system,Segoe UI,Roboto,Arial';
-      var leftMax = maxW;
-      if(refText){
-        leftMax = Math.max(10, (xRight - refGap) - pad);
-      }
-
-      var v = (ctx.measureText(vLabel).width <= leftMax) ? vLabel : fitOneLine(ctx, vLabel, leftMax);
-      ctx.fillText(v, pad, vY);
+      ctx.font = '700 ' + varSize + 'px system-ui';
+      ctx.fillText(fitOneLine(ctx, vLabel, maxW - 100), pad, vY);
 
       return canvas;
     }
 
+    // Converte o canvas em um arquivo (Blob) JPG
     function canvasToBlob(canvas){
       return new Promise(function(resolve, reject){
-        try{
-          canvas.toBlob(function(blob){
-            if(!blob) return reject(new Error('blob_failed'));
-            resolve(blob);
-          }, 'image/jpeg', 0.92);
-        }catch(e){
-          reject(e);
-        }
+        canvas.toBlob(function(blob){ resolve(blob); }, 'image/jpeg', 0.92);
       });
     }
 
@@ -1650,7 +1617,7 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
         if(!navigator || !navigator.share) return false;
         if(navigator.canShare && !navigator.canShare({ files: files })) return false;
         await navigator.share({
-          title: title || 'Fotos + numerações',
+          title: title || 'Fotos + numeraÃ§Ãµes',
           text: 'Salvar/Compartilhar imagens',
           files: files
         });
@@ -1684,6 +1651,8 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
       return !coarse && !touch;
     }
 
+    // A Função Principal (buildDownloads)
+    // Esta é a função que orquestra o processo: identifica os produtos na tela, carrega os dados, desenha o overlay e dispara o download.
     async function buildDownloads(){
       var btn = root.querySelector('[data-rc-zip]');
       if(btn){ btn.disabled = true; btn.style.opacity = '0.7'; }
@@ -1738,7 +1707,7 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
           return;
         }
 
-        // Celular: tenta abrir "Compartilhar" (salvar na galeria)
+        // Tenta usar a API de compartilhamento do celular (Share API)
         var shareFiles = [];
         for(var s=0;s<out.length;s++){
           try{
@@ -1749,24 +1718,22 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
         var shared = false;
         if(shareFiles.length){
           var maxShare = Math.min(shareFiles.length, 10);
-          shared = await tryShareFiles(shareFiles.slice(0, maxShare), 'Fotos + numerações');
+          shared = await tryShareFiles(shareFiles.slice(0, maxShare), 'Fotos + numeraÃ§Ãµes');
         }
 
         if(shared){
-          zipStatus('Abrindo compartilhar ✅');
+          zipStatus('Abrindo compartilhar âœ…');
           return;
         }
 
-        // PC / fallback: downloads diretos (vai para Downloads conforme config do navegador)
+        // Fallback para PC: Dispara downloads individuais diretos
         zipStatus('Baixando ' + ok + ' arquivos...');
-
-        // IMPORTANTE: disparo direto (sem await) para manter “user gesture” o máximo possível
         for(var d=0; d<out.length; d++){
           downloadBlob(out[d].blob, out[d].name);
         }
 
         if(isLikelyDesktop()){
-          zipStatus('Baixado ✅ (pasta Downloads do navegador)');
+          zipStatus('Baixado ✅ (pasta Downloads)');
         }else{
           zipStatus('Baixado ✅');
         }
@@ -1777,6 +1744,8 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
       }
     }
 
+    // O Event Listener (Gatilho)
+    // O código que "escuta" o clique no botão e inicia tudo:
     root.addEventListener('click', function(e){
       var b = e.target.closest('[data-rc-zip]');
       if(!b) return;
@@ -1786,8 +1755,6 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
       buildDownloads().catch(function(err){
         console.error(err);
         zipStatus('Erro ao gerar imagens');
-        var btn2 = root.querySelector('[data-rc-zip]');
-        if(btn2){ btn2.disabled = false; btn2.style.opacity = '1'; }
       });
     }, true);
 
@@ -1846,7 +1813,7 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
     }
 
     function getLabel(v){
-      return (v && v.opt1 && v.opt1 !== 'Default Title') ? v.opt1 : (v.title || 'Variação');
+      return (v && v.opt1 && v.opt1 !== 'Default Title') ? v.opt1 : (v.title || 'VariaÃ§Ã£o');
     }
 
     function updateTotal(){
@@ -1871,7 +1838,7 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
 
       var stock = document.createElement('div');
       stock.className = 'rcm-stock';
-      stock.textContent = (item.max >= 99 ? 'Disponível' : ('Estoque: ' + item.max));
+      stock.textContent = (item.max >= 99 ? 'DisponÃ­vel' : ('Estoque: ' + item.max));
 
       left.appendChild(size);
       left.appendChild(stock);
@@ -1881,7 +1848,7 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
 
       var minus = document.createElement('button');
       minus.type = 'button';
-      minus.textContent = '–';
+      minus.textContent = 'â€“';
 
       var input = document.createElement('input');
       input.type = 'number';
@@ -2045,7 +2012,7 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
         .catch(function(){ return addSequential(payload); })
         .then(function(){
           openCartDrawer();
-          btnAdd.textContent = 'Adicionado ✅';
+          btnAdd.textContent = 'Adicionado âœ…';
           setTimeout(function(){ closeModal(); }, 650);
         })
         .catch(function(){
@@ -2076,7 +2043,7 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
     var modal = document.getElementById('nb-qb-modal-' + SID);
     var activeVid = null;
 
-    /* ── open ── */
+    /* â”€â”€ open â”€â”€ */
     window.nbQB = function(productId){
       var script = document.getElementById('rcp-' + SID + '-' + productId);
       if(!script) return;
@@ -2112,7 +2079,7 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
         activeVid = variants[0].id;
       }
 
-      /* preço */
+      /* preÃ§o */
       var priceFmt = '';
       if(data.price_cents){
         priceFmt = 'R$\u00a0' + (data.price_cents / 100).toLocaleString('pt-BR',{minimumFractionDigits:2});
@@ -2141,7 +2108,7 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
       document.documentElement.style.overflow = 'hidden';
     };
 
-    /* ── size pick ── */
+    /* â”€â”€ size pick â”€â”€ */
     window.nbSzPick = function(btn){
       var all = modal.querySelectorAll('.nb-sz');
       all.forEach(function(b){ b.classList.remove('nb-sel'); });
@@ -2153,7 +2120,7 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
       if(add) add.disabled = false;
     };
 
-    /* ── close ── */
+    /* â”€â”€ close â”€â”€ */
     window.nbQBClose = function(){
       modal.classList.remove('nb-in');
       setTimeout(function(){
@@ -2163,7 +2130,7 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
       }, 300);
     };
 
-    /* ── add to cart ── */
+    /* â”€â”€ add to cart â”€â”€ */
     window.nbQBAdd = function(){
       if(!activeVid) return;
       var btn = document.getElementById('nb-qb-add-' + SID);
@@ -2182,7 +2149,7 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
           try{ document.dispatchEvent(new CustomEvent(ev,{bubbles:true})); }catch(e){}
           try{ window.dispatchEvent(new CustomEvent(ev,{bubbles:true})); }catch(e){}
         });
-        /* fallback: tenta abrir o cart drawer via API pública ou clique */
+        /* fallback: tenta abrir o cart drawer via API pÃºblica ou clique */
         setTimeout(function(){
           if(window.RoyalCartDrawer && typeof window.RoyalCartDrawer.open === 'function'){ window.RoyalCartDrawer.open(); return; }
           var sel = ['[data-action="open-drawer"][aria-controls*="cart"]','[data-action="open-drawer"][aria-controls*="RoyalCartDrawer"]','button[aria-controls="RoyalCartDrawer"]','a[href="#cart"]'];
@@ -2197,7 +2164,7 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
       });
     };
 
-    /* ── favorito ── */
+    /* â”€â”€ favorito â”€â”€ */
     window.nbFav = function(btn){
       var on = btn.getAttribute('data-fav') === '1';
       btn.setAttribute('data-fav', on ? '0' : '1');
@@ -2221,15 +2188,15 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
 {
   "name": "Collection page",
   "settings": [
-    { "type": "range", "id": "overlap_px", "label": "Sobreposição (px)", "min": 0, "max": 80, "step": 2, "default": 0 },
-    { "type": "range", "id": "overlap_px_mobile", "label": "Sobreposição (px) — mobile", "min": 0, "max": 80, "step": 2, "default": 0 },
+    { "type": "range", "id": "overlap_px", "label": "SobreposiÃ§Ã£o (px)", "min": 0, "max": 80, "step": 2, "default": 0 },
+    { "type": "range", "id": "overlap_px_mobile", "label": "SobreposiÃ§Ã£o (px) â€” mobile", "min": 0, "max": 80, "step": 2, "default": 0 },
 
     { "type": "header", "content": "Visual (Gummy)" },
     { "type": "color", "id": "bg", "label": "Fundo", "default": "#FFFFFF" },
     { "type": "color", "id": "card_bg", "label": "Fundo do card", "default": "#FFFFFF" },
     { "type": "color", "id": "primary", "label": "Cor principal", "default": "#111111" },
-    { "type": "color", "id": "green", "label": "Cor do botão", "default": "#B6E35C" },
-    { "type": "color", "id": "buy_text_color", "label": "Texto do botão", "default": "#223016" },
+    { "type": "color", "id": "green", "label": "Cor do botÃ£o", "default": "#B6E35C" },
+    { "type": "color", "id": "buy_text_color", "label": "Texto do botÃ£o", "default": "#223016" },
 
     { "type": "header", "content": "Badge de desconto (-%)" },
     {
@@ -2242,11 +2209,11 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
       "default": 100
     },
 
-    { "type": "header", "content": "Tamanho do card (distância Desconto→Comprar)" },
+    { "type": "header", "content": "Tamanho do card (distÃ¢ncia Descontoâ†’Comprar)" },
     {
       "type": "range",
       "id": "card_min_height_desktop",
-      "label": "Altura mínima do card (Desktop)",
+      "label": "Altura mÃ­nima do card (Desktop)",
       "min": 360,
       "max": 720,
       "step": 10,
@@ -2255,7 +2222,7 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
     {
       "type": "range",
       "id": "card_min_height_mobile",
-      "label": "Altura mínima do card (Mobile)",
+      "label": "Altura mÃ­nima do card (Mobile)",
       "min": 380,
       "max": 820,
       "step": 10,
@@ -2266,7 +2233,7 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
     {
       "type": "range",
       "id": "buy_gap_desktop",
-      "label": "Gap Desconto→Comprar (Desktop)",
+      "label": "Gap Descontoâ†’Comprar (Desktop)",
       "min": 0,
       "max": 60,
       "step": 1,
@@ -2275,29 +2242,29 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
     {
       "type": "range",
       "id": "buy_gap_mobile",
-      "label": "Gap Desconto→Comprar (Mobile)",
+      "label": "Gap Descontoâ†’Comprar (Mobile)",
       "min": 0,
       "max": 60,
       "step": 1,
       "default": 12
     },
 
-    { "type": "header", "content": "Cores de preço" },
-    { "type": "color", "id": "price_current_color", "label": "Cor do preço atual", "default": "#333333" },
-    { "type": "color", "id": "price_compare_color", "label": "Cor do preço riscado", "default": "#333333" },
+    { "type": "header", "content": "Cores de preÃ§o" },
+    { "type": "color", "id": "price_current_color", "label": "Cor do preÃ§o atual", "default": "#333333" },
+    { "type": "color", "id": "price_compare_color", "label": "Cor do preÃ§o riscado", "default": "#333333" },
 
     { "type": "color", "id": "text", "label": "Cor do texto", "default": "#333333" },
-    { "type": "color", "id": "muted", "label": "Texto secundário", "default": "#777777" },
+    { "type": "color", "id": "muted", "label": "Texto secundÃ¡rio", "default": "#777777" },
 
     { "type": "range", "id": "card_radius", "label": "Raio do card (px)", "min": 14, "max": 40, "step": 1, "default": 26 },
-    { "type": "text", "id": "installments_text", "label": "Texto abaixo do preço", "default": "Desconto progressivo" },
+    { "type": "text", "id": "installments_text", "label": "Texto abaixo do preÃ§o", "default": "Desconto progressivo" },
 
     { "type": "header", "content": "Base Shopify / Tema" },
-    { "type": "range", "id": "default_products_per_page", "label": "Produtos por página (não usado - fixo em 10)", "min": 24, "max": 48, "step": 12, "default": 24 },
+    { "type": "range", "id": "default_products_per_page", "label": "Produtos por pÃ¡gina (nÃ£o usado - fixo em 10)", "min": 24, "max": 48, "step": 12, "default": 24 },
     {
       "type": "select",
       "id": "default_view_layout",
-      "label": "Layout padrão",
+      "label": "Layout padrÃ£o",
       "options": [
         { "value": "grid", "label": "Grid" },
         { "value": "list", "label": "List" }
@@ -2307,7 +2274,7 @@ Royal • Collection Gummy Style (v1.2.6) — 10 PRODUTOS/PÁGINA + DOWNLOAD PC 
 
     { "type": "header", "content": "Sidebar" },
     { "type": "link_list", "id": "quick_links", "label": "Quick links", "info": "Suporte limitado a dropdown." },
-    { "type": "checkbox", "id": "quick_links_show_products_count", "label": "Mostrar contagem", "info": "Somente para links de coleção", "default": true },
+    { "type": "checkbox", "id": "quick_links_show_products_count", "label": "Mostrar contagem", "info": "Somente para links de coleÃ§Ã£o", "default": true },
 
     { "type": "header", "content": "Filtros" },
     { "type": "checkbox", "id": "show_filters", "label": "Mostrar filtros", "default": true },
