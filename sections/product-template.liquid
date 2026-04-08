@@ -488,6 +488,9 @@ ROYAL • Share via WhatsApp (v1.0)
   }
 </style>
 
+<!-- Product Page Refactored Styles -->
+{{ 'product-refactor.css' | asset_url | stylesheet_tag }}
+
 {%- comment -%} Dados do produto (para o JS construir a mensagem) {%- endcomment -%}
 <script id="rc-share-data-{{ section.id }}" type="application/json">
 {

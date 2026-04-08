@@ -1,0 +1,337 @@
+/* ============================================
+   PRODUCT PAGE REFACTORED - GLOBAL STYLES
+   ============================================ */
+
+/* SHIPPING BANNER (Top) */
+.shipping-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 36px;
+  background: white;
+  border-bottom: 1px solid #EEEEEE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #333333;
+  z-index: 999;
+  font-weight: 500;
+}
+
+/* Adjust page to account for top banner */
+body {
+  padding-top: 36px;
+}
+
+/* ============================================
+   PRODUCT CONTAINER - RESPONSIVE
+   ============================================ */
+
+.product-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: white;
+}
+
+.product-gallery-wrapper {
+  background: white;
+  position: sticky;
+  top: 36px;
+}
+
+.product-info-wrapper {
+  background: white;
+  overflow-y: auto;
+  padding-bottom: 60px;
+}
+
+/* ============================================
+   MOBILE RESPONSIVE (< 768px)
+   ============================================ */
+
+@media (max-width: 767px) {
+  .product-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .product-gallery-wrapper {
+    position: relative;
+    top: auto;
+  }
+
+  .product-info-wrapper {
+    padding-bottom: 100px;
+  }
+
+  body {
+    padding-top: 36px;
+  }
+}
+
+/* ============================================
+   GALLERY REFINEMENTS
+   ============================================ */
+
+.product-gallery {
+  width: 100%;
+  background: #FAFAFA;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gallery-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gallery-dots {
+  background: white;
+  border-top: 1px solid #EEEEEE;
+}
+
+/* ============================================
+   FORM IMPROVEMENTS
+   ============================================ */
+
+.product-form {
+  width: 100%;
+}
+
+.product-form input[type="hidden"] {
+  display: none;
+}
+
+.product-form input[type="radio"] {
+  display: none;
+}
+
+/* ============================================
+   COLOR & SIZE CUSTOMIZATIONS
+   ============================================ */
+
+.color-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(48px, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.color-item {
+  position: relative;
+}
+
+.color-item input:checked + .color-thumbnail {
+  outline: 2px solid #D42B2B;
+  outline-offset: 2px;
+}
+
+.size-grid-row-1 {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+
+.size-grid-row-2 {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+/* ============================================
+   BUTTON ANIMATIONS
+   ============================================ */
+
+.btn-buy {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(212, 43, 43, 0.15);
+}
+
+.btn-buy:active {
+  transform: scale(0.98);
+  box-shadow: 0 1px 4px rgba(212, 43, 43, 0.2);
+}
+
+.btn-cart:active {
+  background: #F5F5F5;
+}
+
+/* ============================================
+   ACCORDION IMPROVEMENTS
+   ============================================ */
+
+.accordion-header:active {
+  background: #EFEFEF;
+}
+
+.accordion-content {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+/* ============================================
+   FLOATING BUTTON MOBILE DEFAULTS
+   ============================================ */
+
+@media (min-width: 768px) {
+  .floating-buy-btn {
+    display: none !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .floating-buy-btn.visible {
+    display: flex;
+    padding-bottom: 20px;
+  }
+}
+
+/* ============================================
+   INPUT FOCUS STATES
+   ============================================ */
+
+.shipping-input:focus,
+.size-button:focus {
+  outline: 2px solid #D42B2B;
+  outline-offset: -2px;
+}
+
+/* ============================================
+   SMOOTH SCROLLING
+   ============================================ */
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  .floating-buy-btn,
+  .shipping-banner {
+    display: none !important;
+  }
+}
+
+/* ============================================
+   HIGH DPI DISPLAY OPTIMIZATIONS
+   ============================================ */
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .color-item,
+  .size-button {
+    border-width: 1px;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Focus visible for keyboard navigation */
+.size-button:focus-visible,
+.btn-buy:focus-visible,
+.wishlist-btn:focus-visible {
+  outline: 2px solid #0086FF;
+  outline-offset: 2px;
+}
+
+/* ============================================
+   LOADING STATE
+   ============================================ */
+
+.product-form.loading .btn-buy {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* ============================================
+   ERROR STATES
+   ============================================ */
+
+.form-error {
+  border-color: #E74C3C !important;
+}
+
+.error-message {
+  color: #E74C3C;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
+/* ============================================
+   DARK MODE (if needed)
+   ============================================ */
+
+@media (prefers-color-scheme: dark) {
+  .product-info-refactored {
+    background: #1a1a1a;
+    color: #f5f5f5;
+  }
+
+  .product-title,
+  .section-label {
+    color: #f5f5f5;
+  }
+
+  .product-sku,
+  .product-installment {
+    color: #b0b0b0;
+  }
+
+  .size-button,
+  .feature-btn {
+    background: #2a2a2a;
+    border-color: #404040;
+    color: #f5f5f5;
+  }
+
+  .shipping-input {
+    background: #2a2a2a;
+    border-color: #404040;
+    color: #f5f5f5;
+  }
+
+  .accordion-header {
+    background: #2a2a2a;
+    color: #f5f5f5;
+  }
+
+  .accordion-header:hover {
+    background: #303030;
+  }
+}
