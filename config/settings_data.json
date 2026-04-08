@@ -376,10 +376,7 @@
           "show_payment_icons": false,
           "show_shipping_estimator": false,
           "shipping_estimator_default_country": "",
-          "show_refunds_policy": false,
-          "share_btn_text": "Compartilhar Fotos via WhatsApp",
-          "share_btn_bg_color": "#1a73e8",
-          "share_btn_text_color": "#ffffff"
+          "show_refunds_policy": false
         }
       },
       "product-recommendations": {
@@ -463,90 +460,6 @@
           "overlap_px_mobile": 0,
           "show_section": false,
           "stack_mobile": false
-        }
-      },
-      "16153539675ef431a7": {
-        "type": "featured-collection",
-        "blocks": {
-          "cat_4xjQFX": {
-            "type": "cat",
-            "settings": {
-              "collection": "chinelos",
-              "title": "",
-              "link": "",
-              "button_label": "",
-              "card_bg": "#f5f7ff"
-            }
-          },
-          "cat_D4zkqF": {
-            "type": "cat",
-            "settings": {
-              "collection": "tenis",
-              "title": "",
-              "link": "",
-              "button_label": "",
-              "card_bg": "#f5f7ff"
-            }
-          },
-          "cat_BLHj6g": {
-            "type": "cat",
-            "settings": {
-              "collection": "camisetas",
-              "title": "",
-              "link": "",
-              "button_label": "",
-              "card_bg": "#f5f7ff"
-            }
-          },
-          "cat_pTeqb3": {
-            "type": "cat",
-            "settings": {
-              "collection": "bones",
-              "title": "",
-              "link": "",
-              "button_label": "",
-              "card_bg": "#f5f7ff"
-            }
-          },
-          "cat_aX4jVN": {
-            "type": "cat",
-            "settings": {
-              "collection": "bermudas",
-              "title": "",
-              "link": "",
-              "button_label": "",
-              "card_bg": "#f5f7ff"
-            }
-          },
-          "cat_hfiQKB": {
-            "type": "cat",
-            "settings": {
-              "collection": "calcas",
-              "title": "",
-              "link": "",
-              "button_label": "",
-              "card_bg": "#f5f7ff"
-            }
-          }
-        },
-        "block_order": [
-          "cat_4xjQFX",
-          "cat_D4zkqF",
-          "cat_BLHj6g",
-          "cat_pTeqb3",
-          "cat_aX4jVN",
-          "cat_hfiQKB"
-        ],
-        "settings": {
-          "heading": "Conheça Nossas Categorias",
-          "bg": "#ebebeb",
-          "title_color": "#2b2b2b",
-          "text_color": "#2b2b2b",
-          "card_radius": 26,
-          "desktop_cols": 4,
-          "button_label": "Ver Mais",
-          "btn_bg": "#00d864",
-          "btn_text": "#ffffff"
         }
       },
       "static-promotion-list": {
@@ -1759,7 +1672,6 @@
       "royal_category_cards_WkCwHp",
       "royal_mais_ofertas_duo_ygncqp",
       "royal_mais_ofertas_duo_Ye3WL3",
-      "16153539675ef431a7",
       "royal_mais_ofertas_duo_8TJMpE",
       "1649913261818592e3",
       "blog_posts_XUjtCC",
