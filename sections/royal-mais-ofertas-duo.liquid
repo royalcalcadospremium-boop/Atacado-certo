@@ -656,6 +656,18 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
     #royal-tabs-cards-{{ section.id }} .compare,
     #royal-tabs-cards-{{ section.id }} .installments,
     #royal-tabs-cards-{{ section.id }} .buyform { display: none !important; }
+
+    /* ===== MODAL QUICK BUY (collection-style) ===== */
+    #nb-qb-{{ section.id }} {
+      position: fixed; inset: 0; z-index: 999999; display: none;
+      align-items: flex-end; justify-content: center;
+      background: rgba(0,0,0,0.5);
+    }
+    #nb-qb-{{ section.id }}.nb-open { display: flex; }
+    #nb-qb-content-{{ section.id }} {
+      background: #fff; width: 100%; max-width: 500px;
+      border-radius: 16px 16px 0 0; padding: 20px; position: relative;
+    }
   </style>
 
   <div class="container">
@@ -787,6 +799,7 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
                       "id": {{ p.id }},
                       "title": {{ p.title | json }},
                       "url": {{ p.url | json }},
+                      "price": {{ price | money | json }},
                       "image": {% if featured %}{{ featured | img_url: '300x' | json }}{% else %}""{% endif %},
                       "variants": [
                         {%- for vv in p.variants -%}
@@ -974,33 +987,11 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
     {% endif %}
   </div>
 
-  <!-- MODAL PREMIUM (ÚNICO) — PADRÃO -->
-  <div class="rcm-overlay" data-rcm-overlay aria-hidden="true">
-    <div class="rcm-modal" role="dialog" aria-modal="true" aria-label="Escolha as variações">
-      <div class="rcm-head">
-        <div class="rcm-thumb"><img data-rcm-img alt=""></div>
-        <div class="rcm-titlewrap">
-          <p class="rcm-title" data-rcm-title></p>
-          <p class="rcm-sub" data-rcm-sub></p>
-        </div>
-        <button class="rcm-close" type="button" data-rcm-close aria-label="Fechar">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M6 6l12 12M18 6L6 18"/>
-          </svg>
-        </button>
-      </div>
-
-      <div class="rcm-body">
-        <p class="rcm-hint">Selecione as quantidades por tamanho.</p>
-        <div class="rcm-grid" data-rcm-grid></div>
-      </div>
-
-      <div class="rcm-foot">
-        <div class="rcm-total" data-rcm-total>0 itens</div>
-        <button class="rcm-add" type="button" data-rcm-add disabled>Adicionar</button>
-      </div>
-    </div>
+  <!-- MODAL QUICK BUY (collection-style) -->
+  <div id="nb-qb-{{ section.id }}" onclick="if(event.target===this){this.classList.remove('nb-open');document.body.style.overflow=''}">
+    <div id="nb-qb-content-{{ section.id }}"></div>
   </div>
+
 
   <script>
     (function(){
@@ -1123,308 +1114,120 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
         window.location.href = url;
       });
 
-      /* ===== MODAL PREMIUM (rcm-*) ===== */
-      var overlay = root.querySelector('[data-rcm-overlay]');
-      var btnClose = root.querySelector('[data-rcm-close]');
-      var grid = root.querySelector('[data-rcm-grid]');
-      var img = root.querySelector('[data-rcm-img]');
-      var titleEl = root.querySelector('[data-rcm-title]');
-      var subEl = root.querySelector('[data-rcm-sub]');
-      var totalEl = root.querySelector('[data-rcm-total]');
-      var btnAdd = root.querySelector('[data-rcm-add]');
-      if(!overlay || !btnClose || !grid || !titleEl || !subEl || !totalEl || !btnAdd) return;
+      /* ===== MODAL QUICK BUY (collection-style) ===== */
+      var qbModal = document.getElementById('nb-qb-{{ section.id }}');
+      var qbContent = document.getElementById('nb-qb-content-{{ section.id }}');
+      var qbSelectedVid = null;
 
-      var current = { productId: null, items: [] };
-
-      function lockScroll(lock){
-        if(lock){
-          document.documentElement.classList.add('rcm-lock');
-          document.body.classList.add('rcm-lock');
-        }else{
-          document.documentElement.classList.remove('rcm-lock');
-          document.body.classList.remove('rcm-lock');
-        }
+      function qbClose(){
+        if(qbModal) qbModal.classList.remove('nb-open');
+        document.body.style.overflow = '';
+        qbSelectedVid = null;
       }
 
-      function openModal(){
-        overlay.classList.add('is-open');
-        overlay.setAttribute('aria-hidden','false');
-        lockScroll(true);
-      }
-
-      function closeModal(){
-        overlay.classList.remove('is-open');
-        overlay.setAttribute('aria-hidden','true');
-        lockScroll(false);
-        grid.innerHTML = '';
-        current.productId = null;
-        current.items = [];
-        totalEl.textContent = '0 itens';
-        btnAdd.disabled = true;
-        btnAdd.textContent = 'Adicionar';
-        btnAdd.style.opacity = '';
-      }
-
-      function safeInt(n){
-        var x = parseInt(n, 10);
-        return isNaN(x) ? 0 : x;
-      }
-
-      function computeMax(v){
-        if(v && v.inventory_management){
-          return Math.max(0, safeInt(v.inventory_quantity));
-        }
-        return 99;
-      }
-
-      function getLabel(v){
-        return (v && v.opt1 && v.opt1 !== 'Default Title') ? v.opt1 : (v.title || 'Variação');
-      }
-
-      function updateTotal(){
-        var total = 0;
-        for(var i=0;i<current.items.length;i++){
-          total += current.items[i].qty || 0;
-        }
-        totalEl.textContent = total + (total === 1 ? ' item' : ' itens');
-        btnAdd.disabled = total === 0;
-      }
-
-      function renderRow(item){
-        var row = document.createElement('div');
-        row.className = 'rcm-row' + (item.max <= 0 ? ' is-off' : '');
-
-        var left = document.createElement('div');
-        left.style.minWidth = '0';
-
-        var size = document.createElement('div');
-        size.className = 'rcm-size';
-        size.textContent = item.label;
-
-        var stock = document.createElement('div');
-        stock.className = 'rcm-stock';
-        stock.textContent = (item.max >= 99 ? 'Disponível' : ('Estoque: ' + item.max));
-
-        left.appendChild(size);
-        left.appendChild(stock);
-
-        var step = document.createElement('div');
-        step.className = 'rcm-step';
-
-        var minus = document.createElement('button');
-        minus.type = 'button';
-        minus.textContent = '–';
-
-        var input = document.createElement('input');
-        input.type = 'number';
-        input.inputMode = 'numeric';
-        input.min = '0';
-        input.max = String(item.max);
-        input.value = String(item.qty || 0);
-
-        var plus = document.createElement('button');
-        plus.type = 'button';
-        plus.textContent = '+';
-
-        function sync(){
-          var q = safeInt(input.value);
-          if(q < 0) q = 0;
-          if(q > item.max) q = item.max;
-
-          input.value = String(q);
-          item.qty = q;
-
-          minus.disabled = (q <= 0);
-          plus.disabled = (q >= item.max);
-          updateTotal();
-        }
-
-        minus.addEventListener('click', function(){ input.value = String(Math.max(0, safeInt(input.value) - 1)); sync(); });
-        plus.addEventListener('click', function(){ input.value = String(Math.min(item.max, safeInt(input.value) + 1)); sync(); });
-        input.addEventListener('change', sync);
-        input.addEventListener('input', sync);
-        sync();
-
-        step.appendChild(minus);
-        step.appendChild(input);
-        step.appendChild(plus);
-
-        row.appendChild(left);
-        row.appendChild(step);
-
-        return row;
-      }
-
-      function loadProduct(productId){
+      function qbOpen(productId){
         var script = document.getElementById('rcp-{{ section.id }}-' + productId);
-        if(!script) return null;
-        try { return JSON.parse(script.textContent || script.innerText || '{}'); } catch(e){ return null; }
-      }
+        if(!script || !qbContent) return;
+        var data;
+        try { data = JSON.parse(script.textContent || script.innerText); } catch(e){ return; }
+        qbSelectedVid = null;
 
-      function buildModal(productId){
-        var data = loadProduct(productId);
-        if(!data) return;
+        var variants = Array.isArray(data.variants) ? data.variants : [];
+        var isDefault = variants.length === 1 && (variants[0].title === 'Default Title' || variants[0].title === 'Default');
 
-        current.productId = productId;
-        titleEl.textContent = data.title || '';
-        subEl.textContent = 'Escolha o tamanho e a quantidade';
-
-        if(data.image){
-          img.src = data.image;
-          img.style.display = '';
-        }else{
-          img.removeAttribute('src');
-          img.style.display = 'none';
+        if(isDefault){
+          /* produto sem variação: adiciona direto */
+          var vid = variants[0].id;
+          fetch('/cart/add.js', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ items:[{ id: Number(vid), quantity:1 }] })
+          }).then(function(r){ if(!r.ok) throw new Error(); return r.json(); })
+            .then(function(){ openCartDrawer(); })
+            .catch(function(){ alert('Erro ao adicionar. Tente novamente.'); });
+          return;
         }
 
-        var variants = Array.isArray(data.variants) ? data.variants.slice() : [];
-        variants.sort(function(a,b){
-          var la = (getLabel(a)||'').toString();
-          var lb = (getLabel(b)||'').toString();
-          return la.localeCompare(lb, 'pt-BR', {numeric:true});
+        var variantsHtml = variants.map(function(v){
+          var avail = !!v.available;
+          return '<button class="nb-sz-btn" data-vid="' + v.id + '"' +
+            (!avail ? ' disabled' : '') +
+            ' style="padding:12px;border:1px solid #ddd;border-radius:4px;background:' + (avail?'#fff':'#f5f5f5') +
+            ';cursor:' + (avail?'pointer':'not-allowed') +
+            ';font-weight:700;font-size:13px;opacity:' + (avail?'1':'0.4') + '">' +
+            v.title + '</button>';
+        }).join('');
+
+        qbContent.innerHTML =
+          '<button onclick="(function(m){m.classList.remove(\'nb-open\');document.body.style.overflow=\'\';})(document.getElementById(\'nb-qb-{{ section.id }}\'))" style="position:absolute;top:15px;right:15px;border:none;background:none;font-size:24px;cursor:pointer;">&times;</button>' +
+          '<div style="display:flex;gap:15px;align-items:center;margin-bottom:20px;">' +
+            (data.image ? '<img src="' + data.image + '" style="width:70px;height:70px;object-fit:cover;border-radius:8px;">' : '') +
+            '<div><h4 style="margin:0;font-size:14px;">' + data.title + '</h4>' +
+            (data.price ? '<div style="font-weight:800;font-size:16px;">' + data.price + '</div>' : '') +
+            '</div></div>' +
+          '<div style="font-size:12px;font-weight:800;margin-bottom:10px;">ESCOLHA O TAMANHO:</div>' +
+          '<div class="nb-sz-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px;">' + variantsHtml + '</div>' +
+          '<button id="nb-add-btn-{{ section.id }}" disabled style="width:100%;padding:16px;background:#111;color:#fff;border:none;border-radius:4px;font-weight:800;cursor:pointer;opacity:0.5;">ADICIONAR À SACOLA</button>';
+
+        /* Selecionar tamanho */
+        qbContent.querySelector('.nb-sz-grid').addEventListener('click', function(e){
+          var btn = e.target.closest('.nb-sz-btn');
+          if(!btn || btn.disabled) return;
+          qbContent.querySelectorAll('.nb-sz-btn').forEach(function(b){ b.style.borderColor='#ddd'; });
+          btn.style.borderColor = '#111';
+          qbSelectedVid = btn.getAttribute('data-vid');
+          var addBtn = document.getElementById('nb-add-btn-{{ section.id }}');
+          if(addBtn){ addBtn.disabled=false; addBtn.style.opacity='1'; }
         });
 
-        current.items = [];
-        grid.innerHTML = '';
-
-        for(var i=0;i<variants.length;i++){
-          var v = variants[i];
-          var max = computeMax(v);
-
-          var item = {
-            id: v.id,
-            label: getLabel(v),
-            max: (v.available ? max : 0),
-            qty: 0
-          };
-
-          if(v.inventory_management && safeInt(v.inventory_quantity) <= 0){
-            item.max = 0;
-          }
-
-          current.items.push(item);
-          grid.appendChild(renderRow(item));
-        }
-
-        updateTotal();
-        openModal();
-      }
-
-      btnClose.addEventListener('click', closeModal);
-      overlay.addEventListener('click', function(e){ if(e.target === overlay) closeModal(); });
-      document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && overlay.classList.contains('is-open')) closeModal(); });
-
-      function addItemsToCart(items){
-        return fetch('/cart/add.js', {
-          method:'POST',
-          headers:{'Content-Type':'application/json','Accept':'application/json'},
-          body: JSON.stringify({ items: items })
-        }).then(function(r){
-          if(!r.ok) throw new Error('add_failed');
-          return r.json();
-        });
-      }
-
-      function addSequential(items){
-        var p = Promise.resolve();
-        items.forEach(function(it){
-          p = p.then(function(){
-            return fetch('/cart/add.js', {
+        /* Adicionar à sacola */
+        var addBtn = document.getElementById('nb-add-btn-{{ section.id }}');
+        if(addBtn){
+          addBtn.addEventListener('click', function(){
+            if(!qbSelectedVid) return;
+            addBtn.textContent = 'ADICIONANDO...';
+            addBtn.disabled = true;
+            fetch('/cart/add.js', {
               method:'POST',
-              headers:{'Content-Type':'application/json','Accept':'application/json'},
-              body: JSON.stringify({ id: Number(it.id), quantity: Number(it.quantity) })
-            }).then(function(r){
-              if(!r.ok) throw new Error('add_failed');
-              return r.json();
-            });
+              headers:{'Content-Type':'application/json'},
+              body: JSON.stringify({ items:[{ id: Number(qbSelectedVid), quantity:1 }] })
+            }).then(function(r){ if(!r.ok) throw new Error(); return r.json(); })
+              .then(function(){ qbClose(); openCartDrawer(); })
+              .catch(function(){
+                addBtn.textContent = 'ADICIONAR À SACOLA';
+                addBtn.disabled = false;
+                addBtn.style.opacity = '1';
+              });
           });
-        });
-        return p;
+        }
+
+        qbModal.classList.add('nb-open');
+        document.body.style.overflow = 'hidden';
       }
 
-      btnAdd.addEventListener('click', function(){
-        if(btnAdd.disabled) return;
+      if(qbModal){
+        document.addEventListener('keydown', function(e){
+          if(e.key==='Escape' && qbModal.classList.contains('nb-open')) qbClose();
+        });
+      }
 
-        var payload = [];
-        for(var i=0;i<current.items.length;i++){
-          var it = current.items[i];
-          var q = safeInt(it.qty);
-          if(q > 0){
-            if(q > it.max) q = it.max;
-            payload.push({ id: Number(it.id), quantity: Number(q) });
-          }
-        }
-        if(payload.length === 0) return;
-
-        btnAdd.disabled = true;
-        btnAdd.textContent = 'Adicionando...';
-        btnAdd.style.opacity = '0.85';
-
-        addItemsToCart(payload)
-          .catch(function(){ return addSequential(payload); })
-          .then(function(){
-            openCartDrawer();
-            btnAdd.textContent = 'Adicionado ✅';
-            setTimeout(function(){ closeModal(); }, 650);
-          })
-          .catch(function(){
-            btnAdd.textContent = 'Erro';
-            setTimeout(function(){
-              btnAdd.textContent = 'Adicionar';
-              btnAdd.disabled = false;
-              btnAdd.style.opacity = '';
-              updateTotal();
-            }, 900);
-          });
-      });
-
-      /* Clique no Comprar (modal) */
+      /* Clique na sacola → abre modal */
       root.addEventListener('click', function(e){
         var btn = e.target.closest('[data-rc-open-modal]');
         if(!btn) return;
-
-        e.preventDefault();
-        e.stopPropagation();
-
+        e.preventDefault(); e.stopPropagation();
         var pid = btn.getAttribute('data-product-id');
-        if(!pid) return;
-
-        buildModal(pid);
+        if(pid) qbOpen(pid);
       }, true);
 
-      /* Clique no Comprar (1 variante) */
+      /* Produto de 1 variante → abre modal (mesmo comportamento) */
       root.addEventListener('click', function(e){
         var btn = e.target.closest('[data-rc-add-single]');
         if(!btn) return;
-
-        e.preventDefault();
-        e.stopPropagation();
-
-        var vid = btn.getAttribute('data-variant-id');
-        if(!vid) return;
-
-        btn.disabled = true;
-        var old = btn.textContent;
-        btn.textContent = 'Adicionando...';
-
-        fetch('/cart/add.js', {
-          method:'POST',
-          headers:{'Content-Type':'application/json','Accept':'application/json'},
-          body: JSON.stringify({ id: Number(vid), quantity: 1 })
-        }).then(function(r){
-          if(!r.ok) throw new Error('add_failed');
-          return r.json();
-        }).then(function(){
-          openCartDrawer();
-          btn.textContent = 'Adicionado ✅';
-          setTimeout(function(){
-            btn.textContent = old || 'Comprar';
-            btn.disabled = false;
-          }, 700);
-        }).catch(function(){
-          btn.textContent = old || 'Comprar';
-          btn.disabled = false;
-        });
+        e.preventDefault(); e.stopPropagation();
+        /* Busca o card pai para pegar o product-id e abrir o modal */
+        var card = btn.closest('.card[data-product-id]');
+        if(card) qbOpen(card.getAttribute('data-product-id'));
       }, true);
 
     })();
