@@ -9,147 +9,401 @@
 {%- endcapture -%}
 
 {%- if section.settings.show_product_recommendations -%}
-  <section class="section" data-section-id="{{ section.id }}" data-section-type="product-recommendations" data-section-settings='{{ section_settings }}'>
+<section class="section nb-rec-section" data-section-id="{{ section.id }}" data-section-type="product-recommendations" data-section-settings='{{ section_settings }}'>
   {% render 'royal-overlap', id: section.id %}
 
   <style>
-    /* === Ocultar badge (Lançamento, etc.) === */
-    #shopify-section-{{ section.id }} .product-item__label-list,
-    #shopify-section-{{ section.id }} .product-label,
-    #shopify-section-{{ section.id }} .product-item__label {
-      display: none !important;
+    /* ===== SEÇÃO "VOCÊ TAMBÉM PODE GOSTAR" — ESTILO NB ===== */
+
+    .nb-rec-section {
+      background: #fff;
+      padding: 24px 0 32px;
     }
 
-    /* === Ocultar coração / wishlist === */
-    #shopify-section-{{ section.id }} [class*="wishlist"],
-    #shopify-section-{{ section.id }} [class*="favorite"],
-    #shopify-section-{{ section.id }} [class*="heart"] {
-      display: none !important;
+    .nb-rec-section .container {
+      padding-left: 16px;
+      padding-right: 0;
     }
 
-    /* === Ocultar "ou 12x de..." === */
-    #shopify-section-{{ section.id }} .product-item__info p,
-    #shopify-section-{{ section.id }} .product-item__info-inner > p {
-      display: none !important;
+    /* Título da seção */
+    .nb-rec-heading {
+      font-size: 18px;
+      font-weight: 700;
+      color: #111111;
+      margin: 0 0 16px;
+      padding-right: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      letter-spacing: -0.2px;
     }
 
-    /* === Ocultar estrelas === */
-    #shopify-section-{{ section.id }} .areviews_product_item,
-    #shopify-section-{{ section.id }} .areviews_header_stars,
-    #shopify-section-{{ section.id }} .product-item__reviews-badge,
-    #shopify-section-{{ section.id }} .spr-badge,
-    #shopify-section-{{ section.id }} .fa-star,
-    #shopify-section-{{ section.id }} [class*="star"],
-    #shopify-section-{{ section.id }} [class*="review"] {
-      display: none !important;
+    /* Scroller horizontal */
+    .nb-rec-scroller {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-right: 16px;
+      padding-bottom: 16px;
     }
 
-    /* === Ocultar botão "Comprar agora" / Quick Buy === */
-    #shopify-section-{{ section.id }} .product-item__action-list,
-    #shopify-section-{{ section.id }} .product-item__quick-buy,
-    #shopify-section-{{ section.id }} .quick-buy,
-    #shopify-section-{{ section.id }} .button--add-to-cart,
-    #shopify-section-{{ section.id }} [data-action="add-to-cart"],
-    #shopify-section-{{ section.id }} form[action="/cart/add"],
-    #shopify-section-{{ section.id }} .product-item__action {
-      display: none !important;
+    .nb-rec-scroller::-webkit-scrollbar {
+      display: none;
     }
 
-    /* === Ocultar "FRETE GRÁTIS" nos cards === */
-    #shopify-section-{{ section.id }} .barradefundo {
-      display: none !important;
+    /* Card individual */
+    .nb-rec-card {
+      flex: 0 0 176px;
+      width: 176px;
+      scroll-snap-align: start;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    /* Imagem */
+    .nb-rec-card__img-wrap {
+      position: relative;
+      width: 100%;
+      padding-bottom: 100%;
+      background: #f5f5f5;
+      overflow: hidden;
+      border-radius: 2px;
+    }
+
+    .nb-rec-card__img-wrap a {
+      position: absolute;
+      inset: 0;
+      display: block;
+    }
+
+    .nb-rec-card__img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Coração — topo direito */
+    .nb-rec-heart {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 32px;
+      height: 32px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      z-index: 2;
+    }
+
+    .nb-rec-heart svg {
+      width: 22px;
+      height: 22px;
+      stroke: #333;
+      fill: none;
+      stroke-width: 1.8;
+      filter: drop-shadow(0 1px 2px rgba(255,255,255,0.8));
+    }
+
+    /* Badge "Lançamento" — baixo esquerdo */
+    .nb-rec-badge {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      background: #111111;
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      padding: 3px 8px;
+      border-radius: 3px;
+      z-index: 2;
+      line-height: 1.4;
+    }
+
+    /* Ícone de sacola — baixo direito */
+    .nb-rec-bag {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      width: 30px;
+      height: 30px;
+      background: rgba(255,255,255,0.92);
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      z-index: 2;
+      text-decoration: none;
+    }
+
+    .nb-rec-bag svg {
+      width: 17px;
+      height: 17px;
+      stroke: #333;
+      fill: none;
+      stroke-width: 1.8;
+    }
+
+    /* Info (abaixo da imagem) */
+    .nb-rec-card__info {
+      padding: 8px 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    /* Categoria (ex: "Masculino  Corrida") */
+    .nb-rec-category {
+      font-size: 11px;
+      color: #888888;
+      margin: 0 0 3px;
+      line-height: 1.3;
+      font-weight: 400;
+      letter-spacing: 0.1px;
+    }
+
+    /* Título do produto */
+    .nb-rec-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #111111;
+      text-decoration: none;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.4;
+      margin-bottom: 6px;
+    }
+
+    .nb-rec-title:hover {
+      color: #D42B2B;
+    }
+
+    /* Preço */
+    .nb-rec-price {
+      font-size: 15px;
+      font-weight: 700;
+      color: #111111;
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    /* Dots */
+    .nb-rec-dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      padding: 12px 16px 0;
+    }
+
+    .nb-rec-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #DDDDDD;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      transition: background 0.2s;
+    }
+
+    .nb-rec-dot.active {
+      background: #111111;
+    }
+
+    /* Desktop: cards maiores */
+    @media (min-width: 768px) {
+      .nb-rec-card {
+        flex: 0 0 220px;
+        width: 220px;
+      }
+
+      .nb-rec-heading {
+        font-size: 22px;
+      }
     }
   </style>
 
-    <div class="container">
-      {%- if section.settings.heading != blank -%}
-        <header class="section__header">
-          <h2 class="section__title heading h3">{{ section.settings.heading | escape }}</h2>
-        </header>
-      {%- endif -%}
+  <div class="container">
+    {%- if section.settings.heading != blank -%}
+      <h2 class="nb-rec-heading">{{ section.settings.heading | escape }}</h2>
+    {%- endif -%}
 
-      <div class="product-recommendations">
-        {%- if recommendations.performed or product.metafields.sf_related_products.enabled == 1 -%}
-          <div class="scroller">
-            <div class="scroller__inner">
-              <div class="product-list product-list--vertical product-list--scrollable">
-                {%- comment -%}
-                If the merchant is explicitly using SuperFields, we use the hand-picked related products, otherwise we
-                switch to the Shopify automatic recommendation
-                {%- endcomment -%}
+    <div class="product-recommendations">
+      {%- if recommendations.performed or product.metafields.sf_related_products.enabled == 1 -%}
 
-                {%- if product.metafields.sf_related_products.enabled == 1 -%}
-                  {%- for i in (1..6) -%}
-                    {%- assign related_product_option = 'product_' | append: i -%}
-                    {%- assign related_product = all_products[product.metafields.sf_related_products[related_product_option]] -%}
-
-                    {%- unless related_product.empty? -%}
-                      {%- render 'product-item', product: related_product, grid_classes: '1/4--lap 1/5--desk 1/6--wide', show_add_to_cart: section.settings.show_quick_buy -%}
-                    {%- endunless -%}
-                  {%- endfor -%}
-                {%- else -%}
-                  {%- for product in recommendations.products -%}
-                    {%- render 'product-item', product: product, grid_classes: '1/4--lap 1/5--desk 1/6--wide', show_add_to_cart: section.settings.show_quick_buy -%}
-                  {%- else -%}
-                    {%- comment -%}Hide the section if there is no recommendations to show{%- endcomment -%}
-                    <style>
-                      #shopify-section-{{ section.id }} {
-                        display: none;
-                      }
-                    </style>
-                  {%- endfor -%}
-                {%- endif -%}
-              </div>
-            </div>
-          </div>
+        {%- comment -%}Monta a lista de produtos{%- endcomment -%}
+        {%- if product.metafields.sf_related_products.enabled == 1 -%}
+          {%- assign rec_products = '' -%}
+          {%- for i in (1..6) -%}
+            {%- assign rel_opt = 'product_' | append: i -%}
+            {%- assign rel_prod = all_products[product.metafields.sf_related_products[rel_opt]] -%}
+            {%- unless rel_prod.empty? -%}
+              {%- assign rec_products = rec_products | append: rel_prod.handle | append: ',' -%}
+            {%- endunless -%}
+          {%- endfor -%}
         {%- endif -%}
-      </div>
-    </div>
 
-    {%- comment -%}
-    --------------------------------------------------------------------------------------
-    QUICK VIEW CONTAINER
-    --------------------------------------------------------------------------------------
-    {%- endcomment -%}
+        <div class="nb-rec-scroller" id="nb-rec-scroller-{{ section.id }}">
 
-    <div id="modal-quick-view-{{ section.id }}" class="modal" aria-hidden="true">
-      <div class="modal__dialog modal__dialog--stretch" role="dialog">
-        <button class="modal__close link" data-action="close-modal">{%- render 'icon', icon: 'close' -%}</button>
+          {%- if product.metafields.sf_related_products.enabled == 1 -%}
+            {%- for i in (1..6) -%}
+              {%- assign rel_opt = 'product_' | append: i -%}
+              {%- assign rec_p = all_products[product.metafields.sf_related_products[rel_opt]] -%}
+              {%- unless rec_p.empty? -%}
+                {%- render 'nb-rec-card', p: rec_p -%}
+              {%- endunless -%}
+            {%- endfor -%}
+          {%- else -%}
+            {%- for rec_p in recommendations.products -%}
+              {%- assign has_lancamento = false -%}
+              {%- for tag in rec_p.tags -%}
+                {%- assign tag_lower = tag | downcase -%}
+                {%- if tag_lower == 'lançamento' or tag_lower == 'lancamento' or tag_lower == 'novo' or tag_lower == 'new' -%}
+                  {%- assign has_lancamento = true -%}
+                {%- endif -%}
+              {%- endfor -%}
 
-        <div class="modal__loader">
-          {%- render 'icon', icon: 'search-loader' -%}
+              <div class="nb-rec-card">
+                <div class="nb-rec-card__img-wrap">
+                  <a href="{{ rec_p.url }}">
+                    <img
+                      class="nb-rec-card__img"
+                      src="{{ rec_p.featured_image | img_url: '400x' }}"
+                      alt="{{ rec_p.title | escape }}"
+                      loading="lazy"
+                      width="400"
+                      height="400"
+                    >
+                  </a>
+
+                  <!-- Coração -->
+                  <button class="nb-rec-heart" aria-label="Favoritar" type="button">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                  </button>
+
+                  <!-- Badge -->
+                  {%- if has_lancamento -%}
+                    <span class="nb-rec-badge">Lançamento</span>
+                  {%- endif -%}
+
+                  <!-- Sacola -->
+                  <a href="{{ rec_p.url }}" class="nb-rec-bag" aria-label="Ver produto">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                      <line x1="3" y1="6" x2="21" y2="6"/>
+                      <path d="M16 10a4 4 0 0 1-8 0"/>
+                    </svg>
+                  </a>
+                </div>
+
+                <div class="nb-rec-card__info">
+                  {%- if rec_p.type != blank -%}
+                    <p class="nb-rec-category">{{ rec_p.type }}</p>
+                  {%- endif -%}
+
+                  <a href="{{ rec_p.url }}" class="nb-rec-title">{{ rec_p.title }}</a>
+
+                  <p class="nb-rec-price">{{ rec_p.price | money_without_trailing_zeros }}</p>
+                </div>
+              </div>
+            {%- else -%}
+              <style>#shopify-section-{{ section.id }}{ display:none; }</style>
+            {%- endfor -%}
+          {%- endif -%}
+
         </div>
 
-        <div class="modal__inner"></div>
-      </div>
+        <!-- Dots de navegação -->
+        <div class="nb-rec-dots" id="nb-rec-dots-{{ section.id }}"></div>
+
+        <script>
+        (function() {
+          var scroller = document.getElementById('nb-rec-scroller-{{ section.id }}');
+          var dotsContainer = document.getElementById('nb-rec-dots-{{ section.id }}');
+          if (!scroller || !dotsContainer) return;
+
+          var cards = scroller.querySelectorAll('.nb-rec-card');
+          var total = cards.length;
+          if (total <= 1) return;
+
+          var dots = [];
+          for (var i = 0; i < total; i++) {
+            var dot = document.createElement('button');
+            dot.className = 'nb-rec-dot' + (i === 0 ? ' active' : '');
+            dot.setAttribute('aria-label', 'Card ' + (i + 1));
+            (function(idx) {
+              dot.addEventListener('click', function() {
+                var cardWidth = cards[0].offsetWidth + 10;
+                scroller.scrollTo({ left: cardWidth * idx, behavior: 'smooth' });
+              });
+            })(i);
+            dotsContainer.appendChild(dot);
+            dots.push(dot);
+          }
+
+          scroller.addEventListener('scroll', function() {
+            var cardWidth = cards[0].offsetWidth + 10;
+            var active = Math.round(scroller.scrollLeft / cardWidth);
+            dots.forEach(function(d, i) {
+              d.classList.toggle('active', i === active);
+            });
+          }, { passive: true });
+        })();
+        </script>
+
+      {%- endif -%}
     </div>
-  </section>
+  </div>
+
+  <div id="modal-quick-view-{{ section.id }}" class="modal" aria-hidden="true">
+    <div class="modal__dialog modal__dialog--stretch" role="dialog">
+      <button class="modal__close link" data-action="close-modal">{%- render 'icon', icon: 'close' -%}</button>
+      <div class="modal__loader">{%- render 'icon', icon: 'search-loader' -%}</div>
+      <div class="modal__inner"></div>
+    </div>
+  </div>
+</section>
 {%- endif -%}
 
 {% schema %}
 {
   "name": "Product recommendations",
   "settings": [
-
-  {
-    "type": "range",
-    "id": "overlap_px",
-    "label": "Tamanho da sobreposição (px)",
-    "min": 0,
-    "max": 80,
-    "step": 2,
-    "default": 0
-  },
-  {
-    "type": "range",
-    "id": "overlap_px_mobile",
-    "label": "Tamanho da sobreposição (px) — mobile",
-    "min": 0,
-    "max": 80,
-    "step": 2,
-    "default": 0
-  }
-,
+    {
+      "type": "range",
+      "id": "overlap_px",
+      "label": "Tamanho da sobreposição (px)",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "overlap_px_mobile",
+      "label": "Tamanho da sobreposição (px) — mobile",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "default": 0
+    },
     {
       "type": "checkbox",
       "id": "show_product_recommendations",
@@ -161,7 +415,7 @@
       "type": "text",
       "id": "heading",
       "label": "Heading",
-      "default": "You may also like"
+      "default": "Você também pode gostar"
     },
     {
       "type": "checkbox",
