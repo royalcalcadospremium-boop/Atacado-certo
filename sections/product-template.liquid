@@ -60,16 +60,99 @@
       padding-top: 0 !important;
     }
 
-    /* Thumbnails com padding lateral */
-    .product-gallery__thumbnail-list {
-      padding: 8px 16px !important;
+    /* Esconde a faixa de thumbnails */
+    .product-gallery .scroller {
+      display: none !important;
     }
 
-    .scroller {
-      padding-left: 16px !important;
+    /* Remove espaço extra que os thumbnails ocupavam */
+    .product-gallery--with-thumbnails {
+      grid-template-columns: 1fr !important;
+      display: block !important;
     }
   }
+
+  /* ===== DOTS de navegação da galeria ===== */
+  .pg-dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 0 6px;
+    background: #fff;
+  }
+
+  .pg-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #CCCCCC;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+    transition: background 0.25s, transform 0.25s;
+  }
+
+  .pg-dot.active {
+    background: #D42B2B;
+    transform: scale(1.25);
+  }
 </style>
+
+<script>
+(function() {
+  function initGalleryDots() {
+    var section = document.querySelector('[data-section-type="product"]');
+    if (!section) return;
+
+    var carousel = section.querySelector('.product-gallery__carousel');
+    if (!carousel || carousel.dataset.dotsReady) return;
+    carousel.dataset.dotsReady = '1';
+
+    var items = Array.from(carousel.querySelectorAll('.product-gallery__carousel-item'));
+    var thumbs = Array.from(section.querySelectorAll('.product-gallery__thumbnail'));
+    if (items.length <= 1) return;
+
+    var dotsEl = document.createElement('div');
+    dotsEl.className = 'pg-dots';
+
+    var dots = items.map(function(item, i) {
+      var dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'pg-dot' + (item.classList.contains('is-selected') ? ' active' : '');
+      dot.setAttribute('aria-label', 'Foto ' + (i + 1));
+      dot.addEventListener('click', function() {
+        if (thumbs[i]) {
+          thumbs[i].click();
+        }
+      });
+      dotsEl.appendChild(dot);
+      return dot;
+    });
+
+    var wrapper = carousel.closest('.product-gallery__carousel-wrapper');
+    if (wrapper) wrapper.insertAdjacentElement('afterend', dotsEl);
+
+    var mo = new MutationObserver(function() {
+      items.forEach(function(item, i) {
+        dots[i].classList.toggle('active', item.classList.contains('is-selected'));
+      });
+    });
+    items.forEach(function(item) {
+      mo.observe(item, { attributes: true, attributeFilter: ['class'] });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initGalleryDots);
+  } else {
+    initGalleryDots();
+  }
+  document.addEventListener('shopify:section:load', initGalleryDots);
+  document.addEventListener('shopify:section:select', initGalleryDots);
+})();
+</script>
 
 <section data-section-id="{{ section.id }}" data-section-type="product" data-section-settings='{{ section_settings }}'>
   {% render 'royal-overlap', id: section.id %}

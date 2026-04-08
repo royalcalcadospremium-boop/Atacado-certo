@@ -208,10 +208,9 @@
   }
 
   .size-button.unavailable {
-    color: #CCCCCC;
+    opacity: 0.3;
     cursor: not-allowed;
-    background: #FAFAFA;
-    text-decoration: line-through;
+    pointer-events: none;
   }
 
   /* ====== BUY BUTTONS ====== */
@@ -636,16 +635,30 @@
             {%- endif -%}
             {%- unless is_color_opt -%}
               <div class="size-section" data-size-option-position="{{ option.position }}">
-                <span class="section-label">Selecione {{ option.name | downcase }}</span>
                 <div class="size-rows">
                   <div class="size-grid size-grid-row-1">
                     {%- for value in option.values -%}
                       {%- if forloop.index <= 6 -%}
+                        {%- comment -%}Verifica disponibilidade do tamanho{%- endcomment -%}
+                        {%- assign size_avail = false -%}
+                        {%- for variant in product.variants -%}
+                          {%- if option.position == 1 and variant.option1 == value and variant.available -%}
+                            {%- assign size_avail = true -%}
+                            {%- break -%}
+                          {%- elsif option.position == 2 and variant.option2 == value and variant.available -%}
+                            {%- assign size_avail = true -%}
+                            {%- break -%}
+                          {%- elsif option.position == 3 and variant.option3 == value and variant.available -%}
+                            {%- assign size_avail = true -%}
+                            {%- break -%}
+                          {%- endif -%}
+                        {%- endfor -%}
                         <button
                           type="button"
-                          class="size-button {% if value == option.selected_value %}active{% endif %}"
+                          class="size-button {% if value == option.selected_value %}active{% endif %} {% unless size_avail %}unavailable{% endunless %}"
                           data-size="{{ value | escape }}"
                           data-option-position="{{ option.position }}"
+                          {% unless size_avail %}disabled aria-disabled="true"{% endunless %}
                         >{{ value }}</button>
                       {%- endif -%}
                     {%- endfor -%}
@@ -654,11 +667,25 @@
                     <div class="size-grid size-grid-row-2">
                       {%- for value in option.values -%}
                         {%- if forloop.index > 6 -%}
+                          {%- assign size_avail = false -%}
+                          {%- for variant in product.variants -%}
+                            {%- if option.position == 1 and variant.option1 == value and variant.available -%}
+                              {%- assign size_avail = true -%}
+                              {%- break -%}
+                            {%- elsif option.position == 2 and variant.option2 == value and variant.available -%}
+                              {%- assign size_avail = true -%}
+                              {%- break -%}
+                            {%- elsif option.position == 3 and variant.option3 == value and variant.available -%}
+                              {%- assign size_avail = true -%}
+                              {%- break -%}
+                            {%- endif -%}
+                          {%- endfor -%}
                           <button
                             type="button"
-                            class="size-button {% if value == option.selected_value %}active{% endif %}"
+                            class="size-button {% if value == option.selected_value %}active{% endif %} {% unless size_avail %}unavailable{% endunless %}"
                             data-size="{{ value | escape }}"
                             data-option-position="{{ option.position }}"
+                            {% unless size_avail %}disabled aria-disabled="true"{% endunless %}
                           >{{ value }}</button>
                         {%- endif -%}
                       {%- endfor -%}
