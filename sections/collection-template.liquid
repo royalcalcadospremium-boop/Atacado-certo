@@ -341,6 +341,9 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
 
     // PREENCHER FILTROS
     function renderFilters() {
+      console.log('Tamanhos disponíveis:', Array.from(allSizes));
+      console.log('Modelos disponíveis:', Array.from(allModels));
+      
       // Tamanhos
       const sizesHtml = Array.from(allSizes).sort().map(size => `
         <div class="rc-filter-option">
@@ -365,6 +368,8 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
       const selectedSizes = Array.from(document.querySelectorAll('.size-filter:checked')).map(el => el.value);
       const selectedModels = Array.from(document.querySelectorAll('.model-filter:checked')).map(el => el.value);
 
+      console.log('Filtros aplicados:', { selectedSizes, selectedModels });
+
       document.querySelectorAll('.rc-card').forEach(card => {
         const dataEl = card.querySelector('script[type="application/json"]');
         if (!dataEl) return;
@@ -374,15 +379,23 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
           const productId = card.getAttribute('data-product-id');
 
           // Verificar se tem tamanho selecionado
-          const hasSizeMatch = selectedSizes.length === 0 || data.variants.some(v => selectedSizes.includes(v.title.trim()));
+          let hasSizeMatch = selectedSizes.length === 0;
+          if (selectedSizes.length > 0) {
+            hasSizeMatch = data.variants.some(v => {
+              const variantTitle = String(v.title || '').trim();
+              return v.available && selectedSizes.includes(variantTitle);
+            });
+          }
           
           // Verificar se tem modelo selecionado (usando tags da coleção)
           const hasModelMatch = selectedModels.length === 0 || selectedModels.some(model => 
-            collectionTags.some(tag => tag.includes(model))
+            collectionTags.some(tag => tag.toLowerCase().includes(model.toLowerCase()))
           );
 
           // Mostrar/ocultar card
-          card.style.display = (hasSizeMatch && hasModelMatch) ? 'flex' : 'none';
+          const shouldShow = hasSizeMatch && hasModelMatch;
+          card.style.display = shouldShow ? 'flex' : 'none';
+          console.log(`Produto ${productId}: size=${hasSizeMatch}, model=${hasModelMatch}, show=${shouldShow}`);
         } catch (e) { console.error(e); }
       });
 
