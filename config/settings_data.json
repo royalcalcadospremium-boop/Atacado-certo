@@ -304,33 +304,13 @@
       "collection-template": {
         "type": "collection-template",
         "settings": {
-          "overlap_px": 0,
-          "overlap_px_mobile": 0,
           "bg": "#ffffff",
           "card_bg": "#ffffff",
           "primary": "#111111",
-          "green": "#b6e35c",
-          "buy_text_color": "#223016",
-          "discount_badge_opacity": 50,
-          "card_min_height_desktop": 440,
-          "card_min_height_mobile": 420,
-          "buy_gap_desktop": 12,
-          "buy_gap_mobile": 0,
-          "price_current_color": "#333333",
-          "price_compare_color": "#333333",
-          "text": "#333333",
-          "muted": "#777777",
-          "card_radius": 26,
-          "installments_text": "Desconto progressivo",
-          "default_products_per_page": 24,
-          "default_view_layout": "grid",
           "quick_links": "main-menu",
-          "quick_links_show_products_count": false,
           "show_filters": false,
-          "show_filter_color_swatch": false,
-          "filter_type": "tag",
-          "open_group_filters_mode": "all_closed",
-          "filter_group_order": ""
+          "badge_bg": "#1a1a1a",
+          "badge_opacity": 100
         }
       },
       "recently-viewed-products": {
@@ -367,8 +347,8 @@
           "mostrar_bandeiras": false,
           "mostrar_cssryviu": false,
           "mostrar_cssareviews": false,
-          "mostrar_addtocart": true,
-          "mostrar_quantidadevendidos": true,
+          "mostrar_addtocart": false,
+          "mostrar_quantidadevendidos": false,
           "mostrar_icone": true,
           "mostrar_codigodoitem": false,
           "mostrar_barra_de_entrega": false,
@@ -1276,6 +1256,12 @@
       "collection-marcaschinelos": {
         "type": "collection-marcaschinelos",
         "blocks": {
+          "collection_Ee3DpX": {
+            "type": "collection",
+            "settings": {
+              "collection": "100-eva"
+            }
+          },
           "collection_CnijcU": {
             "type": "collection",
             "settings": {
@@ -1296,6 +1282,7 @@
           }
         },
         "block_order": [
+          "collection_Ee3DpX",
           "collection_CnijcU",
           "collection_R3aEBP",
           "collection_zCimpU"
@@ -1496,21 +1483,11 @@
               "note": "Atendimento rápido",
               "greeting": "Olá! Tudo bem? 😊"
             }
-          },
-          "vendor_gF3M69": {
-            "type": "vendor",
-            "settings": {
-              "name": "Fellipe",
-              "phone": "5562991902661",
-              "note": "Atendimento rápido",
-              "greeting": "Olá! Tudo bem? 😊"
-            }
           }
         },
         "block_order": [
           "vendor_CVcQVd",
-          "vendor_fy3Hny",
-          "vendor_gF3M69"
+          "vendor_fy3Hny"
         ],
         "settings": {
           "title": "Seu carrinho",
