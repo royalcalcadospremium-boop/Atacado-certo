@@ -88,32 +88,6 @@
       display: block;
     }
 
-    /* Coração — topo direito */
-    .nb-rec-heart {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      width: 32px;
-      height: 32px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-      z-index: 2;
-    }
-
-    .nb-rec-heart svg {
-      width: 22px;
-      height: 22px;
-      stroke: #333;
-      fill: none;
-      stroke-width: 1.8;
-      filter: drop-shadow(0 1px 2px rgba(255,255,255,0.8));
-    }
-
     /* Badge "Lançamento" — baixo esquerdo */
     .nb-rec-badge {
       position: absolute;
@@ -135,11 +109,11 @@
       position: absolute;
       bottom: 8px;
       right: 8px;
-      width: 30px;
-      height: 30px;
-      background: rgba(255,255,255,0.92);
+      width: 28px;
+      height: 28px;
+      background: rgba(255,255,255,0.95);
       border: none;
-      border-radius: 3px;
+      border-radius: 50%;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -147,11 +121,12 @@
       padding: 0;
       z-index: 2;
       text-decoration: none;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.12);
     }
 
     .nb-rec-bag svg {
-      width: 17px;
-      height: 17px;
+      width: 14px;
+      height: 14px;
       stroke: #333;
       fill: none;
       stroke-width: 1.8;
@@ -290,13 +265,6 @@
                       height="400"
                     >
                   </a>
-
-                  <!-- Coração -->
-                  <button class="nb-rec-heart" aria-label="Favoritar" type="button">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                    </svg>
-                  </button>
 
                   <!-- Badge -->
                   {%- if has_lancamento -%}
