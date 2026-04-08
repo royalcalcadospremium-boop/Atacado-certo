@@ -998,6 +998,12 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
       var root = document.getElementById('royal-tabs-cards-{{ section.id }}');
       if(!root) return;
 
+      /* Move o modal para o body para escapar do isolation:isolate da seção */
+      var _qbModalEl = document.getElementById('nb-qb-{{ section.id }}');
+      if(_qbModalEl && _qbModalEl.parentNode !== document.body) {
+        document.body.appendChild(_qbModalEl);
+      }
+
       /* Tabs + Ver mais (dinâmico) */
       var tabButtons = root.querySelectorAll('.tabbtn[data-tab]');
       var panels = root.querySelectorAll('.panel[data-panel]');
