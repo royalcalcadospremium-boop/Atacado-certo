@@ -1,0 +1,161 @@
+{%- comment -%}
+SNIPPET: login-gate-global.liquid
+Bloqueia preço e botões do site inteiro quando NÃO logado.
+- Esconde preços em cards, listas, recomendações, busca e PDP.
+- Esconde botões de comprar, "Comprar agora", checkout, quick-add e sticky bars.
+- Bloqueia carrinho/minicart e redireciona /cart e /checkout para Login.
+- Mostra um CTA fixo "Faça login para ver preços".
+- Usa return_url para voltar à mesma página após login.
+
+Se precisar liberar alguma área, remova/ajuste o seletor no CSS.
+{%- endcomment -%}
+
+{%- assign is_customer_page = template | default: request.page_type | downcase -%}
+{%- if customer == nil and is_customer_page contains 'customers' -%}
+  {%- comment -%}Não exibe o gate nas páginas de Login/Conta{%- endcomment -%}
+{%- else -%}
+
+  {%- if customer == nil -%}
+    {%- comment -%}Redireciono página do carrinho imediatamente para Login{%- endcomment -%}
+    {%- if request.page_type == 'cart' or request.path contains '/checkout' -%}
+      <script>window.location.href="{{ routes.account_login_url }}?return_url={{ request.path | url_encode }}";</script>
+    {%- endif -%}
+
+    <!-- CTA fixo de login -->
+    <div class="lgate-banner" role="dialog" aria-live="polite">
+      <div class="lgate-wrap">
+        <span class="lgate-text">Faça login para ver preços e comprar</span>
+        <a class="lgate-btn" href="{{ routes.account_login_url }}?return_url={{ request.path | url_encode }}">Entrar / Cadastrar</a>
+      </div>
+    </div>
+
+    <style>
+      /* ---------- Aparência do CTA ---------- */
+      .lgate-banner{
+        position:fixed;left:0;right:0;bottom:0;z-index:9999;
+        background:#111;color:#fff;padding:10px 14px;
+        box-shadow:0 -6px 24px rgba(0,0,0,.18)
+      }
+      .lgate-wrap{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
+      .lgate-text{font-weight:600}
+      .lgate-btn{
+        display:inline-block;padding:10px 16px;border-radius:999px;
+        background:#fff;color:#111 !important;text-decoration:none;font-weight:700
+      }
+      .lgate-btn:hover{opacity:.9}
+
+      /* ---------- BLOQUEIO GLOBAL DE PREÇOS ---------- */
+      /* Cartões de produto / grades / coleções / busca / recom. (Dawn e similares) */
+      .price, .price-item, .price__regular, .price__sale, .price__container, .price__badge,
+      .card-information__price, .card__information .price, .product-card__price,
+      .grid-product__price, .collection-product-card__price, .product-item__price,
+      .product__price, .product-meta__price, .product-info__price, .unit-price,
+      .compare-at-price, .price__compare, [data-product-price], [itemprop="price"]{
+        display:none !important;
+      }
+      /* Textos peculiares de preço/taxas/sku que alguns temas exibem */
+      .product__tax, .product__sku, .product__barcode, .product__inventory{ display:none !important; }
+
+      /* ---------- BLOQUEIO DE AÇÕES DE COMPRA ---------- */
+      form[action*="/cart/add"], .product-form, .product__form, .product__actions,
+      .product__submit, .product__add-to-cart, .add-to-cart, .product-form__submit,
+      .shopify-payment-button, .shopify-payment-button__button, .dynamic-checkout,
+      .quick-add, .quick-add__submit, .quick-buy, .product__dynamic-checkout,
+      .product-sticky-bar, .sticky-add-to-cart, [data-sticky-atc], [data-quick-add],
+      [data-product-atc], .ajax-add-to-cart{
+        display:none !important;
+      }
+
+      /* ---------- BLOQUEIO DE CARRINHO/MINICARRINHO ---------- */
+      .cart-drawer, .drawer--cart, #CartDrawer, .mini-cart, .cart-popup, .ajaxcart{
+        display:none !important; pointer-events:none !important;
+      }
+      a[href*="/cart"], a[href*="/checkout"]{ pointer-events:auto; } /* será interceptado por JS */
+
+      /* ---------- Opcional: ofuscar badges/imagens com preço renderizado como imagem ---------- */
+      .price-badge, .price-image{ filter: blur(10px); pointer-events:none; }
+    </style>
+
+    <script>
+      (function(){
+        // Seletores que devem ficar ocultos (inclui coleções, busca, PDP, recomendações e sticky bars)
+        const HIDE_SELECTORS = [
+          // preços
+          '.price','.price-item','.price__regular','.price__sale','.price__container','.price__badge',
+          '.card-information__price','.card__information .price','.product-card__price',
+          '.grid-product__price','.collection-product-card__price','.product-item__price',
+          '.product__price','.product-meta__price','.product-info__price','.unit-price',
+          '.compare-at-price','.price__compare','[data-product-price]','[itemprop="price"]',
+          '.product__tax','.product__sku','.product__barcode','.product__inventory',
+          // comprar
+          'form[action*="/cart/add"]','.product-form','.product__form','.product__actions',
+          '.product__submit','.product__add-to-cart','.add-to-cart','.product-form__submit',
+          '.shopify-payment-button','.shopify-payment-button__button','.dynamic-checkout',
+          '.quick-add','.quick-add__submit','.quick-buy','.product__dynamic-checkout',
+          '.product-sticky-bar','.sticky-add-to-cart','[data-sticky-atc]','[data-quick-add]',
+          '[data-product-atc]','.ajax-add-to-cart',
+          // carrinho/minicart
+          '.cart-drawer','.drawer--cart','#CartDrawer','.mini-cart','.cart-popup','.ajaxcart'
+        ];
+
+        function hideAll(){
+          HIDE_SELECTORS.forEach(sel=>{
+            document.querySelectorAll(sel).forEach(el=>{
+              el.style.display='none';
+              el.setAttribute('aria-hidden','true');
+            });
+          });
+        }
+
+        // Intercepta tentativas de abrir carrinho/checkout ou adicionar ao carrinho
+        function intercept(e){
+          const t = e.target.closest('a,button,[role="button"],input[type="submit"]');
+          if(!t) return;
+          const txt = (t.textContent||'').toLowerCase();
+          const href = (t.getAttribute('href')||'').toLowerCase();
+          const isBuyKeyword = ['comprar','buy','add','adicionar','carrinho','cart','checkout','finalizar','pagar'].some(k=>txt.includes(k) || href.includes(k));
+          const isFormSubmit = t.tagName==='INPUT' && t.type==='submit';
+          if(isBuyKeyword || isFormSubmit){
+            e.preventDefault(); e.stopPropagation();
+            window.location.href = "{{ routes.account_login_url }}?return_url={{ request.path | url_encode }}";
+          }
+        }
+
+        // Remove preços de JSON-LD (para não vazar em rich snippets)
+        function stripJSONLDPrices(){
+          document.querySelectorAll('script[type="application/ld+json"]').forEach(s=>{
+            try{
+              const data = JSON.parse(s.textContent);
+              const scrub = (obj)=>{
+                if(!obj||typeof obj!=='object') return;
+                if(obj.price) delete obj.price;
+                if(obj.priceCurrency) delete obj.priceCurrency;
+                if(obj.offers){
+                  if(Array.isArray(obj.offers)) obj.offers.forEach(scrub);
+                  else scrub(obj.offers);
+                }
+                Object.values(obj).forEach(scrub);
+              };
+              scrub(data);
+              s.textContent = JSON.stringify(data);
+            }catch(_){}
+          });
+        }
+
+        hideAll();
+        document.addEventListener('click', intercept, true);
+
+        const mo = new MutationObserver(()=>hideAll());
+        mo.observe(document.documentElement, {childList:true, subtree:true});
+
+        // Bloqueia tentativas de abrir drawer do carrinho por eventos customizados
+        ['cart:open','ajaxCart:open','drawer:open','cart-drawer:open'].forEach(ev=>{
+          document.addEventListener(ev, function(e){ e.stopImmediatePropagation && e.stopImmediatePropagation(); }, true);
+        });
+
+        stripJSONLDPrices();
+      })();
+    </script>
+  {%- endif -%}
+
+{%- endif -%}

@@ -1,0 +1,292 @@
+<section class="section" id="section-{{ section.id }}" data-section-id="{{ section.id }}" data-section-type="collection-list">
+  {% render 'royal-overlap', id: section.id %}
+
+  <div class="container">
+    {%- if section.settings.title != blank -%}
+      <header class="section__header">
+        <h2 class="section__title heading h3">{{ section.settings.title | escape }}</h2>
+
+        {%- if section.settings.link_title != blank and section.settings.link != blank -%}
+          <a href="{{ section.settings.link }}" class="section__action-link link">
+            {{ section.settings.link_title | escape }} {% render 'icon', icon: 'tail-right' %}
+          </a>
+        {%- endif -%}
+      </header>
+    {%- endif -%}
+
+    <div class="scroller" data-cards="{{ section.settings.cards_per_row }}">
+      <button class="scroller__arrow scroller__arrow--prev" aria-label="Anterior" type="button">
+        {% render 'icon', icon: 'chevron-left' %}
+      </button>
+
+      <div class="scroller__viewport">
+        <div class="scroller__inner">
+          <div class="collection-list">
+            {%- for block in section.blocks -%}
+              {%- assign collection = collections[block.settings.collection] -%}
+
+              <a href="{{ collection.url | default: '#' }}"
+                 class="collection-item"
+                 data-collection-index="{{ forloop.index0 }}"
+                 {{ block.shopify_attributes }}>
+                {%- unless collection.empty? -%}
+                  {%- assign collection_image = block.settings.image | default: collection.image | default: collection.products.first.featured_image -%}
+
+                  <div class="collection-item__image-wrapper {% if section.settings.round_images %}collection-item__image-wrapper--rounded{% endif %}"
+                       style="background: var(--background)!important; padding: 1.5px; background-image: url({{ collection_image | img_url: '1x1' }})">
+                    {%- capture supported_sizes -%}{%- render 'image-size', sizes: '300,400,500,600,700,800', image: collection_image -%}{%- endcapture -%}
+                    {%- assign image_url = collection_image | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+
+                    <div class="aspect-ratio" style="padding-bottom: 100%">
+                      <img class="lazyload image--fade-in"
+                           data-src="{{ image_url }}"
+                           data-widths="[{{ supported_sizes }}]"
+                           data-sizes="auto"
+                           alt="{{ collection_image.alt | escape }}">
+                      <noscript>
+                        <img src="{{ collection_image | img_url: '450x' }}" alt="{{ collection_image.alt | escape }}">
+                      </noscript>
+                    </div>
+                  </div>
+
+                  {%- if section.settings.show_collection_title -%}
+                    <span class="collection-item__title text--strong">
+                      {{ collection.title }} {% render 'icon', icon: 'tail-right' %}
+                    </span>
+                  {%- endif -%}
+                {%- else -%}
+                  <div class="collection-item__image-wrapper {% if section.settings.round_images %}collection-item__image-wrapper--rounded{% endif %}">
+                    {%- capture placeholder -%}{% cycle 'collection-1', 'collection-2', 'collection-3', 'collection-4', 'collection-5', 'collection-6' %}{%- endcapture -%}
+                    {{- placeholder | placeholder_svg_tag: 'placeholder-svg' -}}
+                  </div>
+
+                  {%- if section.settings.show_collection_title -%}
+                    <span class="collection-item__title text--strong">
+                      {{ 'home_page.onboarding.collection_title' | t }} {% render 'icon', icon: 'tail-right' %}
+                    </span>
+                  {%- endif -%}
+                {%- endunless -%}
+              </a>
+            {%- endfor -%}
+          </div>
+        </div>
+      </div>
+
+      <button class="scroller__arrow scroller__arrow--next" aria-label="Próximo" type="button">
+        {% render 'icon', icon: 'chevron-right' %}
+      </button>
+
+      <!-- Fade para indicar overflow e reforçar a seta direita -->
+      <div class="scroller__edge scroller__edge--right" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <style>
+    /* Escopo por seção */
+    #section-{{ section.id }} .scroller{
+      --cards: {{ section.settings.cards_per_row | default: 5 }};
+      --gap: 16px;
+      position: relative;
+    }
+
+    #section-{{ section.id }} .scroller__viewport{
+      overflow: hidden;
+      position: relative;
+    }
+
+    #section-{{ section.id }} .scroller__inner{
+      overflow: auto;
+      scrollbar-width: none;     /* Firefox */
+      -ms-overflow-style: none;  /* IE 10+ */
+    }
+    #section-{{ section.id }} .scroller__inner::-webkit-scrollbar{ display: none; }
+
+    #section-{{ section.id }} .collection-list{
+      display: flex;
+      gap: var(--gap);
+      padding-right: 56px; /* espaço para a seta direita não sobrepor conteúdo */
+    }
+
+    #section-{{ section.id }} .collection-item{
+      flex: 0 0 calc((100% - (var(--cards) - 1)*var(--gap)) / var(--cards));
+      max-width: calc((100% - (var(--cards) - 1)*var(--gap)) / var(--cards));
+      text-decoration: none;
+    }
+
+    /* Botões das setas — sempre visíveis */
+    #section-{{ section.id }} .scroller__arrow{
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 0;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,.95);
+      box-shadow: 0 6px 20px rgba(0,0,0,.12);
+      cursor: pointer;
+      z-index: 3;
+    }
+    #section-{{ section.id }} .scroller__arrow--prev{ left: -8px; }
+    #section-{{ section.id }} .scroller__arrow--next{ right: -8px; } /* SEMPRE VISÍVEL no lado direito */
+
+    /* Fade lateral direito para reforçar a navegação */
+    #section-{{ section.id }} .scroller__edge--right{
+      position: absolute;
+      right: 40px; /* alinha antes da seta */
+      top: 0;
+      bottom: 0;
+      width: 48px;
+      pointer-events: none;
+      background: linear-gradient(to left, rgba(255,255,255,1), rgba(255,255,255,0));
+      z-index: 2;
+    }
+
+    /* Ajuste mobile simples: usa 3 cards por linha visualmente (scroll livre) */
+    @media (max-width: 767px){
+      #section-{{ section.id }} .scroller{ --cards: 3; }
+      #section-{{ section.id }} .scroller__arrow--prev{ left: -4px; }
+      #section-{{ section.id }} .scroller__arrow--next{ right: -4px; }
+    }
+  </style>
+
+  <script>
+    (function(){
+      const root = document.querySelector('#section-{{ section.id }}');
+      if (!root) return;
+
+      const scroller = root.querySelector('.scroller');
+      const viewport = root.querySelector('.scroller__inner');
+      const list = root.querySelector('.collection-list');
+      const nextBtn = root.querySelector('.scroller__arrow--next');
+      const prevBtn = root.querySelector('.scroller__arrow--prev');
+
+      function itemWidth(){
+        const item = root.querySelector('.collection-item');
+        const style = item ? getComputedStyle(list) : null;
+        const gap = style ? parseFloat(style.gap) || 16 : 16;
+        return (item ? item.getBoundingClientRect().width : 240) + gap;
+      }
+
+      function go(dir){
+        viewport.scrollBy({ left: itemWidth() * dir, behavior: 'smooth' });
+      }
+
+      nextBtn.addEventListener('click', function(){ go(1); });
+      prevBtn.addEventListener('click', function(){ go(-1); });
+
+      // Atualiza estado das setas (opcional, mas útil)
+      function toggleArrows(){
+        const max = viewport.scrollWidth - viewport.clientWidth - 1;
+        prevBtn.disabled = viewport.scrollLeft <= 0;
+        nextBtn.disabled = viewport.scrollLeft >= max;
+        prevBtn.style.opacity = prevBtn.disabled ? .35 : 1;
+        nextBtn.style.opacity = nextBtn.disabled ? .35 : 1;
+      }
+      toggleArrows();
+      viewport.addEventListener('scroll', toggleArrows);
+      window.addEventListener('resize', toggleArrows);
+    })();
+  </script>
+</section>
+
+{% schema %}
+{
+  "name": "Collection list",
+  "settings": [
+    {
+      "type": "range",
+      "id": "overlap_px",
+      "label": "Tamanho da sobreposição (px)",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "overlap_px_mobile",
+      "label": "Tamanho da sobreposição (px) — mobile",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "cards_per_row",
+      "label": "Ajuste de cards (desktop)",
+      "min": 5,
+      "max": 12,
+      "step": 1,
+      "default": 5,
+      "info": "Quantidade de cards visíveis por vez no desktop (a lista continua em carrossel)."
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Título da seção",
+      "default": "Nossas coleções"
+    },
+    {
+      "type": "text",
+      "id": "link_title",
+      "label": "Título do link",
+      "default": "View all"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "Link",
+      "default": "/collections"
+    },
+    {
+      "type": "checkbox",
+      "id": "round_images",
+      "label": "Imagens redondas",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_collection_title",
+      "label": "Mostrar título das coleções",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "name": "Collection",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "600 x 600px .jpg recommended"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "category": "Collection",
+      "name": "Collection Tênis",
+      "blocks": [
+        { "type": "collection" },
+        { "type": "collection" },
+        { "type": "collection" },
+        { "type": "collection" },
+        { "type": "collection" },
+        { "type": "collection" }
+      ]
+    }
+  ]
+}
+{% endschema %}

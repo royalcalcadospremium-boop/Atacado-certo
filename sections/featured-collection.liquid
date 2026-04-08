@@ -1,0 +1,279 @@
+{% comment %}
+Royal • Categorias (layout print) v1.0
+- Desktop: cards em grid com título + imagem + botão "Ver Mais"
+- Mobile: cards pill (título esquerda + imagem direita), sem botão
+{% endcomment %}
+
+<section id="royal-cats-print-{{ section.id }}" class="royal-cats-print">
+  {% render 'royal-overlap', id: section.id %}
+
+  {% liquid
+    assign blocks = section.blocks | where: "type", "cat"
+  %}
+
+  <style>
+    #royal-cats-print-{{ section.id }}{
+      --bg: {{ section.settings.bg | default: '#F6D8E6' }};
+      --title: {{ section.settings.title_color | default: '#2B2B2B' }};
+      --text: {{ section.settings.text_color | default: '#2B2B2B' }};
+      --btn-bg: {{ section.settings.btn_bg | default: '#D93B7D' }};
+      --btn-text: {{ section.settings.btn_text | default: '#ffffff' }};
+
+      --card-radius: {{ section.settings.card_radius | default: 26 }}px;
+      --card-pad-d: 22px;
+      --card-pad-m: 18px;
+
+      --gap-d: 18px;
+      --gap-m: 16px;
+
+      --img-max-d: 150px;
+      --img-max-m: 76px;
+
+      background: var(--bg);
+      padding: clamp(22px, 3vw, 36px) 0;
+      position: relative;
+      z-index: 2;
+    }
+
+    #royal-cats-print-{{ section.id }} .container{
+      width: 100%;
+      max-width: 1480px;
+      margin: 0 auto;
+      padding-left: var(--mobile-container-gutter, 20px);
+      padding-right: var(--mobile-container-gutter, 20px);
+    }
+    @media (min-width: 641px) and (max-width: 1023px){
+      #royal-cats-print-{{ section.id }} .container{
+        padding-left: var(--tablet-container-gutter, 28px);
+        padding-right: var(--tablet-container-gutter, 28px);
+      }
+    }
+    @media (min-width: 1024px){
+      #royal-cats-print-{{ section.id }} .container{
+        padding-left: var(--desktop-container-gutter, 36px);
+        padding-right: var(--desktop-container-gutter, 36px);
+      }
+    }
+
+    #royal-cats-print-{{ section.id }} .heading{
+      font-size: clamp(22px, 2.1vw, 32px);
+      font-weight: 800;
+      letter-spacing: .2px;
+      color: var(--title);
+      text-align: center;
+      margin: 0 0 18px;
+    }
+
+    /* ===== Desktop (grid) ===== */
+    #royal-cats-print-{{ section.id }} .grid{
+      display: grid;
+      gap: var(--gap-d);
+      grid-template-columns: repeat({{ section.settings.desktop_cols | default: 4 }}, minmax(0, 1fr));
+      align-items: stretch;
+    }
+
+    #royal-cats-print-{{ section.id }} .card{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: var(--text);
+      border-radius: var(--card-radius);
+      padding: var(--card-pad-d);
+      background: #fff;
+      box-shadow: 0 10px 26px rgba(0,0,0,.08);
+      overflow: hidden;
+      position: relative;
+      min-height: 260px;
+    }
+
+    #royal-cats-print-{{ section.id }} .card__title{
+      font-size: 18px;
+      font-weight: 900;
+      text-transform: uppercase;
+      margin: 2px 0 14px;
+      text-align: center;
+      line-height: 1.15;
+    }
+
+    #royal-cats-print-{{ section.id }} .card__media{
+      width: 100%;
+      flex: 1 1 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+
+    #royal-cats-print-{{ section.id }} .card__media img{
+      width: auto;
+      max-width: 92%;
+      max-height: var(--img-max-d);
+      object-fit: contain;
+      display: block;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.12));
+    }
+
+    #royal-cats-print-{{ section.id }} .card__btn{
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 18px;
+      border-radius: 999px;
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      font-weight: 800;
+      font-size: 13px;
+      line-height: 1;
+      border: 0;
+      cursor: pointer;
+      transition: transform .15s ease, opacity .15s ease;
+      margin-top: 4px;
+    }
+
+    #royal-cats-print-{{ section.id }} .card:hover .card__btn{ transform: translateY(-1px); }
+    #royal-cats-print-{{ section.id }} .card:active .card__btn{ transform: translateY(0px); opacity: .95; }
+
+    /* cor por bloco */
+    #royal-cats-print-{{ section.id }} .card[data-bg]{
+      background: var(--card-bg, #fff);
+    }
+
+    /* ===== Mobile (pills) ===== */
+    @media (max-width: 991px){
+      #royal-cats-print-{{ section.id }}{
+        padding: 18px 0 24px;
+      }
+
+      #royal-cats-print-{{ section.id }} .grid{
+        grid-template-columns: 1fr;
+        gap: var(--gap-m);
+      }
+
+      #royal-cats-print-{{ section.id }} .card{
+        min-height: 0;
+        padding: var(--card-pad-m);
+        border-radius: 999px;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: none;
+      }
+
+      #royal-cats-print-{{ section.id }} .card__title{
+        margin: 0;
+        text-align: left;
+        font-size: 16px;
+        max-width: 55%;
+      }
+
+      #royal-cats-print-{{ section.id }} .card__media{
+        margin: 0;
+        width: 45%;
+        justify-content: flex-end;
+      }
+
+      #royal-cats-print-{{ section.id }} .card__media img{
+        max-height: var(--img-max-m);
+        max-width: 100%;
+      }
+
+      /* sem botão no mobile (igual print) */
+      #royal-cats-print-{{ section.id }} .card__btn{
+        display: none !important;
+      }
+    }
+  </style>
+
+  <div class="container">
+    {% if section.settings.heading != blank %}
+      <h2 class="heading">{{ section.settings.heading }}</h2>
+    {% endif %}
+
+    <div class="grid">
+      {% for block in blocks %}
+        {% liquid
+          assign col  = block.settings.collection
+          assign link = block.settings.link
+          if link == blank and col != blank
+            assign link = col.url
+          endif
+
+          assign title = block.settings.title
+          if title == blank and col != blank
+            assign title = col.title
+          endif
+
+          assign img = block.settings.image
+          if img == blank and col != blank and col.image
+            assign img = col.image
+          endif
+
+          assign bg = block.settings.card_bg
+        %}
+
+        <a class="card"
+           href="{{ link | default: '#' }}"
+           style="--card-bg: {{ bg | default: '#F5F7FF' }};"
+           data-bg
+           {{ block.shopify_attributes }}>
+
+          <div class="card__title">{{ title | default: 'Categoria' }}</div>
+
+          <div class="card__media" aria-hidden="true">
+            {% if img != blank %}
+              <img
+                src="{{ img | image_url: width: 520 }}"
+                alt="{{ title | escape }}"
+                loading="lazy">
+            {% else %}
+              <span style="width:90px;height:90px;border-radius:16px;background:rgba(0,0,0,.06);display:block;"></span>
+            {% endif %}
+          </div>
+
+          <span class="card__btn">{{ block.settings.button_label | default: section.settings.button_label | default: 'Ver Mais' }}</span>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Royal • Categorias",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Título da seção", "default": "Conheça Nossas Categorias" },
+
+    { "type": "color", "id": "bg", "label": "Fundo da seção", "default": "#F6D8E6" },
+    { "type": "color", "id": "title_color", "label": "Cor do título", "default": "#2B2B2B" },
+    { "type": "color", "id": "text_color", "label": "Cor do texto", "default": "#2B2B2B" },
+
+    { "type": "range", "id": "card_radius", "label": "Raio do card (desktop)", "min": 16, "max": 40, "step": 1, "default": 26 },
+
+    { "type": "range", "id": "desktop_cols", "label": "Colunas no desktop", "min": 2, "max": 6, "step": 1, "default": 4 },
+
+    { "type": "text", "id": "button_label", "label": "Texto do botão", "default": "Ver Mais" },
+    { "type": "color", "id": "btn_bg", "label": "Cor do botão", "default": "#D93B7D" },
+    { "type": "color", "id": "btn_text", "label": "Texto do botão", "default": "#FFFFFF" }
+  ],
+  "blocks": [
+    {
+      "type": "cat",
+      "name": "Categoria",
+      "settings": [
+        { "type": "collection", "id": "collection", "label": "Coleção (opcional)" },
+        { "type": "text", "id": "title", "label": "Título (opcional)" },
+        { "type": "image_picker", "id": "image", "label": "Imagem do card (opcional)" },
+        { "type": "url", "id": "link", "label": "Link (opcional, sobrescreve coleção)" },
+
+        { "type": "text", "id": "button_label", "label": "Texto do botão (opcional)" },
+        { "type": "color", "id": "card_bg", "label": "Cor de fundo do card", "default": "#F5F7FF" }
+      ]
+    }
+  ],
+  "max_blocks": 12,
+  "presets": [
+    { "name": "Royal • Categorias", "category": "Collections" }
+  ]
+}
+{% endschema %}

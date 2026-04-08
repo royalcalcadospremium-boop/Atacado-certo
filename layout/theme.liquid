@@ -1,0 +1,422 @@
+<!doctype html>
+<html class="no-js" lang="{{ request.locale.iso_code }}">
+  <head>
+	<!-- Added by AVADA SEO Suite -->
+	{% include 'avada-seo' %}
+	<!-- /Added by AVADA SEO Suite -->
+    <meta charset="utf-8">
+    <!-- Meta Pixel Code -->
+<script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '1142237543398804');
+  fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=1142237543398804&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, height=device-height, minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="theme-color" content="{{ settings.accent_color }}">
+    <link href="https://use.fontawesome.com/releases/v5.0.1/css/all.css" rel="stylesheet">
+
+    {%- capture seo_page_title -%}
+      {%- if request.page_type == 'search' and search.terms != blank -%}
+        {{ search.terms | split: ' AND ' | last }} - {{ shop.name }}
+      {%- else -%}
+        {{ page_title }}{% if current_tags %}{% assign meta_tags = current_tags | join: ', ' %} &ndash; {{ 'general.meta.tags' | t: tags: meta_tags }}{% endif %}{% if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif %}
+      {%- endif -%}
+    {%- endcapture -%}
+
+    <title>{{- seo_page_title -}}</title>
+
+    {%- if page_description -%}
+      <meta name="description" content="{{ page_description | escape }}">
+    {%- endif -%}
+
+    <link rel="canonical" href="{{ canonical_url }}">
+
+    {%- if settings.favicon -%}
+      <link rel="shortcut icon" href="{{ settings.favicon | img_url: '96x96' }}" type="image/png">
+    {%- endif -%}
+
+    {%- comment -%}Few prefech to increase performance on commonly used third-parties{%- endcomment -%}
+    <link rel="preload" as="style" href="{{ 'theme.css' | asset_url }}">
+    <link rel="preconnect" href="https://cdn.shopify.com">
+    <link rel="preconnect" href="https://fonts.shopifycdn.com">
+    <link rel="dns-prefetch" href="https://productreviews.shopifycdn.com">
+    <link rel="dns-prefetch" href="https://ajax.googleapis.com">
+    <link rel="dns-prefetch" href="https://maps.googleapis.com">
+    <link rel="dns-prefetch" href="https://maps.gstatic.com">
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-migrate-3.4.0.min.js" integrity="sha256-mBCu5+bVfYzOqpYyK4jm30ZxAZRomuErKEFJFIyrwvM=" crossorigin="anonymous"></script>
+   
+    {% if settings.ali_hunter_enable %}
+      {% render 'blockalihtr' %}
+    {% endif %}
+    
+    {% render 'social-meta-tags' %}
+    {% render 'css-variables' %}
+
+    {{ content_for_header }}
+    {%include "setbg"%}
+    <link rel="stylesheet" href="{{ 'theme.css' | asset_url }}">
+
+    {% render 'microdata-schema' %}
+    {% render 'fk-lck' %}
+  
+    <!-- INICIO DO BLOQUEADOR -->
+  
+    {% if settings.botao_direito_enable %}
+        <script type="text/javascript">
+            var message="Desculpe, o clique com o botão direito foi desativado.";
+            function clickIE() {if (document.all) {(message);return false;}}
+            function clickNS(e) {if
+            (document.layers||(document.getElementById&&!document.all)) {
+                if (e.which==2||e.which==3) {(message);return false;}}}
+            if (document.layers)
+            {document.captureEvents(Event.MOUSEDOWN);document.onmousedown=clickNS;}
+            else{document.onmouseup=clickNS;document.oncontextmenu=clickIE;}
+            document.oncontextmenu=new Function("return false")
+        </script>
+    {% endif %}
+
+    {% if settings.atalho_f12_enable %}
+        <script>
+            document.onkeydown = function(e) {
+                if(event.keyCode == 123) {
+                    return false;
+                }
+                if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)){
+                    return false;
+                }
+                if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)){
+                    return false;
+                }
+                if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)){
+                    return false;
+                }
+            }
+        </script>
+    {% endif %}
+
+    {% if settings.selecionar_conteudo_enable %}
+        <script>
+            function disableselect(e) {
+                return false;
+            }
+
+            function reEnable() {
+                return true;
+            }
+
+            document.onselectstart = new Function("return false");
+
+            if (window.sidebar) {
+                document.onmousedown = disableselect;
+                document.onclick = reEnable;
+            }
+        </script>
+    {% endif %}
+  
+    <!-- FINAL DO BLOQUEADOR -->
+    
+    <script>
+      // This allows to expose several variables to the global scope, to be used in scripts
+      window.theme = {
+        pageType: {{ request.page_type | json }},
+        cartCount: {{ cart.item_count | json }},
+        moneyFormat: {{ shop.money_format | json }},
+        moneyWithCurrencyFormat: {{ shop.money_with_currency_format | json }},
+        showDiscount: {% if settings.show_discount %}true{% else %}false{% endif %},
+        discountMode: {{ settings.discount_mode | json }},
+        searchMode: {{ settings.search_mode | json }},
+        cartType: {{ settings.cart_type | json }}
+      };
+
+      window.routes = {
+        rootUrl: {{ routes.root_url | json }},
+        cartUrl: {{ routes.cart_url | json }},
+        cartAddUrl: {{ routes.cart_add_url | json }},
+        cartChangeUrl: {{ routes.cart_change_url | json }},
+        searchUrl: {{ routes.search_url | json }},
+        productRecommendationsUrl: {{ routes.product_recommendations_url | json }}
+      };
+
+      window.languages = {
+        collectionOnSaleLabel: {{ 'collection.product.discount_html' | t | json }},
+        productFormUnavailable: {{ 'product.form.unavailable' | t | json }},
+        productFormAddToCart: {% if product.template_suffix == 'pre-order' %}{{ 'product.form.pre_order' | t | json }}{% else %}{{ 'product.form.add_to_cart' | t | json }}{% endif %},
+        productFormSoldOut: {{ 'product.form.sold_out' | t | json }},
+        shippingEstimatorNoResults: {{ 'cart.shipping_estimator.no_results_title' | t | json }},
+        shippingEstimatorOneResult: {{ 'cart.shipping_estimator.one_result_title' | t | json }},
+        shippingEstimatorMultipleResults: {{ 'cart.shipping_estimator.multiple_results_title' | t | json }},
+        shippingEstimatorErrors: {{ 'cart.shipping_estimator.errors' | t | json }}
+      };
+
+      window.lazySizesConfig = {
+        loadHidden: false,
+        hFac: 0.8,
+        expFactor: 3,
+        customMedia: {
+          '--phone': '(max-width: 640px)',
+          '--tablet': '(min-width: 641px) and (max-width: 1023px)',
+          '--lap': '(min-width: 1024px)'
+        }
+      };
+
+      document.documentElement.className = document.documentElement.className.replace('no-js', 'js');
+    </script>
+
+    {%- if request.page_type == 'customers/addresses' -%}
+      <script src="{{ 'shopify_common.js' | shopify_asset_url }}" defer></script>
+      <script src="{{ 'customer_area.js' | shopify_asset_url }}" defer></script>
+    {%- endif -%}
+
+    <script src="//cdn.polyfill.io/v3/polyfill.min.js?unknown=polyfill&features=fetch,Element.prototype.closest,Element.prototype.matches,Element.prototype.remove,Element.prototype.classList,Array.prototype.includes,Array.prototype.fill,String.prototype.includes,String.prototype.padStart,Object.assign,CustomEvent,Intl,URL,DOMTokenList,IntersectionObserver,IntersectionObserverEntry" defer></script><!--thi@gohsil@--> 
+    <script src="{{ 'theme.min.js' | asset_url }}" defer></script>
+    <script src="{{ 'custom.js' | asset_url }}" defer></script>
+
+    {%- if request.page_type != 'cart' -%}
+      <script>
+        (function () {
+          window.onpageshow = function() {
+            // We force re-freshing the cart content onpageshow, as most browsers will serve a cache copy when hitting the
+            // back button, which cause staled data
+            document.documentElement.dispatchEvent(new CustomEvent('cart:refresh', {
+              bubbles: true,
+              detail: {scrollToTop: false}
+            }));
+          };
+        })();
+      </script>
+    {%- endif -%}
+    
+    {{ '//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css' | stylesheet_tag }}
+
+    {% render 'gsf-conversion-pixels' %}
+
+  	
+<!-- RYVIU APP :: Settings global -->	
+    <script> var ryviu_global_settings = {{shop.metafields.ryviu.user_settings }};</script>
+<!-- RYVIU APP -->
+{%- if template contains 'collection' -%}
+  <meta property="og:title" content="{{ collection.title | escape }}">
+  <meta property="og:description" content="{{ collection.description | strip_html | truncate: 200 }}">
+  <meta property="og:url" content="{{ shop.url }}{{ collection.url }}">
+  
+  {% if collection.image %}
+    <meta property="og:image" content="{{ collection.image | img_url: '1200x630' }}">
+  {% else %}
+    <meta property="og:image" content="{{ shop.logo | img_url: '1200x630' }}">
+  {% endif %}
+{%- endif -%}
+
+</head>
+
+  <body class="warehouse--v1 {% if settings.animation_image_zoom %}features--animate-zoom{% endif%} template-{{ request.page_type | handle }} {% if request.page_type contains '/' %}template-{{ request.page_type | split: '/' | last | handle }}{% endif %}" data-instant-intensity="viewport"><!--thi@gohsil@-->  
+
+    <span class="loading-bar"></span>
+
+    {% section 'announcement-bar' %}
+
+    {%- unless request.page_type == 'cart' -%}
+      {%- comment -%}As required by Shopify rules, popup must be removed on cart page to remove distraction{%- endcomment -%}
+      {% section 'popups' %}
+    {%- endunless -%}
+
+    {% section 'header' %}
+
+    <main id="main" role="main">
+      {{ content_for_layout }}
+    </main>
+
+    {%- if request.page_type == 'blog' or request.page_type == 'article' or request.page_type == 'page' -%}
+      {% section 'static-newsletter' %}
+    {%- endif -%}
+
+    {% section 'text-with-icons' %}
+    {% section 'footer' %}
+    
+    {%- if settings.addzap -%} {% include 'addzap' %} {%- endif -%}
+                
+  <!-- Não remova. Checkout Yampi. -->
+{% capture yampi_snippet_content %}{% include 'YampiSnippet' %}{% endcapture %} {% unless yampi_snippet_content contains 'Liquid error' %} {% include 'YampiSnippet' %} {% endunless %}
+<!-- Não remova. Checkout Yampi. --> 
+{% section 'exit-popup' %} 
+
+<!-- Royal • FIX popover "Minha conta" (desktop) — Aperta espaçamentos para o botão verde aparecer -->
+<style id="royal-fix-login-popover">
+  @media (min-width:1024px){
+    /* Escopo: QUALQUER popover do header que tenha formulário de login */
+    header .popover:has(form[action*="/account/login"]) .social-login{
+      margin-bottom:10px !important; /* Apple ⇄ Título */
+    }
+
+    header .popover:has(form[action*="/account/login"]) h1,
+    header .popover:has(form[action*="/account/login"]) h2,
+    header .popover:has(form[action*="/account/login"]) h3,
+    header .popover:has(form[action*="/account/login"]) h4{
+      margin-top:8px !important;   /* Título mais próximo do bloco social */
+      margin-bottom:8px !important;/* Título mais próximo do texto */
+      line-height:1.2 !important;  /* harmoniza sem mudar o tamanho */
+    }
+
+    header .popover:has(form[action*="/account/login"]) h1 + p,
+    header .popover:has(form[action*="/account/login"]) h2 + p,
+    header .popover:has(form[action*="/account/login"]) h3 + p,
+    header .popover:has(form[action*="/account/login"]) h4 + p{
+      margin-top:0 !important;
+      margin-bottom:8px !important; /* Texto ⇄ campos */
+    }
+
+    /* Campos do formulário (e-mail ⇄ senha) mais próximos */
+    header .popover:has(form[action*="/account/login"]) form[action*="/account/login"] .field + .field{
+      margin-top:10px !important;
+    }
+
+    /* Garante que padding inferior do container não esconda o botão */
+    header .popover:has(form[action*="/account/login"]) .popover__content{
+      padding-bottom:14px !important;
+      overflow:visible !important; /* evita corte visual do botão */
+    }
+  }
+</style>
+
+<!-- Troca "em até 12x ..." por "ou 12x ..." em todo o site -->
+<script>
+(function () {
+  // padrões que cobrimos (maiúsculas/minúsculas e acentos):
+  // "em até 12x de R$ ..."  -> "ou 12x de R$ ..."
+  // "em até 12x"            -> "ou 12x"
+  const patterns = [
+    { re: /\bem\s*at[eé]\s*(\d+)\s*[xX]\s*de\b/gi, repl: 'ou $1x de' },
+    { re: /\bem\s*at[eé]\s*(\d+)\s*[xX]\b/gi, repl: 'ou $1x' }
+  ];
+  const SKIP = /^(SCRIPT|STYLE|NOSCRIPT|TEXTAREA|INPUT|OPTION)$/i;
+
+  function replaceTextNode(node){
+    if (node.nodeType !== Node.TEXT_NODE) return;
+    const p = node.parentNode;
+    if (!p || SKIP.test(p.nodeName)) return;
+
+    let text = node.nodeValue, changed = false;
+    for (const {re, repl} of patterns){
+      const t2 = text.replace(re, repl);
+      if (t2 !== text){ text = t2; changed = true; }
+    }
+    if (changed) node.nodeValue = text;
+  }
+
+  function walk(root){
+    try{
+      const tw = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+      let n; while ((n = tw.nextNode())) replaceTextNode(n);
+    } catch(e){/* noop */}
+  }
+
+  function init(){
+    walk(document.body);
+    new MutationObserver(muts => {
+      for (const m of muts) {
+        if (m.addedNodes) m.addedNodes.forEach(node => walk(node));
+      }
+    }).observe(document.body, { childList:true, subtree:true });
+  }
+
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
+{% render 'ou-12x' %}
+
+{% section 'cart-drawer' %}
+
+<script>
+(function(){
+  // ==== OPEN CART (ultra-compat) ====
+  function openCartDrawer(payload){
+    // 1) Eventos que muitos temas escutam
+    try{ document.dispatchEvent(new CustomEvent('cart:refresh', {detail: payload})); }catch(e){}
+    try{ document.dispatchEvent(new CustomEvent('cart:open',    {detail: payload})); }catch(e){}
+    try{ document.dispatchEvent(new CustomEvent('added.ajaxCart', {detail: payload})); }catch(e){}
+    try{ document.dispatchEvent(new CustomEvent('cart:updated', {detail: payload})); }catch(e){}
+
+    // 2) Dawn / OS 2.0
+    var dawnDrawer = document.querySelector('cart-drawer');
+    if (dawnDrawer){
+      try{ if (typeof dawnDrawer.open === 'function'){ dawnDrawer.open(); return; } }catch(e){}
+      try{ dawnDrawer.setAttribute('open',''); return; }catch(e){}
+    }
+    var dawnNotif = document.querySelector('cart-notification');
+    if (dawnNotif){
+      try{ if (typeof dawnNotif.open === 'function'){ dawnNotif.open(); return; } }catch(e){}
+    }
+
+    // 3) APIs de temas conhecidos
+    try{ if (window.cartDrawer && typeof window.cartDrawer.open === 'function'){ window.cartDrawer.open(); return; } }catch(e){}
+    try{ if (window.theme && window.theme.Cart && typeof window.theme.Cart.open === 'function'){ window.theme.Cart.open(); return; } }catch(e){}
+    try{ if (window.Shopify && window.Shopify.theme && window.Shopify.theme.cart && typeof window.Shopify.theme.cart.open === 'function'){ window.Shopify.theme.cart.open(); return; } }catch(e){}
+    try{ if (window.PXUTheme && PXUTheme.jsDrawer && typeof PXUTheme.jsDrawer.open === 'function'){ PXUTheme.jsDrawer.open('CartDrawer'); return; } }catch(e){}
+    try{ if (window.Minicart && typeof window.Minicart.open === 'function'){ window.Minicart.open(); return; } }catch(e){}
+    try{ if (window.Drawer && typeof window.Drawer.open === 'function'){ window.Drawer.open('cart'); return; } }catch(e){}
+
+    // 4) Clicar em possíveis gatilhos visíveis/ocultos
+    var triggers = document.querySelectorAll([
+      '[data-action="open-cart"]',
+      '[data-cart-toggle]',
+      '[data-drawer="cart"]',
+      '[data-open="cart"]',
+      '[data-drawer-target="cart"]',
+      'button[aria-controls*="CartDrawer"]',
+      'a[href="#CartDrawer"]',
+      '[aria-controls="cart-drawer"]',
+      '.header__cart', '.site-header__cart',
+      '.js-mini-cart-toggle', '.minicart-toggle', '.open-cart'
+    ].join(','));
+    for (var i=0;i<triggers.length;i++){
+      var el = triggers[i];
+      try { el.click(); return; } catch(e){}
+    }
+
+    // 5) Forçar classes em drawers comuns já no DOM (sem mudar de página)
+    var drawer = document.querySelector('[data-cart-drawer], #CartDrawer, .cart-drawer, .drawer--cart, .mini-cart, .minicart, #ajaxifyCart');
+    if (drawer){
+      try{
+        drawer.classList.add('is-open','drawer--is-open','active','open');
+        drawer.removeAttribute('aria-hidden');
+        document.documentElement.classList.add('drawer-open','js-drawer-open','scroll-lock');
+        document.body.classList.add('drawer-open','js-drawer-open','no-scroll');
+        return;
+      }catch(e){}
+    }
+  }
+  window.openCartDrawer = openCartDrawer;
+
+  // Garante que qualquer .gx-addtocart-mini tente abrir o drawer
+  document.addEventListener('click', function(ev){
+    var btn = ev.target && ev.target.closest && ev.target.closest('.gx-addtocart-mini');
+    if (!btn) return;
+    // dá um pequeno intervalo caso o tema atualize o DOM do carrinho
+    setTimeout(function(){ openCartDrawer(); }, 30);
+  }, true);
+})();
+</script>
+
+{% section 'cart-drawer' %}
+{{ 'cart-drawer.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'cart-drawer.js' | asset_url }}" defer></script>
+
+</body>
+</html>

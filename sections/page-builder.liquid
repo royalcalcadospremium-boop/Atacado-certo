@@ -1,0 +1,175 @@
+{% comment %} Page Builder Royal – Premium (tema vintage .liquid) {% endcomment %}
+<section id="royal-linkinbio" class="royal-lnb" style="padding:24px 16px; max-width:720px; margin:0 auto;">
+
+  {% if section.settings.hide_chrome %}
+    <style>
+      .announcement-bar, .announcement, #shopify-section-announcement-bar,
+      header.site-header, .site-header, .header, #shopify-section-header,
+      footer.site-footer, .site-footer, #shopify-section-footer { display:none !important; }
+      main, .main-content, #MainContent { margin:0 !important; padding:0 !important; }
+    </style>
+  {% endif %}
+
+  <style>
+    :root { --royal-blue:#0046FF; --royal-blue-dark:#0a2d8a; --royal-gold:#C9A646; }
+    .royal-lnb * { box-sizing:border-box; }
+    .royal-title{font-size:30px;font-weight:800;margin:8px 0 10px;text-align:center;color:var(--royal-blue-dark)}
+    .royal-sub{font-size:16px;opacity:.9;margin:0 0 16px;text-align:center}
+    .royal-text{font-size:16px;line-height:1.65;margin:0 0 16px}
+    .royal-btn{display:block;width:100%;text-align:center;text-decoration:none;font-weight:800;
+      background:var(--royal-gold);color:#fff;padding:14px 18px;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.12);transition:.2s}
+    .royal-btn:hover{background:#fff;color:var(--royal-blue)}
+    .royal-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .royal-card{background:#fff;border-radius:16px;padding:16px;box-shadow:0 8px 24px rgba(0,0,0,.08)}
+    .royal-banner{position:relative;overflow:hidden;border-radius:16px;margin:12px 0}
+    .royal-banner img{width:100%;height:auto;display:block}
+    .royal-banner__txt{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;
+      padding:18px;background:linear-gradient(180deg,rgba(0,0,0,0) 20%, rgba(0,0,0,.55) 85%);color:#fff}
+    .royal-banner__title{font-size:22px;font-weight:900;margin:0 0 6px}
+    .royal-banner__sub{opacity:.95;margin:0 0 10px}
+    .royal-social{display:flex;gap:10px;justify-content:center;margin:12px 0}
+    .royal-social a{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:12px;
+      background:#0046FF;color:#fff;font-weight:900;text-decoration:none;box-shadow:0 6px 18px rgba(0,70,255,.25)}
+    .royal-faq{border-radius:14px;border:1px solid rgba(0,0,0,.08);margin:8px 0;overflow:hidden}
+    .royal-faq__q{margin:0;padding:14px 16px;background:#fafafa;font-weight:800;cursor:pointer}
+    .royal-faq__a{padding:14px 16px;display:block}
+    @media(min-width:760px){ .royal-title{font-size:34px} }
+  </style>
+
+  {% for block in section.blocks %}
+    {% case block.type %}
+
+      {% when 'heading' %}
+        <h2 class="royal-title">{{ block.settings.text }}</h2>
+
+      {% when 'subheading' %}
+        <p class="royal-sub">{{ block.settings.text }}</p>
+
+      {% when 'text' %}
+        <div class="royal-text">{{ block.settings.richtext }}</div>
+
+      {% when 'image' %}
+        {% if block.settings.image %}
+          <div style="margin:12px 0; text-align:center;">
+            <img src="{{ block.settings.image | image_url: width: 1400 }}" alt="{{ block.settings.alt | escape }}" style="max-width:100%;height:auto;border-radius:14px;">
+          </div>
+        {% endif %}
+
+      {% when 'video' %}
+        {% if block.settings.video_embed != blank %}
+          <div style="position:relative;padding-top:56.25%;margin:12px 0;border-radius:14px;overflow:hidden;">
+            <div style="position:absolute;inset:0;">{{ block.settings.video_embed }}</div>
+          </div>
+        {% endif %}
+
+      {% when 'button' %}
+        <a class="royal-btn" href="{{ block.settings.url }}" target="_blank" rel="noopener">{{ block.settings.label }}</a>
+
+      {% when 'links3' %}
+        <div class="royal-card">
+          {% if block.settings.url_1 != '#' %}
+            <a class="royal-btn" href="{{ block.settings.url_1 }}" target="_blank" rel="noopener" style="margin-bottom:10px">{{ block.settings.label_1 }}</a>
+          {% endif %}
+          {% if block.settings.url_2 != '#' %}
+            <a class="royal-btn" href="{{ block.settings.url_2 }}" target="_blank" rel="noopener" style="margin-bottom:10px">{{ block.settings.label_2 }}</a>
+          {% endif %}
+          {% if block.settings.url_3 != '#' %}
+            <a class="royal-btn" href="{{ block.settings.url_3 }}" target="_blank" rel="noopener">{{ block.settings.label_3 }}</a>
+          {% endif %}
+        </div>
+
+      {% when 'row2' %}
+        <div class="royal-grid2">
+          <a class="royal-btn" href="{{ block.settings.url_a }}" target="_blank" rel="noopener">{{ block.settings.label_a }}</a>
+          <a class="royal-btn" href="{{ block.settings.url_b }}" target="_blank" rel="noopener">{{ block.settings.label_b }}</a>
+        </div>
+
+      {% when 'social' %}
+        <div class="royal-social">
+          <a href="{{ block.settings.whatsapp }}" target="_blank" rel="noopener">WA</a>
+          <a href="{{ block.settings.instagram }}" target="_blank" rel="noopener">IG</a>
+          <a href="{{ block.settings.tiktok }}" target="_blank" rel="noopener">TT</a>
+        </div>
+
+      {% when 'faq' %}
+        <details class="royal-faq">
+          <summary class="royal-faq__q">{{ block.settings.q }}</summary>
+          <div class="royal-faq__a">{{ block.settings.a }}</div>
+        </details>
+
+      {% when 'banner' %}
+        {% if block.settings.image %}
+          <div class="royal-banner">
+            <img src="{{ block.settings.image | image_url: width: 1600 }}" alt="{{ block.settings.alt | escape }}">
+            <div class="royal-banner__txt">
+              <div class="royal-banner__title">{{ block.settings.title }}</div>
+              <div class="royal-banner__sub">{{ block.settings.subtitle }}</div>
+              <div>
+                <a class="royal-btn" href="{{ block.settings.btn_url }}" target="_blank" rel="noopener">{{ block.settings.btn_label }}</a>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+
+      {% when 'spacer' %}
+        <div style="height: {{ block.settings.height }}px;"></div>
+
+      {% when 'divider' %}
+        <hr style="border:0;height:1px;background:rgba(0,0,0,.1);margin:16px 0;">
+
+    {% endcase %}
+  {% endfor %}
+</section>
+
+{% schema %}
+{
+  "name": "Page Builder Royal",
+  "settings": [
+    { "type": "checkbox", "id": "hide_chrome", "label": "Ocultar header/rodapé", "default": true }
+  ],
+  "blocks": [
+    { "type": "heading", "name": "Título", "settings": [ { "type": "text", "id": "text", "label": "Texto", "default": "Link na Bio" } ] },
+    { "type": "subheading", "name": "Subtítulo", "settings": [ { "type": "text", "id": "text", "label": "Texto", "default": "👑 Bem-vindo à Royal Calçados" } ] },
+    { "type": "text", "name": "Texto", "settings": [ { "type": "richtext", "id": "richtext", "label": "Conteúdo", "default": "<p>Escreva aqui sua mensagem.</p>" } ] },
+    { "type": "image", "name": "Imagem", "settings": [ { "type": "image_picker", "id": "image", "label": "Imagem" }, { "type": "text", "id": "alt", "label": "Alt", "default": "Imagem Royal" } ] },
+    { "type": "video", "name": "Vídeo (embed)", "settings": [ { "type": "text", "id": "video_embed", "label": "Código embed (iframe)", "default": "<iframe width='560' height='315' src='https://www.youtube.com/embed/VIDEO_ID' title='YouTube video' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>" } ] },
+    { "type": "button", "name": "Botão", "settings": [ { "type": "text", "id": "label", "label": "Texto do botão", "default": "🛒 Loja Online" }, { "type": "text", "id": "url", "label": "URL", "default": "/collections/all" } ] },
+    { "type": "links3", "name": "Links (3)", "settings": [
+      { "type": "text", "id": "label_1", "label": "Label 1", "default": "🛒 Loja Online" },
+      { "type": "text", "id": "url_1", "label": "URL 1", "default": "/collections/all" },
+      { "type": "text", "id": "label_2", "label": "Label 2", "default": "📲 WhatsApp" },
+      { "type": "text", "id": "url_2", "label": "URL 2", "default": "https://wa.me/5562XXXXXXXXX" },
+      { "type": "text", "id": "label_3", "label": "Label 3", "default": "📂 Catálogo" },
+      { "type": "text", "id": "url_3", "label": "URL 3", "default": "/pages/catalogo" }
+    ] },
+    { "type": "row2", "name": "Linha 2 botões", "settings": [
+      { "type": "text", "id": "label_a", "label": "Label A", "default": "🔥 Ofertas" },
+      { "type": "text", "id": "url_a", "label": "URL A", "default": "/collections/all?sort_by=best-selling" },
+      { "type": "text", "id": "label_b", "label": "Label B", "default": "🧾 Catálogo PDF" },
+      { "type": "text", "id": "url_b", "label": "URL B", "default": "#" }
+    ] },
+    { "type": "social", "name": "Sociais", "settings": [
+      { "type": "text", "id": "whatsapp", "label": "WhatsApp", "default": "https://wa.me/5562XXXXXXXXX" },
+      { "type": "text", "id": "instagram", "label": "Instagram", "default": "https://instagram.com/seuperfil" },
+      { "type": "text", "id": "tiktok", "label": "TikTok", "default": "https://tiktok.com/@seuperfil" }
+    ] },
+    { "type": "faq", "name": "FAQ", "settings": [
+      { "type": "text", "id": "q", "label": "Pergunta", "default": "Como funciona o envio?" },
+      { "type": "richtext", "id": "a", "label": "Resposta", "default": "<p>Despachamos no mesmo dia útil com código de rastreio.</p>" }
+    ] },
+    { "type": "banner", "name": "Banner", "settings": [
+      { "type": "image_picker", "id": "image", "label": "Imagem" },
+      { "type": "text", "id": "alt", "label": "Alt", "default": "Banner Royal" },
+      { "type": "text", "id": "title", "label": "Título", "default": "Frete grátis + envio imediato" },
+      { "type": "text", "id": "subtitle", "label": "Subtítulo", "default": "Compre pelo site e garanta condições especiais" },
+      { "type": "text", "id": "btn_label", "label": "Texto do botão", "default": "Comprar agora" },
+      { "type": "text", "id": "btn_url", "label": "URL do botão", "default": "/collections/all" }
+    ] },
+    { "type": "spacer", "name": "Espaçador", "settings": [ { "type": "range", "id": "height", "min": 8, "max": 120, "step": 4, "unit": "px", "label": "Altura", "default": 20 } ] },
+    { "type": "divider", "name": "Divisor", "settings": [] }
+  ],
+  "presets": [
+    { "name": "Page Builder Royal", "blocks": [ { "type": "heading" }, { "type": "subheading" }, { "type": "links3" } ] }
+  ]
+}
+{% endschema %}

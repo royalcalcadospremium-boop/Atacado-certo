@@ -1,0 +1,27 @@
+{%- comment -%}
+If the product contains the special __gift tag, we prevent it to be completely accessible by redirecting to the home page
+{%- endcomment -%}
+
+{%- if product.tags contains '__gift' -%}
+  <script>
+    window.location.href = '/';
+  </script>
+{%- else -%}
+  {% section 'product-template' %}
+
+  <div id='Areviewsapp' class='page-full'>{%  render 'aliexpress_reviews' , product: product %}</div>					
+  <!-- RYVIU APP :: WIDGET -->
+  <div class="lt-block-reviews"> 
+	<ryviu-widget handle="{{product.handle}}" product_id="{{product.id}}" title_product="{{product.title}}" image_product="{{ product.featured_image.src | img_url: '180x' }}"></ryviu-widget>
+  </div>
+  <!-- / RYVIU APP -->
+  
+  {% section 'product-recommendations' %}
+  {% section 'static-promotion-list' %}
+  {% section 'static-recently-viewed-products' %}
+
+  <script>
+    window.ShopifyXR=window.ShopifyXR||function(){(ShopifyXR.q=ShopifyXR.q||[]).push(arguments)};
+    ShopifyXR('addModels', {{ product.media | where: 'media_type', 'model' | json }});
+  </script>
+{%- endif -%}

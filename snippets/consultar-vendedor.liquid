@@ -1,0 +1,145 @@
+{% comment %}
+SNIPPET: consultar-vendedor.liquid
+Objetivo: substituir o botão "Comprar agora" pelo "Consultar vendedor" no MESMO lugar.
+Funciona por tag: "consultar-vendedor".
+{% endcomment %}
+
+{% assign trigger_tag = 'consultar-vendedor' %}
+{% if product.tags contains trigger_tag %}
+
+<style>
+  .cv-modal-backdrop{position:fixed;inset:0;display:none;background:rgba(0,0,0,.55);z-index:9998}
+  .cv-modal{position:fixed;inset:0;display:none;place-items:center;z-index:9999}
+  .cv-card{background:#fff;max-width:720px;width:92%;border-radius:16px;padding:22px;box-shadow:0 10px 40px rgba(0,0,0,.25);position:relative}
+  .cv-title{font-weight:700;font-size:18px;margin:0 0 10px}
+  .cv-close{position:absolute;right:14px;top:10px;background:transparent;border:0;font-size:22px;cursor:pointer}
+  .cv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-top:10px}
+  .cv-seller{border:1px solid #eee;border-radius:14px;padding:12px;text-align:center}
+  .cv-seller img{width:84px;height:84px;border-radius:999px;object-fit:cover;margin:6px auto 10px}
+  .cv-btn{display:inline-block;padding:10px 12px;border-radius:999px;border:0;cursor:pointer;background:#25D366;color:#fff}
+</style>
+
+<div class="cv-modal-backdrop" id="cvBackdrop"></div>
+<div class="cv-modal" id="cvModal" role="dialog" aria-modal="true" aria-label="Escolha seu vendedor">
+  <div class="cv-card">
+    <button class="cv-close" id="cvClose" aria-label="Fechar">✕</button>
+    <h3 class="cv-title">Escolha seu vendedor</h3>
+
+    <div class="cv-grid">
+      <!-- Ajuste ou repita até 4 vendedores -->
+      <div class="cv-seller">
+        <img src="https://cdn.shopify.com/s/files/1/0795/7970/9731/files/2_f8f1d6dd-6be0-458e-b768-67e11436f89c.png?v=1759774645" alt="Suellen">
+        <div style="font-weight:600;margin-bottom:6px">Vendedora Suellen</div>
+        <button class="cv-btn" data-phone="5562985020940">Consultar Numeração</button>
+      </div>
+
+      <div class="cv-seller">
+        <img src="https://cdn.shopify.com/s/files/1/0795/7970/9731/files/1_ed43e8b6-1de1-411d-b887-03f7e0ffac8f.png?v=1759774644" alt="Bruna">
+        <div style="font-weight:600;margin-bottom:6px">Vendedora Bruna</div>
+        <button class="cv-btn" data-phone="5562996909084">Consultar Numeração</button>
+      </div>
+
+      <div class="cv-seller">
+        <img src="https://cdn.shopify.com/s/files/1/0853/9773/3650/files/SUPORTE.png?v=1760072425" alt="Fellipe">
+        <div style="font-weight:600;margin-bottom:6px">Vendedor Fellipe</div>
+        <button class="cv-btn" data-phone="5562991902661">Consultar Numeração</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const LABEL = 'Consultar vendedor';
+  const SELECTORS = [
+    'form[action*="/cart/add"] [type="submit"]',
+    '.product-form__add-button',
+    '.product-form__submit',
+    'button[name="add"]',
+    '#AddToCart',
+    '.btn-add-to-cart',
+    '.button--add-to-cart',
+    '.shopify-payment-button__button--unbranded'
+  ];
+
+  function findBuyButton(){
+    for (let i=0;i<SELECTORS.length;i++){
+      const el = document.querySelector(SELECTORS[i]);
+      if (el) return el;
+    }
+    return null;
+  }
+
+  function replaceButton(btn){
+    if (!btn || btn.dataset.cvArmed) return;
+    btn.dataset.cvArmed = '1';
+    btn.textContent = LABEL;
+    btn.addEventListener('click', function(ev){
+      ev.preventDefault(); ev.stopPropagation();
+      openModal();
+    }, true);
+  }
+
+  function tryHook(){
+    const b = findBuyButton();
+    if (b){ replaceButton(b); return true; }
+    return false;
+  }
+
+  if (!tryHook()){
+    let t=0, iv=setInterval(()=>{ if (tryHook()||++t>30) clearInterval(iv); }, 100);
+    const mo=new MutationObserver(()=>{ if(tryHook()){ mo.disconnect(); }});
+    mo.observe(document.documentElement,{childList:true,subtree:true});
+  }
+
+  // ---------- modal ----------
+  const backdrop = document.getElementById('cvBackdrop');
+  const modal = document.getElementById('cvModal');
+  const closeBtn = document.getElementById('cvClose');
+
+  function openModal(){ backdrop.style.display='block'; modal.style.display='grid'; document.body.style.overflow='hidden'; }
+  function closeModal(){ backdrop.style.display='none'; modal.style.display='none'; document.body.style.overflow=''; }
+  backdrop.addEventListener('click', closeModal);
+  closeBtn.addEventListener('click', closeModal);
+
+  modal.addEventListener('click', function(e){
+    const btn = e.target.closest('.cv-btn'); if(!btn) return;
+
+    let variantTitle=null, priceText=null;
+    try{
+      {% if product.variants.size > 0 %}
+        const variants = {{ product.variants | json }};
+        const form = document.querySelector('form[action*="/cart/add"]');
+        let vid = form?.querySelector('[name="id"]')?.value;
+        if(!vid){ vid=(variants.find(v=>v.available)||variants[0]).id; }
+        const vObj = variants.find(v => String(v.id)===String(vid)) || variants[0];
+        variantTitle = vObj ? vObj.title : null;
+        priceText = vObj ? (vObj.price/100).toLocaleString('pt-BR',{style:'currency',currency: {{ shop.currency | json }} }) : null;
+      {% endif %}
+    }catch(_){}
+
+    const productTitle = {{ product.title | json }};
+    const link = "{{ shop.url }}{{ product.url }}";
+    const img = "{{ product.featured_media | default: product.featured_image | img_url: '800x' | prepend: 'https:' }}";
+
+    const parts = [
+      "*{{ shop.name | escape }}*",
+      "Produto: " + productTitle,
+      variantTitle ? "Variação: " + variantTitle : "",
+      priceText ? "Preço: " + priceText : "",
+      "Link: " + link,
+      "",
+      "Gostei deste produto, ainda está disponível?"
+    ].filter(Boolean);
+
+    const text = encodeURIComponent(parts.join("\n"));
+    const phone = btn.getAttribute('data-phone').replace(/\D+/g,'');
+
+    // usa sempre wa.me para evitar bloqueio no tema
+    const url = 'https://wa.me/' + phone + '?text=' + text;
+    window.open(url, '_blank');
+  });
+})();
+</script>
+
+{% endif %}

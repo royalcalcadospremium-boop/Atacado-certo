@@ -1,0 +1,77 @@
+<!-- snippets/ou-12x.liquid -->
+<script>
+(function () {
+  // Limite por seletor: ajuste conforme suas classes de card comuns
+  // Deixamos vários alvos populares de temas Warehouse/Dawn/Overlap; ajuste se necessário.
+  const ROOT_SELECTOR = '.product-item, .product-card, .grid-product, .product-item__info, .product-card__info, .card-information, .price, .product-meta, .productgrid--item, .productgrid--item-info, .productgrid--price, .product-block, .product-grid-item, .product-tile';
+
+  const SKIP = /^(SCRIPT|STYLE|NOSCRIPT|TEXTAREA|INPUT|OPTION)$/i;
+
+  // Regras: cobrem casos contínuos e “quebrados” em nós diferentes (ex.: "em até " + <strong>12x</strong> + " de")
+  const patterns = [
+    /\bem\s*at[eé]\s*(\d+)\s*[xX]\s*de\b/gi, // "em até 12x de" -> "ou 12x de"
+    /\bem\s*at[eé]\s*(\d+)\s*[xX]\b/gi,       // "em até 12x"    -> "ou 12x"
+    /\bem\s*at[eé]\b/gi                         // "em até"        -> "ou" (pega casos quebrados)
+  ];
+  const replacements = ['ou $1x de', 'ou $1x', 'ou'];
+
+  function replaceInTextNode(node){
+    if (node.nodeType !== Node.TEXT_NODE) return;
+    const p = node.parentNode;
+    if (!p || SKIP.test(p.nodeName)) return;
+    if (ROOT_SELECTOR && !p.closest(ROOT_SELECTOR)) return;
+
+    let txt = node.nodeValue, changed = false;
+    for (let i = 0; i < patterns.length; i++){
+      const t2 = txt.replace(patterns[i], replacements[i]);
+      if (t2 !== txt){ txt = t2; changed = true; }
+    }
+    if (changed) node.nodeValue = txt;
+  }
+
+  function walk(root){
+    try{
+      const tw = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+      let n; while ((n = tw.nextNode())) replaceInTextNode(n);
+    } catch(e) {}
+  }
+
+  function run(){
+    if (ROOT_SELECTOR){
+      document.querySelectorAll(ROOT_SELECTOR).forEach(el => walk(el));
+    } else {
+      walk(document.body);
+    }
+  }
+
+  function observe(){
+    const mo = new MutationObserver(muts => {
+      for (const m of muts){
+        if (m.type === 'childList'){
+          m.addedNodes && m.addedNodes.forEach(node => {
+            if (node.nodeType === 1){
+              if (!ROOT_SELECTOR || node.matches(ROOT_SELECTOR) || node.querySelector(ROOT_SELECTOR)){
+                (node.matches(ROOT_SELECTOR) ? [node] : node.querySelectorAll(ROOT_SELECTOR)).forEach(walk);
+              }
+            } else if (node.nodeType === 3){
+              replaceInTextNode(node);
+            }
+          });
+        } else if (m.type === 'characterData'){
+          replaceInTextNode(m.target);
+        }
+      }
+    });
+    mo.observe(document.body, { childList:true, subtree:true, characterData:true });
+  }
+
+  // Rodar no load e reforçar pós-hidratação
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', () => { run(); observe(); });
+  } else {
+    run(); observe();
+  }
+  let tries = 0;
+  const id = setInterval(() => { run(); if (++tries > 6) clearInterval(id); }, 400);
+})();
+</script>

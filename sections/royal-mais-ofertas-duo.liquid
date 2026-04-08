@@ -1,0 +1,1536 @@
+{% comment %} 
+royal-mais-ofertas-duo.liquid
+Royal • Tabs Cards (v1.4.9a) — VER MAIS + SEM CORAÇÃO + OPACIDADE SÓ DO FUNDO DO DESCONTO
+- ✅ “Ver mais” no canto superior direito (link dinâmico para a coleção da aba ativa)
+- ✅ Remove ícone de coração dos cards
+- ✅ Opacidade controla SOMENTE o FUNDO do badge (texto/número fica 100%)
+- ✅ Mantém: clique no card navega pro produto, modal premium único, add single abre drawer, full-bleed foto
+FIX:
+- ✅ Schema compatível: products_count agora aceita valores maiores (evita FileSaveError)
+IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
+{% endcomment %}
+
+<section id="royal-tabs-cards-{{ section.id }}" class="royal-tabs-cards">
+
+  {% liquid
+    assign tabs = section.blocks | where: 'type', 'tab'
+    assign fallback_tab = false
+    if tabs.size == 0
+      assign fallback_tab = true
+    endif
+
+    assign initial_view_more_url = ''
+    if fallback_tab
+      if section.settings.collection_fallback
+        assign initial_view_more_url = section.settings.collection_fallback.url
+      endif
+    else
+      assign first_tab = tabs.first
+      if first_tab and first_tab.settings.collection
+        assign initial_view_more_url = first_tab.settings.collection.url
+      endif
+    endif
+  %}
+
+  <style>
+    #royal-tabs-cards-{{ section.id }}{
+      --bg: {{ section.settings.bg | default: '#FAD6E6' }};
+      --card: {{ section.settings.card_bg | default: '#FFEAF3' }};
+      --radius: {{ section.settings.card_radius | default: 34 }}px;
+      --gap: {{ section.settings.gap | default: 18 }}px;
+
+      --pill-bg: {{ section.settings.pill_bg | default: '#E7E7E7' }};
+      --pill-active: {{ section.settings.pill_active_bg | default: '#F01980' }};
+      --pill-text: {{ section.settings.pill_text | default: '#2B2B2B' }};
+      --pill-active-text: {{ section.settings.pill_active_text | default: '#FFFFFF' }};
+
+      /* botão verde (card + modal) */
+      --btn: {{ section.settings.btn_bg | default: '#B7F25A' }};
+      --btn-text: {{ section.settings.btn_text | default: '#16310D' }};
+
+      /* Badge */
+      --badge: {{ section.settings.badge_bg | default: '#B7F25A' }};
+      --badge-text: {{ section.settings.badge_text | default: '#16310D' }};
+      --badge-bg-opacity: {{ section.settings.badge_opacity | default: 100 | times: 0.01 }};
+
+      --title: {{ section.settings.title_color | default: '#1F2A44' }};
+      --muted: {{ section.settings.muted_color | default: '#6B7280' }};
+      --price: {{ section.settings.price_color | default: '#1F2A44' }};
+      --compare: {{ section.settings.compare_color | default: '#F01980' }};
+
+      /* Disponibilidade (círculo) */
+      --avail: {{ section.settings.avail_border | default: '#A7F3D0' }};
+      --unavail: {{ section.settings.unavail_border | default: '#FECACA' }};
+
+      /* Quantidade por tela */
+      --per-d: {{ section.settings.per_view_desktop | default: 4 }};
+      --per-m: {{ section.settings.per_view_mobile | default: '2' }};
+      --peek-m: {{ section.settings.peek_mobile | default: 20 | times: 0.01 }};
+
+      /* Altura do card separada */
+      --card-h-d: {{ section.settings.card_height_desktop | default: 520 }}px;
+      --card-h-m: {{ section.settings.card_height_mobile  | default: 520 }}px;
+
+      background: var(--bg);
+      position: relative;
+      z-index: 3;
+      isolation: isolate;
+      padding: {{ section.settings.section_padding_y | default: 26 }}px 0;
+    }
+
+    /* Container */
+    #royal-tabs-cards-{{ section.id }} .container{
+      width: 100%;
+      max-width: 1480px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: var(--mobile-container-gutter, 20px);
+      padding-right: var(--mobile-container-gutter, 20px);
+    }
+    @media (min-width: 641px) and (max-width: 1023px){
+      #royal-tabs-cards-{{ section.id }} .container{
+        padding-left: var(--tablet-container-gutter, 28px);
+        padding-right: var(--tablet-container-gutter, 28px);
+      }
+    }
+    @media (min-width: 1024px){
+      #royal-tabs-cards-{{ section.id }} .container{
+        padding-left: var(--desktop-container-gutter, 36px);
+        padding-right: var(--desktop-container-gutter, 36px);
+      }
+    }
+
+    /* Header (tabs + ver mais) */
+    #royal-tabs-cards-{{ section.id }} .headbar{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 6px 0 10px;
+    }
+    #royal-tabs-cards-{{ section.id }} .viewmore{
+      flex: 0 0 auto;
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      text-decoration:none;
+      font-weight: 800;
+      font-size: 14px;
+      line-height: 1;
+      color: {{ section.settings.view_more_color | default: '#1F2A44' }};
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: {{ section.settings.view_more_bg | default: '#FFFFFF' }};
+      border: 1px solid rgba(31,42,68,.10);
+      transition: transform .12s ease, filter .12s ease, opacity .12s ease;
+      white-space: nowrap;
+    }
+    #royal-tabs-cards-{{ section.id }} .viewmore:hover{ filter: brightness(.98); transform: translateY(-1px); }
+    #royal-tabs-cards-{{ section.id }} .viewmore:active{ transform: scale(.99); }
+    #royal-tabs-cards-{{ section.id }} .viewmore svg{
+      width: 16px; height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    @media (max-width: 640px){
+      #royal-tabs-cards-{{ section.id }} .headbar{ gap: 10px; }
+      #royal-tabs-cards-{{ section.id }} .viewmore{ padding: 9px 12px; font-size: 13px; }
+    }
+
+    /* Tabs (pílulas) */
+    #royal-tabs-cards-{{ section.id }} .tabsbar{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:flex-start;
+      overflow:auto;
+      -webkit-overflow-scrolling:touch;
+      scrollbar-width:none;
+      padding: 0;
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+    #royal-tabs-cards-{{ section.id }} .tabsbar::-webkit-scrollbar{ display:none; }
+    #royal-tabs-cards-{{ section.id }} .tabbtn{
+      flex:0 0 auto;
+      border:0;
+      background: var(--pill-bg);
+      color: var(--pill-text);
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-weight: 800;
+      font-size: 14px;
+      line-height: 1;
+      cursor:pointer;
+      white-space: nowrap;
+      transition: transform .12s ease, background .12s ease, color .12s ease;
+    }
+    #royal-tabs-cards-{{ section.id }} .tabbtn[aria-selected="true"]{
+      background: var(--pill-active);
+      color: var(--pill-active-text);
+    }
+    #royal-tabs-cards-{{ section.id }} .tabbtn:active{ transform: scale(.98); }
+
+    /* Carrossel */
+    #royal-tabs-cards-{{ section.id }} .viewport{ position:relative; overflow:hidden; }
+    #royal-tabs-cards-{{ section.id }} .track{
+      display:flex; gap:var(--gap);
+      overflow-x:auto; scroll-snap-type:x mandatory;
+      -webkit-overflow-scrolling:touch;
+      scrollbar-width:none; -ms-overflow-style:none;
+      padding-bottom: 6px;
+    }
+    #royal-tabs-cards-{{ section.id }} .track::-webkit-scrollbar{ display:none; }
+
+    #royal-tabs-cards-{{ section.id }} .panel{ display:none; }
+    #royal-tabs-cards-{{ section.id }} .panel.is-active{ display:block; }
+
+    #royal-tabs-cards-{{ section.id }} .slide{
+      position:relative;
+      flex:0 0 calc((100% - (var(--gap) * (var(--per-d) - 1))) / var(--per-d));
+      min-width: calc((100% - (var(--gap) * (var(--per-d) - 1))) / var(--per-d));
+      scroll-snap-align:start;
+    }
+
+    /* Mobile com peek */
+    @media (max-width: 989px){
+      #royal-tabs-cards-{{ section.id }}{ --gap: 14px; }
+      #royal-tabs-cards-{{ section.id }} .slide{
+        flex-basis: calc((100% - (var(--gap) * (var(--per-m) - 1))) / (var(--per-m) + var(--peek-m)));
+        min-width:  calc((100% - (var(--gap) * (var(--per-m) - 1))) / (var(--per-m) + var(--peek-m)));
+      }
+    }
+
+    /* CARD */
+    #royal-tabs-cards-{{ section.id }} .card{
+      position: relative;
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 0;
+      box-shadow: 0 18px 40px rgba(31, 42, 68, .12);
+      height: var(--card-h-d);
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+      isolation:isolate;
+      cursor: pointer;
+    }
+    @media (max-width: 989px){
+      #royal-tabs-cards-{{ section.id }} .card{ height: var(--card-h-m); }
+    }
+
+    /* Topo QUADRADO */
+    #royal-tabs-cards-{{ section.id }} .toprow{
+      position:relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: transparent;
+      overflow:hidden;
+      flex: 0 0 auto;
+    }
+
+    /* Badge %OFF (opacidade só do FUNDO via ::before) */
+    #royal-tabs-cards-{{ section.id }} .badge{
+      position:absolute;
+      left: 10px;
+      top: 10px;
+      color: var(--badge-text);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-weight: 700;
+      font-size: 12px;
+      line-height: 1;
+      z-index: 3;
+      display:inline-block;
+      isolation:isolate;
+    }
+    #royal-tabs-cards-{{ section.id }} .badge::before{
+      content:'';
+      position:absolute;
+      inset:0;
+      background: var(--badge);
+      opacity: var(--badge-bg-opacity);
+      border-radius: inherit;
+      z-index: -1;
+    }
+
+    /* ✅ Imagem FULL-BLEED */
+    #royal-tabs-cards-{{ section.id }} .imgwrap{
+      position:absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      display:block;
+    }
+    #royal-tabs-cards-{{ section.id }} .imgwrap img{
+      width: 100%;
+      height: 100%;
+      display:block;
+      object-fit: cover;
+      object-position: center;
+      transform: none !important;
+      will-change: auto;
+    }
+    #royal-tabs-cards-{{ section.id }} .imgwrap svg{
+      width: 100%;
+      height: 100%;
+      display:block;
+      transform: none !important;
+    }
+
+    /* Conteúdo */
+    #royal-tabs-cards-{{ section.id }} .content{
+      padding: 16px;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
+    #royal-tabs-cards-{{ section.id }} .title{
+      font-weight: 400;
+      color: var(--title);
+      font-size: 16px;
+      line-height: 1.2;
+      text-align:center;
+      padding: 0 6px;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-height: calc(2 * 1.2em);
+    }
+
+    #royal-tabs-cards-{{ section.id }} .prices{
+      text-align:center;
+      display:flex;
+      flex-direction:column;
+      gap: 4px;
+      padding: 0 6px;
+      margin: 0;
+    }
+    #royal-tabs-cards-{{ section.id }} .compare{
+      color: var(--compare);
+      font-weight: 400;
+      font-size: 12px;
+      text-decoration: line-through;
+      opacity: .95;
+      min-height: 16px;
+    }
+    #royal-tabs-cards-{{ section.id }} .now{
+      color: var(--price);
+      font-weight: 500;
+      font-size: 20px;
+      letter-spacing: -0.2px;
+    }
+    #royal-tabs-cards-{{ section.id }} .installments{
+      color: var(--muted);
+      font-weight: 400;
+      font-size: 12px;
+      min-height: 16px;
+    }
+
+    /* Botão (card) */
+    #royal-tabs-cards-{{ section.id }} .buyform{
+      margin-top: auto;
+      padding-top: 6px;
+    }
+    #royal-tabs-cards-{{ section.id }} .buybtn{
+      width: 100%;
+      border: 0;
+      border-radius: 999px;
+      background: var(--btn);
+      color: var(--btn-text);
+      padding: 14px 16px;
+      font-weight: 700;
+      font-size: 16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      cursor:pointer;
+      box-shadow: 0 10px 22px rgba(22, 49, 13, .15);
+      transition: transform .12s ease, filter .12s ease, opacity .12s ease;
+      text-decoration: none;
+    }
+    #royal-tabs-cards-{{ section.id }} .buybtn:hover{ filter: brightness(.98); transform: translateY(-1px); }
+    #royal-tabs-cards-{{ section.id }} .buybtn:active{ transform: scale(.99); }
+    #royal-tabs-cards-{{ section.id }} .buybtn svg{
+      width: 18px; height: 18px;
+      fill: none;
+      stroke: var(--btn-text);
+      stroke-width: 2.2;
+    }
+    #royal-tabs-cards-{{ section.id }} .buybtn:disabled{
+      opacity:.6;
+      cursor:not-allowed;
+      transform:none;
+      box-shadow:none;
+    }
+
+    /* =========================================
+       MODAL PREMIUM (ÚNICO) — PADRÃO (rcm-*)
+       ========================================= */
+    #royal-tabs-cards-{{ section.id }} .rcm-overlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.48);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999999;
+      padding: 14px;
+    }
+    #royal-tabs-cards-{{ section.id }} .rcm-overlay.is-open{ display:flex; }
+
+    #royal-tabs-cards-{{ section.id }} .rcm-modal{
+      width: min(520px, 100%);
+      background: #fff;
+      border-radius: 22px;
+      box-shadow: 0 20px 70px rgba(0,0,0,.25);
+      overflow: hidden;
+      border: 1px solid rgba(0,0,0,.08);
+    }
+
+    #royal-tabs-cards-{{ section.id }} .rcm-head{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      padding: 12px 12px;
+      border-bottom: 1px solid rgba(0,0,0,.08);
+    }
+    #royal-tabs-cards-{{ section.id }} .rcm-thumb{
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      background: rgba(0,0,0,.03);
+      overflow: hidden;
+      flex: 0 0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    #royal-tabs-cards-{{ section.id }} .rcm-thumb img{
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      display:block;
+    }
+    #royal-tabs-cards-{{ section.id }} .rcm-titlewrap{ min-width: 0; flex: 1; }
+    #royal-tabs-cards-{{ section.id }} .rcm-title{
+      font-weight: 720;
+      font-size: 15px;
+      color: #111827;
+      line-height: 1.15;
+      margin: 0 0 2px;
+      display:-webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow:hidden;
+    }
+    #royal-tabs-cards-{{ section.id }} .rcm-sub{
+      font-weight: 450;
+      font-size: 13px;
+      color: #6B7280;
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #royal-tabs-cards-{{ section.id }} .rcm-close{
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,.10);
+      background: #fff;
+      cursor: pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex: 0 0 auto;
+    }
+    #royal-tabs-cards-{{ section.id }} .rcm-close svg{
+      width: 18px; height: 18px;
+      stroke: #222;
+      stroke-width: 2.2;
+      fill: none;
+    }
+
+    #royal-tabs-cards-{{ section.id }} .rcm-body{
+      padding: 10px 12px 12px;
+      overflow: hidden;
+    }
+    #royal-tabs-cards-{{ section.id }} .rcm-hint{
+      font-size: 12.5px;
+      color: #6B7280;
+      font-weight: 450;
+      margin: 0 0 10px;
+    }
+
+    #royal-tabs-cards-{{ section.id }} .rcm-grid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    #royal-tabs-cards-{{ section.id }} .rcm-row{
+      border: 1px solid rgba(0,0,0,.10);
+      border-radius: 14px;
+      padding: 8px 8px;
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 8px;
+      min-height: 44px;
+      background: #fff;
+    }
+    #royal-tabs-cards-{{ section.id }} .rcm-row.is-off{
+      opacity: .45;
+      pointer-events: none;
+    }
+    #royal-tabs-cards-{{ section.id }} .rcm-size{
+      font-weight: 720;
+      color: #111827;
+      font-size: 13px;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #royal-tabs-cards-{{ section.id }} .rcm-stock{
+      font-weight: 450;
+      font-size: 11px;
+      color: #6B7280;
+      margin-top: 1px;
+    }
+
+    #royal-tabs-cards-{{ section.id }} .rcm-step{
+      display:flex;
+      align-items:center;
+      gap: 6px;
+      flex: 0 0 auto;
+    }
+    #royal-tabs-cards-{{ section.id }} .rcm-step button{
+      width: 28px;
+      height: 28px;
+      border-radius: 10px;
+      border: 1px solid rgba(0,0,0,.12);
+      background: #fff;
+      cursor:pointer;
+      font-weight: 720;
+      line-height: 1;
+    }
+    #royal-tabs-cards-{{ section.id }} .rcm-step button:disabled{
+      opacity: .35;
+      cursor:not-allowed;
+    }
+    #royal-tabs-cards-{{ section.id }} .rcm-step input{
+      width: 34px;
+      height: 28px;
+      border-radius: 10px;
+      border: 1px solid rgba(0,0,0,.12);
+      text-align:center;
+      font-weight: 720;
+      font-size: 13px;
+      outline: none;
+      padding: 0;
+    }
+
+    #royal-tabs-cards-{{ section.id }} .rcm-foot{
+      border-top: 1px solid rgba(0,0,0,.08);
+      padding: 10px 12px 12px;
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      justify-content: space-between;
+    }
+    #royal-tabs-cards-{{ section.id }} .rcm-total{
+      font-size: 13px;
+      color: #6B7280;
+      font-weight: 450;
+      white-space: nowrap;
+    }
+    #royal-tabs-cards-{{ section.id }} .rcm-add{
+      flex: 1;
+      background: var(--btn);
+      border: 0;
+      border-radius: 999px;
+      height: 52px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 17px;
+      color: var(--btn-text);
+      cursor:pointer;
+      transition: transform .12s ease, filter .12s ease, opacity .12s ease;
+    }
+    #royal-tabs-cards-{{ section.id }} .rcm-add:hover{ filter: brightness(.97); transform: translateY(-1px); }
+    #royal-tabs-cards-{{ section.id }} .rcm-add:disabled{ opacity:.55; cursor:not-allowed; transform:none; }
+
+    @media (max-width: 520px){
+      #royal-tabs-cards-{{ section.id }} .rcm-modal{ border-radius: 18px; }
+      #royal-tabs-cards-{{ section.id }} .rcm-thumb{ width: 52px; height: 52px; border-radius: 13px; }
+      #royal-tabs-cards-{{ section.id }} .rcm-title{ font-size: 14px; }
+      #royal-tabs-cards-{{ section.id }} .rcm-grid{ gap: 7px; }
+      #royal-tabs-cards-{{ section.id }} .rcm-row{ padding: 7px 7px; min-height: 42px; }
+      #royal-tabs-cards-{{ section.id }} .rcm-step button{ width: 26px; height: 26px; border-radius: 9px; }
+      #royal-tabs-cards-{{ section.id }} .rcm-step input{ width: 32px; height: 26px; border-radius: 9px; }
+      #royal-tabs-cards-{{ section.id }} .rcm-add{ height: 50px; font-size: 16px; }
+    }
+
+    html.rcm-lock, body.rcm-lock{ overflow:hidden !important; height: 100% !important; }
+  </style>
+
+  <div class="container">
+
+    {% unless section.settings.hide_tabs %}
+      <div class="headbar">
+        <div class="tabsbar" role="tablist" aria-label="Categorias">
+          {% if fallback_tab %}
+            <button class="tabbtn" type="button" aria-selected="true" data-coll-url="{{ section.settings.collection_fallback.url }}">Oferta</button>
+          {% else %}
+            {% for b in tabs %}
+              <button
+                class="tabbtn"
+                type="button"
+                role="tab"
+                aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                data-tab="{{ b.id }}"
+                data-coll-url="{% if b.settings.collection %}{{ b.settings.collection.url }}{% else %}{{ initial_view_more_url }}{% endif %}">
+                {{ b.settings.label }}
+              </button>
+            {% endfor %}
+          {% endif %}
+        </div>
+
+        {% if section.settings.show_view_more and initial_view_more_url != blank %}
+          <a class="viewmore" href="{{ initial_view_more_url }}" data-view-more>
+            {{ section.settings.view_more_label | default: 'Ver mais' }}
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9 18l6-6-6-6"></path>
+            </svg>
+          </a>
+        {% endif %}
+      </div>
+    {% else %}
+      {% if section.settings.show_view_more and initial_view_more_url != blank %}
+        <div class="headbar">
+          <div style="flex:1 1 auto;"></div>
+          <a class="viewmore" href="{{ initial_view_more_url }}" data-view-more>
+            {{ section.settings.view_more_label | default: 'Ver mais' }}
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9 18l6-6-6-6"></path>
+            </svg>
+          </a>
+        </div>
+      {% endif %}
+    {% endunless %}
+
+    {% assign limit_count = section.settings.products_count | default: 8 %}
+
+    {% if fallback_tab %}
+      {% assign coll = section.settings.collection_fallback %}
+      <div class="panel is-active">
+        <div class="viewport">
+          <div class="track">
+            {% if coll and coll.products_count > 0 %}
+              {% for product in coll.products limit: limit_count %}
+                {% liquid
+                  assign p = product
+
+                  assign has_variants = false
+                  if p.variants.size > 1
+                    assign has_variants = true
+                  endif
+
+                  assign featured = p.featured_image
+                  assign img_url = ''
+                  if featured
+                    assign img_url = featured | img_url: '600x'
+                  endif
+
+                  assign compare = p.compare_at_price
+                  assign price = p.price
+
+                  assign has_compare = false
+                  if compare and compare > price
+                    assign has_compare = true
+                  endif
+
+                  assign off = 0
+                  if has_compare
+                    assign off = compare | minus: price | times: 100 | divided_by: compare
+                  endif
+
+                  assign first_av = p.selected_or_first_available_variant
+                  if first_av == nil
+                    assign first_av = p.variants.first
+                  endif
+                %}
+
+                <div class="slide">
+                  <div class="card"
+                    data-product-id="{{ p.id }}"
+                    data-has-variants="{% if has_variants %}true{% else %}false{% endif %}"
+                    data-product-url="{{ p.url }}">
+                    <div class="toprow">
+                      {% if has_compare and off > 0 %}
+                        <span class="badge">-{{ off }}%</span>
+                      {% endif %}
+
+                      <div class="imgwrap">
+                        {% if featured %}
+                          <img
+                            src="{{ img_url }}"
+                            alt="{{ featured.alt | default: p.title | escape }}"
+                            loading="lazy"
+                          >
+                        {% else %}
+                          {{ 'product-1' | placeholder_svg_tag }}
+                        {% endif %}
+                      </div>
+                    </div>
+
+                    <div class="content">
+                      <div class="title">{{ p.title }}</div>
+
+                      <div class="prices">
+                        <div class="compare">
+                          {% if has_compare %}
+                            {{ compare | money }}
+                          {% endif %}
+                        </div>
+
+                        <div class="now">{{ price | money }}</div>
+
+                        <div class="installments">
+                          {% if price > 0 %}
+                            ou até 6× de {{ price | divided_by: 6 | money }}
+                          {% endif %}
+                        </div>
+                      </div>
+
+                      <div class="buyform">
+                        {% form 'product', p, novalidate: 'novalidate' %}
+                          <input type="hidden" name="id" value="{{ first_av.id }}">
+                          <button type="submit" class="visually-hidden" data-rtc-submit>Adicionar</button>
+
+                          {% if has_variants %}
+                            <button class="buybtn" type="button" data-rc-open-modal data-product-id="{{ p.id }}">
+                              Comprar
+                              <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M7 7h14l-2 8H9L7 7z" />
+                                <path d="M7 7L6 3H3" />
+                                <circle cx="9" cy="20" r="1.6"></circle>
+                                <circle cx="18" cy="20" r="1.6"></circle>
+                              </svg>
+                            </button>
+                          {% else %}
+                            <button class="buybtn" type="button" data-rc-add-single data-variant-id="{{ first_av.id }}">
+                              Comprar
+                              <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M7 7h14l-2 8H9L7 7z" />
+                                <path d="M7 7L6 3H3" />
+                                <circle cx="9" cy="20" r="1.6"></circle>
+                                <circle cx="18" cy="20" r="1.6"></circle>
+                              </svg>
+                            </button>
+                          {% endif %}
+                        {% endform %}
+                      </div>
+                    </div>
+
+                    <script type="application/json" id="rcp-{{ section.id }}-{{ p.id }}">
+                    {
+                      "id": {{ p.id }},
+                      "title": {{ p.title | json }},
+                      "url": {{ p.url | json }},
+                      "image": {% if featured %}{{ featured | img_url: '300x' | json }}{% else %}""{% endif %},
+                      "variants": [
+                        {%- for vv in p.variants -%}
+                          {
+                            "id": {{ vv.id }},
+                            "available": {{ vv.available | json }},
+                            "title": {{ vv.title | json }},
+                            "opt1": {{ vv.option1 | json }},
+                            "opt2": {{ vv.option2 | json }},
+                            "opt3": {{ vv.option3 | json }},
+                            "inventory_management": {{ vv.inventory_management | json }},
+                            "inventory_policy": {{ vv.inventory_policy | json }},
+                            "inventory_quantity": {{ vv.inventory_quantity | json }}
+                          }{% unless forloop.last %},{% endunless %}
+                        {%- endfor -%}
+                      ]
+                    }
+                    </script>
+
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              {% for i in (1..limit_count) %}
+                <div class="slide">
+                  <div class="card">
+                    <div class="toprow">
+                      <span class="badge">-28%</span>
+                      <div class="imgwrap">{{ 'product-1' | placeholder_svg_tag }}</div>
+                    </div>
+
+                    <div class="content">
+                      <div class="title">Produto exemplo com nome grande (preview)</div>
+                      <div class="prices">
+                        <div class="compare">R$ 387,00</div>
+                        <div class="now">R$ 279,00</div>
+                        <div class="installments">ou até 6× de R$ 46,50</div>
+                      </div>
+                      <div class="buyform">
+                        <button class="buybtn" type="button" disabled>Comprar</button>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              {% endfor %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% else %}
+      {% for b in tabs %}
+        {% assign coll = b.settings.collection %}
+        <div class="panel {% if forloop.first %}is-active{% endif %}" data-panel="{{ b.id }}">
+          <div class="viewport">
+            <div class="track">
+              {% if coll and coll.products_count > 0 %}
+                {% for product in coll.products limit: limit_count %}
+                  {% liquid
+                    assign p = product
+
+                    assign has_variants = false
+                    if p.variants.size > 1
+                      assign has_variants = true
+                    endif
+
+                    assign featured = p.featured_image
+                    assign img_url = ''
+                    if featured
+                      assign img_url = featured | img_url: '600x'
+                    endif
+
+                    assign compare = p.compare_at_price
+                    assign price = p.price
+
+                    assign has_compare = false
+                    if compare and compare > price
+                      assign has_compare = true
+                    endif
+
+                    assign off = 0
+                    if has_compare
+                      assign off = compare | minus: price | times: 100 | divided_by: compare
+                    endif
+
+                    assign first_av = p.selected_or_first_available_variant
+                    if first_av == nil
+                      assign first_av = p.variants.first
+                    endif
+                  %}
+
+                  <div class="slide">
+                    <div class="card"
+                      data-product-id="{{ p.id }}"
+                      data-has-variants="{% if has_variants %}true{% else %}false{% endif %}"
+                      data-product-url="{{ p.url }}">
+                      <div class="toprow">
+                        {% if has_compare and off > 0 %}
+                          <span class="badge">-{{ off }}%</span>
+                        {% endif %}
+
+                        <div class="imgwrap">
+                          {% if featured %}
+                            <img
+                              src="{{ img_url }}"
+                              alt="{{ featured.alt | default: p.title | escape }}"
+                              loading="lazy"
+                            >
+                          {% else %}
+                            {{ 'product-1' | placeholder_svg_tag }}
+                          {% endif %}
+                        </div>
+                      </div>
+
+                      <div class="content">
+                        <div class="title">{{ p.title }}</div>
+
+                        <div class="prices">
+                          <div class="compare">
+                            {% if has_compare %}
+                              {{ compare | money }}
+                            {% endif %}
+                          </div>
+
+                          <div class="now">{{ price | money }}</div>
+
+                          <div class="installments">
+                            {% if price > 0 %}
+                              ou até 6× de {{ price | divided_by: 6 | money }}
+                            {% endif %}
+                          </div>
+                        </div>
+
+                        <div class="buyform">
+                          {% form 'product', p, novalidate: 'novalidate' %}
+                            <input type="hidden" name="id" value="{{ first_av.id }}">
+                            <button type="submit" class="visually-hidden" data-rtc-submit>Adicionar</button>
+
+                            {% if has_variants %}
+                              <button class="buybtn" type="button" data-rc-open-modal data-product-id="{{ p.id }}">
+                                Comprar
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                  <path d="M7 7h14l-2 8H9L7 7z" />
+                                  <path d="M7 7L6 3H3" />
+                                  <circle cx="9" cy="20" r="1.6"></circle>
+                                  <circle cx="18" cy="20" r="1.6"></circle>
+                                </svg>
+                              </button>
+                            {% else %}
+                              <button class="buybtn" type="button" data-rc-add-single data-variant-id="{{ first_av.id }}">
+                                Comprar
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                  <path d="M7 7h14l-2 8H9L7 7z" />
+                                  <path d="M7 7L6 3H3" />
+                                  <circle cx="9" cy="20" r="1.6"></circle>
+                                  <circle cx="18" cy="20" r="1.6"></circle>
+                                </svg>
+                              </button>
+                            {% endif %}
+                          {% endform %}
+                        </div>
+                      </div>
+
+                      <script type="application/json" id="rcp-{{ section.id }}-{{ p.id }}">
+                      {
+                        "id": {{ p.id }},
+                        "title": {{ p.title | json }},
+                        "url": {{ p.url | json }},
+                        "image": {% if featured %}{{ featured | img_url: '300x' | json }}{% else %}""{% endif %},
+                        "variants": [
+                          {%- for vv in p.variants -%}
+                            {
+                              "id": {{ vv.id }},
+                              "available": {{ vv.available | json }},
+                              "title": {{ vv.title | json }},
+                              "opt1": {{ vv.option1 | json }},
+                              "opt2": {{ vv.option2 | json }},
+                              "opt3": {{ vv.option3 | json }},
+                              "inventory_management": {{ vv.inventory_management | json }},
+                              "inventory_policy": {{ vv.inventory_policy | json }},
+                              "inventory_quantity": {{ vv.inventory_quantity | json }}
+                            }{% unless forloop.last %},{% endunless %}
+                          {%- endfor -%}
+                        ]
+                      }
+                      </script>
+
+                    </div>
+                  </div>
+                {% endfor %}
+              {% else %}
+                {% for i in (1..limit_count) %}
+                  <div class="slide">
+                    <div class="card">
+                      <div class="toprow">
+                        <span class="badge">-28%</span>
+                        <div class="imgwrap">{{ 'product-1' | placeholder_svg_tag }}</div>
+                      </div>
+
+                      <div class="content">
+                        <div class="title">{{ b.settings.label }} — Produto exemplo (preview)</div>
+                        <div class="prices">
+                          <div class="compare">R$ 387,00</div>
+                          <div class="now">R$ 279,00</div>
+                          <div class="installments">ou até 6× de R$ 46,50</div>
+                        </div>
+                        <div class="buyform">
+                          <button class="buybtn" type="button" disabled>Comprar</button>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                {% endfor %}
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+
+  <!-- MODAL PREMIUM (ÚNICO) — PADRÃO -->
+  <div class="rcm-overlay" data-rcm-overlay aria-hidden="true">
+    <div class="rcm-modal" role="dialog" aria-modal="true" aria-label="Escolha as variações">
+      <div class="rcm-head">
+        <div class="rcm-thumb"><img data-rcm-img alt=""></div>
+        <div class="rcm-titlewrap">
+          <p class="rcm-title" data-rcm-title></p>
+          <p class="rcm-sub" data-rcm-sub></p>
+        </div>
+        <button class="rcm-close" type="button" data-rcm-close aria-label="Fechar">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="rcm-body">
+        <p class="rcm-hint">Selecione as quantidades por tamanho.</p>
+        <div class="rcm-grid" data-rcm-grid></div>
+      </div>
+
+      <div class="rcm-foot">
+        <div class="rcm-total" data-rcm-total>0 itens</div>
+        <button class="rcm-add" type="button" data-rcm-add disabled>Adicionar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      var root = document.getElementById('royal-tabs-cards-{{ section.id }}');
+      if(!root) return;
+
+      /* Tabs + Ver mais (dinâmico) */
+      var tabButtons = root.querySelectorAll('.tabbtn[data-tab]');
+      var panels = root.querySelectorAll('.panel[data-panel]');
+      var viewMore = root.querySelector('[data-view-more]');
+
+      function setViewMoreUrlFromBtn(btn){
+        if(!viewMore) return;
+        var url = (btn && btn.getAttribute) ? btn.getAttribute('data-coll-url') : '';
+        if(url) viewMore.setAttribute('href', url);
+      }
+
+      function setActive(id){
+        var activeBtn = null;
+
+        for(var i=0;i<tabButtons.length;i++){
+          var isOn = tabButtons[i].getAttribute('data-tab') === id;
+          tabButtons[i].setAttribute('aria-selected', isOn ? 'true' : 'false');
+          if(isOn) activeBtn = tabButtons[i];
+        }
+        for(var j=0;j<panels.length;j++){
+          panels[j].classList.toggle('is-active', panels[j].getAttribute('data-panel') === id);
+        }
+
+        setViewMoreUrlFromBtn(activeBtn);
+      }
+
+      for(var k=0;k<tabButtons.length;k++){
+        (function(btn){
+          btn.addEventListener('click', function(){
+            setActive(btn.getAttribute('data-tab'));
+          });
+        })(tabButtons[k]);
+      }
+
+      /* Se for fallback (sem data-tab), ainda assim garante href correto */
+      if(viewMore && (!tabButtons || tabButtons.length === 0)){
+        var fallbackBtn = root.querySelector('.tabbtn[data-coll-url]');
+        if(fallbackBtn) setViewMoreUrlFromBtn(fallbackBtn);
+      }else if(viewMore && tabButtons && tabButtons.length){
+        setViewMoreUrlFromBtn(tabButtons[0]);
+      }
+
+      function fire(name, detail){
+        try { document.dispatchEvent(new CustomEvent(name, { bubbles:true, detail: detail || {} })); } catch(e){}
+        try { window.dispatchEvent(new CustomEvent(name, { bubbles:true, detail: detail || {} })); } catch(e){}
+      }
+
+      function tryOpenDrawerByTheme(){
+        try { if(window.RoyalCartDrawer && typeof window.RoyalCartDrawer.open === 'function') { window.RoyalCartDrawer.open(); return true; } } catch(e){}
+        try { if(window.cartDrawer && typeof window.cartDrawer.open === 'function') { window.cartDrawer.open(); return true; } } catch(e){}
+        try { if(window.theme && window.theme.CartDrawer && typeof window.theme.CartDrawer.open === 'function') { window.theme.CartDrawer.open(); return true; } } catch(e){}
+        try { if(window.Shopify && window.Shopify.theme && window.Shopify.theme.cartDrawer && typeof window.Shopify.theme.cartDrawer.open === 'function') { window.Shopify.theme.cartDrawer.open(); return true; } } catch(e){}
+        return false;
+      }
+
+      function tryOpenDrawerByClick(){
+        var selectors = [
+          '[data-action="open-drawer"][aria-controls*="cart"]',
+          '[data-action="open-drawer"][aria-controls*="mini"]',
+          '[data-drawer-trigger*="cart"]',
+          'button[aria-controls*="cart-drawer"]',
+          'a[href="#cart-drawer"]',
+          'button[name="open-cart"]',
+          '.header__cart, .site-header__cart, .cart-toggle, .header__icon--cart'
+        ];
+        for(var i=0;i<selectors.length;i++){
+          var el = document.querySelector(selectors[i]);
+          if(el){
+            try { el.click(); return true; } catch(e){}
+          }
+        }
+        return false;
+      }
+
+      function openCartDrawer(){
+        fire('cart:refresh');
+        fire('cart:updated');
+        fire('cart:open');
+        fire('product:added');
+        if(tryOpenDrawerByTheme()) return;
+        tryOpenDrawerByClick();
+      }
+
+      /* Clique no card → navega */
+      var INTERACTIVE = 'button, a, input, select, textarea, label, [data-rc-open-modal], [data-rc-add-single], [data-rcm-close], [data-rcm-add]';
+
+      var _pointerStartX = 0;
+      var _pointerStartY = 0;
+      var _isDragging = false;
+
+      root.addEventListener('pointerdown', function(e){
+        _pointerStartX = e.clientX;
+        _pointerStartY = e.clientY;
+        _isDragging = false;
+      }, { passive: true });
+
+      root.addEventListener('pointermove', function(e){
+        var dx = Math.abs(e.clientX - _pointerStartX);
+        var dy = Math.abs(e.clientY - _pointerStartY);
+        if(dx > 6 || dy > 6) _isDragging = true;
+      }, { passive: true });
+
+      root.addEventListener('click', function(e){
+        if(_isDragging) return;
+
+        var card = e.target.closest('.card[data-product-url]');
+        if(!card) return;
+
+        if(e.target.closest(INTERACTIVE)) return;
+
+        var url = card.getAttribute('data-product-url');
+        if(!url) return;
+
+        window.location.href = url;
+      });
+
+      /* ===== MODAL PREMIUM (rcm-*) ===== */
+      var overlay = root.querySelector('[data-rcm-overlay]');
+      var btnClose = root.querySelector('[data-rcm-close]');
+      var grid = root.querySelector('[data-rcm-grid]');
+      var img = root.querySelector('[data-rcm-img]');
+      var titleEl = root.querySelector('[data-rcm-title]');
+      var subEl = root.querySelector('[data-rcm-sub]');
+      var totalEl = root.querySelector('[data-rcm-total]');
+      var btnAdd = root.querySelector('[data-rcm-add]');
+      if(!overlay || !btnClose || !grid || !titleEl || !subEl || !totalEl || !btnAdd) return;
+
+      var current = { productId: null, items: [] };
+
+      function lockScroll(lock){
+        if(lock){
+          document.documentElement.classList.add('rcm-lock');
+          document.body.classList.add('rcm-lock');
+        }else{
+          document.documentElement.classList.remove('rcm-lock');
+          document.body.classList.remove('rcm-lock');
+        }
+      }
+
+      function openModal(){
+        overlay.classList.add('is-open');
+        overlay.setAttribute('aria-hidden','false');
+        lockScroll(true);
+      }
+
+      function closeModal(){
+        overlay.classList.remove('is-open');
+        overlay.setAttribute('aria-hidden','true');
+        lockScroll(false);
+        grid.innerHTML = '';
+        current.productId = null;
+        current.items = [];
+        totalEl.textContent = '0 itens';
+        btnAdd.disabled = true;
+        btnAdd.textContent = 'Adicionar';
+        btnAdd.style.opacity = '';
+      }
+
+      function safeInt(n){
+        var x = parseInt(n, 10);
+        return isNaN(x) ? 0 : x;
+      }
+
+      function computeMax(v){
+        if(v && v.inventory_management){
+          return Math.max(0, safeInt(v.inventory_quantity));
+        }
+        return 99;
+      }
+
+      function getLabel(v){
+        return (v && v.opt1 && v.opt1 !== 'Default Title') ? v.opt1 : (v.title || 'Variação');
+      }
+
+      function updateTotal(){
+        var total = 0;
+        for(var i=0;i<current.items.length;i++){
+          total += current.items[i].qty || 0;
+        }
+        totalEl.textContent = total + (total === 1 ? ' item' : ' itens');
+        btnAdd.disabled = total === 0;
+      }
+
+      function renderRow(item){
+        var row = document.createElement('div');
+        row.className = 'rcm-row' + (item.max <= 0 ? ' is-off' : '');
+
+        var left = document.createElement('div');
+        left.style.minWidth = '0';
+
+        var size = document.createElement('div');
+        size.className = 'rcm-size';
+        size.textContent = item.label;
+
+        var stock = document.createElement('div');
+        stock.className = 'rcm-stock';
+        stock.textContent = (item.max >= 99 ? 'Disponível' : ('Estoque: ' + item.max));
+
+        left.appendChild(size);
+        left.appendChild(stock);
+
+        var step = document.createElement('div');
+        step.className = 'rcm-step';
+
+        var minus = document.createElement('button');
+        minus.type = 'button';
+        minus.textContent = '–';
+
+        var input = document.createElement('input');
+        input.type = 'number';
+        input.inputMode = 'numeric';
+        input.min = '0';
+        input.max = String(item.max);
+        input.value = String(item.qty || 0);
+
+        var plus = document.createElement('button');
+        plus.type = 'button';
+        plus.textContent = '+';
+
+        function sync(){
+          var q = safeInt(input.value);
+          if(q < 0) q = 0;
+          if(q > item.max) q = item.max;
+
+          input.value = String(q);
+          item.qty = q;
+
+          minus.disabled = (q <= 0);
+          plus.disabled = (q >= item.max);
+          updateTotal();
+        }
+
+        minus.addEventListener('click', function(){ input.value = String(Math.max(0, safeInt(input.value) - 1)); sync(); });
+        plus.addEventListener('click', function(){ input.value = String(Math.min(item.max, safeInt(input.value) + 1)); sync(); });
+        input.addEventListener('change', sync);
+        input.addEventListener('input', sync);
+        sync();
+
+        step.appendChild(minus);
+        step.appendChild(input);
+        step.appendChild(plus);
+
+        row.appendChild(left);
+        row.appendChild(step);
+
+        return row;
+      }
+
+      function loadProduct(productId){
+        var script = document.getElementById('rcp-{{ section.id }}-' + productId);
+        if(!script) return null;
+        try { return JSON.parse(script.textContent || script.innerText || '{}'); } catch(e){ return null; }
+      }
+
+      function buildModal(productId){
+        var data = loadProduct(productId);
+        if(!data) return;
+
+        current.productId = productId;
+        titleEl.textContent = data.title || '';
+        subEl.textContent = 'Escolha o tamanho e a quantidade';
+
+        if(data.image){
+          img.src = data.image;
+          img.style.display = '';
+        }else{
+          img.removeAttribute('src');
+          img.style.display = 'none';
+        }
+
+        var variants = Array.isArray(data.variants) ? data.variants.slice() : [];
+        variants.sort(function(a,b){
+          var la = (getLabel(a)||'').toString();
+          var lb = (getLabel(b)||'').toString();
+          return la.localeCompare(lb, 'pt-BR', {numeric:true});
+        });
+
+        current.items = [];
+        grid.innerHTML = '';
+
+        for(var i=0;i<variants.length;i++){
+          var v = variants[i];
+          var max = computeMax(v);
+
+          var item = {
+            id: v.id,
+            label: getLabel(v),
+            max: (v.available ? max : 0),
+            qty: 0
+          };
+
+          if(v.inventory_management && safeInt(v.inventory_quantity) <= 0){
+            item.max = 0;
+          }
+
+          current.items.push(item);
+          grid.appendChild(renderRow(item));
+        }
+
+        updateTotal();
+        openModal();
+      }
+
+      btnClose.addEventListener('click', closeModal);
+      overlay.addEventListener('click', function(e){ if(e.target === overlay) closeModal(); });
+      document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && overlay.classList.contains('is-open')) closeModal(); });
+
+      function addItemsToCart(items){
+        return fetch('/cart/add.js', {
+          method:'POST',
+          headers:{'Content-Type':'application/json','Accept':'application/json'},
+          body: JSON.stringify({ items: items })
+        }).then(function(r){
+          if(!r.ok) throw new Error('add_failed');
+          return r.json();
+        });
+      }
+
+      function addSequential(items){
+        var p = Promise.resolve();
+        items.forEach(function(it){
+          p = p.then(function(){
+            return fetch('/cart/add.js', {
+              method:'POST',
+              headers:{'Content-Type':'application/json','Accept':'application/json'},
+              body: JSON.stringify({ id: Number(it.id), quantity: Number(it.quantity) })
+            }).then(function(r){
+              if(!r.ok) throw new Error('add_failed');
+              return r.json();
+            });
+          });
+        });
+        return p;
+      }
+
+      btnAdd.addEventListener('click', function(){
+        if(btnAdd.disabled) return;
+
+        var payload = [];
+        for(var i=0;i<current.items.length;i++){
+          var it = current.items[i];
+          var q = safeInt(it.qty);
+          if(q > 0){
+            if(q > it.max) q = it.max;
+            payload.push({ id: Number(it.id), quantity: Number(q) });
+          }
+        }
+        if(payload.length === 0) return;
+
+        btnAdd.disabled = true;
+        btnAdd.textContent = 'Adicionando...';
+        btnAdd.style.opacity = '0.85';
+
+        addItemsToCart(payload)
+          .catch(function(){ return addSequential(payload); })
+          .then(function(){
+            openCartDrawer();
+            btnAdd.textContent = 'Adicionado ✅';
+            setTimeout(function(){ closeModal(); }, 650);
+          })
+          .catch(function(){
+            btnAdd.textContent = 'Erro';
+            setTimeout(function(){
+              btnAdd.textContent = 'Adicionar';
+              btnAdd.disabled = false;
+              btnAdd.style.opacity = '';
+              updateTotal();
+            }, 900);
+          });
+      });
+
+      /* Clique no Comprar (modal) */
+      root.addEventListener('click', function(e){
+        var btn = e.target.closest('[data-rc-open-modal]');
+        if(!btn) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        var pid = btn.getAttribute('data-product-id');
+        if(!pid) return;
+
+        buildModal(pid);
+      }, true);
+
+      /* Clique no Comprar (1 variante) */
+      root.addEventListener('click', function(e){
+        var btn = e.target.closest('[data-rc-add-single]');
+        if(!btn) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        var vid = btn.getAttribute('data-variant-id');
+        if(!vid) return;
+
+        btn.disabled = true;
+        var old = btn.textContent;
+        btn.textContent = 'Adicionando...';
+
+        fetch('/cart/add.js', {
+          method:'POST',
+          headers:{'Content-Type':'application/json','Accept':'application/json'},
+          body: JSON.stringify({ id: Number(vid), quantity: 1 })
+        }).then(function(r){
+          if(!r.ok) throw new Error('add_failed');
+          return r.json();
+        }).then(function(){
+          openCartDrawer();
+          btn.textContent = 'Adicionado ✅';
+          setTimeout(function(){
+            btn.textContent = old || 'Comprar';
+            btn.disabled = false;
+          }, 700);
+        }).catch(function(){
+          btn.textContent = old || 'Comprar';
+          btn.disabled = false;
+        });
+      }, true);
+
+    })();
+  </script>
+
+</section>
+
+{% schema %}
+{
+  "name": "Royal • Mais Ofertas Duo",
+  "settings": [
+    { "type": "checkbox", "id": "hide_tabs", "label": "Ocultar abas", "default": false },
+
+    { "type": "header", "content": "Ver mais (canto superior direito)" },
+    { "type": "checkbox", "id": "show_view_more", "label": "Mostrar botão Ver mais", "default": true },
+    { "type": "text", "id": "view_more_label", "label": "Texto do botão", "default": "Ver mais" },
+    { "type": "color", "id": "view_more_color", "label": "Ver mais: cor do texto", "default": "#1F2A44" },
+    { "type": "color", "id": "view_more_bg", "label": "Ver mais: fundo", "default": "#FFFFFF" },
+
+    { "type": "color", "id": "bg", "label": "Fundo da seção", "default": "#FAD6E6" },
+    { "type": "color", "id": "card_bg", "label": "Fundo do card", "default": "#FFEAF3" },
+
+    { "type": "range", "id": "card_radius", "label": "Arredondamento do card (px)", "min": 16, "max": 50, "step": 1, "default": 34 },
+
+    { "type": "range", "id": "card_height_desktop", "label": "Altura do card (desktop) (px)", "min": 380, "max": 820, "step": 10, "default": 520 },
+    { "type": "range", "id": "card_height_mobile",  "label": "Altura do card (mobile) (px)",  "min": 320, "max": 820, "step": 10, "default": 520 },
+
+    { "type": "range", "id": "gap", "label": "Espaçamento entre cards (px)", "min": 8, "max": 28, "step": 1, "default": 18 },
+
+    { "type": "color", "id": "pill_bg", "label": "Aba inativa: fundo", "default": "#E7E7E7" },
+    { "type": "color", "id": "pill_text", "label": "Aba inativa: texto", "default": "#2B2B2B" },
+    { "type": "color", "id": "pill_active_bg", "label": "Aba ativa: fundo", "default": "#F01980" },
+    { "type": "color", "id": "pill_active_text", "label": "Aba ativa: texto", "default": "#FFFFFF" },
+
+    { "type": "header", "content": "Desconto (badge % OFF)" },
+    { "type": "color", "id": "badge_bg", "label": "Badge % OFF: fundo", "default": "#B7F25A" },
+    { "type": "color", "id": "badge_text", "label": "Badge % OFF: texto", "default": "#16310D" },
+    { "type": "range", "id": "badge_opacity", "label": "Opacidade do FUNDO do badge (%)", "min": 10, "max": 100, "step": 5, "default": 100 },
+
+    { "type": "header", "content": "Imagem do produto (card)" },
+    { "type": "range", "id": "product_image_scale", "label": "Tamanho da foto no card (%) (mantido)", "min": 45, "max": 100, "step": 5, "default": 70 },
+
+    { "type": "header", "content": "Disponibilidade (modal)" },
+    { "type": "color", "id": "avail_border", "label": "Contorno disponível (verde claro)", "default": "#A7F3D0" },
+    { "type": "color", "id": "unavail_border", "label": "Contorno indisponível (vermelho claro)", "default": "#FECACA" },
+
+    { "type": "color", "id": "title_color", "label": "Título do produto", "default": "#1F2A44" },
+    { "type": "color", "id": "price_color", "label": "Preço atual", "default": "#1F2A44" },
+    { "type": "color", "id": "compare_color", "label": "Preço antigo (riscado)", "default": "#F01980" },
+    { "type": "color", "id": "muted_color", "label": "Texto secundário", "default": "#6B7280" },
+
+    { "type": "color", "id": "btn_bg", "label": "Botão Comprar/Modal: fundo", "default": "#B7F25A" },
+    { "type": "color", "id": "btn_text", "label": "Botão Comprar/Modal: texto", "default": "#16310D" },
+
+    { "type": "range", "id": "section_padding_y", "label": "Padding vertical da seção (px)", "min": 0, "max": 60, "step": 2, "default": 26 },
+
+    {
+      "type": "range",
+      "id": "products_count",
+      "label": "Produtos por aba",
+      "min": 2,
+      "max": 80,
+      "step": 1,
+      "default": 8
+    },
+
+    { "type": "range", "id": "per_view_desktop", "label": "Cards por tela (desktop)", "min": 2, "max": 7, "step": 1, "default": 4 },
+
+    {
+      "type": "select",
+      "id": "per_view_mobile",
+      "label": "Cards por tela (mobile)",
+      "options": [
+        { "value": "1", "label": "1 por tela" },
+        { "value": "2", "label": "2 por tela" }
+      ],
+      "default": "2"
+    },
+
+    {
+      "type": "range",
+      "id": "peek_mobile",
+      "label": "Peek no mobile (%)",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "default": 20
+    },
+
+    { "type": "collection", "id": "collection_fallback", "label": "Coleção (fallback se não houver abas)" }
+  ],
+  "blocks": [
+    {
+      "type": "tab",
+      "name": "Aba",
+      "settings": [
+        { "type": "text", "id": "label", "label": "Texto da aba", "default": "Oferta" },
+        { "type": "collection", "id": "collection", "label": "Coleção da aba" }
+      ]
+    }
+  ],
+  "max_blocks": 8,
+  "presets": [
+    { "name": "Royal • Mais Ofertas Duo", "category": "Collection" }
+  ]
+}
+{% endschema %}

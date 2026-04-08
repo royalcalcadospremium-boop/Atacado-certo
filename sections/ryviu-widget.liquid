@@ -1,0 +1,41 @@
+<!-- RYVIU APP :: WIDGET -->
+<div class="lt-block-reviews" id="section-{{ section.id }}">
+  {% render 'royal-overlap', id: section.id %}
+
+    <ryviu-widget handle="{{product.handle}}" product_id="{{product.id}}" title_product="{{product.title}}" image_product="{{ product.featured_image.src | img_url: '100x' }}">
+    </ryviu-widget>
+</div>
+<!-- / RYVIU APP -->
+{% schema %}
+    {
+    "name": "Ryviu widget",
+    "settings": [
+
+  {
+    "type": "range",
+    "id": "overlap_px",
+    "label": "Tamanho da sobreposição (px)",
+    "min": 0,
+    "max": 80,
+    "step": 2,
+    "default": 0
+  },
+  {
+    "type": "range",
+    "id": "overlap_px_mobile",
+    "label": "Tamanho da sobreposição (px) — mobile",
+    "min": 0,
+    "max": 80,
+    "step": 2,
+    "default": 0
+  }
+,],
+    "presets": [
+        {
+        "category": "System sections",
+        "name": "Ryviu widget"
+        }
+    ],
+    "templates": [ "product"]
+    }
+{% endschema %}

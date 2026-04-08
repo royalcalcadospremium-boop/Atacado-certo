@@ -1,0 +1,364 @@
+<section class="section" id="section-{{ section.id }}" data-section-id="{{ section.id }}" data-section-type="collection-list">
+  {% render 'royal-overlap', id: section.id %}
+
+  <div class="container">
+    {%- if section.settings.title != blank -%}
+      <header class="section__header">
+        <h2 class="section__title heading h3">{{ section.settings.title | escape }}</h2>
+
+        {%- if section.settings.link_title != blank and section.settings.link != blank -%}
+          <a href="{{ section.settings.link }}" class="section__action-link link">
+            {{ section.settings.link_title | escape }} {% render 'icon', icon: 'tail-right' %}
+          </a>
+        {%- endif -%}
+      </header>
+    {%- endif -%}
+
+    <div class="scroller" data-cards="{{ section.settings.cards_per_row }}">
+      <!-- Setas (desktop) -->
+      <button class="scroller__arrow scroller__arrow--prev" aria-label="Anterior" type="button">
+        {% render 'icon', icon: 'chevron-left' %}
+      </button>
+      <button class="scroller__arrow scroller__arrow--next" aria-label="Próximo" type="button">
+        {% render 'icon', icon: 'chevron-right' %}
+      </button>
+
+      <div class="scroller__viewport">
+        <div class="scroller__inner">
+          <div class="collection-list">
+            {%- for block in section.blocks -%}
+              {%- assign collection = collections[block.settings.collection] -%}
+              <a href="{{ collection.url | default: '#' }}"
+                 class="collection-item"
+                 data-collection-index="{{ forloop.index0 }}"
+                 {{ block.shopify_attributes }}>
+                {%- unless collection.empty? -%}
+                  {%- assign collection_image = block.settings.image | default: collection.image | default: collection.products.first.featured_image -%}
+                  <div class="collection-item__image-wrapper {% if section.settings.round_images %}collection-item__image-wrapper--rounded{% endif %}"
+                       style="background: var(--background)!important; padding: 1.5px; background-image: url({{ collection_image | img_url: '1x1' }})">
+                    {%- capture supported_sizes -%}{%- render 'image-size', sizes: '300,400,500,600,700,800', image: collection_image -%}{%- endcapture -%}
+                    {%- assign image_url = collection_image | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+                    <div class="aspect-ratio" style="padding-bottom: 100%">
+                      <img class="lazyload image--fade-in"
+                           data-src="{{ image_url }}"
+                           data-widths="[{{ supported_sizes }}]"
+                           data-sizes="auto"
+                           alt="{{ collection_image.alt | escape }}">
+                      <noscript><img src="{{ collection_image | img_url: '450x' }}" alt="{{ collection_image.alt | escape }}"></noscript>
+                    </div>
+                  </div>
+                  {%- if section.settings.show_collection_title -%}
+                    <span class="collection-item__title text--strong">
+                      {{ collection.title }} {% render 'icon', icon: 'tail-right' %}
+                    </span>
+                  {%- endif -%}
+                {%- else -%}
+                  <div class="collection-item__image-wrapper {% if section.settings.round_images %}collection-item__image-wrapper--rounded{% endif %}">
+                    {%- capture placeholder -%}{% cycle 'collection-1','collection-2','collection-3','collection-4','collection-5','collection-6' %}{%- endcapture -%}
+                    {{- placeholder | placeholder_svg_tag: 'placeholder-svg' -}}
+                  </div>
+                  {%- if section.settings.show_collection_title -%}
+                    <span class="collection-item__title text--strong">
+                      {{ 'home_page.onboarding.collection_title' | t }} {% render 'icon', icon: 'tail-right' %}
+                    </span>
+                  {%- endif -%}
+                {%- endunless -%}
+              </a>
+            {%- endfor -%}
+          </div>
+        </div>
+      </div>
+
+      <!-- Mantido, porém escondido -->
+      <div class="scroller__edge scroller__edge--right" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <style>
+    /* Espaçamentos */
+    #section-{{ section.id }}{ margin-top: {{ section.settings.space_top_px | default: 0 }}px; margin-bottom: {{ section.settings.space_bottom_px | default: 16 }}px; }
+    #section-{{ section.id }} .section__header{ margin-bottom: {{ section.settings.header_gap_px | default: 12 }}px; }
+
+    /* Variáveis */
+    #section-{{ section.id }} .scroller{
+      --cards: {{ section.settings.cards_per_row | default: 6 }};
+      --cards-mobile: {{ section.settings.cards_per_row_mobile | default: 5 }};
+      --gap: {{ section.settings.gap_px | default: 16 }}px;
+      --gap-mobile: {{ section.settings.gap_px_mobile | default: 8 }}px;
+      position: relative;
+    }
+
+    /* Viewport */
+    #section-{{ section.id }} .scroller__viewport{ position: relative; overflow: hidden; }
+    #section-{{ section.id }} .scroller__inner{
+      overflow: auto; scrollbar-width: none; -ms-overflow-style: none;
+    }
+    #section-{{ section.id }} .scroller__inner::-webkit-scrollbar{ display: none; }
+
+    /* Trilho */
+    #section-{{ section.id }} .collection-list{
+      display: flex; gap: var(--gap);
+      will-change: transform;
+      backface-visibility: hidden; transform: translateZ(0);
+      padding-right: 56px; /* espaço para a seta direita */
+      touch-action: pan-y; /* permite pan horizontal custom, sem rolar a página */
+    }
+
+    /* Card base */
+    #section-{{ section.id }} .collection-item{
+      --basis-desktop: calc((100% - (var(--cards) - 1)*var(--gap)) / var(--cards));
+      flex: 0 0 var(--basis-desktop); max-width: var(--basis-desktop);
+      text-decoration: none;
+    }
+
+    /* Largura fixa opcional (desktop) */
+    {% assign desktop_min = 120 %}
+    {% if section.settings.card_width_px and section.settings.card_width_px >= desktop_min %}
+    #section-{{ section.id }} .collection-item{ flex-basis: {{ section.settings.card_width_px }}px; max-width: {{ section.settings.card_width_px }}px; }
+    {% endif %}
+
+    /* Setas (desktop) */
+    #section-{{ section.id }} .scroller__arrow{
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 40px; height: 40px; border-radius: 999px; border: 0;
+      display: grid; place-items: center; background: rgba(255,255,255,.96);
+      box-shadow: 0 6px 20px rgba(0,0,0,.12); cursor: pointer; z-index: 3;
+      transition: opacity .2s ease;
+    }
+    #section-{{ section.id }} .scroller__arrow--prev{ left: -8px; opacity: 0; pointer-events: none; }
+    #section-{{ section.id }} .scroller__arrow--next{ right: -8px; }
+
+    /* Remoção do fade branco */
+    #section-{{ section.id }} .scroller__edge--right{ display: none !important; }
+
+    /* MOBILE */
+    @media (max-width: 767px){
+      #section-{{ section.id }} .scroller__arrow{ display: none; }
+      #section-{{ section.id }} .scroller__inner{ overflow: hidden; }
+      #section-{{ section.id }} .collection-list{ gap: var(--gap-mobile); padding-right: 0; }
+
+      #section-{{ section.id }} .collection-item{
+        --basis-mobile: calc((100% - (var(--cards-mobile) - 1)*var(--gap-mobile)) / var(--cards-mobile));
+        flex-basis: var(--basis-mobile); max-width: var(--basis-mobile);
+      }
+    }
+  </style>
+
+  <script>
+    (function(){
+      const root = document.getElementById('section-{{ section.id }}');
+      if (!root) return;
+
+      const viewport = root.querySelector('.scroller__inner');
+      const track = root.querySelector('.collection-list');
+      const prevBtn = root.querySelector('.scroller__arrow--prev');
+      const nextBtn = root.querySelector('.scroller__arrow--next');
+
+      const mqlMobile = window.matchMedia('(max-width: 767px)');
+
+      /* ===== Desktop: setas, sem auto ===== */
+      const stepDesktop = Math.max(1, parseInt({{ section.settings.scroll_step_desktop | default: 6 | json }}, 10));
+
+      function itemWidth(){
+        const item = track.querySelector('.collection-item');
+        const gap = parseFloat(getComputedStyle(track).gap) || 16;
+        return (item ? item.getBoundingClientRect().width : 240) + gap;
+      }
+      function scrollByCards(dir, n){
+        viewport.scrollBy({ left: itemWidth() * n * dir, behavior: 'smooth' });
+      }
+
+      function updateArrows(){
+        if (mqlMobile.matches){ return; }
+        const max = track.scrollWidth - viewport.clientWidth - 1;
+        const showLeft = viewport.scrollLeft > 0;
+        prevBtn.style.opacity = showLeft ? 1 : 0;
+        prevBtn.style.pointerEvents = showLeft ? 'auto' : 'none';
+
+        const hasOverflow = max > 0;
+        nextBtn.style.opacity = hasOverflow ? 1 : 0;
+        nextBtn.style.pointerEvents = hasOverflow ? 'auto' : 'none';
+      }
+
+      nextBtn?.addEventListener('click', ()=> scrollByCards(1, stepDesktop));
+      prevBtn?.addEventListener('click', ()=> scrollByCards(-1, stepDesktop));
+      viewport.addEventListener('scroll', updateArrows);
+      window.addEventListener('resize', updateArrows);
+      updateArrows();
+
+      /* ===== Mobile: marquee contínuo + "seek" por gesto ===== */
+      const enableMobileAuto = {{ section.settings.auto_play_mobile | default: true | json }};
+      const speedM = parseFloat({{ section.settings.auto_speed_mobile | default: 50 | json }});
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      let raf = null, last = 0, offset = 0, half = 0, paused = false, inView = true, cloned = false;
+      let dragging = false, dragStartX = 0, dragStartOffset = 0;
+
+      function duplicateIfNeeded(){
+        if (cloned || !track) return;
+        const frag = document.createDocumentFragment();
+        Array.from(track.children).forEach(n=> frag.appendChild(n.cloneNode(true)));
+        track.appendChild(frag);
+        cloned = true;
+      }
+      function recalcHalf(){ half = track.scrollWidth / 2; }
+      function applyTransform(){ track.style.transform = 'translateX(' + offset + 'px)'; }
+      function wrapOffset(v){
+        if (half <= 0) return v;
+        // mantém offset no intervalo (-half, 0]
+        while (v <= -half) v += half;
+        while (v > 0) v -= half;
+        return v;
+      }
+
+      function frame(t){
+        if (!mqlMobile.matches || !enableMobileAuto || prefersReduced){ cancel(); return; }
+        if (!last) last = t;
+        const dt = (t - last)/1000; last = t;
+        if (!paused && !dragging && inView && half > 0){
+          offset -= speedM * dt;
+          offset = wrapOffset(offset);
+          applyTransform();
+        }
+        raf = requestAnimationFrame(frame);
+      }
+      function start(){ if (!raf) raf = requestAnimationFrame(frame); }
+      function cancel(){ if (raf){ cancelAnimationFrame(raf); raf = null; } last = 0; }
+
+      // Pausas rápidas por interação (toque, roda, etc.)
+      ['wheel','keydown'].forEach(eName=>{
+        viewport.addEventListener(eName, ()=>{ if (mqlMobile.matches) paused = true; }, {passive:true});
+      });
+      ['blur'].forEach(eName=>{
+        window.addEventListener(eName, ()=>{ if (mqlMobile.matches) paused = true; }, {passive:true});
+      });
+
+      // ===== Gesto de arrastar (seek) =====
+      function onPointerDown(clientX){
+        if (!mqlMobile.matches) return;
+        dragging = true;
+        paused = true;
+        dragStartX = clientX;
+        dragStartOffset = offset;
+      }
+      function onPointerMove(clientX, e){
+        if (!dragging) return;
+        const dx = clientX - dragStartX;
+        offset = wrapOffset(dragStartOffset + dx);
+        applyTransform();
+        // Evita scroll vertical involuntário enquanto arrasta horizontalmente
+        if (e && e.cancelable) e.preventDefault();
+      }
+      function onPointerUp(){
+        if (!dragging) return;
+        dragging = false;
+        // retoma auto-scroll
+        paused = false;
+      }
+
+      // Touch
+      viewport.addEventListener('touchstart', e=>{
+        if (!e.touches || !e.touches[0]) return;
+        onPointerDown(e.touches[0].clientX);
+      }, {passive:true});
+      viewport.addEventListener('touchmove', e=>{
+        if (!e.touches || !e.touches[0]) return;
+        onPointerMove(e.touches[0].clientX, e);
+      }, {passive:false});
+      viewport.addEventListener('touchend', onPointerUp, {passive:true});
+      viewport.addEventListener('touchcancel', onPointerUp, {passive:true});
+
+      // Mouse (p/ simular em dev tools)
+      viewport.addEventListener('mousedown', e=>{
+        onPointerDown(e.clientX);
+      });
+      window.addEventListener('mousemove', e=>{
+        onPointerMove(e.clientX, e);
+      }, {passive:false});
+      window.addEventListener('mouseup', onPointerUp);
+
+      if ('IntersectionObserver' in window){
+        const io = new IntersectionObserver((entries)=>{ inView = entries[0]?.isIntersecting ?? true; }, { threshold: 0.1 });
+        io.observe(root);
+      }
+
+      function handleMode(){
+        if (mqlMobile.matches){
+          track.style.transform = 'translateX(0)';
+          offset = 0;
+          if (!cloned) duplicateIfNeeded();
+          recalcHalf();
+          start();
+        } else {
+          cancel();
+          track.style.transform = 'none';
+        }
+        updateArrows();
+      }
+
+      if ('ResizeObserver' in window){
+        const ro = new ResizeObserver(()=>{
+          if (mqlMobile.matches){ recalcHalf(); }
+          updateArrows();
+        });
+        ro.observe(track);
+      } else {
+        window.addEventListener('resize', ()=>{
+          if (mqlMobile.matches){ recalcHalf(); }
+          updateArrows();
+        });
+      }
+
+      try{ mqlMobile.addEventListener('change', handleMode); }catch(e){ mqlMobile.addListener(handleMode); }
+      handleMode();
+    })();
+  </script>
+</section>
+
+{% schema %}
+{
+  "name": "Marcas Chinelos",
+  "settings": [
+    { "type": "range", "id": "overlap_px", "label": "Tamanho da sobreposição (px)", "min": 0, "max": 80, "step": 2, "default": 0 },
+    { "type": "range", "id": "overlap_px_mobile", "label": "Tamanho da sobreposição (px) — mobile", "min": 0, "max": 80, "step": 2, "default": 0 },
+
+    /* Desktop */
+    { "type": "range", "id": "cards_per_row", "label": "Cards por tela (desktop)", "min": 2, "max": 12, "step": 1, "default": 6 },
+    { "type": "range", "id": "scroll_step_desktop", "label": "Passo ao clicar na seta (desktop)", "min": 1, "max": 6, "step": 1, "default": 6 },
+
+    /* Mobile */
+    { "type": "range", "id": "cards_per_row_mobile", "label": "Cards por tela (mobile)", "min": 1, "max": 10, "step": 1, "default": 5 },
+    { "type": "checkbox", "id": "auto_play_mobile", "label": "Auto-contínuo no mobile", "default": true },
+    { "type": "range", "id": "auto_speed_mobile", "label": "Velocidade (px/seg) — mobile", "min": 20, "max": 200, "step": 5, "default": 50 },
+
+    /* Visuais */
+    { "type": "range", "id": "gap_px", "label": "Gap (desktop) px", "min": 0, "max": 40, "step": 1, "default": 16 },
+    { "type": "range", "id": "gap_px_mobile", "label": "Gap (mobile) px", "min": 0, "max": 32, "step": 1, "default": 8 },
+    { "type": "range", "id": "card_width_px", "label": "Largura fixa do card (px) — desktop (opcional)", "min": 120, "max": 480, "step": 4, "default": 120 },
+    { "type": "range", "id": "card_width_px_mobile", "label": "Largura fixa do card (px) — mobile (opcional)", "min": 100, "max": 360, "step": 4, "default": 100 },
+
+    { "type": "range", "id": "header_gap_px", "label": "Espaço abaixo do título (px)", "min": 0, "max": 40, "step": 1, "default": 12 },
+    { "type": "range", "id": "space_top_px", "label": "Espaço acima da seção (px)", "min": 0, "max": 80, "step": 2, "default": 0 },
+    { "type": "range", "id": "space_bottom_px", "label": "Espaço abaixo da seção (px)", "min": 0, "max": 80, "step": 2, "default": 16 },
+
+    { "type": "text", "id": "title", "label": "Título da seção", "default": "Veja por Numeração" },
+    { "type": "text", "id": "link_title", "label": "Título do link", "default": "Ver todas" },
+    { "type": "url", "id": "link", "label": "Link", "default": "/collections" },
+    { "type": "checkbox", "id": "round_images", "label": "Imagens redondas", "default": true },
+    { "type": "checkbox", "id": "show_collection_title", "label": "Mostrar título das coleções", "default": true }
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "name": "Collection",
+      "settings": [
+        { "type": "collection", "id": "collection", "label": "Collection" },
+        { "type": "image_picker", "id": "image", "label": "Imagem", "info": "600 x 600px .jpg recomendado" }
+      ]
+    }
+  ],
+  "presets": [
+    { "category": "Collection", "name": "Marcas Chinelos", "blocks": [{ "type": "collection" },{ "type": "collection" },{ "type": "collection" },{ "type": "collection" },{ "type": "collection" },{ "type": "collection" }] }
+  ]
+}
+{% endschema %}

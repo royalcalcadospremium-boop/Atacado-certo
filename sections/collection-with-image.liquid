@@ -1,0 +1,312 @@
+{%- capture section_settings -%}
+{
+  "stackable": false,
+  "layout": "vertical"
+}
+{%- endcapture -%}
+
+<section class="section" data-section-id="{{ section.id }}" data-section-type="featured-collection" data-section-settings='{{ section_settings }}'>
+  {% render 'royal-overlap', id: section.id %}
+
+  <div class="container container--flush">
+    {%- assign collection = collections[section.settings.collection] -%}
+
+    <div class="featured-collection lazyload" {% if section.settings.image %}data-bgset="{{ section.settings.image | img_url: '1000x' }} [--lap]"{% endif %}>
+      <header class="featured-collection__header lazyload" {% if section.settings.image %}data-bgset="{{ section.settings.image | img_url: '1000x' }} [--tablet]"{% endif %}>
+        {%- if section.settings.title != blank -%}
+          <h2 class="featured-collection__title heading h2">{{ section.settings.title | escape }}</h2>
+        {%- endif -%}
+
+        {%- if section.settings.content != blank -%}
+          <p class="featured-collection__text">{{ section.settings.content | escape | newline_to_br }}</p>
+        {%- endif -%}
+
+        {%- if section.settings.button_text != blank -%}
+          <a href="{{ section.settings.button_link | default: collection.url | default: '#' }}" class="featured-collection__cta button button--floating">{{ section.settings.button_text | escape }}</a>
+        {%- endif -%}
+      </header>
+
+      <div class="featured-collection__content">
+        <div class="scroller scroller--flush">
+          <div class="scroller__inner">
+            <div class="product-list product-list--scrollable">
+              {%- comment -%} Classes do grid do tema (mantidas para compatibilidade){%- endcomment -%}
+              {%- assign grid_classes = '1/2--lap 1/3--desk 1/4--wide' -%}
+
+              {%- unless collection.empty? -%}
+                {%- for product in collection.products limit: section.settings.products_count -%}
+                  {%- assign title_enc  = product.title  | url_encode -%}
+                  {%- assign handle_enc = product.handle | url_encode -%}
+                  {%- assign vendor_enc = product.vendor | url_encode -%}
+                  {%- assign _href = product.url -%}
+                  {%- if section.settings.use_custom_link and section.settings.card_link_template != blank -%}
+                    {%- assign _href = section.settings.card_link_template
+                      | replace: '{title}', title_enc
+                      | replace: '{handle}', handle_enc
+                      | replace: '{vendor}', vendor_enc -%}
+                  {%- endif -%}
+
+                  <div class="model-card">
+                    {%- render 'product-item', product: product, grid_classes: grid_classes -%}
+
+                    {%- if section.settings.use_custom_link and section.settings.card_link_template != blank -%}
+                      <a class="model-card__overlay" href="{{ _href }}"></a>
+                    {%- endif -%}
+
+                    {%- if section.settings.card_title_mode != 'theme_default' and section.settings.card_title_mode != 'hide' -%}
+                      <div class="model-card__custom-title">
+                        {%- case section.settings.card_title_mode -%}
+                          {%- when 'title' -%}
+                            <a href="{{ _href }}" class="model-card__custom-title-link">{{ product.title }}</a>
+                          {%- when 'vendor_title' -%}
+                            <a href="{{ _href }}" class="model-card__custom-title-link">{{ product.vendor }} {{ product.title }}</a>
+                          {%- when 'title_vendor' -%}
+                            <a href="{{ _href }}" class="model-card__custom-title-link">{{ product.title }} — {{ product.vendor }}</a>
+                        {%- endcase -%}
+                      </div>
+                    {%- endif -%}
+                  </div>
+                {%- endfor -%}
+              {%- else -%}
+                {%- for i in (1..section.settings.products_count) -%}
+                  <div class="model-card">
+                    {%- render 'product-item-placeholder', grid_classes: grid_classes -%}
+                  </div>
+                {%- endfor -%}
+              {%- endunless -%}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Fundo e botões */
+  #shopify-section-{{ section.id }} .featured-collection {
+    background-image: linear-gradient(60deg, {{ section.settings.background1 }}, {{ section.settings.background2 }});
+  }
+  #shopify-section-{{ section.id }} .featured-collection__header { color: {{ section.settings.text_color }}; }
+  #shopify-section-{{ section.id }} .button {
+    color: {{ section.settings.button_text_color }};
+    background-color: {{ section.settings.button_background }};
+  }
+
+  /* Quantidade de cards visíveis */
+  #shopify-section-{{ section.id }} {
+    --cards-mobile: {{ section.settings.cards_per_row_mobile | default: 1 }};
+    --cards-desktop: {{ section.settings.cards_per_row_desktop | default: 4 }};
+  }
+  #shopify-section-{{ section.id }} .product-list--scrollable {
+    display: flex;
+    gap: 12px;
+  }
+  #shopify-section-{{ section.id }} .product-list--scrollable > * {
+    flex: 0 0 calc(100% / var(--cards-mobile));
+  }
+  @media (min-width: 990px) {
+    #shopify-section-{{ section.id }} .product-list--scrollable > * {
+      flex-basis: calc(100% / var(--cards-desktop));
+    }
+  }
+
+  /* Esconder título nativo do card quando selecionado modo custom/ocultar */
+  {%- if section.settings.card_title_mode != 'theme_default' -%}
+  #shopify-section-{{ section.id }} .product-item__title,
+  #shopify-section-{{ section.id }} .product-card__title,
+  #shopify-section-{{ section.id }} .product-meta__title,
+  #shopify-section-{{ section.id }} a.product-title,
+  #shopify-section-{{ section.id }} .product-item .heading { display: none !important; }
+  {%- endif -%}
+
+  /* Título custom */
+  #shopify-section-{{ section.id }} .model-card__custom-title { margin-top: .5rem; }
+  #shopify-section-{{ section.id }} .model-card__custom-title-link {
+    display: inline-block;
+    font-size: 14px;
+    line-height: 1.3;
+    font-weight: 600;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* Overlay de link quando usar link custom */
+  #shopify-section-{{ section.id }} .model-card { position: relative; }
+  #shopify-section-{{ section.id }} .model-card__overlay {
+    position: absolute; inset: 0; z-index: 5;
+    text-indent: -9999px;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Collection with image",
+  "settings": [
+    {
+      "type": "range",
+      "id": "overlap_px",
+      "label": "Tamanho da sobreposição (px)",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "overlap_px_mobile",
+      "label": "Tamanho da sobreposição (px) — mobile",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "default": 0
+    },
+
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "range",
+      "id": "products_count",
+      "label": "Products to show",
+      "min": 4,
+      "max": 48,
+      "step": 4,
+      "default": 12
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image",
+      "info": "1000 x 400px .png with transparency recommended (hidden on mobile)"
+    },
+    {
+      "type": "color",
+      "id": "background1",
+      "label": "Cor 1",
+      "default": "#0774d7"
+    },
+    {
+      "type": "color",
+      "id": "background2",
+      "label": "Cor 2",
+      "default": "#0774d7"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Featured collection"
+    },
+    {
+      "type": "textarea",
+      "id": "content",
+      "label": "Text",
+      "default": "Tell more about your product, collection..."
+    },
+
+    {
+      "type": "header",
+      "content": "Button"
+    },
+    {
+      "type": "color",
+      "id": "button_background",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Text",
+      "default": "#0774d7"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Text",
+      "default": "Learn more"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Link",
+      "info": "If left empty, collection URL is used."
+    },
+
+    {
+      "type": "header",
+      "content": "Cards (quantidade visível)"
+    },
+    {
+      "type": "range",
+      "id": "cards_per_row_mobile",
+      "label": "Cards visíveis no mobile",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 1
+    },
+    {
+      "type": "range",
+      "id": "cards_per_row_desktop",
+      "label": "Cards visíveis no desktop",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 4
+    },
+
+    {
+      "type": "header",
+      "content": "Título dos cards"
+    },
+    {
+      "type": "select",
+      "id": "card_title_mode",
+      "label": "O que aparece no título do card",
+      "options": [
+        { "value": "theme_default", "label": "Padrão do tema" },
+        { "value": "title", "label": "Somente título do produto" },
+        { "value": "vendor_title", "label": "Marca + título" },
+        { "value": "title_vendor", "label": "Título + marca" },
+        { "value": "hide", "label": "Ocultar título" }
+      ],
+      "default": "theme_default"
+    },
+
+    {
+      "type": "header",
+      "content": "Link dos cards"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_custom_link",
+      "label": "Usar link personalizado nos cards",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "card_link_template",
+      "label": "Modelo de link (use {title}, {handle}, {vendor})",
+      "info": "Ex.: /search?q={title}  ou  /collections/mais-vendidos/{handle}. Se vazio, usa o link do produto.",
+      "default": "/products/{handle}"
+    }
+  ],
+  "presets": [
+    {
+      "category": "Collection",
+      "name": "Collection with image",
+      "settings": {}
+    }
+  ]
+}
+{% endschema %}

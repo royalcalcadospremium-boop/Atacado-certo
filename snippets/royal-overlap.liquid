@@ -1,0 +1,13 @@
+{%- comment -%}
+Aplica a sobreposição (margem-top negativa) na seção que chamou o snippet.
+Uso: {% render 'royal-overlap', id: section.id %}
+Opcionais: px: 24, px_m: 16
+{%- endcomment -%}
+{%- assign _px   = px   | default: section.settings.overlap_px         | default: 0 -%}
+{%- assign _px_m = px_m | default: section.settings.overlap_px_mobile  | default: _px -%}
+<style>
+  #section-{{ id }}{ margin-top: calc(-1 * {{ _px }}px); }
+  @media (max-width: 749px){
+    #section-{{ id }}{ margin-top: calc(-1 * {{ _px_m }}px); }
+  }
+</style>

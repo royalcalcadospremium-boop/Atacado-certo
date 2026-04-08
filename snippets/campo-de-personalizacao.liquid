@@ -1,0 +1,66 @@
+{% assign productTags = product.tags %}  
+{% if productTags contains 'personalizar' %}
+
+<!-- INICIO CAMPO -->
+<p class="line-item-property__field">
+  
+  <label for="campo-personalizacao" class="align-label-campo"><ion-icon name="person" class="icon-personalizacao"></ion-icon>Nome:</label>
+  <input id="campo-personalizacao" placeholder="Ex: Carlos S." type="text" name="properties[Nome]">
+  <label for="campo-personalizacao" class="align-label-campo" style="margin-top: 8px"><ion-icon name="football" class="icon-personalizacao" style="font-size: 20px;"></ion-icon>Número: <span class="aviso">(ATÉ 2 DÍGITOS)</span></label>
+  <input id="campo-personalizacao" placeholder="Ex: 10" type="text" maxlength="2" name="properties[Número]">
+</p>
+<!-- FIM CAMPO -->
+
+<style>
+  #campo-personalizacao {
+    border: 1px solid #d7d7eb73;
+    background: white;
+    border-radius: 30px;
+    width: 100%;
+    height: 42px;
+    padding: 18px;
+}
+  .line-item-property__field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 48px;
+    margin-top: -16px;
+    background: #f6f6f9;
+    border-radius: 16px;
+    padding: 18px;
+  }
+  
+  input::placeholder {
+    color: #adb4c5;
+  }
+
+  .align-label-campo { 
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .aviso {
+    color: #b9b9cd;
+    font-weight: normal;
+    margin-left: 6px;
+    font-size: 10px;
+    margin-top: 2px
+  }
+
+  .icon-personalizacao {
+    font-size: 18px;
+    margin-right: 6px;
+    color: var(--accent-color);
+  }
+  
+</style>
+
+<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+  {% endif %}

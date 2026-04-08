@@ -1,0 +1,247 @@
+<section class="section" id="section-{{ section.id }}" data-section-id="{{ section.id }}" data-section-type="collection-list">
+  {% render 'royal-overlap', id: section.id %}
+
+  <div class="container">
+    {%- if section.settings.title != blank -%}
+      <header class="section__header">
+        <h2 class="section__title heading h3">{{ section.settings.title | escape }}</h2>
+
+        {%- if section.settings.link_title != blank and section.settings.link != blank -%}
+          <a href="{{ section.settings.link }}" class="section__action-link link">
+            {{ section.settings.link_title | escape }} {% render 'icon', icon: 'tail-right' %}
+          </a>
+        {%- endif -%}
+      </header>
+    {%- endif -%}
+
+    <div class="scroller" data-cards="{{ section.settings.cards_per_row }}">
+      <!-- setas (desktop) -->
+      <button class="scroller__arrow scroller__arrow--prev" aria-label="Anterior" type="button">
+        {% render 'icon', icon: 'chevron-left' %}
+      </button>
+
+      <div class="scroller__viewport">
+        <div class="scroller__inner">
+          <div class="collection-list">
+            {%- for block in section.blocks -%}
+              {%- assign collection = collections[block.settings.collection] -%}
+              <a href="{{ collection.url | default: '#' }}"
+                 class="collection-item"
+                 data-collection-index="{{ forloop.index0 }}"
+                 {{ block.shopify_attributes }}>
+                {%- unless collection.empty? -%}
+                  {%- assign collection_image = block.settings.image | default: collection.image | default: collection.products.first.featured_image -%}
+                  <div class="collection-item__image-wrapper {% if section.settings.round_images %}collection-item__image-wrapper--rounded{% endif %}"
+                       style="background: var(--background)!important; padding: 1.5px; background-image: url({{ collection_image | img_url: '1x1' }})">
+                    {%- capture supported_sizes -%}{%- render 'image-size', sizes: '300,400,500,600,700,800', image: collection_image -%}{%- endcapture -%}
+                    {%- assign image_url = collection_image | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+                    <div class="aspect-ratio" style="padding-bottom: 100%">
+                      <img class="lazyload image--fade-in"
+                           data-src="{{ image_url }}"
+                           data-widths="[{{ supported_sizes }}]"
+                           data-sizes="auto"
+                           alt="{{ collection_image.alt | escape }}">
+                      <noscript><img src="{{ collection_image | img_url: '450x' }}" alt="{{ collection_image.alt | escape }}"></noscript>
+                    </div>
+                  </div>
+
+                  {%- if section.settings.show_collection_title -%}
+                    <span class="collection-item__title text--strong">
+                      {{ collection.title }} {% render 'icon', icon: 'tail-right' %}
+                    </span>
+                  {%- endif -%}
+                {%- else -%}
+                  <div class="collection-item__image-wrapper {% if section.settings.round_images %}collection-item__image-wrapper--rounded{% endif %}">
+                    {%- capture placeholder -%}{% cycle 'collection-1', 'collection-2', 'collection-3', 'collection-4', 'collection-5', 'collection-6' %}{%- endcapture -%}
+                    {{- placeholder | placeholder_svg_tag: 'placeholder-svg' -}}
+                  </div>
+                  {%- if section.settings.show_collection_title -%}
+                    <span class="collection-item__title text--strong">
+                      {{ 'home_page.onboarding.collection_title' | t }} {% render 'icon', icon: 'tail-right' %}
+                    </span>
+                  {%- endif -%}
+                {%- endunless -%}
+              </a>
+            {%- endfor -%}
+          </div>
+        </div>
+      </div>
+
+      <button class="scroller__arrow scroller__arrow--next" aria-label="Próximo" type="button">
+        {% render 'icon', icon: 'chevron-right' %}
+      </button>
+      <!-- fade removido -->
+    </div>
+  </div>
+
+  <style>
+    /* espaçamentos por seção */
+    #section-{{ section.id }}{
+      margin-top: {{ section.settings.space_top_px | default: 0 }}px;
+      margin-bottom: {{ section.settings.space_bottom_px | default: 16 }}px;
+    }
+    #section-{{ section.id }} .section__header{
+      margin-bottom: {{ section.settings.header_gap_px | default: 12 }}px;
+    }
+
+    /* variáveis */
+    #section-{{ section.id }} .scroller{
+      --cards: {{ section.settings.cards_per_row | default: 5 }};
+      --cards-mobile: {{ section.settings.cards_per_row_mobile | default: 3 }};
+      --gap: {{ section.settings.gap_px | default: 16 }}px;
+      --gap-mobile: {{ section.settings.gap_px_mobile | default: 12 }}px;
+      position: relative;
+    }
+
+    /* viewport */
+    #section-{{ section.id }} .scroller__viewport{ overflow: hidden; position: relative; }
+    #section-{{ section.id }} .scroller__inner{
+      overflow: auto; scrollbar-width: none; -ms-overflow-style: none;
+    }
+    #section-{{ section.id }} .scroller__inner::-webkit-scrollbar{ display: none; }
+
+    /* trilho */
+    #section-{{ section.id }} .collection-list{
+      display: flex; gap: var(--gap);
+      padding-right: 56px; /* espaço para a seta direita */
+    }
+
+    /* cards */
+    #section-{{ section.id }} .collection-item{
+      --basis-desktop: calc((100% - (var(--cards) - 1)*var(--gap)) / var(--cards));
+      flex: 0 0 var(--basis-desktop); max-width: var(--basis-desktop);
+      text-decoration: none;
+    }
+
+    /* largura fixa opcional desktop */
+    {% assign desktop_min = 120 %}
+    {% if section.settings.card_width_px and section.settings.card_width_px > desktop_min %}
+    #section-{{ section.id }} .collection-item{
+      flex-basis: {{ section.settings.card_width_px }}px;
+      max-width: {{ section.settings.card_width_px }}px;
+    }
+    {% endif %}
+
+    /* setas */
+    #section-{{ section.id }} .scroller__arrow{
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 40px; height: 40px; border-radius: 999px; border: 0;
+      display: grid; place-items: center; background: rgba(255,255,255,.95);
+      box-shadow: 0 6px 20px rgba(0,0,0,.12); cursor: pointer; z-index: 3;
+    }
+    #section-{{ section.id }} .scroller__arrow--prev{ left: -8px; }
+    #section-{{ section.id }} .scroller__arrow--next{ right: -8px; }
+
+    /* mobile: esconde as setas e remove o respiro extra */
+    @media (max-width: 767px){
+      #section-{{ section.id }} .scroller__arrow{ display:none !important; }
+      #section-{{ section.id }} .collection-list{ gap: var(--gap-mobile); padding-right: 0; }
+      #section-{{ section.id }} .collection-item{
+        --basis-mobile: calc((100% - (var(--cards-mobile) - 1)*var(--gap-mobile)) / var(--cards-mobile));
+        flex-basis: var(--basis-mobile); max-width: var(--basis-mobile);
+      }
+
+      {% assign mobile_min = 100 %}
+      {% if section.settings.card_width_px_mobile and section.settings.card_width_px_mobile > mobile_min %}
+      #section-{{ section.id }} .collection-item{
+        flex-basis: {{ section.settings.card_width_px_mobile }}px;
+        max-width: {{ section.settings.card_width_px_mobile }}px;
+      }
+      {% endif %}
+    }
+  </style>
+
+  <script>
+    (function(){
+      const root = document.querySelector('#section-{{ section.id }}');
+      if (!root) return;
+
+      const viewport = root.querySelector('.scroller__inner');
+      const list = root.querySelector('.collection-list');
+      const nextBtn = root.querySelector('.scroller__arrow--next');
+      const prevBtn = root.querySelector('.scroller__arrow--prev');
+
+      function itemWidth(){
+        const item = root.querySelector('.collection-item');
+        const style = item ? getComputedStyle(list) : null;
+        const gap = style ? parseFloat(style.gap) || 16 : 16;
+        return (item ? item.getBoundingClientRect().width : 240) + gap;
+      }
+
+      function go(dir){ viewport.scrollBy({ left: itemWidth() * dir, behavior: 'smooth' }); }
+
+      nextBtn.addEventListener('click', function(){ go(1); });
+      prevBtn.addEventListener('click', function(){ go(-1); });
+
+      function toggleArrows(){
+        const max = viewport.scrollWidth - viewport.clientWidth - 1;
+        prevBtn.disabled = viewport.scrollLeft <= 0;
+        nextBtn.disabled = viewport.scrollLeft >= max;
+        prevBtn.style.opacity = prevBtn.disabled ? .35 : 1;
+        nextBtn.style.opacity = nextBtn.disabled ? .35 : 1;
+      }
+      toggleArrows();
+      viewport.addEventListener('scroll', toggleArrows);
+      window.addEventListener('resize', toggleArrows);
+    })();
+  </script>
+</section>
+
+{% schema %}
+{
+  "name": "Tamanhos de Bermudas",
+  "settings": [
+    { "type": "range", "id": "overlap_px", "label": "Tamanho da sobreposição (px)", "min": 0, "max": 80, "step": 2, "default": 0 },
+    { "type": "range", "id": "overlap_px_mobile", "label": "Tamanho da sobreposição (px) — mobile", "min": 0, "max": 80, "step": 2, "default": 0 },
+
+    { "type": "range", "id": "cards_per_row", "label": "Quantidade de cards (desktop)", "min": 2, "max": 12, "step": 1, "default": 5,
+      "info": "Quantidade de cards visíveis por vez no desktop." },
+
+    { "type": "range", "id": "cards_per_row_mobile", "label": "Quantidade de cards (mobile)", "min": 1, "max": 6, "step": 1, "default": 3 },
+
+    { "type": "range", "id": "card_width_px", "label": "Largura do card (px) — desktop (opcional)", "min": 120, "max": 480, "step": 4, "default": 120,
+      "info": "Deixe em 120 para calcular automaticamente pela quantidade de cards. Aumente para fixar a largura." },
+
+    { "type": "range", "id": "card_width_px_mobile", "label": "Largura do card (px) — mobile (opcional)", "min": 100, "max": 360, "step": 4, "default": 100,
+      "info": "Deixe em 100 para calcular automaticamente pela quantidade de cards. Aumente para fixar a largura." },
+
+    { "type": "range", "id": "gap_px", "label": "Espaço entre cards (desktop) px", "min": 0, "max": 40, "step": 1, "default": 16 },
+    { "type": "range", "id": "gap_px_mobile", "label": "Espaço entre cards (mobile) px", "min": 0, "max": 32, "step": 1, "default": 12 },
+
+    { "type": "range", "id": "header_gap_px", "label": "Espaço abaixo do título da seção (px)", "min": 0, "max": 40, "step": 1, "default": 12 },
+    { "type": "range", "id": "space_top_px", "label": "Espaço acima da seção (px)", "min": 0, "max": 80, "step": 2, "default": 0 },
+    { "type": "range", "id": "space_bottom_px", "label": "Espaço abaixo da seção (px)", "min": 0, "max": 80, "step": 2, "default": 16 },
+
+    { "type": "text", "id": "title", "label": "Título da seção", "default": "Veja por Numeração" },
+    { "type": "text", "id": "link_title", "label": "Título do link", "default": "Ver todas" },
+    { "type": "url", "id": "link", "label": "Link", "default": "/collections" },
+
+    { "type": "checkbox", "id": "round_images", "label": "Imagens redondas", "default": true },
+    { "type": "checkbox", "id": "show_collection_title", "label": "Mostrar título das coleções", "default": true }
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "name": "Collection",
+      "settings": [
+        { "type": "collection", "id": "collection", "label": "Collection" },
+        { "type": "image_picker", "id": "image", "label": "Imagem", "info": "600 x 600px .jpg recomendado" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "category": "Collection",
+      "name": "Collection list",
+      "blocks": [
+        { "type": "collection" },
+        { "type": "collection" },
+        { "type": "collection" },
+        { "type": "collection" },
+        { "type": "collection" },
+        { "type": "collection" }
+      ]
+    }
+  ]
+}
+{% endschema %}

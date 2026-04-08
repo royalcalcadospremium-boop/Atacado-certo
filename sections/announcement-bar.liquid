@@ -1,0 +1,172 @@
+{%- if section.settings.show_announcement -%}
+  {%- capture section_settings -%}
+  {
+    "showNewsletter": {{ section.settings.show_newsletter | json }}
+  }
+  {%- endcapture -%}
+
+  <section data-section-id="{{ section.id }}" data-section-type="announcement-bar" data-section-settings='{{ section_settings }}'>
+    {% render 'royal-overlap', id: section.id %}
+
+    {%- if section.settings.show_newsletter -%}
+      <div id="announcement-bar-newsletter" class="announcement-bar__newsletter hidden-phone" aria-hidden="true">
+        <div class="container">
+          <div class="announcement-bar__close-container">
+            <button class="announcement-bar__close" data-action="toggle-newsletter">{% render 'icon', icon: 'close' %}</button>
+          </div>
+        </div>
+
+        <div class="container container--extra-narrow">
+          <div class="announcement-bar__newsletter-inner">
+            {%- if section.settings.newsletter_title != blank -%}
+              <h2 class="heading h1">{{ section.settings.newsletter_title | escape }}</h2>
+            {%- endif -%}
+
+            {%- if section.settings.newsletter_content != blank -%}
+              <div class="rte">
+                {{ section.settings.newsletter_content }}
+              </div>
+            {%- endif -%}
+
+            {%- assign newsletter_id = 'newsletter-' | append: section.id -%}
+
+            <div class="newsletter">
+              {%- form 'customer', id: newsletter_id, class: 'form newsletter__form' -%}
+                {%- if form.posted_successfully? -%}
+                  <p class="alert alert--success alert--center">{{ 'home_page.newsletter.success' | t }}</p>
+                  {%- if form.context == 'announcement-bar' -%}
+                    {%- assign open_announcement = true -%}
+                  {%- endif -%}
+                {%- else -%}
+                  {%- if form.errors -%}
+                    <p class="alert alert--error">{{ form.errors.messages['email'] }}</p>
+                  {%- endif -%}
+
+                  <input type="hidden" name="contact[tags]" value="newsletter">
+                  <input type="hidden" name="contact[context]" value="announcement-bar">
+
+                  <div class="form__input-row">
+                    <div class="form__input-wrapper form__input-wrapper--labelled">
+                      <input type="email" id="announcement[contact][email]" name="contact[email]" class="form__field form__field--text" autofocus required>
+                      <label for="announcement[contact][email]" class="form__floating-label">{{ 'home_page.newsletter.input' | t }}</label>
+                    </div>
+
+                    <button type="submit" class="form__submit button button--primary">{{ 'home_page.newsletter.submit' | t }}</button>
+                  </div>
+                {%- endif -%}
+              {%- endform -%}
+            </div>
+          </div>
+        </div>
+      </div>
+    {%- endif -%}
+
+    <div class="announcement-bar">
+      <div class="container">
+        <div class="announcement-bar__inner">
+          {%- if section.settings.link != blank -%}
+            <a href="{{ section.settings.link }}" class="announcement-bar__content announcement-bar__content--{{ section.settings.text_position }}">{{ section.settings.text | escape }}</a>
+          {%- else -%}
+            {%- if section.settings.mostraricone -%}
+              <div>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 264" width="18" height="37" style="margin-top:-6px;margin-bottom:-6px;margin-right:12px;" fill="white" aria-hidden="true">
+                  <g><path d="M490.727,21.379C473.083,3.489,447.355-3.846,422.93,2.051L96.786,70.595C34.85,79.76-7.929,137.399,1.236,199.334c3.563,24.079,14.782,46.372,31.997,63.581l34.965,34.987c1.637,1.615,2.552,3.823,2.539,6.123v64.512c0.047,40.134,32.57,72.657,72.704,72.704h64.512c2.303,0,4.513,0.913,6.144,2.539l34.965,34.965c21.142,21.282,49.895,33.259,79.893,33.28c12.383-0.01,24.683-2.035,36.416-5.995c40.491-13.447,69.914-48.61,76.011-90.837l68.544-325.12C516.084,65.391,508.789,39.291,490.727,21.379z M66.599,167c5.798-17.913,21.444-30.848,40.128-33.173c0.754-0.1,1.5-0.228,2.24-0.384L393.17,73.71L134.738,331.992v-27.968c0.047-19.294-7.637-37.803-21.333-51.392l-34.923-34.965C65.031,204.511,60.399,184.765,66.599,167z M378.535,403.118c-0.171,0.747-0.277,1.493-0.384,2.24c-3.705,27.023-28.614,45.926-55.637,42.221c-10.676-1.464-20.581-6.379-28.203-13.997l-34.944-34.944c-13.596-13.7-32.112-21.383-51.413-21.333h-27.968l258.368-258.432L378.535,403.118z"/></g>
+                </svg>
+              </div>
+            {%- endif -%}
+            {{ section.settings.text }}
+          {%- endif -%}
+
+          {%- if section.settings.show_newsletter -%}
+            <button type="button" class="announcement-bar__button hidden-phone" data-action="toggle-newsletter" aria-expanded="false" aria-controls="announcement-bar-newsletter">
+              {%- render 'icon', icon: 'newsletter' -%}
+              {{- section.settings.newsletter_button | escape -}}
+            </button>
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    {%- assign _dir = section.settings.gradient_direction | default: 'horizontal' -%}
+    {%- capture _css_direction -%}
+      {%- if _dir == 'vertical' -%}to bottom{%- else -%}to right{%- endif -%}
+    {%- endcapture -%}
+
+    .announcement-bar {
+      background-image: linear-gradient({{ _css_direction | strip }}, {{ section.settings.background1 }}, {{ section.settings.background2 }});
+      color: {{ section.settings.text_color }};
+    }
+  </style>
+
+  {%- assign _asz_d = section.settings.announcement_size_desktop | default: 100 -%}
+  {%- assign _asz_m = section.settings.announcement_size_mobile  | default: 100 -%}
+  <style id="announcement-size-{{ section.id }}">
+    #shopify-section-{{ section.id }}{ --ann-scale-d: {{ _asz_d | times: 1.0 | divided_by: 100.0 }}; --ann-scale-m: {{ _asz_m | times: 1.0 | divided_by: 100.0 }}; }
+    @media (min-width:641px){ #shopify-section-{{ section.id }} .announcement-bar{ --ann-scale: var(--ann-scale-d); } }
+    @media (max-width:640px){ #shopify-section-{{ section.id }} .announcement-bar{ --ann-scale: var(--ann-scale-m); } }
+
+    #shopify-section-{{ section.id }} .announcement-bar{
+      padding-top: calc(10px * var(--ann-scale));
+      padding-bottom: calc(10px * var(--ann-scale));
+    }
+  </style>
+
+  <script>
+    (function(){
+      {% if section.settings.show_newsletter %}
+        var btn = document.querySelector('#shopify-section-{{ section.id }} .announcement-bar__button');
+        if (btn) document.documentElement.style.setProperty('--announcement-bar-button-width', btn.clientWidth + 'px');
+      {% else %}
+        document.documentElement.style.removeProperty('--announcement-bar-button-width');
+      {% endif %}
+
+      var root = document.getElementById('shopify-section-{{ section.id }}');
+      if(!root) return;
+      function setH(){ document.documentElement.style.setProperty('--announcement-bar-height', root.clientHeight + 'px'); }
+      setH();
+      window.addEventListener('resize', setH, {passive:true});
+    })();
+  </script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Barra de anúncio",
+  "settings": [
+    { "type": "range", "id": "overlap_px", "label": "Tamanho da sobreposição (px)", "min": 0, "max": 80, "step": 2, "default": 0 },
+    { "type": "range", "id": "overlap_px_mobile", "label": "Tamanho da sobreposição (px) — mobile", "min": 0, "max": 80, "step": 2, "default": 0 },
+
+    { "type": "checkbox", "id": "show_announcement", "label": "Mostrar barra de anúncio", "default": true },
+
+    { "type": "header", "content": "Tamanho (apenas espaçamentos)" },
+    { "type": "range", "id": "announcement_size_desktop", "min": 20, "max": 150, "step": 5, "unit": "%", "label": "Tamanho da barra (Desktop)", "default": 100 },
+    { "type": "range", "id": "announcement_size_mobile", "min": 20, "max": 150, "step": 5, "unit": "%", "label": "Tamanho da barra (Mobile)", "default": 100 },
+
+    { "type": "color", "id": "background1", "label": "Cor 1", "default": "#1e2d7d" },
+    { "type": "color", "id": "background2", "label": "Cor 2", "default": "#1e2d7d" },
+    {
+      "type": "select",
+      "id": "gradient_direction",
+      "label": "Direção do gradiente",
+      "default": "horizontal",
+      "options": [
+        { "value": "horizontal", "label": "Horizontal (esquerda → direita)" },
+        { "value": "vertical", "label": "Vertical (topo → baixo)" }
+      ]
+    },
+    { "type": "color", "id": "text_color", "label": "Texto", "default": "#ffffff" },
+    { "type": "checkbox", "id": "mostraricone", "label": "Mostrar ícone", "default": true },
+    { "type": "html", "id": "text", "label": "Texto", "default": "Announce something here" },
+
+    { "type": "header", "content": "Newsletter" },
+    { "type": "paragraph", "content": "Clientes que se inscreverem terão o e-mail adicionado à lista 'aceita marketing'." },
+    { "type": "paragraph", "content": "Visível apenas no desktop." },
+    { "type": "checkbox", "id": "show_newsletter", "label": "Mostrar formulário", "default": true },
+    { "type": "text", "id": "newsletter_button", "label": "Botão abrir", "default": "Subscribe & Save" },
+    { "type": "text", "id": "newsletter_title", "label": "Título", "default": "Newsletter" },
+    { "type": "richtext", "id": "newsletter_content", "label": "Texto", "default": "<p>Descreva o benefício de se inscrever</p>" }
+  ]
+}
+{% endschema %}

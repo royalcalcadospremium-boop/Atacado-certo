@@ -1,0 +1,468 @@
+{% comment %}
+  Popup Saída — sem formulário (nunca envia), 2 cliques
+  1º: revela o cupom no MESMO botão e mantém aberto
+  2º: copia o texto do botão, mostra “Copiado!” e fecha
+{% endcomment %}
+
+{% assign enabled = section.settings.enabled %}
+{% if enabled %}
+
+<style>
+  .gx-scope{
+    --ov-color: {{ section.settings.overlay_color }};
+    --ov-alpha: {{ section.settings.overlay_alpha }}%;
+    --modal-bg: {{ section.settings.modal_bg }};
+    --modal-border: {{ section.settings.modal_border }};
+    --modal-shadow: {{ section.settings.modal_shadow }};
+    --radius-d: {{ section.settings.radius_desktop_px }}px;
+    --radius-m: {{ section.settings.radius_mobile_px }}px;
+
+    --left-bg: {{ section.settings.left_bg }};
+    --right-bg: {{ section.settings.right_bg }};
+
+    --badge: {{ section.settings.badge_color }};
+    --h1: {{ section.settings.title_color }};
+    --sub: {{ section.settings.subtitle_color }};
+    --body: {{ section.settings.body_color }};
+
+    --in-text: {{ section.settings.field_text }};
+    --in-ph: {{ section.settings.field_placeholder }};
+    --in-bg: {{ section.settings.field_bg }};
+    --in-bor: {{ section.settings.field_border }};
+    --in-bor-focus: {{ section.settings.field_border_focus }};
+    --in-shadow-focus: {{ section.settings.field_shadow_focus }};
+
+    --cb-border: {{ section.settings.check_border }};
+    --cb-bg: {{ section.settings.check_bg }};
+    --cb-mark: {{ section.settings.check_mark }};
+    --cb-label: {{ section.settings.consent_color }};
+
+    --btn1-bg: {{ section.settings.btn1_bg }};
+    --btn1-text: {{ section.settings.btn1_text }};
+    --btn1-border: {{ section.settings.btn1_border }};
+    --btn1-bg-h: {{ section.settings.btn1_bg_hover }};
+    --btn1-text-h: {{ section.settings.btn1_text_hover }};
+
+    --btn2-bg: {{ section.settings.btn2_bg }};
+    --btn2-text: {{ section.settings.btn2_text }};
+    --btn2-border: {{ section.settings.btn2_border }};
+    --btn2-bg-h: {{ section.settings.btn2_bg_hover }};
+    --btn2-text-h: {{ section.settings.btn2_text_hover }};
+
+    --copied-bg: {{ section.settings.copied_bg }};
+    --copied-text: {{ section.settings.copied_color }};
+    --close: {{ section.settings.close_color }};
+    --close-h: {{ section.settings.close_hover }};
+    --footer: {{ section.settings.footer_color }};
+    --badge-bg: {{ section.settings.badge_bg }};
+    --badge-text: {{ section.settings.badge_text }};
+  }
+
+  .gx-overlay{
+    position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:9999;
+    background: color-mix(in srgb, var(--ov-color, #000), transparent calc(100% - var(--ov-alpha, 45%)));
+  }
+
+  .gx-modal{
+    width: min({{ section.settings.w_desktop_px }}px, 96vw);
+    max-width: {{ section.settings.max_w_desktop_px }}px;
+    max-height: {{ section.settings.hmax_desktop_vh }}vh;
+    border-radius: var(--radius-d, 28px);
+    overflow: hidden;
+    background: var(--modal-bg, #ffffff);
+    box-shadow: 0 24px 90px var(--modal-shadow, rgba(0,0,0,.35));
+    border: 1px solid var(--modal-border, #e5e7eb);
+    opacity:0; transform:translateY(10px); transition:.24s ease;
+  }
+
+  .gx-grid{display:grid; grid-template-columns:1.08fr .92fr}
+
+  .gx-left{background:var(--left-bg,#fff);padding:28px 26px 22px;color:var(--body,#444)}
+  .gx-logo-wrap{ text-align: {% if section.settings.logo_align == 'center' %}center{% else %}left{% endif %}; }
+  .gx-logo{max-height:44px;width:auto;margin-bottom:16px}
+
+  .gx-badge{font-weight:800;letter-spacing:.08em;text-transform:uppercase;font-size:13px;margin-bottom:10px;color:var(--badge,#ea4c89);background:var(--badge-bg,transparent);padding:0.15rem .35rem;border-radius:8px}
+  .gx-title{margin:0 0 6px;font-weight:900;line-height:1.02;color:var(--h1,#ea4c89);font-size:clamp(26px,3.6vw,44px)}
+  .gx-sub{margin:0 0 16px;line-height:1.45;color:var(--sub,#6b6b6b);font-size:16px}
+
+  .gx-field{display:flex;align-items:center;gap:10px;margin:10px 0;background:var(--in-bg,#f7f7f7);border:2px solid var(--in-bor,#e4e4e7);border-radius:18px;padding:12px 14px}
+  .gx-input{background:transparent;border:none;outline:none;width:100%;font-size:15px;color:var(--in-text,#111);caret-color:var(--in-text,#111)}
+  .gx-input::placeholder{color:var(--in-ph,#7c7c7c)}
+  .gx-field:focus-within{ border-color:var(--in-bor-focus,#9e77ed); box-shadow:0 0 0 2px var(--in-shadow-focus, rgba(158,119,237,.25)) inset; }
+
+  .gx-error{display:none;margin-top:4px;font-size:12px;color:#ff4d5e}
+  .gx-field.error{border-color:#ff4d5e;box-shadow:0 0 0 2px rgba(255,77,94,.08) inset}
+  .gx-field.error + .gx-error{display:block}
+
+  .gx-consent{display:flex;gap:10px;align-items:flex-start;margin:12px 0 18px}
+  .gx-consent input{width:18px;height:18px;border-radius:6px;border:2px solid var(--cb-border,#D1D5DB); background:var(--cb-bg,#fff); accent-color:var(--cb-mark,#10B981)}
+  .gx-consent label{font-size:13px;line-height:1.4;color:var(--cb-label,#424242)}
+
+  .gx-actions{ position:relative; }
+  .gx-btn{
+    width:100%; display:flex; justify-content:center; align-items:center; gap:10px;
+    border:2px solid var(--btn1-border,#1D4ED8);
+    border-radius:22px; padding:16px 22px; font-weight:900; font-size:17px;
+    box-shadow:0 16px 34px rgba(0,0,0,.10); cursor:pointer; transition:.15s ease;
+    background: var(--btn1-bg,#1D4ED8); color: var(--btn1-text,#fff);
+  }
+  .gx-btn:hover{ background:var(--btn1-bg-h,#1E40AF); color:var(--btn1-text-h,#fff); }
+  .gx-btn.revealed{ background:var(--btn2-bg,#10B981); color:var(--btn2-text,#0B3B2E); border-color:var(--btn2-border,#10B981); }
+  .gx-btn.revealed:hover{ background:var(--btn2-bg-h,#059669); color:var(--btn2-text-h,#fff); }
+
+  .gx-toast{
+    position:absolute; left:50%; transform:translateX(-50%); bottom:-32px;
+    padding:6px 10px; border-radius:{{ section.settings.copied_radius_px }}px;
+    background:var(--copied-bg,rgba(17,24,39,.92)); color:var(--copied-text,#fff);
+    font-size:12px; font-weight:700; line-height:1;
+    opacity:0; pointer-events:none; transition:opacity .22s ease, transform .22s ease;
+  }
+  .gx-toast.show{ opacity:1; transform:translateX(-50%) translateY(-4px); }
+
+  .gx-foot{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-top:1px solid rgba(0,0,0,.06);background:var(--left-bg,#fff);color:var(--footer,#6b7280);font-size:12px}
+  .gx-close{cursor:pointer;font-weight:800;padding:6px 10px;border-radius:10px; color: var(--close,#111827); }
+  .gx-close:hover{ color: var(--close-h,#000000); background:rgba(0,0,0,.05) }
+
+  .gx-right{background:var(--right-bg,#f9cfe0);display:flex;align-items:flex-end;justify-content:center}
+  .gx-model{width:100%;height:auto;object-fit:cover}
+
+  @media (max-width: 749px){
+    .gx-modal{
+      width: min({{ section.settings.w_mobile_vw }}vw, 96vw);
+      max-width: {{ section.settings.max_w_mobile_px }}px;
+      max-height: {{ section.settings.hmax_mobile_vh }}vh;
+      border-radius: var(--radius-m, 24px);
+      overflow:auto;
+    }
+    .gx-grid{grid-template-columns:1fr}
+    .gx-right{order:-1;min-height:50vh}
+    .gx-left{padding:22px 18px}
+  }
+</style>
+
+<div class="gx-scope" id="gxScope">
+  <div class="gx-overlay" id="gxOverlay" aria-hidden="true">
+    <div class="gx-modal" id="gxModal" role="dialog" aria-modal="true" aria-label="Ganhe desconto">
+      <div class="gx-grid">
+
+        <!-- ESQUERDA -->
+        <div class="gx-left">
+          {% if section.settings.logo != blank %}
+          <div class="gx-logo-wrap">
+            <img class="gx-logo" src="{{ section.settings.logo | image_url: width: 800 }}" alt="Logo">
+          </div>
+          {% endif %}
+
+          <div class="gx-badge" style="color:var(--badge-text,var(--badge));background:var(--badge-bg)">{{ section.settings.badge }}</div>
+          <h3 class="gx-title" style="color:var(--h1)">{{ section.settings.title }}</h3>
+          <div class="gx-sub" style="color:var(--sub)">{{ section.settings.subtitle }}</div>
+
+          <!-- Sem <form> para impedir qualquer submit -->
+          <div id="gxLead" role="form" aria-labelledby="gxTitle">
+            <div class="gx-field" id="fPhone">
+              <span class="gx-flag">
+                <img src="https://flagcdn.com/w20/br.png" width="20" height="15" alt="BR" style="display:block">
+              </span>
+              <input class="gx-input" type="tel" id="gxPhone" placeholder="{{ section.settings.phone_placeholder }}" autocomplete="tel">
+            </div>
+            <div class="gx-error" id="errPhone">{{ section.settings.required_text }}</div>
+
+            <div class="gx-field" id="fName">
+              <input class="gx-input" type="text" id="gxName" placeholder="{{ section.settings.name_placeholder }}" autocomplete="name">
+            </div>
+            <div class="gx-error" id="errName">{{ section.settings.required_text }}</div>
+
+            <div class="gx-consent">
+              <input type="checkbox" id="gxConsent" {% if section.settings.require_consent %}required{% endif %}>
+              <label for="gxConsent">{{ section.settings.consent_text }}</label>
+            </div>
+
+            <div class="gx-actions">
+              <button type="button" class="gx-btn" id="gxConfirm">{{ section.settings.cta_label }}</button>
+              <div class="gx-toast" id="gxToast">{{ section.settings.copied_msg }}</div>
+            </div>
+          </div>
+
+          <div class="gx-foot">
+            <span>{{ section.settings.footer_text }}</span>
+            <span class="gx-close" id="gxClose">Fechar ✕</span>
+          </div>
+        </div>
+
+        <!-- DIREITA -->
+        <div class="gx-right">
+          {% if section.settings.model_image != blank %}
+            <img class="gx-model" src="{{ section.settings.model_image | image_url: width: 1100 }}" alt="Modelo">
+          {% endif %}
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const cfg = {
+    desktop: {{ section.settings.enable_desktop | json }},
+    mobile:  {{ section.settings.enable_mobile  | json }},
+    delay:   {{ section.settings.delay_ms | default: 0 }},
+    key: 'gx_exit_popup_v4', maxPerWeek: 2, cooldownH: 12,
+
+    modeAfterClick: {{ section.settings.reveal_text_mode | json }}, // 'coupon' | 'phrase'
+    coupon: {{ section.settings.coupon | json }},
+    revealedPhrase: {{ section.settings.cta_reveal_text | json }},
+    copiedMs: {{ section.settings.copied_duration_ms | default: 900 }}
+  };
+
+  const overlay = document.getElementById('gxOverlay');
+  const modal   = document.getElementById('gxModal');
+  const btnClose= document.getElementById('gxClose');
+  const scope   = document.getElementById('gxScope');
+
+  const fPhone  = document.getElementById('fPhone');
+  const fName   = document.getElementById('fName');
+  const inPhone = document.getElementById('gxPhone');
+  const inName  = document.getElementById('gxName');
+  const errPhone= document.getElementById('errPhone');
+  const errName = document.getElementById('errName');
+
+  const btnConfirm = document.getElementById('gxConfirm');
+  const toast      = document.getElementById('gxToast');
+
+  /* ==== HARD-BLOCK: impedir qualquer submit/Enter dentro do popup ==== */
+  scope.addEventListener('keydown', (e)=>{
+    if (e.key === 'Enter') { e.preventDefault(); btnConfirm.click(); }
+  });
+  scope.addEventListener('submit', (e)=>{ e.preventDefault(); e.stopPropagation(); });
+
+  function st(){ try{return JSON.parse(localStorage.getItem(cfg.key))||{}}catch(e){return{}} }
+  function sv(p){ try{ const s=st(); localStorage.setItem(cfg.key, JSON.stringify(Object.assign({},s,p,{ts:new Date().toISOString()}))) }catch(e){} }
+  function shownRecently(){
+    if (sessionStorage.getItem(cfg.key+'_session')==='1') return true;
+    const s=st(), now=Date.now();
+    if (s.cooldown && now<new Date(s.cooldown).getTime()) return true;
+    if (s.hist && Array.isArray(s.hist)){
+      const w=now-7*24*60*60*1000; if (s.hist.filter(x=>new Date(x).getTime()>w).length>=cfg.maxPerWeek) return true;
+    }
+    return false;
+  }
+  function markShown(){
+    const s=st(); const h=s.hist||[]; h.push(new Date().toISOString());
+    sv({hist:h}); sessionStorage.setItem(cfg.key+'_session','1');
+  }
+  function cooldown(){ sv({cooldown:new Date(Date.now()+cfg.cooldownH*60*60*1000).toISOString()}) }
+
+  function open(){
+    if (shownRecently()) return;
+    setTimeout(()=>{
+      overlay.style.display='flex';
+      requestAnimationFrame(()=>{ modal.style.opacity='1'; modal.style.transform='translateY(0)' });
+      markShown();
+    }, cfg.delay);
+  }
+  function close(){
+    modal.style.opacity='0'; modal.style.transform='translateY(10px)';
+    setTimeout(()=> overlay.style.display='none', 180); cooldown();
+  }
+
+  if (btnClose) btnClose.addEventListener('click', close);
+  if (overlay) overlay.addEventListener('click', e=>{ if(e.target===overlay) close() });
+
+  function setupDesktop(){
+    if(!cfg.desktop) return;
+    let armed=true;
+    document.addEventListener('mouseout', e=>{
+      if(!armed) return;
+      if(e.relatedTarget===null && e.clientY<=0){ armed=false; open(); }
+    });
+  }
+  function setupMobile(){
+    if(!cfg.mobile) return;
+    let y=window.scrollY, t=Date.now(), fired=false;
+    window.addEventListener('scroll', ()=>{
+      if(fired) return;
+      const ny=window.scrollY, nt=Date.now();
+      const v=(y-ny)/((nt-t)/1000);
+      if(v>900 && ny<220){ fired=true; open(); }
+      y=ny; t=nt;
+    }, {passive:true});
+  }
+
+  function validPhone(v){ return (v||'').replace(/\D/g,'').length >= 10 }
+  function validName(v){ return (v||'').trim().length >= 2 }
+
+  function showToast(){
+    toast.classList.add('show');
+    setTimeout(()=> toast.classList.remove('show'), cfg.copiedMs);
+  }
+
+  // Clique no botão (NUNCA envia nada)
+  btnConfirm.addEventListener('click', function(){
+    // 2º clique → copiar e fechar
+    if (btnConfirm.getAttribute('data-revealed') === '1') {
+      const toCopy = (btnConfirm.textContent || '').trim();
+      const fallbackCoupon = (cfg.coupon || '').toString().trim();
+      const text = toCopy || fallbackCoupon;
+
+      const done = ()=>{ showToast(); setTimeout(close, cfg.copiedMs); };
+      if (navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(done).catch(done);
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta); ta.select();
+        try{ document.execCommand('copy'); }catch(e){}
+        document.body.removeChild(ta);
+        done();
+      }
+      return;
+    }
+
+    // 1º clique → validar campos e revelar (sem enviar nada)
+    let ok=true;
+    if(!validPhone(inPhone.value)){ ok=false; fPhone.classList.add('error'); errPhone.style.display='block'; } else { fPhone.classList.remove('error'); errPhone.style.display='none'; }
+    if(!validName(inName.value)){  ok=false; fName.classList.add('error');  errName.style.display='block'; } else { fName.classList.remove('error');  errName.style.display='none'; }
+    if(!ok) return;
+
+    btnConfirm.classList.add('revealed');
+    btnConfirm.setAttribute('data-revealed','1');
+
+    if (cfg.modeAfterClick === 'phrase' && (cfg.revealedPhrase || '').trim().length){
+      btnConfirm.textContent = cfg.revealedPhrase.trim();
+    } else {
+      const code = (cfg.coupon || '').toString().trim();
+      btnConfirm.textContent = code || 'MEU CUPOM';
+    }
+  });
+
+  {% if section.settings.block_on_cart %} if (location.pathname.indexOf('/cart')===0) return; {% endif %}
+  {% if section.settings.block_on_checkout %} if (location.pathname.indexOf('/checkout')===0) return; {% endif %}
+
+  if (window.location.search.indexOf('testexit=1')!==-1){ setTimeout(open,300) }
+  setupDesktop(); setupMobile();
+})();
+</script>
+
+{% endif %}
+
+{% schema %}
+{
+  "name": "Popup Saída Gummy",
+  "settings": [
+    { "type": "checkbox", "id": "enabled", "label": "Ativar pop-up", "default": true },
+
+    { "type": "image_picker", "id": "logo", "label": "Logo (lado esquerdo)" },
+    { "type": "select", "id": "logo_align", "label": "Alinhamento da logo", "default": "left", "options": [
+      { "value": "left", "label": "Esquerda" },
+      { "value": "center", "label": "Centralizada" }
+    ]},
+    { "type": "image_picker", "id": "model_image", "label": "Imagem da modelo (lado direito)" },
+
+    { "type": "text", "id": "badge", "label": "Chamada superior", "default": "GARANTA UM BRINDE COM ESSE CUPOM" },
+    { "type": "text", "id": "title", "label": "Título", "default": "Ganhe +1 Produto" },
+    { "type": "richtext", "id": "subtitle", "label": "Descrição", "default": "<p>Preencha abaixo e resgate seu Brinde</p>" },
+
+    { "type": "text", "id": "phone_placeholder", "label": "Placeholder do telefone", "default": "Digite seu melhor número" },
+    { "type": "text", "id": "name_placeholder", "label": "Placeholder do nome", "default": "Digite seu nome" },
+    { "type": "text", "id": "required_text", "label": "Mensagem de obrigatório", "default": "Campo é obrigatório" },
+
+    { "type": "checkbox", "id": "require_consent", "label": "Exigir consentimento (checkbox)", "default": false },
+    { "type": "text", "id": "consent_text", "label": "Texto do consentimento", "default": "Marque esta caixa para receber mensagens de marketing promocional." },
+
+    { "type": "text", "id": "cta_label", "label": "Texto do botão (antes)", "default": "Pegar meu cupom" },
+
+    { "type": "header", "content": "Texto ao 1º clique" },
+    { "type": "select", "id": "reveal_text_mode", "label": "Modo do texto após 1º clique", "default": "coupon", "options": [
+      { "value": "coupon", "label": "Mostrar o CUPOM no botão" },
+      { "value": "phrase", "label": "Mostrar uma FRASE" }
+    ]},
+    { "type": "text", "id": "cta_reveal_text", "label": "Texto do botão (caso FRASE)", "default": "Usar cupom" },
+    { "type": "text", "id": "coupon", "label": "Texto do cupom (será copiado no 2º clique)", "default": "ROYAL10" },
+
+    { "type": "text", "id": "footer_text", "label": "Rodapé", "default": "Copie o cupom e resgate em sua compra." },
+
+    { "type": "header", "content": "Overlay (fundo atrás do pop-up)" },
+    { "type": "color", "id": "overlay_color", "label": "Cor base do overlay", "default": "#000000" },
+    { "type": "range", "id": "overlay_alpha", "label": "Opacidade do overlay (%)", "min": 0, "max": 100, "step": 1, "default": 45, "unit": "%" },
+
+    { "type": "header", "content": "Container do Pop-up" },
+    { "type": "color", "id": "modal_bg", "label": "Fundo do modal", "default": "#FFFFFF" },
+    { "type": "color", "id": "modal_border", "label": "Borda do modal", "default": "#E5E7EB" },
+    { "type": "color", "id": "modal_shadow", "label": "Cor da sombra do modal", "default": "rgba(0,0,0,0.35)" },
+
+    { "type": "header", "content": "Fundos (colunas)" },
+    { "type": "color", "id": "left_bg", "label": "Fundo da coluna esquerda", "default": "#FFFFFF" },
+    { "type": "color", "id": "right_bg", "label": "Fundo da coluna direita (imagem)", "default": "#F9CFE0" },
+
+    { "type": "header", "content": "Textos" },
+    { "type": "color", "id": "badge_color", "label": "Cor do selo (texto)", "default": "#EA4C89" },
+    { "type": "color", "id": "badge_bg", "label": "Fundo do selo (opcional)", "default": "transparent" },
+    { "type": "color", "id": "title_color", "label": "Título (H1)", "default": "#FF2B6A" },
+    { "type": "color", "id": "subtitle_color", "label": "Subtítulo/descrição", "default": "#222222" },
+    { "type": "color", "id": "body_color", "label": "Texto geral do conteúdo", "default": "#444444" },
+
+    { "type": "header", "content": "Inputs" },
+    { "type": "color", "id": "field_text", "label": "Texto do input", "default": "#111111" },
+    { "type": "color", "id": "field_placeholder", "label": "Placeholder do input", "default": "#7C7C7C" },
+    { "type": "color", "id": "field_bg", "label": "Fundo do input", "default": "#FFFFFF" },
+    { "type": "color", "id": "field_border", "label": "Borda do input (normal)", "default": "#E4E4E7" },
+    { "type": "color", "id": "field_border_focus", "label": "Borda do input (focus)", "default": "#9E77ED" },
+    { "type": "color", "id": "field_shadow_focus", "label": "Sombra do input (focus)", "default": "rgba(158,119,237,0.35)" },
+
+    { "type": "header", "content": "Checkbox / Opt-in" },
+    { "type": "color", "id": "check_border", "label": "Borda da caixa", "default": "#D1D5DB" },
+    { "type": "color", "id": "check_bg", "label": "Fundo da caixa", "default": "#FFFFFF" },
+    { "type": "color", "id": "check_mark", "label": "Cor do check", "default": "#10B981" },
+    { "type": "color", "id": "consent_color", "label": "Texto do rótulo", "default": "#424242" },
+
+    { "type": "header", "content": "Botão — Estado 1 (antes do 1º clique)" },
+    { "type": "color", "id": "btn1_bg", "label": "Fundo", "default": "#1D4ED8" },
+    { "type": "color", "id": "btn1_text", "label": "Texto", "default": "#FFFFFF" },
+    { "type": "color", "id": "btn1_border", "label": "Borda", "default": "#1D4ED8" },
+    { "type": "color", "id": "btn1_bg_hover", "label": "Fundo (hover)", "default": "#1E40AF" },
+    { "type": "color", "id": "btn1_text_hover", "label": "Texto (hover)", "default": "#FFFFFF" },
+
+    { "type": "header", "content": "Botão — Estado 2 (após 1º clique)" },
+    { "type": "color", "id": "btn2_bg", "label": "Fundo", "default": "#10B981" },
+    { "type": "color", "id": "btn2_text", "label": "Texto", "default": "#0B3B2E" },
+    { "type": "color", "id": "btn2_border", "label": "Borda", "default": "#10B981" },
+    { "type": "color", "id": "btn2_bg_hover", "label": "Fundo (hover)", "default": "#059669" },
+    { "type": "color", "id": "btn2_text_hover", "label": "Texto (hover)", "default": "#FFFFFF" },
+
+    { "type": "header", "content": "Feedback “Copiado!”" },
+    { "type": "text", "id": "copied_msg", "label": "Mensagem ao copiar", "default": "Copiado!" },
+    { "type": "color", "id": "copied_bg", "label": "Fundo do aviso", "default": "#111827E9" },
+    { "type": "color", "id": "copied_color", "label": "Texto do aviso", "default": "#FFFFFF" },
+    { "type": "range", "id": "copied_radius_px", "label": "Raio da borda (px)", "min": 4, "max": 20, "step": 1, "default": 10 },
+    { "type": "number", "id": "copied_duration_ms", "label": "Duração do aviso (ms)", "default": 900 },
+
+    { "type": "header", "content": "Fechar / Rodapé / Selos" },
+    { "type": "color", "id": "close_color", "label": "Cor do botão Fechar", "default": "#111827" },
+    { "type": "color", "id": "close_hover", "label": "Cor do Fechar (hover)", "default": "#000000" },
+    { "type": "color", "id": "footer_color", "label": "Cor do texto do rodapé", "default": "#6B7280" },
+    { "type": "color", "id": "badge_text", "label": "Texto do selo (override, opcional)", "default": "#FFFFFF" },
+
+    { "type": "header", "content": "Tamanho do Pop-up — Desktop" },
+    { "type": "range", "id": "w_desktop_px", "label": "Largura (px)", "min": 600, "max": 1200, "step": 10, "default": 900 },
+    { "type": "range", "id": "max_w_desktop_px", "label": "Máx. largura (px)", "min": 700, "max": 1400, "step": 10, "default": 1100 },
+    { "type": "range", "id": "hmax_desktop_vh", "label": "Altura máx. (vh)", "min": 60, "max": 100, "step": 2, "default": 90 },
+    { "type": "range", "id": "radius_desktop_px", "label": "Raio borda (px)", "min": 8, "max": 48, "step": 1, "default": 28 },
+
+    { "type": "header", "content": "Tamanho do Pop-up — Mobile" },
+    { "type": "range", "id": "w_mobile_vw", "label": "Largura (vw)", "min": 80, "max": 100, "step": 1, "default": 92 },
+    { "type": "range", "id": "max_w_mobile_px", "label": "Máx. largura (px)", "min": 280, "max": 520, "step": 10, "default": 420 },
+    { "type": "range", "id": "hmax_mobile_vh", "label": "Altura máx. (vh)", "min": 60, "max": 100, "step": 2, "default": 86 },
+    { "type": "range", "id": "radius_mobile_px", "label": "Raio borda (px)", "min": 8, "max": 48, "step": 1, "default": 24 },
+
+    { "type": "header", "content": "Regras de disparo" },
+    { "type": "checkbox", "id": "enable_desktop", "label": "Ativar no Desktop", "default": true },
+    { "type": "checkbox", "id": "enable_mobile", "label": "Ativar no Mobile", "default": true },
+    { "type": "number", "id": "delay_ms", "label": "Atraso (ms) após o gatilho", "default": 0, "info": "Tempo após detectar a saída." },
+
+    { "type": "header", "content": "Bloqueios (opcional)" },
+    { "type": "checkbox", "id": "block_on_cart", "label": "Não mostrar no carrinho", "default": true },
+    { "type": "checkbox", "id": "block_on_checkout", "label": "Não mostrar no checkout", "default": true }
+  ],
+  "presets": [{ "name": "Popup Saída Gummy" }]
+}
+{% endschema %}

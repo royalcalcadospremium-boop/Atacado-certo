@@ -1,0 +1,413 @@
+{% comment %}
+Coleções / Comunidades em Destaque (gradiente, título/botão, espaçamentos)
+Cards com imagem ajustável (altura por device), ajuste (cover/contain),
+cantos arredondados.
+- Mobile: pode forçar 1 linha (não quebra pra baixo)
+- Link por card (para grupos WhatsApp etc.)
+- ✅ Imagem Desktop + Imagem Mobile por card
+{% endcomment %}
+
+<section id="royal-duo-{{ section.id }}" class="royal-duo">
+  {% render 'royal-overlap', id: section.id %}
+
+  <style>
+    #royal-duo-{{ section.id }}{
+      --gap: 14px;
+
+      /* Quantidade por tela e linhas */
+      --per-d: {{ section.settings.per_view_desktop | default: 3 }};
+      --per-m: {{ section.settings.per_view_mobile | default: 1 }};
+      --rows-d: {{ section.settings.rows_desktop | default: '1' }};
+      --rows-m: {% if section.settings.force_single_row_mobile %}1{% else %}{{ section.settings.rows_mobile | default: '1' }}{% endif %};
+
+      /* Sobreposição ao bloco anterior */
+      --overlap-d: {{ section.settings.overlap_px | default: 0 }}px;
+      --overlap-m: {{ section.settings.overlap_px_mobile | default: 0 }}px;
+
+      /* Cores e botões */
+      --bg1: {{ section.settings.background1 }};
+      --bg2: {{ section.settings.background2 }};
+      --text: {{ section.settings.text_color }};
+      --btn-bg: {{ section.settings.button_background }};
+      --btn-text: {{ section.settings.button_text_color }};
+
+      /* Imagem e raio dos cards */
+      --card-radius: {{ section.settings.card_radius | default: 16 }}px;
+      --card-h-m: {{ section.settings.card_height_mobile | default: 200 }}px;
+      --card-h-d: {{ section.settings.card_height_desktop | default: 280 }}px;
+      --fit: {{ section.settings.card_image_fit | default: 'cover' }};
+      --img-bg: {{ section.settings.card_image_bg | default: '#ffffff' }};
+
+      position: relative;
+      margin-top: calc(-1 * var(--overlap-d));
+      z-index: 3;
+      isolation: isolate;
+
+      /* Fundo gradiente */
+      background-image: linear-gradient(60deg, var(--bg1), var(--bg2));
+    }
+    @media (max-width: 989px){
+      #royal-duo-{{ section.id }}{ margin-top: calc(-1 * var(--overlap-m)); }
+    }
+
+    /* ===== Alinhamento com o container global do tema ===== */
+    #royal-duo-{{ section.id }} .container{
+      width: 100%;
+      max-width: 1480px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: var(--mobile-container-gutter, 20px);
+      padding-right: var(--mobile-container-gutter, 20px);
+    }
+    @media (min-width: 641px) and (max-width: 1023px){
+      #royal-duo-{{ section.id }} .container{
+        padding-left: var(--tablet-container-gutter, 28px);
+        padding-right: var(--tablet-container-gutter, 28px);
+      }
+    }
+    @media (min-width: 1024px){
+      #royal-duo-{{ section.id }} .container{
+        padding-left: var(--desktop-container-gutter, 36px);
+        padding-right: var(--desktop-container-gutter, 36px);
+      }
+    }
+
+    /* Header (título/botão) com espaçamentos controláveis */
+    #royal-duo-{{ section.id }} .duo-header{
+      color: var(--text);
+      padding-top: {{ section.settings.space_top_to_title | default: 0 }}px;
+      margin-bottom: {{ section.settings.space_title_to_cards | default: 16 }}px;
+    }
+    #royal-duo-{{ section.id }} .duo-title{ margin: 0; }
+    #royal-duo-{{ section.id }} .duo-cta.button{
+      color: var(--btn-text);
+      background-color: var(--btn-bg);
+      margin-top: 10px;
+      display: inline-block;
+    }
+
+    /* ====== Carrossel em GRID (suporta 1 ou 2 linhas) ====== */
+    #royal-duo-{{ section.id }} .viewport{ position:relative; overflow:hidden; }
+    #royal-duo-{{ section.id }} .track{
+      display: grid;
+      grid-auto-flow: column; /* preenche por coluna quando há 2 linhas */
+      grid-auto-columns: calc((100% - (var(--gap) * (var(--per-d) - 1))) / var(--per-d));
+      grid-template-rows: repeat(var(--rows-d), auto);
+      gap: var(--gap);
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none; -ms-overflow-style: none;
+      padding-bottom: 8px;
+    }
+    #royal-duo-{{ section.id }} .track::-webkit-scrollbar{ display: none; }
+
+    @media (max-width: 989px){
+      #royal-duo-{{ section.id }} .track{
+        grid-auto-columns: calc((100% - (var(--gap) * (var(--per-m) - 1))) / var(--per-m));
+        grid-template-rows: repeat(var(--rows-m), auto);
+      }
+    }
+
+    #royal-duo-{{ section.id }} .slide{
+      scroll-snap-align: start;
+      width: 100%;
+    }
+
+    /* Card (sem texto) */
+    #royal-duo-{{ section.id }} .collection-card{
+      display:block;
+      border-radius: var(--card-radius);
+      overflow:hidden;
+      background: rgba(255,255,255,0.08);
+      position: relative;
+    }
+    #royal-duo-{{ section.id }} .collection-card__media{
+      width: 100%;
+      height: var(--card-h-d);
+      background: var(--img-bg);
+      position: relative;
+    }
+    @media (max-width: 989px){
+      #royal-duo-{{ section.id }} .collection-card__media{ height: var(--card-h-m); }
+    }
+
+    /* imagens: desktop vs mobile */
+    #royal-duo-{{ section.id }} .collection-card__media img{
+      width: 100%;
+      height: 100%;
+      object-fit: var(--fit);
+      display:block;
+    }
+    #royal-duo-{{ section.id }} .img-desktop{ display:block; }
+    #royal-duo-{{ section.id }} .img-mobile{ display:none; }
+
+    @media (max-width: 989px){
+      #royal-duo-{{ section.id }} .img-desktop{ display:none; }
+      #royal-duo-{{ section.id }} .img-mobile{ display:block; }
+    }
+
+    /* Placeholder quando não tem imagem */
+    #royal-duo-{{ section.id }} .collection-card__placeholder{
+      width: 100%; height: 100%;
+      background: linear-gradient(135deg, rgba(255,255,255,.2), rgba(255,255,255,.05));
+    }
+
+    @media (max-width: 580px){
+      #royal-duo-{{ section.id }}{ --gap: 12px; }
+    }
+  </style>
+
+  <div class="container">
+    {% if section.settings.title != blank or section.settings.button_text != blank %}
+      <header class="duo-header">
+        {% if section.settings.title != blank %}
+          <h2 class="duo-title heading h2">{{ section.settings.title | escape }}</h2>
+        {% endif %}
+        {% if section.settings.button_text != blank %}
+          <a href="{{ section.settings.button_link | default: '#' }}" class="duo-cta button button--floating">{{ section.settings.button_text | escape }}</a>
+        {% endif %}
+      </header>
+    {% endif %}
+
+    <div class="viewport">
+      <div class="track">
+        {% for block in section.blocks %}
+          {% liquid
+            assign coll = block.settings.collection
+            assign href = ''
+            if block.settings.custom_link != blank
+              assign href = block.settings.custom_link
+            elsif coll
+              assign href = coll.url
+            else
+              assign href = '#'
+            endif
+
+            assign alt_txt = block.settings.alt_text
+            if alt_txt == blank and coll
+              assign alt_txt = coll.title
+            endif
+            if alt_txt == blank
+              assign alt_txt = section.settings.title
+            endif
+
+            comment
+              Imagens (prioridade):
+              - Desktop: override_image_desktop > coll.image
+              - Mobile:  override_image_mobile  > override_image_desktop > coll.image
+            endcomment
+
+            assign img_d = nil
+            if block.settings.override_image_desktop
+              assign img_d = block.settings.override_image_desktop
+            elsif coll and coll.image
+              assign img_d = coll.image
+            endif
+
+            assign img_m = nil
+            if block.settings.override_image_mobile
+              assign img_m = block.settings.override_image_mobile
+            elsif block.settings.override_image_desktop
+              assign img_m = block.settings.override_image_desktop
+            elsif coll and coll.image
+              assign img_m = coll.image
+            endif
+          %}
+
+          {% if coll or block.settings.override_image_desktop or block.settings.override_image_mobile or block.settings.custom_link != blank %}
+            <div class="slide" {{ block.shopify_attributes }}>
+              <a class="collection-card" href="{{ href }}" {% if block.settings.open_new_tab %}target="_blank" rel="noopener"{% endif %}>
+                <div class="collection-card__media">
+                  {% if img_d or img_m %}
+                    {% if img_d %}
+                      <img class="img-desktop lazyload" data-src="{{ img_d | img_url: '900x' }}" alt="{{ alt_txt | escape }}">
+                    {% else %}
+                      <div class="img-desktop collection-card__placeholder" aria-hidden="true"></div>
+                    {% endif %}
+
+                    {% if img_m %}
+                      <img class="img-mobile lazyload" data-src="{{ img_m | img_url: '700x' }}" alt="{{ alt_txt | escape }}">
+                    {% else %}
+                      <div class="img-mobile collection-card__placeholder" aria-hidden="true"></div>
+                    {% endif %}
+                  {% else %}
+                    <div class="collection-card__placeholder" aria-hidden="true"></div>
+                  {% endif %}
+                </div>
+              </a>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const root  = document.getElementById('royal-duo-{{ section.id }}');
+      if(!root) return;
+      const track = root.querySelector('.track');
+      if(!track) return;
+
+      const gap = parseFloat(getComputedStyle(track).gap) || 14;
+
+      function slideWidth(){
+        const first = track.querySelector('.slide');
+        return first ? (first.getBoundingClientRect().width + gap) : 320 + gap;
+      }
+      function scrollStep(dir, n){
+        track.scrollBy({ left: slideWidth() * n * dir, behavior:'smooth' });
+      }
+
+      const autoplay   = {{ section.settings.auto_play    | default: true  | json }};
+      const intervalMs = ({{ section.settings.auto_interval | default: 5 }} * 1000) || 5000;
+      const loop       = {{ section.settings.auto_loop    | default: true  | json }};
+
+      const stepD = parseInt({{ section.settings.auto_step_desktop | default: '1' | json }}, 10);
+      const stepM = parseInt({{ section.settings.auto_step_mobile  | default: '1' | json }}, 10);
+
+      const mql = window.matchMedia('(max-width: 989px)');
+      function currentStep(){ return mql.matches ? stepM : stepD; }
+
+      function onTick(){
+        const maxScroll = track.scrollWidth - track.clientWidth - 1;
+        if (track.scrollLeft >= maxScroll){
+          if (loop){ track.scrollTo({ left: 0, behavior:'smooth' }); }
+        } else {
+          scrollStep(1, currentStep());
+        }
+      }
+
+      let timer = null;
+      function start(){ stop(); timer = setInterval(onTick, intervalMs); }
+      function stop(){ if (timer){ clearInterval(timer); timer = null; } }
+
+      if (autoplay) start();
+      track.addEventListener('touchstart', stop, {passive:true});
+      track.addEventListener('touchend', ()=> { if (autoplay) start(); }, {passive:true});
+      try{ mql.addEventListener('change', ()=>{ if (autoplay){ stop(); start(); } }); }catch(e){}
+    })();
+  </script>
+</section>
+
+{% schema %}
+{
+  "name": "Coleções em Destaque",
+  "settings": [
+    { "type": "range", "id": "overlap_px", "label": "Tamanho da sobreposição (px)", "min": 0, "max": 80, "step": 2, "default": 0 },
+    { "type": "range", "id": "overlap_px_mobile", "label": "Tamanho da sobreposição (px) — mobile", "min": 0, "max": 80, "step": 2, "default": 0 },
+
+    { "type": "color", "id": "background1", "label": "Cor do fundo — Gradiente 1", "default": "#0774d7" },
+    { "type": "color", "id": "background2", "label": "Cor do fundo — Gradiente 2", "default": "#0774d7" },
+    { "type": "color", "id": "text_color", "label": "Cor do texto do título", "default": "#ffffff" },
+
+    { "type": "text", "id": "title", "label": "Título", "default": "Coleções em destaque" },
+    { "type": "range", "id": "space_top_to_title", "label": "Espaço do topo até o título (px)", "min": 0, "max": 120, "step": 2, "default": 16 },
+    { "type": "range", "id": "space_title_to_cards", "label": "Espaço do título até os cards (px)", "min": 0, "max": 120, "step": 2, "default": 16 },
+
+    { "type": "header", "content": "Botão" },
+    { "type": "color", "id": "button_background", "label": "Fundo do botão", "default": "#ffffff" },
+    { "type": "color", "id": "button_text_color", "label": "Texto do botão", "default": "#0774d7" },
+    { "type": "text", "id": "button_text", "label": "Texto do botão", "default": "Ver todas" },
+    { "type": "url", "id": "button_link", "label": "Link do botão" },
+
+    { "type": "header", "content": "Cards • quantidade e linhas" },
+    { "type": "range", "id": "per_view_desktop", "label": "Cards por tela (desktop)", "min": 1, "max": 12, "step": 1, "default": 4 },
+    { "type": "range", "id": "per_view_mobile",  "label": "Cards por tela (mobile)",  "min": 1, "max": 6,  "step": 1, "default": 2 },
+
+    {
+      "type": "select",
+      "id": "rows_desktop",
+      "label": "Linhas (desktop)",
+      "options": [
+        { "value": "1", "label": "1 linha" },
+        { "value": "2", "label": "2 linhas" }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "select",
+      "id": "rows_mobile",
+      "label": "Linhas (mobile)",
+      "options": [
+        { "value": "1", "label": "1 linha" },
+        { "value": "2", "label": "2 linhas" }
+      ],
+      "default": "1"
+    },
+
+    { "type": "checkbox", "id": "force_single_row_mobile", "label": "Mobile: sempre 1 linha (não quebrar pra baixo)", "default": true },
+
+    { "type": "checkbox", "id": "auto_play", "label": "Auto-avanço", "default": true },
+    { "type": "range", "id": "auto_interval", "label": "Intervalo (segundos)", "min": 3, "max": 12, "step": 1, "default": 5 },
+    { "type": "checkbox", "id": "auto_loop", "label": "Voltar ao início ao chegar no fim", "default": true },
+    {
+      "type": "select",
+      "id": "auto_step_desktop",
+      "label": "Auto-avanço: quantos cards por vez (desktop)",
+      "options": [
+        { "value": "1", "label": "1 por vez" },
+        { "value": "2", "label": "2 por vez" },
+        { "value": "3", "label": "3 por vez" }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "select",
+      "id": "auto_step_mobile",
+      "label": "Auto-avanço: quantos cards por vez (mobile)",
+      "options": [
+        { "value": "1", "label": "1 por vez" },
+        { "value": "2", "label": "2 por vez" },
+        { "value": "3", "label": "3 por vez" }
+      ],
+      "default": "1"
+    },
+
+    { "type": "header", "content": "Aparência do card" },
+    { "type": "range", "id": "card_radius", "label": "Raio dos cantos (px)", "min": 0, "max": 48, "step": 1, "default": 16 },
+    { "type": "range", "id": "card_height_mobile", "label": "Altura da imagem (mobile, px)", "min": 100, "max": 500, "step": 4, "default": 200 },
+    { "type": "range", "id": "card_height_desktop", "label": "Altura da imagem (desktop, px)", "min": 140, "max": 700, "step": 10, "default": 280 },
+    {
+      "type": "select",
+      "id": "card_image_fit",
+      "label": "Ajuste da imagem",
+      "options": [
+        { "value": "cover",   "label": "Preencher (pode cortar)" },
+        { "value": "contain", "label": "Conter (sem cortes; pode ter bordas)" }
+      ],
+      "default": "cover"
+    },
+    { "type": "color", "id": "card_image_bg", "label": "Cor de fundo atrás da imagem (para 'contain')", "default": "#ffffff" }
+  ],
+  "blocks": [
+    {
+      "type": "collection_card",
+      "name": "Card",
+      "settings": [
+        { "type": "collection", "id": "collection", "label": "Coleção (opcional)" },
+        { "type": "url", "id": "custom_link", "label": "Link do card (grupo/URL)" },
+        { "type": "checkbox", "id": "open_new_tab", "label": "Abrir link em nova aba", "default": true },
+        { "type": "text", "id": "alt_text", "label": "Texto ALT (opcional)" },
+
+        { "type": "header", "content": "Imagem do card" },
+        { "type": "image_picker", "id": "override_image_desktop", "label": "Imagem (desktop)", "info": "Se vazio, usa a imagem da coleção (se houver)." },
+        { "type": "image_picker", "id": "override_image_mobile", "label": "Imagem (mobile)", "info": "Se vazio, o mobile usa a imagem do desktop (ou a da coleção)." }
+      ]
+    }
+  ],
+  "max_blocks": 24,
+  "presets": [
+    {
+      "name": "Coleções em Destaque",
+      "category": "Collection",
+      "blocks": [
+        { "type": "collection_card" },
+        { "type": "collection_card" },
+        { "type": "collection_card" }
+      ]
+    }
+  ]
+}
+{% endschema %}

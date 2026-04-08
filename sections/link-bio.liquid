@@ -1,0 +1,29 @@
+<section class="link-bio">
+  <style>
+    /* Esconde cabeçalho, barra de anúncio e rodapé SOMENTE nesta página */
+    .announcement-bar,
+    header.site-header,
+    .site-header,
+    .header,
+    footer.site-footer {
+      display: none !important;
+    }
+
+    /* Remove possíveis espaços do topo e rodapé */
+    main, .main-content, #MainContent {
+      margin-top: 0 !important;
+      padding-top: 0 !important;
+      margin-bottom: 0 !important;
+      padding-bottom: 0 !important;
+    }
+  </style>
+
+  <div class="container" style="text-align:center; padding:40px 20px;">
+    <h2 style="font-size:28px; font-weight:700; margin-bottom:10px;">
+      {{ page.title }}
+    </h2>
+    <p style="font-size:18px; color:#444;">
+      👑 Bem-vindo à Royal Calçados
+    </p>
+  </div>
+</section>

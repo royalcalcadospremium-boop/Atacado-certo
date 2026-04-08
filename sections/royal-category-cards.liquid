@@ -1,0 +1,288 @@
+{% comment %}
+Royal • Categoria Cards v9.6.1
+- Não sobrepõe a seção de cima
+- Desktop: espaço acima até 300 (step 3 = 101 etapas)
+- Mobile: espaço acima até 400 (step 4 = 101 etapas) ✅ corrigido (Shopify limit)
+- Ajuste fino Y Desktop/Mobile (-100..100 step 2)
+{% endcomment %}
+
+<section id="royal-cats-{{ section.id }}"
+  class="royal-cats{% if section.settings.desktop_compact %} desktop-compact{% endif %}">
+
+  {% liquid
+    assign is_home = false
+    if request.page_type == 'index' or template.name == 'index'
+      assign is_home = true
+    endif
+  %}
+
+  <style>
+    #royal-cats-{{ section.id }}{
+      /* Ajustes de posição (editor) */
+      --space-top-d: {{ section.settings.space_top_desktop | default: 0 }}px;
+      --shift-y-d:   {{ section.settings.shift_y_desktop | default: 0 }}px;
+
+      --space-top-m: {{ section.settings.space_top_mobile | default: 0 }}px;
+      --shift-y-m:   {{ section.settings.shift_y_mobile | default: 0 }}px;
+
+      /* Diâmetros via settings */
+      --diam-d: {{ section.settings.media_standard_desktop | default: 120 }}px;
+      --diam-d-compact: {{ section.settings.media_compact_desktop | default: 100 }}px;
+      --diam-m: {{ section.settings.media_compact_mobile | default: 80 }}px;
+
+      --diam-current: var(--diam-d);
+
+      /* Quantidade / gap */
+      --cards-d: {{ section.settings.desktop_fit_count | default: 5 }};
+      --gap-d-auto: calc((100% - (var(--cards-d) * var(--diam-current))) / (var(--cards-d) - 1));
+      --gap: max(8px, var(--gap-d-auto));
+
+      --gap-m: 14px;
+      --visible-m: {{ section.settings.mobile_visible | default: 5 }};
+
+      /* Cores */
+      --text: {{ settings.text_color | default: '#111111' }};
+
+      position: relative;
+      text-align: center;
+      isolation: isolate;
+      z-index: 0;
+
+      /* espaço REAL acima + ajuste fino */
+      padding-top: var(--space-top-d);
+      transform: translateY(var(--shift-y-d));
+
+      margin: 0;
+    }
+
+    @media (min-width: 992px){
+      #royal-cats-{{ section.id }}.desktop-compact{ --diam-current: var(--diam-d-compact); }
+    }
+
+    @media (max-width: 991px){
+      #royal-cats-{{ section.id }}{
+        padding-top: var(--space-top-m);
+        transform: translateY(var(--shift-y-m));
+      }
+      #royal-cats-{{ section.id }} .track{ gap: var(--gap-m); }
+      #royal-cats-{{ section.id }} .card{
+        min-width: calc((100% - (var(--gap-m) * (var(--visible-m) - 1))) / var(--visible-m));
+        flex: 0 0 calc((100% - (var(--gap-m) * (var(--visible-m) - 1))) / var(--visible-m));
+        width: auto;
+      }
+      #royal-cats-{{ section.id }} .media{ width: var(--diam-m); height: var(--diam-m); }
+      #royal-cats-{{ section.id }} .title{ font-size: 12px; }
+    }
+
+    /* Container alinhado ao tema */
+    #royal-cats-{{ section.id }} .container{
+      width: 100%;
+      max-width: 1480px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: var(--mobile-container-gutter, 20px);
+      padding-right: var(--mobile-container-gutter, 20px);
+    }
+    @media (min-width: 641px) and (max-width: 1023px){
+      #royal-cats-{{ section.id }} .container{
+        padding-left: var(--tablet-container-gutter, 28px);
+        padding-right: var(--tablet-container-gutter, 28px);
+      }
+    }
+    @media (min-width: 1024px){
+      #royal-cats-{{ section.id }} .container{
+        padding-left: var(--desktop-container-gutter, 36px);
+        padding-right: var(--desktop-container-gutter, 36px);
+      }
+    }
+
+    /* Trilho */
+    #royal-cats-{{ section.id }} .viewport{ position: relative; overflow: hidden; }
+    #royal-cats-{{ section.id }} .track{
+      display: flex; flex-wrap: nowrap;
+      gap: var(--gap);
+      justify-content: flex-start;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      padding: 0;
+    }
+    #royal-cats-{{ section.id }} .track::-webkit-scrollbar{ display: none; }
+
+    /* Card */
+    #royal-cats-{{ section.id }} .card{
+      scroll-snap-align: center;
+      width: var(--diam-current);
+      min-width: var(--diam-current);
+      flex: 0 0 var(--diam-current);
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      text-decoration: none; color: var(--text);
+      background: transparent !important;
+      box-shadow: none !important;
+      border: 0 !important;
+    }
+
+    #royal-cats-{{ section.id }} .media{
+      width: var(--diam-current);
+      height: var(--diam-current);
+      border-radius: 50%;
+      overflow: hidden;
+      background: transparent !important;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform .18s ease;
+    }
+    #royal-cats-{{ section.id }} .card:hover .media{ transform: scale(1.03); }
+    #royal-cats-{{ section.id }} .media img{
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    #royal-cats-{{ section.id }} .title{
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.2;
+      max-width: 100%;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Setas */
+    #royal-cats-{{ section.id }} .nav{
+      display:flex;
+      position:absolute;
+      top:50%;
+      transform:translateY(-50%);
+      width:40px; height:40px;
+      border-radius:50%;
+      background:#fff;
+      border:none;
+      cursor:pointer;
+      box-shadow:0 6px 18px rgba(0,0,0,.15);
+      align-items:center;
+      justify-content:center;
+      z-index: 2;
+    }
+    #royal-cats-{{ section.id }} .nav svg{ width:22px; height:22px; }
+    #royal-cats-{{ section.id }} .nav.prev{ left:-6px; }
+    #royal-cats-{{ section.id }} .nav.next{ right:-6px; }
+    #royal-cats-{{ section.id }}.at-start .nav.prev{ display:none; }
+    #royal-cats-{{ section.id }}.at-end .nav.next{ display:none; }
+  </style>
+
+  {% unless is_home %}
+    <button class="nav prev" type="button" aria-label="Anterior">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  {% endunless %}
+  <button class="nav next" type="button" aria-label="Próximo">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+
+  <div class="viewport">
+    <div class="container">
+      <div class="track">
+        {% for block in section.blocks %}
+          {% assign col = block.settings.collection %}
+          {% assign link = block.settings.link | default: col.url %}
+          <a class="card" href="{{ link }}" {{ block.shopify_attributes }}>
+            <div class="media">
+              {% if block.settings.icon %}
+                <img src="{{ block.settings.icon | image_url: width: 300 }}" alt="{{ block.settings.title | escape | default: col.title | escape }}" loading="lazy">
+              {% elsif col and col.image %}
+                <img src="{{ col.image | image_url: width: 300 }}" alt="{{ col.title | escape }}" loading="lazy">
+              {% else %}
+                <svg viewBox="0 0 48 48" width="36" height="36" aria-hidden="true">
+                  <rect x="0" y="0" width="48" height="48" fill="#e9ebee"/>
+                </svg>
+              {% endif %}
+            </div>
+            <div class="title">{{ block.settings.title | default: col.title }}</div>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const root  = document.getElementById('royal-cats-{{ section.id }}');
+      if(!root) return;
+      const track = root.querySelector('.track');
+      const prev  = root.querySelector('.nav.prev');
+      const next  = root.querySelector('.nav.next');
+      if(!track) return;
+
+      function step(){
+        const styles = getComputedStyle(track);
+        const gap = parseFloat(styles.columnGap || styles.gap) || 12;
+        const card = track.querySelector('.card');
+        if(!card) return 300;
+        const w = card.getBoundingClientRect().width;
+        return w + gap;
+      }
+
+      function updateArrows(){
+        const maxScroll = track.scrollWidth - track.clientWidth - 1;
+        const atStart = track.scrollLeft <= 0;
+        const atEnd   = track.scrollLeft >= maxScroll;
+        if (prev) root.classList.toggle('at-start', atStart);
+        root.classList.toggle('at-end', atEnd);
+      }
+
+      function go(dir){
+        track.scrollBy({ left: step() * dir, behavior: 'smooth' });
+      }
+
+      if (prev) prev.addEventListener('click', () => go(-1));
+      if (next) next.addEventListener('click', () => go(1));
+
+      track.addEventListener('scroll', updateArrows, { passive: true });
+      window.addEventListener('resize', updateArrows);
+      updateArrows();
+    })();
+  </script>
+</section>
+
+{% schema %}
+{
+  "name": "Royal • Categoria Cards",
+  "settings": [
+    { "type": "checkbox", "id": "desktop_compact", "label": "Desktop: usar compacto", "default": true },
+
+    { "type": "range", "id": "desktop_fit_count", "label": "Desktop: encaixar N", "min": 2, "max": 10, "step": 1, "default": 5 },
+
+    { "type": "range", "id": "mobile_visible", "label": "Mobile: cards visíveis", "min": 3, "max": 6, "step": 1, "default": 5 },
+
+    { "type": "header", "content": "Posição Desktop" },
+    { "type": "range", "id": "space_top_desktop", "label": "Espaço acima (px)", "min": 0, "max": 300, "step": 3, "default": 0 },
+    { "type": "range", "id": "shift_y_desktop", "label": "Ajuste Y (px)", "min": -100, "max": 100, "step": 2, "default": 0 },
+
+    { "type": "header", "content": "Posição Mobile" },
+    { "type": "range", "id": "space_top_mobile", "label": "Espaço acima (px)", "min": 0, "max": 400, "step": 4, "default": 0 },
+    { "type": "range", "id": "shift_y_mobile", "label": "Ajuste Y (px)", "min": -100, "max": 100, "step": 2, "default": 0 },
+
+    { "type": "range", "id": "media_standard_desktop", "label": "Círculo desktop", "min": 60, "max": 160, "step": 2, "default": 120 },
+    { "type": "range", "id": "media_compact_desktop", "label": "Círculo compacto", "min": 60, "max": 140, "step": 2, "default": 100 },
+    { "type": "range", "id": "media_compact_mobile", "label": "Círculo mobile", "min": 48, "max": 110, "step": 2, "default": 80 }
+  ],
+  "blocks": [
+    {
+      "type": "category",
+      "name": "Categoria",
+      "settings": [
+        { "type": "collection", "id": "collection", "label": "Coleção (opcional)" },
+        { "type": "image_picker", "id": "icon", "label": "Ícone 1:1 (opcional)" },
+        { "type": "text", "id": "title", "label": "Título (opcional)" },
+        { "type": "url", "id": "link", "label": "Link (opcional)" }
+      ]
+    }
+  ],
+  "max_blocks": 20,
+  "presets": [
+    { "name": "Royal • Categoria Cards", "category": "Collections" }
+  ]
+}
+{% endschema %}

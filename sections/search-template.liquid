@@ -1,0 +1,1476 @@
+{%- comment -%}We start by creating a lot of useful variables !{%- endcomment -%}
+
+{%- assign view_mode = cart.attributes.collection_layout | default: section.settings.default_view_layout -%}
+{%- assign filtered_terms = search.terms -%}
+
+{%- assign items_per_page = cart.attributes.collection_products_per_page | default: 24 -%}
+
+{%- if filtered_terms contains ' AND ' -%}
+  {%- assign filtered_terms = filtered_terms | split: ' AND ' | last -%}
+{%- endif -%}
+
+{%- assign quick_links_menu = linklists[section.settings.quick_links] -%}
+
+{%- if quick_links_menu.links.size > 0 -%}
+  {%- assign has_filters = true -%}
+  {%- capture grid_classes -%}1/3--tablet-and-up 1/{{ section.settings.products_per_row }}--desk{%- endcapture -%}
+{%- else -%}
+  {%- assign has_filters = false -%}
+  {%- capture grid_classes -%}1/3--tablet 1/{{ section.settings.products_per_row }}--lap-and-up{%- endcapture -%}
+{%- endif -%}
+
+{%- capture section_settings -%}
+{
+  "currentSortBy": "",
+  "currentTags": [],
+  "filterMode": "",
+  "defaultLayout": {{ section.settings.default_view_layout | json }},
+  "defaultProductsPerPage": 24,
+  "isAutomatic": true,
+  "gridClasses": {{ grid_classes | json }}
+}
+{%- endcapture -%}
+
+<section
+  id="royal-search-gummy-{{ section.id }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="collection"
+  data-section-settings='{{ section_settings }}'
+>
+  {% render 'royal-overlap', id: section.id %}
+
+  <style>
+    /* =========================
+      ROYAL • SEARCH (GUMMY CTA)
+      - Botão verde Comprar (modal premium)
+      - Botão “Baixar fotos + numerações” (AGORA: baixa JPGs DIRETO, sem ZIP)
+    ========================== */
+
+    #royal-search-gummy-{{ section.id }}{
+      --green: #B6E35C;
+      --buy_text: #223016;
+      --text: #333;
+      --muted: #777;
+      --card: #fff;
+      --radius: 26px;
+      --shadow: 0 10px 30px rgba(0,0,0,.06);
+      --gap-d: 24px;
+      --gap-m: 16px;
+      --buy_gap_d: 12px;
+      --buy_gap_m: 12px;
+      --buy_gap: var(--buy_gap_d);
+    }
+
+    @media (max-width: 1000px){
+      #royal-search-gummy-{{ section.id }}{ --buy_gap: var(--buy_gap_m); }
+    }
+
+    #royal-search-gummy-{{ section.id }} .rc-grid{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--gap-d);
+    }
+    @media (max-width: 1200px){
+      #royal-search-gummy-{{ section.id }} .rc-grid{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (max-width: 1000px){
+      #royal-search-gummy-{{ section.id }} .rc-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gap-m); }
+    }
+
+    #royal-search-gummy-{{ section.id }} .rc-card{
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 0;
+      position: relative;
+      overflow: hidden;
+      display:flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      border: 1px solid rgba(0,0,0,.06);
+    }
+
+    #royal-search-gummy-{{ section.id }} .rc-media{
+      display:block;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      border-radius: 0;
+      overflow: hidden;
+      position: relative;
+    }
+    #royal-search-gummy-{{ section.id }} .rc-media::before{
+      content:"";
+      display:block;
+      padding-top: 100%;
+    }
+    #royal-search-gummy-{{ section.id }} .rc-media img{
+      position:absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display:block;
+    }
+
+    #royal-search-gummy-{{ section.id }} .rc-body{
+      padding: 14px 14px 16px;
+      display:flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+    }
+    @media (max-width: 1000px){
+      #royal-search-gummy-{{ section.id }} .rc-body{ padding: 12px 12px 14px; }
+    }
+
+    #royal-search-gummy-{{ section.id }} .rc-name{
+      margin: 2px 0 8px;
+      font-weight: 480;
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.15;
+      text-decoration:none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-height: 20px;
+      display:block;
+    }
+
+    #royal-search-gummy-{{ section.id }} .rc-prices{ margin: 0; }
+    #royal-search-gummy-{{ section.id }} .rc-compare{
+      color: var(--text);
+      opacity: .70;
+      text-decoration: line-through;
+      font-weight: 480;
+      font-size: 13px;
+      margin-bottom: 4px;
+      display:block;
+    }
+    #royal-search-gummy-{{ section.id }} .rc-price{
+      color: var(--text);
+      display:flex;
+      align-items: baseline;
+      gap: 6px;
+      letter-spacing: -0.02em;
+    }
+    #royal-search-gummy-{{ section.id }} .rc-price-label{
+      font-weight: 450;
+      font-size: 13px;
+      opacity: .85;
+      line-height: 1.1;
+    }
+    #royal-search-gummy-{{ section.id }} .rc-price-value{
+      font-weight: 560;
+      font-size: 22px;
+      line-height: 1.1;
+      color: var(--text);
+    }
+
+    #royal-search-gummy-{{ section.id }} .rc-installments{
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-weight: 450;
+      font-size: 12.5px;
+    }
+
+    #royal-search-gummy-{{ section.id }} .rc-buywrap{
+      margin-top: auto;
+      display:flex;
+      flex-direction: column;
+    }
+    #royal-search-gummy-{{ section.id }} .rc-gap{
+      height: var(--buy_gap);
+      flex: 0 0 auto;
+    }
+
+    /* BOTÃO VERDE (COMPRAR) */
+    #royal-search-gummy-{{ section.id }} .rc-buy{
+      margin-top: 0;
+      background: var(--green);
+      border: 0;
+      border-radius: 999px;
+      height: 54px;
+      width: 100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      font-weight: 560;
+      font-size: 17px;
+      color: var(--buy_text);
+      cursor:pointer;
+      transition: transform .12s ease, filter .12s ease, opacity .12s ease;
+    }
+    #royal-search-gummy-{{ section.id }} .rc-buy:hover{ filter: brightness(.95); transform: translateY(-1px); }
+    #royal-search-gummy-{{ section.id }} .rc-buy svg{
+      width: 22px; height: 22px;
+      stroke: var(--buy_text);
+      stroke-width: 2.2;
+      fill: none;
+    }
+    #royal-search-gummy-{{ section.id }} .rc-buy:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+      transform:none;
+    }
+
+    /* NAVEGAÇÃO / PAGINAÇÃO + DOWNLOAD */
+    #royal-search-gummy-{{ section.id }} .rc-pagination{
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      justify-content:center;
+      padding: 18px 0 0;
+      flex-wrap: wrap;
+    }
+    #royal-search-gummy-{{ section.id }} .rc-zip-btn{
+      height: 40px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,.12);
+      background: rgba(255,255,255,.80);
+      color: var(--text);
+      font-weight: 560;
+      cursor:pointer;
+      transition: transform .12s ease, filter .12s ease, opacity .12s ease;
+      white-space: nowrap;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    #royal-search-gummy-{{ section.id }} .rc-zip-btn:hover{ filter: brightness(.98); transform: translateY(-1px); }
+    #royal-search-gummy-{{ section.id }} .rc-zip-btn:disabled{ opacity:.55; cursor:not-allowed; transform:none; }
+    #royal-search-gummy-{{ section.id }} .rc-zip-status{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 450;
+      max-width: 260px;
+      overflow:hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display:none;
+    }
+
+    /* MODAL PREMIUM */
+    #royal-search-gummy-{{ section.id }} .rcm-overlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.48);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999999;
+      padding: 14px;
+    }
+    #royal-search-gummy-{{ section.id }} .rcm-overlay.is-open{ display:flex; }
+
+    #royal-search-gummy-{{ section.id }} .rcm-modal{
+      width: min(520px, 100%);
+      background: #fff;
+      border-radius: 22px;
+      box-shadow: 0 20px 70px rgba(0,0,0,.25);
+      overflow: hidden;
+      border: 1px solid rgba(0,0,0,.08);
+    }
+
+    #royal-search-gummy-{{ section.id }} .rcm-head{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      padding: 12px 12px;
+      border-bottom: 1px solid rgba(0,0,0,.08);
+    }
+    #royal-search-gummy-{{ section.id }} .rcm-thumb{
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      background: rgba(0,0,0,.03);
+      overflow: hidden;
+      flex: 0 0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    #royal-search-gummy-{{ section.id }} .rcm-thumb img{
+      width:100%;
+      height:100%;
+      object-fit: contain;
+      display:block;
+    }
+    #royal-search-gummy-{{ section.id }} .rcm-titlewrap{ min-width: 0; flex: 1; }
+    #royal-search-gummy-{{ section.id }} .rcm-title{
+      font-weight: 520;
+      font-size: 15px;
+      color: var(--text);
+      line-height: 1.15;
+      margin: 0 0 2px;
+      display:-webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow:hidden;
+    }
+    #royal-search-gummy-{{ section.id }} .rcm-sub{
+      font-weight: 450;
+      font-size: 13px;
+      color: var(--muted);
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #royal-search-gummy-{{ section.id }} .rcm-close{
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,.10);
+      background: #fff;
+      cursor: pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex: 0 0 auto;
+    }
+    #royal-search-gummy-{{ section.id }} .rcm-close svg{
+      width: 18px; height: 18px;
+      stroke: #222;
+      stroke-width: 2.2;
+      fill: none;
+    }
+
+    #royal-search-gummy-{{ section.id }} .rcm-body{
+      padding: 10px 12px 12px;
+      overflow: hidden;
+    }
+    #royal-search-gummy-{{ section.id }} .rcm-hint{
+      font-size: 12.5px;
+      color: var(--muted);
+      font-weight: 450;
+      margin: 0 0 10px;
+    }
+    #royal-search-gummy-{{ section.id }} .rcm-grid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    #royal-search-gummy-{{ section.id }} .rcm-row{
+      border: 1px solid rgba(0,0,0,.10);
+      border-radius: 14px;
+      padding: 8px 8px;
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 8px;
+      min-height: 44px;
+      background: #fff;
+    }
+    #royal-search-gummy-{{ section.id }} .rcm-row.is-off{
+      opacity: .45;
+      pointer-events: none;
+    }
+    #royal-search-gummy-{{ section.id }} .rcm-size{
+      font-weight: 520;
+      color: var(--text);
+      font-size: 13px;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #royal-search-gummy-{{ section.id }} .rcm-stock{
+      font-weight: 450;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+    #royal-search-gummy-{{ section.id }} .rcm-step{
+      display:flex;
+      align-items:center;
+      gap: 6px;
+      flex: 0 0 auto;
+    }
+    #royal-search-gummy-{{ section.id }} .rcm-step button{
+      width: 28px;
+      height: 28px;
+      border-radius: 10px;
+      border: 1px solid rgba(0,0,0,.12);
+      background: #fff;
+      cursor:pointer;
+      font-weight: 520;
+      line-height: 1;
+    }
+    #royal-search-gummy-{{ section.id }} .rcm-step button:disabled{
+      opacity: .35;
+      cursor:not-allowed;
+    }
+    #royal-search-gummy-{{ section.id }} .rcm-step input{
+      width: 34px;
+      height: 28px;
+      border-radius: 10px;
+      border: 1px solid rgba(0,0,0,.12);
+      text-align:center;
+      font-weight: 520;
+      font-size: 13px;
+      outline: none;
+      padding: 0;
+    }
+    #royal-search-gummy-{{ section.id }} .rcm-foot{
+      border-top: 1px solid rgba(0,0,0,.08);
+      padding: 10px 12px 12px;
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      justify-content: space-between;
+    }
+    #royal-search-gummy-{{ section.id }} .rcm-total{
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 450;
+      white-space: nowrap;
+    }
+    #royal-search-gummy-{{ section.id }} .rcm-add{
+      flex: 1;
+      background: var(--green);
+      border: 0;
+      border-radius: 999px;
+      height: 52px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      font-weight: 560;
+      font-size: 17px;
+      color: var(--buy_text);
+      cursor:pointer;
+      transition: transform .12s ease, filter .12s ease, opacity .12s ease;
+    }
+    #royal-search-gummy-{{ section.id }} .rcm-add:hover{ filter: brightness(.95); transform: translateY(-1px); }
+    #royal-search-gummy-{{ section.id }} .rcm-add:disabled{ opacity:.55; cursor:not-allowed; transform:none; }
+
+    html.rcm-lock, body.rcm-lock{ overflow:hidden !important; height: 100% !important; }
+  </style>
+
+  <div class="container {% if search.performed and search.results_count > 0 %}container--flush{% endif %}">
+    {%- if search.performed and search.results_count > 0 -%}
+      <div class="page__sub-header">
+        <nav aria-label="{{ 'general.breadcrumb.title' | t }}" class="breadcrumb">
+          <ol class="breadcrumb__list">
+            <li class="breadcrumb__item">
+              <a class="breadcrumb__link link" href="{{ routes.root_url }}">{{ 'general.breadcrumb.home' | t }}</a> {%- render 'icon', icon: 'arrow-right' -%}
+            </li>
+
+            <li class="breadcrumb__item">
+              <span class="breadcrumb__link" aria-current="page">{{ 'search.general.title_with_terms' | t: terms: filtered_terms }}</span>
+            </li>
+          </ol>
+        </nav>
+      </div>
+    {%- endif -%}
+
+    {%- if search.performed -%}
+      {%- if search.results_count == 0 -%}
+        <div class="empty-state">
+          <p class="empty-state__heading heading h1">{{ 'search.general.title' | t }}</p>
+          <p class="empty-state__description">{{ 'search.general.no_results_with_terms' | t: terms: filtered_terms }}</p>
+
+          <form class="empty-state__quick-form" action="{{ routes.search_url }}" method="get">
+            <input type="hidden" name="type" value="product">
+            <input type="hidden" name="options[prefix]" value="last">
+
+            <div class="form__connected-item">
+              <div class="form__input-wrapper form__input-wrapper--labelled">
+                <input id="search" type="text" class="form__field form__field--text" name="q" autocomplete="off" autocorrect="off">
+                <label for="search" class="form__floating-label">{{ 'search.general.input_placeholder' | t }}</label>
+              </div>
+
+              <button type="submit" class="form__connection button button--primary" aria-label="{{ 'search.general.input_placeholder' | t }}">{% render 'icon', icon: 'search' %}</button>
+            </div>
+          </form>
+
+          <a href="{{ routes.root_url }}" class="empty-state__link link link--accented">{{ 'search.general.go_back_home' | t }}</a>
+        </div>
+      {%- else -%}
+        {%- paginate search.results by items_per_page -%}
+          <div class="page__content">
+            <div {% if has_filters %}class="layout"{% endif %}>
+              {%- if has_filters -%}
+                <div class="layout__section layout__section--secondary hidden-pocket">
+                  <div class="card">
+                    {%- if quick_links_menu.links.size > 0 -%}
+                      <div class="card__section card__section--tight">
+                        <p class="card__title--small heading">{{ quick_links_menu.title }}</p>
+
+                        <ul class="collection__filter-linklist">
+                          {%- for link in quick_links_menu.links -%}
+                            <li>
+                              {%- if link.links.size > 0 -%}
+                                {%- capture link_id -%}filter-{% increment link_id %}{%- endcapture -%}
+
+                                <button class="collection__filter-link link link--primary " data-action="toggle-collapsible" aria-controls="{{ link_id }}" aria-expanded="false">
+                                  {{ link.title }} {% if link.type == 'collection_link' %}({{ link.object.products_count }}){% endif %} {%- render 'icon', icon: 'arrow-bottom' -%}
+                                </button>
+
+                                <div id="{{ link_id }}" class="collection__filter-collapsible" aria-hidden="true">
+                                  <ul class="collection__filter-linklist">
+                                    {%- for sub_link in link.links -%}
+                                      <li>
+                                        <a href="{{ sub_link.url }}" class="collection__filter-link link link--primary">{{ sub_link.title }} {% if sub_link.type == 'collection_link' %}({{ sub_link.object.products_count }}){% endif %}</a>
+                                      </li>
+                                    {%- endfor -%}
+                                  </ul>
+                                </div>
+                              {%- else -%}
+                                <a href="{{ link.url }}" class="collection__filter-link link link--primary">{{ link.title }} {% if link.type == 'collection_link' %}({{ link.object.products_count }}){% endif %}</a>
+                              {%- endif -%}
+                            </li>
+                          {%- endfor -%}
+                        </ul>
+                      </div>
+                    {%- endif -%}
+                  </div>
+                </div>
+              {%- endif -%}
+
+              <div {% if has_filters %}class="layout__section"{% endif %}>
+                {%- if search.results_count > 0 -%}
+                  <div class="collection">
+                    <div class="card">
+                      <header class="card__header card__header--tight">
+                        <div class="collection__header">
+                          <div class="collection__header-inner">
+                            <div class="collection__meta">
+                              <div class="collection__meta-inner">
+                                <h1 class="collection__title heading h1">{{ 'search.general.products_with_terms' | t: terms: filtered_terms }}</h1>
+                                <p class="collection__products-count text--small hidden-desk">{{ 'search.general.results_count' | t: count: search.results_count }}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </header>
+
+                      <div class="collection__dynamic-part">
+                        <div class="collection__toolbar">
+                          <div class="collection__toolbar-item collection__toolbar-item--count hidden-pocket">
+                            {%- assign offset = paginate.current_offset | plus: 1 -%}
+                            {%- assign page_size = paginate.current_offset | plus: paginate.page_size | at_most: paginate.items -%}
+
+                            <span class="collection__showing-count hidden-pocket hidden-lap">{{ 'search.general.showing_count' | t: offset: offset, page_size: page_size, count: paginate.items }}</span>
+
+                            <label for="showing-count">{{ 'collection.general.display' | t }}:</label>
+
+                            <div class="value-picker-wrapper">
+                              <button class="value-picker-button" aria-haspopup="true" aria-expanded="false" aria-controls="display-by-selector" data-action="open-value-picker">
+                                <span class="hidden-phone">{{ 'collection.general.page_size' | t: page_size: paginate.page_size }}</span><!--
+                                -->{%- render 'icon', icon: 'arrow-bottom' -%}
+                              </button>
+
+                              <div id="display-by-selector" class="value-picker" aria-hidden="true">
+                                {% render 'icon', icon: 'nav-triangle-borderless' %}
+
+                                <div class="value-picker__inner">
+                                  <header class="value-picker__header">
+                                    <span class="value-picker__title text--strong">{{ 'collection.general.display' | t }}</span>
+                                    <button class="value-picker__close" data-action="close-value-picker" aria-controls="display-by-selector" aria-label="{{ 'general.accessibility.close' | t }}">{% render 'icon', icon: 'close' %}</button>
+                                  </header>
+
+                                  <div class="value-picker__choice-list">
+                                    <button class="value-picker__choice-item link {% if items_per_page == 24 %}is-selected{% endif %}" data-action="select-value" data-value="24">{{ 'collection.general.page_size' | t: page_size: 24 }} {% render 'icon', icon: 'check-2' %}</button>
+                                    <button class="value-picker__choice-item link {% if items_per_page == 36 %}is-selected{% endif %}" data-action="select-value" data-value="36">{{ 'collection.general.page_size' | t: page_size: 36 }} {% render 'icon', icon: 'check-2' %}</button>
+                                    <button class="value-picker__choice-item link {% if items_per_page == 48 %}is-selected{% endif %}" data-action="select-value" data-value="48">{{ 'collection.general.page_size' | t: page_size: 48 }} {% render 'icon', icon: 'check-2' %}</button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="collection__toolbar-item collection__toolbar-item--layout">
+                            <span class="collection__layout-label hidden-phone">{{ 'collection.layout.title' | t }}</span>
+
+                            {%- if section.settings.default_view_layout == 'grid' -%}
+                              <button type="button" class="collection__layout-button {% if view_mode == 'grid' %}is-selected{% endif %} touch-area" aria-label="{{ 'collection.layout.grid' | t }}" data-action="change-layout" data-layout-mode="grid">{% render 'icon', icon: 'grid' %}</button>
+                              <button type="button" class="collection__layout-button {% if view_mode == 'list' %}is-selected{% endif %} touch-area" aria-label="{{ 'collection.layout.list' | t }}" data-action="change-layout" data-layout-mode="list">{% render 'icon', icon: 'list' %}</button>
+                            {%- else -%}
+                              <button type="button" class="collection__layout-button {% if view_mode == 'list' %}is-selected{% endif %} touch-area" aria-label="{{ 'collection.layout.list' | t }}" data-action="change-layout" data-layout-mode="list">{% render 'icon', icon: 'list' %}</button>
+                              <button type="button" class="collection__layout-button {% if view_mode == 'grid' %}is-selected{% endif %} touch-area" aria-label="{{ 'collection.layout.grid' | t }}" data-action="change-layout" data-layout-mode="grid">{% render 'icon', icon: 'grid' %}</button>
+                            {%- endif -%}
+                          </div>
+                        </div>
+
+                        <div class="rc-grid">
+                          {%- for item in search.results -%}
+                            {%- if item.object_type == 'product' -%}
+                              {%- assign product = item -%}
+                              {%- assign v = product.selected_or_first_available_variant -%}
+                              {%- assign compare = v.compare_at_price | default: product.compare_at_price -%}
+                              {%- assign price = v.price | default: product.price -%}
+                              {%- assign purl = product.url -%}
+
+                              <article class="rc-card" data-product-id="{{ product.id }}">
+                                <a class="rc-media" href="{{ purl }}">
+                                  {%- if product.featured_image -%}
+                                    <img
+                                      src="{{ product.featured_image | img_url: '700x' }}"
+                                      alt="{{ product.featured_image.alt | escape }}"
+                                      loading="lazy">
+                                  {%- endif -%}
+                                </a>
+
+                                <div class="rc-body">
+                                  <a href="{{ purl }}" class="rc-name">{{ product.title }}</a>
+
+                                  <div class="rc-prices">
+                                    {%- if compare and compare > price -%}
+                                      <span class="rc-compare">De: {{ compare | money }}</span>
+                                    {%- endif -%}
+                                    <span class="rc-price">
+                                      <span class="rc-price-label">Por:</span>
+                                      <span class="rc-price-value">{{ price | money }}</span>
+                                    </span>
+                                  </div>
+
+                                  <div class="rc-installments">
+                                    Desconto progressivo
+                                  </div>
+
+                                  <div class="rc-buywrap">
+                                    <div class="rc-gap"></div>
+
+                                    <button class="rc-buy" type="button" data-rc-open-modal data-product-id="{{ product.id }}">
+                                      Comprar
+                                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M6 6h15l-1.5 9h-12z"/>
+                                        <path d="M6 6l-2-2H2"/>
+                                        <circle cx="9" cy="20" r="1.6"/>
+                                        <circle cx="18" cy="20" r="1.6"/>
+                                      </svg>
+                                    </button>
+                                  </div>
+                                </div>
+
+                                <script type="application/json" id="rcp-{{ section.id }}-{{ product.id }}">
+                                {
+                                  "id": {{ product.id }},
+                                  "title": {{ product.title | json }},
+                                  "url": {{ purl | json }},
+                                  "image": {% if product.featured_image %}{{ product.featured_image | img_url: '300x' | json }}{% else %}""{% endif %},
+                                  "price_cents": {{ price | json }},
+                                  "variants": [
+                                    {%- for vv in product.variants -%}
+                                      {
+                                        "id": {{ vv.id }},
+                                        "available": {{ vv.available | json }},
+                                        "title": {{ vv.title | json }},
+                                        "opt1": {{ vv.option1 | json }},
+                                        "opt2": {{ vv.option2 | json }},
+                                        "opt3": {{ vv.option3 | json }},
+                                        "inventory_management": {{ vv.inventory_management | json }},
+                                        "inventory_policy": {{ vv.inventory_policy | json }},
+                                        "inventory_quantity": {{ vv.inventory_quantity | json }}
+                                      }{% unless forloop.last %},{% endunless %}
+                                    {%- endfor -%}
+                                  ]
+                                }
+                                </script>
+                              </article>
+                            {%- endif -%}
+                          {%- endfor -%}
+                        </div>
+
+                        {%- render 'pagination', paginate: paginate -%}
+
+                        <!-- ✅ BOTÃO: AGORA BAIXA IMAGENS (JPG) UMA A UMA, SEM ZIP -->
+                        <nav class="rc-pagination" role="navigation" aria-label="Ações da pesquisa">
+                          <button type="button" class="rc-zip-btn" data-rc-zip>
+                            Baixar fotos + numerações
+                          </button>
+                          <span class="rc-zip-status" data-rc-zip-status></span>
+                        </nav>
+                      </div>
+                    </div>
+                  </div>
+                {%- endif -%}
+
+                {%- if settings.search_mode != 'product' -%}
+                  <div class="link-search-results" style="display: none"></div>
+                {%- endif -%}
+              </div>
+            </div>
+          </div>
+        {%- endpaginate -%}
+      {%- endif -%}
+    {%- else -%}
+      <div class="empty-state">
+        <p class="empty-state__heading heading h1">{{ 'search.general.title' | t }}</p>
+        <p class="empty-state__description">{{ 'search.general.content' | t }}</p>
+
+        <form class="empty-state__quick-form" action="{{ routes.search_url }}" method="get">
+          <input type="hidden" name="type" value="product">
+
+          <div class="form__connected-item">
+            <div class="form__input-wrapper form__input-wrapper--labelled">
+              <input id="search" type="text" class="form__field form__field--text" name="q" autocomplete="off" autocorrect="off">
+              <label for="search" class="form__floating-label">{{ 'search.general.input_placeholder' | t }}</label>
+            </div>
+
+            <button type="submit" class="form__connection button button--primary" aria-label="{{ 'search.general.input_placeholder' | t }}">{% render 'icon', icon: 'search' %}</button>
+          </div>
+        </form>
+
+        <a href="{{ routes.root_url }}" class="empty-state__link link link--accented">{{ 'search.general.go_back_home' | t }}</a>
+      </div>
+    {%- endif -%}
+  </div>
+
+  <!-- MODAL PREMIUM (ÚNICO) -->
+  <div class="rcm-overlay" data-rcm-overlay aria-hidden="true">
+    <div class="rcm-modal" role="dialog" aria-modal="true" aria-label="Escolha as variações">
+      <div class="rcm-head">
+        <div class="rcm-thumb"><img data-rcm-img alt=""></div>
+        <div class="rcm-titlewrap">
+          <p class="rcm-title" data-rcm-title></p>
+          <p class="rcm-sub" data-rcm-sub></p>
+        </div>
+        <button class="rcm-close" type="button" data-rcm-close aria-label="Fechar">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="rcm-body">
+        <p class="rcm-hint">Selecione as quantidades por tamanho.</p>
+        <div class="rcm-grid" data-rcm-grid></div>
+      </div>
+
+      <div class="rcm-foot">
+        <div class="rcm-total" data-rcm-total>0 itens</div>
+        <button class="rcm-add" type="button" data-rcm-add disabled>Adicionar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    var root = document.getElementById('royal-search-gummy-{{ section.id }}');
+    if(!root) return;
+
+    function fire(name, detail){
+      try { document.dispatchEvent(new CustomEvent(name, { bubbles:true, detail: detail || {} })); } catch(e){}
+      try { window.dispatchEvent(new CustomEvent(name, { bubbles:true, detail: detail || {} })); } catch(e){}
+    }
+
+    function tryOpenDrawerByTheme(){
+      try { if(window.RoyalCartDrawer && typeof window.RoyalCartDrawer.open === 'function') { window.RoyalCartDrawer.open(); return true; } } catch(e){}
+      try { if(window.cartDrawer && typeof window.cartDrawer.open === 'function') { window.cartDrawer.open(); return true; } } catch(e){}
+      try { if(window.theme && window.theme.CartDrawer && typeof window.theme.CartDrawer.open === 'function') { window.theme.CartDrawer.open(); return true; } } catch(e){}
+      try { if(window.Shopify && window.Shopify.theme && window.Shopify.theme.cartDrawer && typeof window.Shopify.theme.cartDrawer.open === 'function') { window.Shopify.theme.cartDrawer.open(); return true; } } catch(e){}
+      return false;
+    }
+
+    function tryOpenDrawerByClick(){
+      var selectors = [
+        '[data-action="open-drawer"][aria-controls*="cart"]',
+        '[data-action="open-drawer"][aria-controls*="mini"]',
+        '[data-drawer-trigger*="cart"]',
+        'button[aria-controls*="cart-drawer"]',
+        'a[href="#cart-drawer"]',
+        'button[name="open-cart"]',
+        '.header__cart, .site-header__cart, .cart-toggle, .header__icon--cart'
+      ];
+      for(var i=0;i<selectors.length;i++){
+        var el = document.querySelector(selectors[i]);
+        if(el){
+          try { el.click(); return true; } catch(e){}
+        }
+      }
+      return false;
+    }
+
+    function openCartDrawer(){
+      fire('cart:refresh');
+      fire('cart:updated');
+      fire('cart:open');
+      fire('product:added');
+      if(tryOpenDrawerByTheme()) return;
+      tryOpenDrawerByClick();
+    }
+
+    function zipStatus(msg){
+      var el = root.querySelector('[data-rc-zip-status]');
+      if(el){
+        el.textContent = msg || '';
+        el.style.display = (msg && String(msg).trim()) ? 'inline-block' : 'none';
+      }
+    }
+
+    function safeFileName(name){
+      try{
+        return (name || 'produto')
+          .toLowerCase()
+          .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '')
+          .slice(0, 70) || 'produto';
+      }catch(e){
+        return 'produto';
+      }
+    }
+
+    function getCardProducts(){
+      var cards = [].slice.call(root.querySelectorAll('.rc-card[data-product-id]'));
+      return cards.map(function(card){
+        return { card: card, productId: card.getAttribute('data-product-id') };
+      }).filter(function(x){ return !!x.productId; });
+    }
+
+    function loadProductData(productId){
+      var script = document.getElementById('rcp-{{ section.id }}-' + productId);
+      if(!script) return null;
+      try { return JSON.parse(script.textContent || script.innerText || '{}'); } catch(e){ return null; }
+    }
+
+    function variantsTextFromData(data){
+      var variants = (data && data.variants) ? data.variants : [];
+      var available = variants.filter(function(v){ return !!v.available; });
+      if(!available.length) return 'SEM ESTOQUE';
+
+      var set = {};
+      var arr = [];
+      for(var i=0;i<available.length;i++){
+        var v = available[i];
+        var label = (v.opt1 && v.opt1 !== 'Default Title') ? v.opt1 : (v.title || '');
+        label = String(label || '').trim();
+        if(!label) continue;
+        if(!set[label]){ set[label]=1; arr.push(label); }
+      }
+
+      arr.sort(function(a,b){
+        var na = parseFloat(String(a).replace(',','.'));
+        var nb = parseFloat(String(b).replace(',','.'));
+        var aNum = !isNaN(na) && /^\d+([.,]\d+)?$/.test(a);
+        var bNum = !isNaN(nb) && /^\d+([.,]\d+)?$/.test(b);
+        if(aNum && bNum) return na - nb;
+        return a.localeCompare(b,'pt-BR',{numeric:true});
+      });
+
+      return arr.join(' - ');
+    }
+
+    function getFeaturedImageFromCard(card){
+      var img = card.querySelector('.rc-media img');
+      return img ? (img.currentSrc || img.src || '') : '';
+    }
+
+    function loadImage(url){
+      return new Promise(function(resolve,reject){
+        var img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = function(){ resolve(img); };
+        img.onerror = reject;
+        img.src = url;
+      });
+    }
+
+    function fitOneLine(ctx, text, maxW){
+      var t = String(text || '');
+      if(!t) return '';
+      if(ctx.measureText(t).width <= maxW) return t;
+
+      var ell = '…';
+      var lo = 0, hi = t.length;
+      while(lo < hi){
+        var mid = Math.floor((lo + hi) / 2);
+        var candidate = t.slice(0, mid) + ell;
+        if(ctx.measureText(candidate).width <= maxW) lo = mid + 1;
+        else hi = mid;
+      }
+      var cut = Math.max(1, lo - 1);
+      return t.slice(0, cut) + ell;
+    }
+
+    function titleMaxWords(str, maxWords){
+      var s = String(str || '').trim().replace(/\s+/g,' ');
+      if(!s) return '';
+      var parts = s.split(' ');
+      if(parts.length <= maxWords) return s;
+      return parts.slice(0, maxWords).join(' ');
+    }
+
+    function refFromPriceCents(priceCents){
+      var n = parseInt(priceCents, 10);
+      if(isNaN(n) || n <= 0) return '';
+      var ref = String(Math.floor(n / 100));
+      return ref.padStart(4, '0');
+    }
+
+    function drawOverlay(baseImg, title, variantsText, refNumber){
+      var w = baseImg.naturalWidth || baseImg.width || 1200;
+      var h = baseImg.naturalHeight || baseImg.height || 1200;
+
+      var canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      var ctx = canvas.getContext('2d');
+
+      ctx.drawImage(baseImg, 0, 0, w, h);
+
+      var pad = Math.round(w * 0.028);
+      var maxW = w - pad*2;
+
+      var titleSize = Math.max(26, Math.round(w * 0.032));
+      var varSize   = Math.max(20, Math.round(w * 0.026));
+      var gapY      = Math.round(varSize * 0.22);
+
+      var minBox  = Math.round(h * 0.095);
+      var needBox = (Math.round(pad*0.75) + titleSize + gapY + varSize + Math.round(pad*0.75));
+      var boxH = Math.max(minBox, needBox);
+      var y = h - boxH;
+
+      ctx.save();
+      ctx.globalAlpha = 0.72;
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, y, w, boxH);
+      ctx.restore();
+
+      ctx.fillStyle = '#fff';
+      ctx.textBaseline = 'top';
+
+      ctx.font = '800 ' + titleSize + 'px system-ui,-apple-system,Segoe UI,Roboto,Arial';
+      var cleanTitle = titleMaxWords(title, 4);
+      var t = fitOneLine(ctx, cleanTitle, maxW);
+      var titleY = y + Math.round(pad * 0.75);
+      ctx.fillText(t, pad, titleY);
+
+      var vRaw = String(variantsText || '');
+      var vLabel = (vRaw && vRaw !== 'SEM ESTOQUE') ? ('Disponível: ' + vRaw) : 'SEM ESTOQUE';
+      var vY = titleY + titleSize + gapY;
+
+      var refText = refNumber ? ('ref.: ' + String(refNumber)) : '';
+      var refSize = Math.max(14, Math.round(varSize * 0.78));
+      var refW = 0;
+      var refGap = 0;
+
+      if(refText){
+        ctx.font = '700 ' + refSize + 'px system-ui,-apple-system,Segoe UI,Roboto,Arial';
+        refW = ctx.measureText(refText).width;
+        refGap = Math.round(w * 0.018);
+      }
+
+      var xRight = w - pad - refW;
+      if(xRight < pad) xRight = pad;
+
+      if(refText){
+        ctx.font = '700 ' + refSize + 'px system-ui,-apple-system,Segoe UI,Roboto,Arial';
+        var dy = Math.max(0, Math.round((varSize - refSize) * 0.5));
+        ctx.fillText(refText, xRight, vY + dy);
+      }
+
+      ctx.font = '700 ' + varSize + 'px system-ui,-apple-system,Segoe UI,Roboto,Arial';
+      var leftMax = maxW;
+      if(refText){
+        leftMax = Math.max(10, (xRight - refGap) - pad);
+      }
+
+      var v = (ctx.measureText(vLabel).width <= leftMax) ? vLabel : fitOneLine(ctx, vLabel, leftMax);
+      ctx.fillText(v, pad, vY);
+
+      return canvas;
+    }
+
+    function canvasToBlob(canvas){
+      return new Promise(function(resolve){
+        canvas.toBlob(function(blob){ resolve(blob); }, 'image/jpeg', 0.92);
+      });
+    }
+
+    function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+
+    function downloadBlob(blob, filename){
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      try { a.click(); } catch(e){}
+      a.remove();
+      setTimeout(function(){ try{ URL.revokeObjectURL(url); }catch(e){} }, 3500);
+    }
+
+    /* ============================
+       ✅ DOWNLOAD DIRETO (SEM ZIP)
+       - Gera 1 JPG por produto e dispara download
+       - PC: baixa direto
+       - Celular: vai para “Downloads” (e aí você salva na galeria se quiser)
+    ============================ */
+    async function buildDownloads(){
+      var btn = root.querySelector('[data-rc-zip]');
+      if(btn){ btn.disabled = true; btn.style.opacity = '0.7'; }
+      zipStatus('Preparando downloads...');
+
+      try{
+        var items = getCardProducts();
+        if(!items.length){ zipStatus('Nenhum produto.'); return; }
+
+        var ok = 0;
+        var total = items.length;
+
+        for(var i=0;i<items.length;i++){
+          zipStatus('Gerando ' + (i+1) + '/' + total + '...');
+
+          var pid = items[i].productId;
+          var card = items[i].card;
+
+          var data = loadProductData(pid);
+          if(!data) continue;
+
+          var imgUrl = getFeaturedImageFromCard(card) || (data.image || '');
+          if(!imgUrl) continue;
+
+          var baseImg;
+          try{
+            baseImg = await loadImage(imgUrl);
+          }catch(e){
+            if(data.image){
+              baseImg = await loadImage(data.image);
+            }else{
+              continue;
+            }
+          }
+
+          var variantsText = variantsTextFromData(data);
+          var refNum = refFromPriceCents(data.price_cents);
+
+          var canvas = drawOverlay(baseImg, data.title || '', variantsText, refNum);
+          var blob = await canvasToBlob(canvas);
+
+          if(!blob) continue;
+
+          var name = safeFileName(data.title || ('produto-' + pid));
+          var refPart = refNum ? ('-ref-' + refNum) : '';
+          var filename = String(i+1).padStart(2,'0') + '-' + name + refPart + '.jpg';
+
+          downloadBlob(blob, filename);
+          ok++;
+
+          // ajuda alguns navegadores a aceitarem múltiplos downloads
+          await sleep(250);
+        }
+
+        if(!ok){
+          zipStatus('Bloqueio ao ler imagens.');
+          return;
+        }
+
+        zipStatus('Downloads iniciados ✅ (' + ok + ' arquivos)');
+      } finally {
+        var btn2 = root.querySelector('[data-rc-zip]');
+        if(btn2){ btn2.disabled = false; btn2.style.opacity = '1'; }
+      }
+    }
+
+    root.addEventListener('click', function(e){
+      var b = e.target.closest('[data-rc-zip]');
+      if(!b) return;
+      e.preventDefault();
+      e.stopPropagation();
+      buildDownloads().catch(function(err){
+        console.error(err);
+        zipStatus('Erro ao baixar imagens');
+      });
+    }, true);
+
+    /* ===========================
+       MODAL PREMIUM (VARIAÇÕES)
+       - Se tiver 1 variante: add direto e abre drawer
+       - Se tiver >1: abre modal
+    ============================ */
+
+    var overlay = root.querySelector('[data-rcm-overlay]');
+    var btnClose = root.querySelector('[data-rcm-close]');
+    var grid = root.querySelector('[data-rcm-grid]');
+    var img = root.querySelector('[data-rcm-img]');
+    var titleEl = root.querySelector('[data-rcm-title]');
+    var subEl = root.querySelector('[data-rcm-sub]');
+    var totalEl = root.querySelector('[data-rcm-total]');
+    var btnAdd = root.querySelector('[data-rcm-add]');
+
+    var current = { productId: null, items: [] };
+
+    function lockScroll(lock){
+      if(lock){
+        document.documentElement.classList.add('rcm-lock');
+        document.body.classList.add('rcm-lock');
+      }else{
+        document.documentElement.classList.remove('rcm-lock');
+        document.body.classList.remove('rcm-lock');
+      }
+    }
+
+    function openModal(){
+      overlay.classList.add('is-open');
+      overlay.setAttribute('aria-hidden','false');
+      lockScroll(true);
+    }
+
+    function closeModal(){
+      overlay.classList.remove('is-open');
+      overlay.setAttribute('aria-hidden','true');
+      lockScroll(false);
+      grid.innerHTML = '';
+      current.productId = null;
+      current.items = [];
+      totalEl.textContent = '0 itens';
+      btnAdd.disabled = true;
+      btnAdd.textContent = 'Adicionar';
+      btnAdd.style.opacity = '';
+    }
+
+    function safeInt(n){
+      var x = parseInt(n, 10);
+      return isNaN(x) ? 0 : x;
+    }
+
+    function computeMax(v){
+      if(v && v.inventory_management){
+        return Math.max(0, safeInt(v.inventory_quantity));
+      }
+      return 99;
+    }
+
+    function getLabel(v){
+      return (v && v.opt1 && v.opt1 !== 'Default Title') ? v.opt1 : (v.title || 'Variação');
+    }
+
+    function updateTotal(){
+      var total = 0;
+      for(var i=0;i<current.items.length;i++){
+        total += current.items[i].qty || 0;
+      }
+      totalEl.textContent = total + (total === 1 ? ' item' : ' itens');
+      btnAdd.disabled = total === 0;
+    }
+
+    function renderRow(item){
+      var row = document.createElement('div');
+      row.className = 'rcm-row' + (item.max <= 0 ? ' is-off' : '');
+
+      var left = document.createElement('div');
+      left.style.minWidth = '0';
+
+      var size = document.createElement('div');
+      size.className = 'rcm-size';
+      size.textContent = item.label;
+
+      var stock = document.createElement('div');
+      stock.className = 'rcm-stock';
+      stock.textContent = (item.max >= 99 ? 'Disponível' : ('Estoque: ' + item.max));
+
+      left.appendChild(size);
+      left.appendChild(stock);
+
+      var step = document.createElement('div');
+      step.className = 'rcm-step';
+
+      var minus = document.createElement('button');
+      minus.type = 'button';
+      minus.textContent = '–';
+
+      var input = document.createElement('input');
+      input.type = 'number';
+      input.inputMode = 'numeric';
+      input.min = '0';
+      input.max = String(item.max);
+      input.value = String(item.qty || 0);
+
+      var plus = document.createElement('button');
+      plus.type = 'button';
+      plus.textContent = '+';
+
+      function sync(){
+        var q = safeInt(input.value);
+        if(q < 0) q = 0;
+        if(q > item.max) q = item.max;
+
+        input.value = String(q);
+        item.qty = q;
+
+        minus.disabled = (q <= 0);
+        plus.disabled = (q >= item.max);
+        updateTotal();
+      }
+
+      minus.addEventListener('click', function(){ input.value = String(Math.max(0, safeInt(input.value) - 1)); sync(); });
+      plus.addEventListener('click', function(){ input.value = String(Math.min(item.max, safeInt(input.value) + 1)); sync(); });
+      input.addEventListener('change', sync);
+      input.addEventListener('input', sync);
+      sync();
+
+      step.appendChild(minus);
+      step.appendChild(input);
+      step.appendChild(plus);
+
+      row.appendChild(left);
+      row.appendChild(step);
+
+      return row;
+    }
+
+    function loadProduct(productId){
+      var script = document.getElementById('rcp-{{ section.id }}-' + productId);
+      if(!script) return null;
+      try { return JSON.parse(script.textContent || script.innerText || '{}'); } catch(e){ return null; }
+    }
+
+    function addItemsToCart(items){
+      return fetch('/cart/add.js', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Accept':'application/json'},
+        body: JSON.stringify({ items: items })
+      }).then(function(r){
+        if(!r.ok) throw new Error('add_failed');
+        return r.json();
+      });
+    }
+
+    function addSequential(items){
+      var p = Promise.resolve();
+      items.forEach(function(it){
+        p = p.then(function(){
+          return fetch('/cart/add.js', {
+            method:'POST',
+            headers:{'Content-Type':'application/json','Accept':'application/json'},
+            body: JSON.stringify({ id: Number(it.id), quantity: Number(it.quantity) })
+          }).then(function(r){
+            if(!r.ok) throw new Error('add_failed');
+            return r.json();
+          });
+        });
+      });
+      return p;
+    }
+
+    function addSingleVariantDirect(data){
+      var variants = Array.isArray(data.variants) ? data.variants : [];
+      if(!variants.length) return;
+      var v = variants.find(function(x){ return !!x.available; }) || variants[0];
+      if(!v || !v.id) return;
+
+      fetch('/cart/add.js', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Accept':'application/json'},
+        body: JSON.stringify({ id: Number(v.id), quantity: 1 })
+      }).then(function(r){
+        if(!r.ok) throw new Error('add_failed');
+        return r.json();
+      }).then(function(){
+        openCartDrawer();
+      }).catch(function(){
+        addSequential([{ id: Number(v.id), quantity: 1 }]).then(function(){ openCartDrawer(); }).catch(function(){});
+      });
+    }
+
+    function buildModal(productId){
+      var data = loadProduct(productId);
+      if(!data) return;
+
+      var variants = Array.isArray(data.variants) ? data.variants.slice() : [];
+
+      if(variants.length <= 1){
+        addSingleVariantDirect(data);
+        return;
+      }
+
+      current.productId = productId;
+      titleEl.textContent = data.title || '';
+      subEl.textContent = 'Escolha o tamanho e a quantidade';
+
+      if(data.image){
+        img.src = data.image;
+        img.style.display = '';
+      }else{
+        img.removeAttribute('src');
+        img.style.display = 'none';
+      }
+
+      variants.sort(function(a,b){
+        var la = (getLabel(a)||'').toString();
+        var lb = (getLabel(b)||'').toString();
+        return la.localeCompare(lb, 'pt-BR', {numeric:true});
+      });
+
+      current.items = [];
+      grid.innerHTML = '';
+
+      for(var i=0;i<variants.length;i++){
+        var v = variants[i];
+        var max = computeMax(v);
+
+        var item = {
+          id: v.id,
+          label: getLabel(v),
+          max: (v.available ? max : 0),
+          qty: 0
+        };
+
+        if(v.inventory_management && safeInt(v.inventory_quantity) <= 0){
+          item.max = 0;
+        }
+
+        current.items.push(item);
+        grid.appendChild(renderRow(item));
+      }
+
+      updateTotal();
+      openModal();
+    }
+
+    btnClose.addEventListener('click', closeModal);
+    overlay.addEventListener('click', function(e){ if(e.target === overlay) closeModal(); });
+    document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && overlay.classList.contains('is-open')) closeModal(); });
+
+    root.addEventListener('click', function(e){
+      var btn = e.target.closest('[data-rc-open-modal]');
+      if(!btn) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      var pid = btn.getAttribute('data-product-id');
+      if(!pid) return;
+
+      buildModal(pid);
+    }, true);
+
+    btnAdd.addEventListener('click', function(){
+      if(btnAdd.disabled) return;
+
+      var payload = [];
+      for(var i=0;i<current.items.length;i++){
+        var it = current.items[i];
+        var q = safeInt(it.qty);
+        if(q > 0){
+          if(q > it.max) q = it.max;
+          payload.push({ id: Number(it.id), quantity: Number(q) });
+        }
+      }
+      if(payload.length === 0) return;
+
+      btnAdd.disabled = true;
+      btnAdd.textContent = 'Adicionando...';
+      btnAdd.style.opacity = '0.85';
+
+      addItemsToCart(payload)
+        .catch(function(){ return addSequential(payload); })
+        .then(function(){
+          openCartDrawer();
+          btnAdd.textContent = 'Adicionado ✅';
+          setTimeout(function(){ closeModal(); }, 650);
+        })
+        .catch(function(){
+          btnAdd.textContent = 'Erro';
+          setTimeout(function(){
+            btnAdd.textContent = 'Adicionar';
+            btnAdd.disabled = false;
+            btnAdd.style.opacity = '';
+            updateTotal();
+          }, 900);
+        });
+    });
+
+  })();
+  </script>
+
+  {%- comment -%}
+  --------------------------------------------------------------------------------------
+  QUICK VIEW CONTAINER
+  --------------------------------------------------------------------------------------
+  {%- endcomment -%}
+
+  <div id="modal-quick-view-{{ section.id }}" class="modal" aria-hidden="true">
+    <div class="modal__dialog modal__dialog--stretch" role="dialog">
+      <button class="modal__close link" data-action="close-modal">{%- render 'icon', icon: 'close' -%}</button>
+
+      <div class="modal__loader">
+        {%- render 'icon', icon: 'search-loader' -%}
+      </div>
+
+      <div class="modal__inner"></div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Search page",
+  "settings": [
+
+  {
+    "type": "range",
+    "id": "overlap_px",
+    "label": "Tamanho da sobreposição (px)",
+    "min": 0,
+    "max": 80,
+    "step": 2,
+    "default": 0
+  },
+  {
+    "type": "range",
+    "id": "overlap_px_mobile",
+    "label": "Tamanho da sobreposição (px) — mobile",
+    "min": 0,
+    "max": 80,
+    "step": 2,
+    "default": 0
+  }
+,
+    {
+      "type": "select",
+      "id": "products_per_row",
+      "label": "Products per row (desktop)",
+      "options": [
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" }
+      ],
+      "default": "4"
+    },
+    {
+      "type": "select",
+      "id": "default_view_layout",
+      "label": "Default view layout",
+      "options": [
+        { "value": "grid", "label": "Grid" },
+        { "value": "list", "label": "List" }
+      ],
+      "default": "grid"
+    },
+    {
+      "type": "select",
+      "id": "show_quick_view",
+      "label": "Show quick view on...",
+      "options": [
+        { "value": "list", "label": "List view" },
+        { "value": "list_grid", "label": "List and grid views" }
+      ],
+      "default": "list"
+    },
+    {
+      "type": "select",
+      "id": "show_quick_buy",
+      "label": "Show quick buy on...",
+      "info": "If product has variants, quick view and quick buy do the same thing.",
+      "options": [
+        { "value": "list", "label": "List view" },
+        { "value": "list_grid", "label": "List and grid views" }
+      ],
+      "default": "list"
+    },
+    {
+      "type": "link_list",
+      "id": "quick_links",
+      "label": "Quick links",
+      "info": "This menu has limited support for dropdown items."
+    }
+  ]
+}
+{% endschema %}

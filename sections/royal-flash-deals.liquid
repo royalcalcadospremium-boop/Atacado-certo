@@ -1,0 +1,304 @@
+
+
+
+
+{% comment %}
+Royal • Ofertas Relâmpago (v2.6 — overlap fix)
+- Aplica sobreposição configurável (desktop e mobile)
+- Mantém carrossel e contador
+{% endcomment %}
+
+<section id="royal-flash-{{ section.id }}" class="royal-flash">
+  {% render 'royal-overlap', id: section.id %}
+
+  <style>
+    #royal-flash-{{ section.id }}{
+      --accent: {{ section.settings.accent_color | default: '#F36B21' }};
+      --accent-text: #ffffff;
+      --bar-radius: 8px;
+      --bar-height: 56px;
+      --bar-height-m: 52px;
+
+      --gap: 14px;
+      --per-vw-d: {{ section.settings.per_view_desktop | default: 2 }};
+      --per-vw-m: 1;
+      --card-h: {{ section.settings.card_height | default: 420 }}px;
+      --img-h: {{ section.settings.image_height | default: 220 }}px;
+
+      /* NOVO: variáveis de sobreposição */
+      --overlap-d: {{ section.settings.overlap_px | default: 0 }}px;
+      --overlap-m: {{ section.settings.overlap_px_mobile | default: 0 }}px;
+
+      position: relative;
+      /* aplica no root para mover a seção inteira para cima */
+      margin-top: calc(-1 * var(--overlap-d));
+      z-index: 3; /* faz a seção ficar acima do bloco anterior quando sobreposta */
+      isolation: isolate; /* evita conflitos de stacking context */
+    }
+
+    /* mobile: usa valor específico */
+    @media (max-width: 989px){
+      #royal-flash-{{ section.id }}{
+        margin-top: calc(-1 * var(--overlap-m));
+      }
+    }
+
+    /* ===== Alinhamento com o container global do tema ===== */
+    #royal-flash-{{ section.id }} .container{
+      width: 100%;
+      max-width: 1480px; /* mesmo max do .container do tema */
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: var(--mobile-container-gutter, 20px);
+      padding-right: var(--mobile-container-gutter, 20px);
+    }
+    @media (min-width: 641px) and (max-width: 1023px){
+      #royal-flash-{{ section.id }} .container{
+        padding-left: var(--tablet-container-gutter, 28px);
+        padding-right: var(--tablet-container-gutter, 28px);
+      }
+    }
+    @media (min-width: 1024px){
+      #royal-flash-{{ section.id }} .container{
+        padding-left: var(--desktop-container-gutter, 36px);
+        padding-right: var(--desktop-container-gutter, 36px);
+      }
+    }
+    /* ====================================================== */
+
+    /* ===== FAIXA ===== */
+    #royal-flash-{{ section.id }} .bar{
+      height: var(--bar-height);
+      background: var(--accent);
+      color: var(--accent-text);
+      border-radius: var(--bar-radius);
+      padding: 0 16px;
+      display:flex; align-items:center; justify-content:space-between;
+      box-shadow: 0 8px 20px rgba(0,0,0,.10);
+      margin: 10px 0 14px;
+      overflow:hidden;
+
+      /* garante que a faixa em si fique acima de elementos do bloco anterior */
+      position: relative;
+      z-index: 4;
+    }
+    #royal-flash-{{ section.id }} .bar .title{
+      display:flex; gap:10px; align-items:center;
+      font-weight:800; letter-spacing:.2px; font-size:16px; line-height:1;
+    }
+    #royal-flash-{{ section.id }} .bar .title .sub{
+      display:block; font-weight:600; opacity:.9; font-size:13px;
+    }
+    #royal-flash-{{ section.id }} .bar .title svg{ width:20px; height:20px }
+
+    /* Timer estilo "caixas" */
+    #royal-flash-{{ section.id }} .timer{
+      display:flex; align-items:center; gap:6px; font-weight:800;
+    }
+    #royal-flash-{{ section.id }} .timer .box{
+      background:#fff; color:#1a1a1a;
+      padding:6px 10px; border-radius:6px; min-width:38px; text-align:center;
+      box-shadow:0 6px 14px rgba(0,0,0,.12); line-height:1; font-size:16px;
+    }
+    #royal-flash-{{ section.id }} .timer .sep{ color:#fff; font-weight:900; padding:0 2px }
+
+    /* ===== Carrossel ===== */
+    #royal-flash-{{ section.id }} .viewport{ position:relative; overflow:hidden }
+    #royal-flash-{{ section.id }} .track{
+      display:flex; gap:var(--gap); overflow-x:auto; scroll-snap-type:x mandatory;
+      -webkit-overflow-scrolling:touch; scrollbar-width:none; -ms-overflow-style:none; padding-bottom:8px
+    }
+    #royal-flash-{{ section.id }} .track::-webkit-scrollbar{ display:none }
+    #royal-flash-{{ section.id }} .card{
+      scroll-snap-align:start; background:#fff; border-radius:14px;
+      box-shadow:0 10px 24px rgba(0,0,0,.10);
+      min-width: calc((100% - (var(--gap) * (var(--per-vw-d) - 1))) / var(--per-vw-d));
+      flex: 0 0 calc((100% - (var(--gap) * (var(--per-vw-d) - 1))) / var(--per-vw-d));
+      display:flex; flex-direction:column; height: var(--card-h); overflow:hidden
+    }
+    #royal-flash-{{ section.id }} .media{ position:relative; height:var(--img-h); background:#f4f5f7; display:grid; place-items:center }
+    #royal-flash-{{ section.id }} .media img{ max-width:100%; max-height:100%; object-fit:contain }
+    #royal-flash-{{ section.id }} .seal{
+      position:absolute; top:10px; right:10px; width:34px; height:34px; border-radius:10px;
+      background: var(--accent); color:#fff; display:grid; place-items:center; box-shadow:0 6px 14px rgba(0,0,0,.16)
+    }
+    #royal-flash-{{ section.id }} .content{ padding:12px 14px; display:flex; flex-direction:column; gap:8px }
+    #royal-flash-{{ section.id }} .title-p{ font-weight:700; line-height:1.2; font-size:14px; max-height:3.1em; overflow:hidden }
+    #royal-flash-{{ section.id }} .prices{ display:flex; align-items:center; gap:8px }
+    #royal-flash-{{ section.id }} .compare{ color:#999; text-decoration:line-through; font-size:13px }
+    #royal-flash-{{ section.id }} .price{ font-weight:800; font-size:18px }
+    #royal-flash-{{ section.id }} .off{ color:#22A63A; font-weight:800; font-size:12px; background:#EAF7ED; padding:2px 8px; border-radius:8px }
+    #royal-flash-{{ section.id }} .ship{ color:#22A63A; font-size:12px; font-weight:700 }
+
+    @media (max-width:989px){
+      #royal-flash-{{ section.id }} .bar{ height:var(--bar-height-m); padding:0 12px }
+      #royal-flash-{{ section.id }} .card{
+        min-width: calc((100% - (var(--gap) * (var(--per-vw-m) - 1))) / var(--per-vw-m));
+        flex: 0 0 calc((100% - (var(--gap) * (var(--per-vw-m) - 1))) / var(--per-vw-m))
+      }
+      #royal-flash-{{ section.id }} .timer .box{ font-size:15px; padding:6px 9px; min-width:36px }
+      #royal-flash-{{ section.id }} .bar .title{ font-size:15px }
+    }
+  </style>
+
+  <div class="container">
+    <!-- FAIXA -->
+    <div class="bar">
+      <div class="title">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 7v5l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <div>
+          <div>{{ section.settings.headline | default: 'OFERTAS RELÂMPAGO' }}</div>
+          <span class="sub">{{ section.settings.subtitle | default: 'Você não pode perder. Aproveite!' }}</span>
+        </div>
+      </div>
+      <div class="timer" data-daily-start="19">
+        <span class="box" id="h-{{ section.id }}">24</span>
+        <span class="sep">:</span>
+        <span class="box" id="m-{{ section.id }}">00</span>
+        <span class="sep">:</span>
+        <span class="box" id="s-{{ section.id }}">00</span>
+      </div>
+    </div>
+
+    <!-- Carrossel -->
+    <div class="viewport">
+      <div class="track">
+        {% if section.settings.collection %}
+          {% assign items = section.settings.collection.products | slice: 0, section.settings.max_products %}
+        {% else %}
+          {% assign items = collections['all'].products | slice: 0, section.settings.max_products %}
+        {% endif %}
+
+        {% for product in items %}
+          {% assign has_compare = false %}
+          {% assign percent = 0 %}
+          {% if product.compare_at_price_max > product.price and product.compare_at_price_max > 0 %}
+            {% assign has_compare = true %}
+            {% assign diff = product.compare_at_price_max | minus: product.price %}
+            {% assign percent = diff | times: 100 | divided_by: product.compare_at_price_max %}
+          {% endif %}
+
+          <a href="{{ product.url }}" class="card" aria-label="{{ product.title | escape }}">
+            <div class="media">
+              {% if product.featured_image %}
+                <img src="{{ product.featured_image | image_url: width: 600 }}" alt="{{ product.title | escape }}" loading="lazy" width="600" height="600">
+              {% endif %}
+              <div class="seal" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M12 7v5l3 2" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="12" cy="12" r="9" stroke="#fff" stroke-width="2"/>
+                </svg>
+              </div>
+            </div>
+            <div class="content">
+              <div class="title-p">{{ product.title }}</div>
+              <div class="prices">
+                {% if has_compare %}
+                  <span class="compare">{{ product.compare_at_price | money }}</span>
+                  <span class="off">-{{ percent | round: 0 }}%</span>
+                {% endif %}
+              </div>
+              <div class="price">{{ product.price | money }}</div>
+              {% if section.settings.show_free_shipping %}<div class="ship">Frete grátis</div>{% endif %}
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const root  = document.getElementById('royal-flash-{{ section.id }}');
+      const track = root.querySelector('.track');
+
+      /* ===== Auto-avanço 1 a 1 (sem setas) ===== */
+      const gap = parseFloat(getComputedStyle(track).gap) || 14;
+      function step(){ const c = track.querySelector('.card'); return c ? (c.getBoundingClientRect().width + gap) : 320; }
+      function go(dir){ track.scrollBy({ left: step()*dir, behavior:'smooth' }); }
+
+      let timer = null, hover = false;
+      const interval = ({{ section.settings.auto_interval | default: 5 }} * 1000) || 5000;
+      const loop = {{ section.settings.auto_loop | default: true | json }};
+      function tick(){
+        if (hover) return;
+        const maxScroll = track.scrollWidth - track.clientWidth - 1;
+        if (track.scrollLeft >= maxScroll){ if (loop) track.scrollTo({ left: 0, behavior:'smooth' }); return; }
+        go(1);
+      }
+      function start(){ stop(); timer = setInterval(tick, interval); }
+      function stop(){ if (timer) clearInterval(timer); }
+      root.addEventListener('mouseenter', ()=>{ hover = true; });
+      root.addEventListener('mouseleave', ()=>{ hover = false; });
+      if ({{ section.settings.auto_play | default: true | json }}) start();
+      track.addEventListener('touchstart', stop, {passive:true});
+      track.addEventListener('touchend', start, {passive:true});
+
+      /* ===== Countdown diário às 19:00 ===== */
+      const timerEl = root.querySelector('.timer');
+      const startHour = parseInt(timerEl?.dataset.dailyStart || '19', 10);
+
+      const hEl = document.getElementById('h-{{ section.id }}');
+      const mEl = document.getElementById('m-{{ section.id }}');
+      const sEl = document.getElementById('s-{{ section.id }}');
+
+      function nextDailyTime(hour){
+        const now = new Date();
+        const target = new Date(now);
+        target.setHours(hour, 0, 0, 0);
+        if (now >= target) target.setDate(target.getDate() + 1);
+        return target;
+      }
+      function pad(n){ return String(n).padStart(2,'0'); }
+
+      let target = nextDailyTime(startHour);
+
+      function render(){
+        const now = new Date();
+        if (now >= target) target = nextDailyTime(startHour);
+        const diff = Math.max(0, target - now);
+        const totalSec = Math.floor(diff / 1000);
+        const s = totalSec % 60;
+        const m = Math.floor(totalSec / 60) % 60;
+        const h = Math.floor(totalSec / 3600);
+        hEl.textContent = pad(h); mEl.textContent = pad(m); sEl.textContent = pad(s);
+      }
+      render(); setInterval(render, 1000);
+    })();
+  </script>
+</section>
+
+{% schema %}
+{
+  "name": "Royal • Ofertas Relâmpago",
+  "settings": [
+    { "type": "range", "id": "overlap_px", "label": "Tamanho da sobreposição (px)", "min": 0, "max": 80, "step": 2, "default": 0 },
+    { "type": "range", "id": "overlap_px_mobile", "label": "Tamanho da sobreposição (px) — mobile", "min": 0, "max": 80, "step": 2, "default": 0 },
+
+    { "type": "collection", "id": "collection", "label": "Coleção de ofertas" },
+    { "type": "range", "id": "max_products", "label": "Quantidade máxima", "min": 4, "max": 20, "step": 1, "default": 12 },
+
+    { "type": "text", "id": "headline", "label": "Título da faixa", "default": "OFERTAS RELÂMPAGO" },
+    { "type": "text", "id": "subtitle", "label": "Subtítulo da faixa", "default": "Você não pode perder. Aproveite!" },
+
+    { "type": "range", "id": "per_view_desktop", "label": "Cards por tela (desktop)", "min": 1, "max": 3, "step": 1, "default": 2 },
+    { "type": "range", "id": "image_height", "label": "Altura da imagem (px)", "min": 160, "max": 320, "step": 10, "default": 220 },
+    { "type": "range", "id": "card_height", "label": "Altura do card (px)", "min": 300, "max": 520, "step": 10, "default": 420 },
+
+    { "type": "color", "id": "accent_color", "label": "Cor da faixa e selo", "default": "#F36B21" },
+
+    { "type": "checkbox", "id": "show_free_shipping", "label": "Mostrar 'Frete grátis' nos cards", "default": true },
+
+    { "type": "checkbox", "id": "auto_play", "label": "Auto-avanço do carrossel", "default": true },
+    { "type": "range", "id": "auto_interval", "label": "Intervalo do auto-avanço (segundos)", "min": 3, "max": 12, "step": 1, "default": 5 },
+    { "type": "checkbox", "id": "auto_loop", "label": "Voltar ao início ao chegar no fim", "default": true }
+  ],
+  "blocks": [],
+  "presets": [
+    { "name": "Royal • Ofertas Relâmpago", "category": "Promotional" }
+  ]
+}
+{% endschema %}

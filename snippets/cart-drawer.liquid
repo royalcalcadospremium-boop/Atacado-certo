@@ -1,0 +1,122 @@
+<!-- CART DRAWER (COMPLETO) -->
+<div id="cart-drawer" class="cart-drawer" aria-hidden="true">
+  <div class="cart-drawer__overlay" data-cart-close></div>
+
+  <aside class="cart-drawer__panel" role="dialog" aria-labelledby="cartDrawerTitle" aria-modal="true">
+    <header class="cart-drawer__header">
+      <h3 id="cartDrawerTitle">CARRINHO • <span data-cart-count>0</span></h3>
+      <button class="cart-drawer__close" type="button" aria-label="Fechar" data-cart-close>×</button>
+    </header>
+
+    <div class="cart-drawer__note">Adicione seu cupom de desconto no próximo passo (checkout)</div>
+
+    <div class="cart-drawer__items" data-cart-items>
+      <!-- itens renderizados via JS -->
+    </div>
+
+    <div class="cart-drawer__upsell" data-upsell>
+      <!-- carrossel simples; opcional preencher com Recommendations -->
+    </div>
+
+    <footer class="cart-drawer__footer">
+      <div class="cart-drawer__coupon">
+        <label for="cart-discount">Cupom</label>
+        <div class="coupon-row">
+          <input id="cart-discount" type="text" placeholder="Cupom de desconto" />
+          <span class="coupon-hint" data-coupon-value></span>
+        </div>
+        <small class="coupon-help">Aplicação de cupom depende do checkout.</small>
+      </div>
+
+      <div class="cart-drawer__subtotal">
+        <span>Total:</span>
+        <strong data-cart-subtotal>R$ 0,00</strong>
+      </div>
+
+      <!-- ✅ BOTÃO PRINCIPAL -->
+      <button class="cart-drawer__checkout" type="button" data-checkout>
+        Finalizar Compra
+      </button>
+
+      <!-- ✅ AQUI ERA "VER CARRINHO" → AGORA "CONTINUAR COMPRANDO" (SÓ FECHA O DRAWER) -->
+      <button
+        class="cart-drawer__continue"
+        type="button"
+        data-cart-close
+        data-continue-shopping
+      >
+        Continuar comprando
+      </button>
+    </footer>
+  </aside>
+
+  <!-- ✅ JS: fecha o drawer sem mudar de página (inclusive se ainda existir algum link /cart por aí) -->
+  <script>
+    (function () {
+      function getDrawer() {
+        return document.getElementById('cart-drawer');
+      }
+
+      function closeCartDrawer() {
+        const drawer = getDrawer();
+        if (!drawer) return;
+
+        drawer.classList.remove('is-open');
+        drawer.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('drawer-open');
+      }
+
+      // Fecha ao clicar em overlay / X / Continuar comprando (qualquer [data-cart-close])
+      document.addEventListener('click', function (e) {
+        const closeEl = e.target.closest('[data-cart-close]');
+        if (!closeEl) return;
+
+        // Se for algum <a href="/cart"> antigo, impede navegação e só fecha
+        if (closeEl.tagName === 'A') e.preventDefault();
+
+        closeCartDrawer();
+      });
+
+      // Se ainda existir algum botão/link "Ver carrinho" com href="/cart", converte na hora (fallback)
+      document.addEventListener('click', function (e) {
+        const maybeViewCart = e.target.closest('a[href="/cart"], a[href^="/cart?"]');
+        if (!maybeViewCart) return;
+
+        // se estiver dentro do drawer, não navega: só fecha
+        const drawer = getDrawer();
+        if (drawer && drawer.contains(maybeViewCart)) {
+          e.preventDefault();
+          closeCartDrawer();
+        }
+      });
+
+      // ESC fecha
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeCartDrawer();
+      });
+    })();
+  </script>
+
+  <!-- ✅ CSS: botão "Continuar comprando" no estilo de botão secundário -->
+  <style>
+    .cart-drawer__continue{
+      width: 100%;
+      height: 52px;
+      margin-top: 12px;
+
+      background: #f3f3f3;
+      border: 1px solid #e5e5e5;
+      border-radius: 14px;
+
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: .2px;
+
+      cursor: pointer;
+      transition: .2s;
+    }
+    .cart-drawer__continue:hover{
+      background: #eaeaea;
+    }
+  </style>
+</div>

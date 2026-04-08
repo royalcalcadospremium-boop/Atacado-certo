@@ -1,0 +1,395 @@
+{% comment %}
+Avaliações Royal — seção premium (layout com foto grande em cima)
+- Foto grande no topo do card
+- Estrelas + comentário embaixo da foto
+- Carrossel ou grade
+- Sobreposição via snippet 'royal-overlap'
+{% endcomment %}
+
+<section id="section-{{ section.id }}" class="royal-reviews-premium">
+  {% render 'royal-overlap', id: section.id %}
+
+  {% liquid
+    assign is_home = false
+    if request.page_type == 'index' or template.name == 'index'
+      assign is_home = true
+    endif
+  %}
+
+  <style>
+    #section-{{ section.id }}{
+      --grad-a: {{ section.settings.grad_a | default: '#0E5CF2' }};
+      --grad-b: {{ section.settings.grad_b | default: '#0A3BCF' }};
+      --title-color: {{ section.settings.title_color | default: '#0E5CF2' }};
+      --card-bg: {{ section.settings.card_bg | default: '#ffffff' }};
+      --card-text: {{ section.settings.card_text | default: '#111111' }};
+      --accent: {{ section.settings.accent | default: '#0E5CF2' }};
+      --star: {{ section.settings.star_color | default: section.settings.accent | default: '#0E5CF2' }};
+      --visible-d: {{ section.settings.desktop_visible | default: 3 }};
+      --visible-m: {{ section.settings.mobile_visible  | default: 1 }};
+      --gap: 16px;
+      --img-h-d: {{ section.settings.image_height_desktop | default: 240 }}px;
+      --img-h-m: {{ section.settings.image_height_mobile  | default: 200 }}px;
+      padding: {{ section.settings.pad_y | default: 28 }}px 0;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ===== Alinhamento de largura e gutters (iguais ao container do tema) ===== */
+    #section-{{ section.id }} .page-width{
+      width: 100%;
+      max-width: 1480px; /* mesmo max do .container do tema */
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: var(--mobile-container-gutter, 20px);
+      padding-right: var(--mobile-container-gutter, 20px);
+    }
+    @media (min-width: 641px) and (max-width: 1023px){
+      #section-{{ section.id }} .page-width{
+        padding-left: var(--tablet-container-gutter, 28px);
+        padding-right: var(--tablet-container-gutter, 28px);
+      }
+    }
+    @media (min-width: 1024px){
+      #section-{{ section.id }} .page-width{
+        padding-left: var(--desktop-container-gutter, 36px);
+        padding-right: var(--desktop-container-gutter, 36px);
+      }
+    }
+    /* ======================================================================= */
+
+    #section-{{ section.id }} .topbar{
+      height: 4px;
+      background: linear-gradient(90deg, var(--grad-a), var(--grad-b));
+      border-radius: 999px;
+      margin: 0 0 14px;
+    }
+    #section-{{ section.id }} .title{
+      font-weight: 800;
+      font-size: clamp(18px, 2.4vw, 28px);
+      line-height: 1.2;
+      margin: 0;
+      letter-spacing: .2px;
+    }
+    #section-{{ section.id }} .subtitle{
+      margin: 8px 0 18px;
+      opacity:.85;
+    }
+    #section-{{ section.id }} .title.is-gradient{
+      background: linear-gradient(90deg, var(--grad-a), var(--grad-b));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    #section-{{ section.id }} .title.is-solid{ color: var(--title-color); }
+
+    /* --- Carrossel (modo manual) --- */
+    #section-{{ section.id }} .viewport{ position:relative; }
+    #section-{{ section.id }} .track{
+      display:flex; gap:var(--gap); overflow:auto; scroll-snap-type:x mandatory;
+      -webkit-overflow-scrolling:touch; padding: 6px 2px 10px;
+      scrollbar-width: none; -ms-overflow-style: none;
+    }
+    #section-{{ section.id }} .track::-webkit-scrollbar{ display:none; }
+
+    /* CARD: coluna única (foto grande em cima) */
+    #section-{{ section.id }} .card{
+      scroll-snap-align:start;
+      background:var(--card-bg); color:var(--card-text);
+      border-radius:16px; box-shadow:0 8px 28px rgba(0,0,0,.08);
+      min-width: calc((100% - (var(--gap) * (var(--visible-d) - 1))) / var(--visible-d));
+      flex: 0 0 calc((100% - (var(--gap) * (var(--visible-d) - 1))) / var(--visible-d));
+      display:flex; flex-direction:column;
+      transition: transform .18s ease, box-shadow .18s ease;
+      overflow:hidden;
+    }
+    #section-{{ section.id }} .card:hover{ transform:translateY(-1px); box-shadow:0 12px 34px rgba(0,0,0,.12); }
+
+    /* FOTO GRANDE */
+    #section-{{ section.id }} .media{
+      width:100%; height: var(--img-h-d);
+      background:#f4f5f7; display:grid; place-items:center;
+      overflow:hidden;
+    }
+    #section-{{ section.id }} .media img{ width:100%; height:100%; object-fit:cover; }
+
+    /* CONTEÚDO ABAIXO DA FOTO (estrelas + comentário) */
+    #section-{{ section.id }} .body{
+      padding:14px 16px;
+      display:flex; flex-direction:column; gap:10px;
+    }
+    #section-{{ section.id }} .stars{ display:flex; gap:3px; align-items:center; }
+    #section-{{ section.id }} .stars svg{ width:16px; height:16px; }
+    #section-{{ section.id }} .stars .full{ fill: var(--star); }
+    #section-{{ section.id }} .stars .line{ fill: none; stroke: var(--star); stroke-width: 1.6; opacity:.35 }
+    #section-{{ section.id }} .r-title{ font-weight:700; font-size:15px; line-height:1.2; }
+    #section-{{ section.id }} .r-text{ font-size:14px; line-height:1.5; opacity:.9; }
+    #section-{{ section.id }} .meta{ font-size:12px; opacity:.7; display:flex; gap:8px; flex-wrap:wrap; }
+    #section-{{ section.id }} .badge{ font-size:11px; background: rgba(0,0,0,.06); padding:3px 8px; border-radius:999px; }
+
+    /* Setas (modo manual) */
+    #section-{{ section.id }} .nav{
+      display:flex; position:absolute; top:50%; transform:translateY(-50%);
+      width:42px;height:42px;border-radius:50%; background:#fff; border:none; cursor:pointer;
+      box-shadow:0 8px 24px rgba(0,0,0,.16); align-items:center; justify-content:center; z-index:3;
+    }
+    #section-{{ section.id }} .nav svg{ width:22px;height:22px }
+    #section-{{ section.id }} .nav.prev{ left:-6px }  #section-{{ section.id }} .nav.next{ right:-6px }
+    #section-{{ section.id }}.at-start .nav.prev{ display:none; }
+    #section-{{ section.id }}.at-end   .nav.next{ display:none; }
+
+    /* Peek visual (continuação) */
+    #section-{{ section.id }} .peek-right{
+      content:""; position:absolute; inset:0; pointer-events:none; opacity: 0; transition:.2s;
+      background: linear-gradient(90deg, rgba(255,255,255,0) 60%, rgba(0,0,0,.06));
+    }
+
+    /* Grid (modo manual = grid) */
+    #section-{{ section.id }} .grid{
+      display:grid; grid-template-columns: repeat(3, 1fr); gap: var(--gap);
+    }
+    #section-{{ section.id }} .grid .card{
+      min-width: 0; flex: 0 0 auto;
+    }
+
+    /* Responsivo */
+    @media (max-width: 991px){
+      #section-{{ section.id }} .card{
+        min-width: calc((100% - (var(--gap) * (var(--visible-m) - 1))) / var(--visible-m));
+        flex: 0 0 calc((100% - (var(--gap) * (var(--visible-m) - 1))) / var(--visible-m));
+      }
+      #section-{{ section.id }} .media{ height: var(--img-h-m); }
+      #section-{{ section.id }} .grid{ grid-template-columns: 1fr; }
+      #section-{{ section.id }} .peek-right{
+        opacity: {% if section.settings.mobile_peek %}.8{% else %}0{% endif %};
+      }
+    }
+    @media (min-width: 992px){
+      #section-{{ section.id }} .peek-right{
+        opacity: {% if section.settings.desktop_peek %}.8{% else %}0{% endif %};
+      }
+    }
+  </style>
+
+  <div class="page-width {% if section.settings.align_center %}text-center{% endif %}">
+    {% if section.settings.show_topbar %}<div class="topbar" aria-hidden="true"></div>{% endif %}
+    {% if section.settings.title != blank %}
+      <h2 class="title {% if section.settings.title_style == 'gradient' %}is-gradient{% else %}is-solid{% endif %}">{{ section.settings.title }}</h2>
+    {% endif %}
+    {% if section.settings.subtitle != blank %}
+      <div class="subtitle">{{ section.settings.subtitle }}</div>
+    {% endif %}
+
+    {%- comment -%} SLOT DE APP (ex.: Judge.me) {%- endcomment -%}
+    {% assign has_app_block = false %}
+    {% for block in section.blocks %}
+      {% if block.type == '@app' %}
+        {% assign has_app_block = true %}
+      {% endif %}
+    {% endfor %}
+
+    {% if has_app_block %}
+      <div class="app-slot">
+        {% for block in section.blocks %}
+          {% if block.type == '@app' %}{% render block %}{% endif %}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {%- comment -%} MODO MANUAL (cards) {%- endcomment -%}
+    {% assign manual_blocks = section.blocks | where: 'type', 'review' %}
+    {% if manual_blocks.size > 0 %}
+      {% if section.settings.layout == 'carousel' %}
+        <div class="viewport">
+          {% if section.settings.show_arrows %}
+            {% unless section.settings.hide_left_home and is_home %}
+              <button class="nav prev" aria-label="Anterior">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            {% endunless %}
+            <button class="nav next" aria-label="Próximo">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          {% endif %}
+          <div class="track">
+            {% for block in manual_blocks %}
+              <article class="card" {{ block.shopify_attributes }}>
+                <div class="media">
+                  {% if block.settings.photo %}
+                    <img src="{{ block.settings.photo | image_url: width: 800 }}" alt="{{ block.settings.author | escape | default: 'Cliente' }}" loading="lazy" width="800" height="800">
+                  {% else %}
+                    <svg viewBox="0 0 64 64" width="36" height="36" aria-hidden="true"><rect x="8" y="8" width="48" height="48" rx="12" fill="#e9ebee"/></svg>
+                  {% endif %}
+                </div>
+                <div class="body">
+                  {% assign r = block.settings.rating | default: 5 %}
+                  <div class="stars" aria-label="{{ r }} de 5">
+                    {% for i in (1..5) %}
+                      {% if i <= r %}
+                        <svg class="full" viewBox="0 0 24 24"><path d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.73L5.82 21z"/></svg>
+                      {% else %}
+                        <svg class="line" viewBox="0 0 24 24"><path d="M12 15.4l-3.76 2.27.99-4.28-3.32-3.23 4.38-.37L12 5.1l1.71 4.69 4.38.37-3.32 3.23.99 4.28z"/></svg>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                  {% if block.settings.title != blank %}<div class="r-title">{{ block.settings.title }}</div>{% endif %}
+                  {% if block.settings.text != blank %}<div class="r-text">{{ block.settings.text }}</div>{% endif %}
+                  <div class="meta">
+                    {% if block.settings.author != blank %}<span>— {{ block.settings.author }}</span>{% endif %}
+                    {% if block.settings.verified %}<span class="badge">Compra verificada</span>{% endif %}
+                    {% if block.settings.product != blank %}<span class="badge">{{ block.settings.product }}</span>{% endif %}
+                  </div>
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+          <div class="peek-right" aria-hidden="true"></div>
+        </div>
+      {% else %}
+        <div class="grid">
+          {% for block in manual_blocks %}
+            <article class="card" {{ block.shopify_attributes }}>
+              <div class="media">
+                {% if block.settings.photo %}
+                  <img src="{{ block.settings.photo | image_url: width: 900 }}" alt="{{ block.settings.author | escape | default: 'Cliente' }}" loading="lazy" width="900" height="900">
+                {% else %}
+                  <svg viewBox="0 0 64 64" width="36" height="36" aria-hidden="true"><rect x="8" y="8" width="48" height="48" rx="12" fill="#e9ebee"/></svg>
+                {% endif %}
+              </div>
+              <div class="body">
+                {% assign r = block.settings.rating | default: 5 %}
+                <div class="stars" aria-label="{{ r }} de 5">
+                  {% for i in (1..5) %}
+                    {% if i <= r %}
+                      <svg class="full" viewBox="0 0 24 24"><path d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.73L5.82 21z"/></svg>
+                    {% else %}
+                      <svg class="line" viewBox="0 0 24 24"><path d="M12 15.4l-3.76 2.27.99-4.28-3.32-3.23 4.38-.37L12 5.1l1.71 4.69 4.38.37-3.32 3.23.99 4.28z"/></svg>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+                {% if block.settings.title != blank %}<div class="r-title">{{ block.settings.title }}</div>{% endif %}
+                {% if block.settings.text != blank %}<div class="r-text">{{ block.settings.text }}</div>{% endif %}
+                <div class="meta">
+                  {% if block.settings.author != blank %}<span>— {{ block.settings.author }}</span>{% endif %}
+                  {% if block.settings.verified %}<span class="badge">Compra verificada</span>{% endif %}
+                  {% if block.settings.product != blank %}<span class="badge">{{ block.settings.product }}</span>{% endif %}
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endif %}
+  </div>
+
+  {% if section.settings.show_arrows %}
+  <script>
+    (function(){
+      const root = document.getElementById('section-{{ section.id }}');
+      if(!root) return;
+      const prev = root.querySelector('.nav.prev');
+      const next = root.querySelector('.nav.next');
+      const track = root.querySelector('.track'); // apenas modo manual usa setas
+      if(!track) return;
+
+      function step(){
+        const gap = 16;
+        const card = track.querySelector('.card') || track.firstElementChild;
+        if(!card) return 320;
+        const w = card.getBoundingClientRect().width;
+        return (w || 320) + gap;
+      }
+      function updateArrows(){
+        const maxScroll = track.scrollWidth - track.clientWidth - 1;
+        const atStart = track.scrollLeft <= 0;
+        const atEnd   = track.scrollLeft >= maxScroll;
+        if (prev) root.classList.toggle('at-start', atStart);
+        root.classList.toggle('at-end',   atEnd);
+      }
+      {% if section.settings.hide_left_home and is_home %} if (prev) prev.remove(); {% endif %}
+      if (prev) prev.addEventListener('click', () => track.scrollBy({ left: -step(), behavior: 'smooth' }));
+      if (next) next.addEventListener('click', () => track.scrollBy({ left:  step(), behavior: 'smooth' }));
+      track.addEventListener('scroll', updateArrows, {passive:true});
+      window.addEventListener('resize', updateArrows);
+      updateArrows();
+    })();
+  </script>
+  {% endif %}
+</section>
+
+{% schema %}
+{
+  "name": "Avaliações Royal",
+  "settings": [
+    { "type": "text", "id": "title", "label": "Título", "default": "Avaliações dos clientes" },
+    { "type": "text", "id": "subtitle", "label": "Subtítulo (opcional)", "default": "Veja o que estão falando sobre a Royal" },
+    { "type": "checkbox", "id": "show_topbar", "label": "Mostrar barra superior em gradiente", "default": true },
+    {
+      "type": "select",
+      "id": "title_style",
+      "label": "Estilo do título",
+      "default": "gradient",
+      "options": [
+        { "value": "gradient", "label": "Texto com gradiente Royal" },
+        { "value": "solid", "label": "Cor sólida" }
+      ]
+    },
+    { "type": "checkbox", "id": "align_center", "label": "Centralizar textos", "default": true },
+
+    { "type": "header", "content": "Cores" },
+    { "type": "color", "id": "title_color", "label": "Cor do título (quando sólido)", "default": "#0E5CF2" },
+    { "type": "color", "id": "grad_a", "label": "Gradiente — cor inicial", "default": "#0E5CF2" },
+    { "type": "color", "id": "grad_b", "label": "Gradiente — cor final", "default": "#0A3BCF" },
+    { "type": "color", "id": "card_bg", "label": "Cor do card", "default": "#ffffff" },
+    { "type": "color", "id": "card_text", "label": "Cor do texto do card", "default": "#111111" },
+    { "type": "color", "id": "accent", "label": "Cor de destaque", "default": "#0E5CF2" },
+    { "type": "color", "id": "star_color", "label": "Cor das estrelas", "default": "#0E5CF2" },
+
+    { "type": "header", "content": "Layout (modo manual)" },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout dos cards manuais",
+      "default": "carousel",
+      "options": [
+        { "value": "carousel", "label": "Carrossel (scroll horizontal)" },
+        { "value": "grid", "label": "Grade (3 colunas no desktop)" }
+      ]
+    },
+    { "type": "range", "id": "desktop_visible", "label": "Cards visíveis (desktop · carrossel)", "min": 2, "max": 5, "step": 1, "default": 3 },
+    { "type": "range", "id": "mobile_visible", "label": "Cards visíveis (mobile · carrossel)", "min": 1, "max": 3, "step": 1, "default": 1 },
+
+    { "type": "header", "content": "Imagem" },
+    { "type": "range", "id": "image_height_desktop", "label": "Altura da imagem (desktop, px)", "min": 160, "max": 400, "step": 10, "default": 240 },
+    { "type": "range", "id": "image_height_mobile",  "label": "Altura da imagem (mobile, px)",  "min": 140, "max": 360, "step": 10, "default": 200 },
+
+    { "type": "header", "content": "Controles (modo manual)" },
+    { "type": "checkbox", "id": "show_arrows", "label": "Mostrar setas de navegação", "default": true },
+    { "type": "checkbox", "id": "desktop_peek", "label": "Desktop: mostrar indicação de continuação (peek)", "default": true },
+    { "type": "checkbox", "id": "mobile_peek", "label": "Mobile: mostrar peek (continuação)", "default": true },
+    { "type": "checkbox", "id": "hide_left_home", "label": "Ocultar seta esquerda na Home", "default": false },
+    { "type": "range", "id": "pad_y", "label": "Espaço vertical (px)", "min": 0, "max": 80, "step": 2, "default": 28 },
+
+    { "type": "header", "content": "Sobreposição (colar na seção de cima)" },
+    { "type": "range", "id": "overlap_px", "label": "Sobreposição (px) — desktop", "min": 0, "max": 80, "step": 2, "default": 16 },
+    { "type": "range", "id": "overlap_px_mobile", "label": "Sobreposição (px) — mobile", "min": 0, "max": 80, "step": 2, "default": 12 }
+  ],
+  "blocks": [
+    { "type": "@app" },
+    {
+      "type": "review",
+      "name": "Review (manual)",
+      "settings": [
+        { "type": "image_picker", "id": "photo", "label": "Foto do cliente/produto (1:1)" },
+        { "type": "range", "id": "rating", "label": "Nota", "min": 1, "max": 5, "step": 1, "default": 5 },
+        { "type": "text", "id": "title", "label": "Título/Chamada", "default": "Qualidade excelente!" },
+        { "type": "richtext", "id": "text", "label": "Depoimento", "default": "<p>Produto top! Confortável e chegou rápido.</p>" },
+        { "type": "text", "id": "author", "label": "Autor", "default": "Fellipe C." },
+        { "type": "text", "id": "product", "label": "Produto/Categoria (opcional)", "default": "Tênis Royal" },
+        { "type": "checkbox", "id": "verified", "label": "Compra verificada", "default": true }
+      ]
+    }
+  ],
+  "presets": [
+    { "name": "Avaliações Royal (Home)" }
+  ]
+}
+{% endschema %}

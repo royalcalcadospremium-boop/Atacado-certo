@@ -1,0 +1,1385 @@
+{% comment %}
+Royal • Ajax Cart Drawer (Premium) — ORÇAMENTO WHATSAPP
+AJUSTE (pedido do Fellipe):
+- ✅ 2 LINHAS por item:
+   1) NOME + VARIANTE (começo do nome sempre visível; se for grande, abrevia com ellipsis NO FINAL)
+   2) PREÇO do item + QTY (-/+) + LIXEIRA (tudo na mesma linha)
+- ✅ Nada sobrepõe a imagem (thumb isolada)
+- ✅ Mantém: aviso discreto de estoque, X fechar funcionando, modal vendedoras, upsell, permalink carrinho
+{% endcomment %}
+
+<section
+  id="RoyalCartDrawer"
+  class="rcd"
+  data-section="cart-drawer"
+  data-min-items="{{ section.settings.min_items | default: 10 }}"
+>
+  {%- assign min_items = section.settings.min_items | default: 10 -%}
+  {%- assign qty_total = 0 -%}
+  {%- for it in cart.items -%}
+    {%- assign qty_total = qty_total | plus: it.quantity -%}
+  {%- endfor -%}
+  {%- assign missing_items = min_items | minus: qty_total -%}
+  {%- if missing_items < 0 -%}{%- assign missing_items = 0 -%}{%- endif -%}
+  {%- assign progress_items = 0 -%}
+  {%- if min_items > 0 -%}
+    {%- assign progress_items = qty_total | times: 100 | divided_by: min_items -%}
+    {%- if progress_items > 100 -%}{%- assign progress_items = 100 -%}{%- endif -%}
+  {%- endif -%}
+
+  <script type="application/json" data-rcd-template>
+    {{ section.settings.message_template | json }}
+  </script>
+
+  <style>
+    #RoyalCartDrawer{
+      --rcd-overlay-alpha: {{ section.settings.overlay_opacity | default: 45 | times: 0.01 }};
+      --rcd-overlay: rgba(0,0,0,var(--rcd-overlay-alpha));
+
+      --rcd-panel-bg: {{ section.settings.panel_bg | default: '#ffffff' }};
+      --rcd-text: {{ section.settings.text_color | default: '#111827' }};
+      --rcd-muted: {{ section.settings.muted_color | default: '#6B7280' }};
+      --rcd-border: {{ section.settings.border_color | default: '#E5E7EB' }};
+
+      --rcd-primary-bg: {{ section.settings.primary_bg | default: '#00A86B' }};
+      --rcd-primary-text: {{ section.settings.primary_text | default: '#ffffff' }};
+      --rcd-primary-bg-hover: {{ section.settings.primary_bg_hover | default: '#008A58' }};
+
+      --rcd-close-bg: {{ section.settings.close_bg | default: '#F3F4F6' }};
+      --rcd-close-bg-hover: {{ section.settings.close_bg_hover | default: '#E5E7EB' }};
+      --rcd-close-icon: {{ section.settings.close_icon | default: '#111827' }};
+
+      --rcd-ghost-bg: {{ section.settings.ghost_bg | default: '#ffffff' }};
+      --rcd-ghost-text: {{ section.settings.ghost_text | default: '#111827' }};
+      --rcd-ghost-border: {{ section.settings.ghost_border | default: '#D1D5DB' }};
+
+      --rcd-modal-bg: {{ section.settings.modal_bg | default: '#ffffff' }};
+      --rcd-modal-title: {{ section.settings.modal_title_color | default: '#111827' }};
+      --rcd-chip-bg: {{ section.settings.vendor_chip_bg | default: '#F3F4F6' }};
+      --rcd-chip-text: {{ section.settings.vendor_chip_text | default: '#111827' }};
+      --rcd-chip-border: {{ section.settings.vendor_chip_border | default: '#E5E7EB' }};
+      --rcd-chip-hover: {{ section.settings.vendor_chip_hover | default: '#E5E7EB' }};
+    }
+
+    #RoyalCartDrawer.rcd{ position: relative; z-index: 99999; }
+    #RoyalCartDrawer .rcd__overlay{
+      position: fixed; inset: 0;
+      background: var(--rcd-overlay);
+      opacity: 0; pointer-events: none;
+      transition: opacity .18s ease;
+    }
+    #RoyalCartDrawer .rcd__panel{
+      position: fixed;
+      top: 0; right: 0;
+      height: 100vh;
+      width: min(420px, 92vw);
+      background: var(--rcd-panel-bg);
+      color: var(--rcd-text);
+      transform: translateX(110%);
+      transition: transform .22s ease;
+      box-shadow: -20px 0 60px rgba(0,0,0,.18);
+      display: flex;
+      flex-direction: column;
+      border-left: 1px solid var(--rcd-border);
+    }
+
+    #RoyalCartDrawer.is-open .rcd__overlay,
+    #RoyalCartDrawer[open] .rcd__overlay{ opacity: 1; pointer-events: auto; }
+    #RoyalCartDrawer.is-open .rcd__panel,
+    #RoyalCartDrawer[open] .rcd__panel{ transform: translateX(0); }
+
+    #RoyalCartDrawer .rcd__header{
+      padding: 16px 16px 12px;
+      border-bottom: 1px solid var(--rcd-border);
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 12px;
+    }
+    #RoyalCartDrawer .rcd__title{ margin:0; font-weight: 900; font-size: 18px; line-height: 1.15; }
+    #RoyalCartDrawer .rcd__subtitle{ margin: 6px 0 0; color: var(--rcd-muted); font-weight: 600; font-size: 12px; }
+
+    #RoyalCartDrawer .rcd__close{
+      width: 38px; height: 38px;
+      border-radius: 999px;
+      border: 0;
+      background: var(--rcd-close-bg);
+      color: var(--rcd-close-icon);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      flex: 0 0 auto;
+      transition: transform .12s ease, background .12s ease;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    #RoyalCartDrawer .rcd__close:hover{ background: var(--rcd-close-bg-hover); }
+    #RoyalCartDrawer .rcd__close:active{ transform: scale(.98); }
+    #RoyalCartDrawer .rcd__close span{ font-size: 18px; line-height: 1; }
+
+    #RoyalCartDrawer .rcd__body{ padding: 12px 16px; overflow: auto; flex: 1 1 auto; }
+    #RoyalCartDrawer .rcd__footer{
+      padding: 14px 16px 16px;
+      border-top: 1px solid var(--rcd-border);
+      background: var(--rcd-panel-bg);
+    }
+
+    /* ===== Progresso por itens (com 🔥) ===== */
+    #RoyalCartDrawer .rcd__minbox{ padding: 10px 16px 0; }
+    #RoyalCartDrawer .rcd__mintext{
+      margin: 0 0 8px;
+      color: var(--rcd-muted);
+      font-weight: 800;
+      font-size: 12px;
+    }
+    #RoyalCartDrawer .rcd__bar{
+      position: relative;
+      height: 10px;
+      background: #F3F4F6;
+      border-radius: 999px;
+      overflow: visible;
+    }
+    #RoyalCartDrawer .rcd__bar-fill{
+      position: relative;
+      height: 100%;
+      background: var(--rcd-primary-bg);
+      width: 0%;
+      border-radius: 999px;
+      transition: width .25s ease;
+    }
+    #RoyalCartDrawer .rcd__bar-fire{
+      position: absolute;
+      top: 50%;
+      transform: translate(50%, -50%);
+      right: 0;
+      font-size: 16px;
+      line-height: 1;
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,.25));
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* Botões */
+    #RoyalCartDrawer .rcd__actions{ display:flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+    #RoyalCartDrawer .rcd__btn{
+      width: 100%;
+      border-radius: 999px;
+      padding: 14px 16px;
+      font-weight: 950;
+      font-size: 15px;
+      text-decoration: none;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      cursor:pointer;
+      border: 1px solid transparent;
+      transition: transform .12s ease, background .12s ease, color .12s ease, border-color .12s ease, opacity .12s ease;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    #RoyalCartDrawer .rcd__btn:active{ transform: scale(.99); }
+    #RoyalCartDrawer .rcd__btn--primary{
+      background: var(--rcd-primary-bg);
+      color: var(--rcd-primary-text);
+      box-shadow: 0 10px 22px rgba(0,0,0,.14);
+    }
+    #RoyalCartDrawer .rcd__btn--primary:hover{ background: var(--rcd-primary-bg-hover); }
+    #RoyalCartDrawer .rcd__btn--ghost{
+      background: var(--rcd-ghost-bg);
+      color: var(--rcd-ghost-text);
+      border-color: var(--rcd-ghost-border);
+    }
+
+    /* Totais */
+    #RoyalCartDrawer .rcd__totals{ display:flex; align-items:center; justify-content:space-between; gap: 12px; }
+    #RoyalCartDrawer .rcd__totals-label{ color: var(--rcd-muted); font-weight: 800; }
+    #RoyalCartDrawer .rcd__totals-value{ font-weight: 950; }
+
+    /* =========================
+       ITENS — 2 LINHAS
+       ========================= */
+    #RoyalCartDrawer .rcd__item{
+      display:flex;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--rcd-border);
+      align-items: center;
+      position: relative; /* p/ qty-note absolute */
+    }
+
+    #RoyalCartDrawer .rcd__thumb{
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      overflow:hidden;
+      background: #F3F4F6;
+      flex: 0 0 auto;
+    }
+    #RoyalCartDrawer .rcd__thumb img{ width:100%; height:100%; object-fit: cover; display:block; }
+
+    /* ✅ Meta com 2 linhas dentro de 52px */
+    #RoyalCartDrawer .rcd__meta{
+      height: 52px;
+      flex: 1 1 auto;
+      min-width: 0;
+      display:flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 6px;
+      overflow: hidden;
+    }
+
+    /* Linha 1: Nome + Variante (variante tem prioridade de aparecer) */
+    #RoyalCartDrawer .rcd__row1{
+      display:flex;
+      align-items:center;
+      gap: 8px;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    #RoyalCartDrawer .rcd__titlelink{
+      min-width: 0;
+      flex: 1 1 auto;
+      overflow: hidden;
+      text-overflow: ellipsis;   /* ✅ abrevia no FINAL */
+      white-space: nowrap;       /* ✅ começo sempre visível */
+      text-decoration: none;
+      color: var(--rcd-text);
+      font-weight: 650;          /* ✅ sem negrito pesado */
+      letter-spacing: -0.01em;
+      font-size: 13px;
+      line-height: 1.15;
+    }
+
+    #RoyalCartDrawer .rcd__vsep{
+      flex: 0 0 auto;
+      color: var(--rcd-muted);
+      opacity: .7;
+      font-weight: 600;
+      line-height: 1;
+    }
+
+    #RoyalCartDrawer .rcd__variant-inline{
+      flex: 0 0 auto;
+      max-width: 42%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--rcd-muted);
+      font-weight: 600;
+      font-size: 12px;
+      line-height: 1.15;
+    }
+
+    /* Linha 2: Preço + Qty + Lixeira */
+    #RoyalCartDrawer .rcd__row2{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    #RoyalCartDrawer .rcd__price{
+      display:flex;
+      align-items: baseline;
+      gap: 8px;
+      white-space: nowrap;
+      min-width: 0;
+      overflow: hidden;
+    }
+    #RoyalCartDrawer .rcd__price-compare{
+      color: var(--rcd-muted);
+      text-decoration: line-through;
+      font-weight: 700;
+      font-size: 11px;
+      line-height: 1.1;
+    }
+    #RoyalCartDrawer .rcd__price-final{
+      font-weight: 900;
+      font-size: 13px;
+      line-height: 1.1;
+      color: var(--rcd-text);
+    }
+
+    #RoyalCartDrawer .rcd__controls{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      flex: 0 0 auto;
+    }
+
+    /* Quantidade sem bordas */
+    #RoyalCartDrawer .rcd__qty{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      padding: 0;
+      background: transparent;
+      border-radius: 0;
+      flex: 0 0 auto;
+    }
+
+    #RoyalCartDrawer .rcd__qty-btn{
+      width: 24px; height: 24px;
+      border-radius: 999px;
+      border: 0;
+      background: transparent;
+      cursor:pointer;
+      font-weight: 950;
+      color: var(--rcd-text);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    #RoyalCartDrawer .rcd__qty-btn:hover{ background: rgba(0,0,0,.06); }
+    #RoyalCartDrawer .rcd__qty-btn[disabled]{ opacity:.55; cursor:not-allowed; }
+
+    #RoyalCartDrawer .rcd__qty-input{
+      width: 34px;
+      height: 24px;
+      border: 0;
+      background: transparent;
+      text-align: center;
+      font-weight: 950;
+      outline: none;
+      color: var(--rcd-text);
+      -moz-appearance: textfield;
+      padding: 0;
+    }
+    #RoyalCartDrawer .rcd__qty-input::-webkit-outer-spin-button,
+    #RoyalCartDrawer .rcd__qty-input::-webkit-inner-spin-button{
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    #RoyalCartDrawer .rcd__trash{
+      width: 28px; height: 28px;
+      border-radius: 999px;
+      border: 0;
+      background: transparent;
+      color: var(--rcd-muted);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      flex: 0 0 auto;
+    }
+    #RoyalCartDrawer .rcd__trash:hover{ background: #F3F4F6; color: var(--rcd-text); }
+    #RoyalCartDrawer .rcd__trash svg{ width: 16px; height: 16px; display:block; }
+
+    /* ✅ Aviso discreto: sem empurrar layout e sem encostar na imagem */
+    #RoyalCartDrawer .rcd__qty-note{
+      position:absolute;
+      left: 64px; /* thumb(52)+gap(12) */
+      right: 10px;
+      top: 50%;
+      transform: translateY(18px);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--rcd-muted);
+      opacity: 0;
+      pointer-events: none;
+      user-select: none;
+      transition: opacity .18s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #RoyalCartDrawer .rcd__qty-note.is-show{ opacity: 1; }
+
+    /* Mobile: garante a variante aparecendo mais (nome abrevia mais) */
+    @media (max-width: 420px){
+      #RoyalCartDrawer .rcd__variant-inline{ max-width: 48%; }
+      #RoyalCartDrawer .rcd__price-compare{ display:none; }
+      #RoyalCartDrawer .rcd__price{ gap: 6px; }
+    }
+
+    /* ===== MODAL VENDEDORAS ===== */
+    #RoyalCartDrawer .rcd__vmodal{
+      position: fixed; inset: 0;
+      z-index: 999999;
+      display: none;
+    }
+    #RoyalCartDrawer .rcd__vmodal.is-open{ display:block; }
+    #RoyalCartDrawer .rcd__vmodal .rcd__vmodal-overlay{
+      position:absolute; inset:0;
+      background: var(--rcd-overlay);
+      backdrop-filter: blur(3px);
+    }
+    #RoyalCartDrawer .rcd__vmodal .rcd__vmodal-panel{
+      position:absolute;
+      right: 16px; top: 50%;
+      transform: translateY(-50%);
+      width: min(460px, calc(100vw - 32px));
+      background: var(--rcd-modal-bg);
+      border-radius: 22px;
+      box-shadow: 0 30px 80px rgba(0,0,0,.25);
+      padding: 16px;
+      border: 1px solid var(--rcd-border);
+    }
+    @media (max-width: 640px){
+      #RoyalCartDrawer .rcd__vmodal .rcd__vmodal-panel{
+        right: 12px; left: 12px; width: auto;
+        top: auto; bottom: 12px; transform: none;
+      }
+    }
+    #RoyalCartDrawer .rcd__vmodal-close{
+      position:absolute; top: 10px; right: 10px;
+      width: 36px; height: 36px;
+      border-radius: 999px;
+      border: 0;
+      background: var(--rcd-close-bg);
+      color: var(--rcd-close-icon);
+      cursor: pointer;
+      font-weight: 950;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    #RoyalCartDrawer .rcd__vmodal-close:hover{ background: var(--rcd-close-bg-hover); }
+
+    #RoyalCartDrawer .rcd__vmodal-title{
+      margin: 2px 44px 0 0;
+      font-weight: 950;
+      color: var(--rcd-modal-title);
+      font-size: 16px;
+      line-height: 1.2;
+    }
+    #RoyalCartDrawer .rcd__vmodal-sub{
+      margin: 8px 44px 0 0;
+      color: var(--rcd-muted);
+      font-weight: 700;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    #RoyalCartDrawer .rcd__vendors{ margin-top: 14px; display: grid; gap: 10px; }
+
+    #RoyalCartDrawer .rcd__vendor{
+      display:flex; align-items:center; justify-content:space-between; gap: 12px;
+      padding: 12px 12px;
+      border-radius: 16px;
+      border: 1px solid var(--rcd-chip-border);
+      background: var(--rcd-chip-bg);
+      color: var(--rcd-chip-text);
+      cursor:pointer;
+      text-align:left;
+      font-weight: 900;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    #RoyalCartDrawer .rcd__vendor:hover{ background: var(--rcd-chip-hover); }
+
+    #RoyalCartDrawer .rcd__vendor-left{
+      display:flex; align-items:center; gap: 10px;
+      min-width: 0;
+    }
+    #RoyalCartDrawer .rcd__vendor-avatar{
+      width: 44px; height: 44px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #E5E7EB;
+      border: 1px solid var(--rcd-chip-border);
+      flex: 0 0 auto;
+      display:flex; align-items:center; justify-content:center;
+      font-weight: 950;
+    }
+    #RoyalCartDrawer .rcd__vendor-avatar img{
+      width:100%; height:100%;
+      object-fit: cover;
+      display:block;
+    }
+    #RoyalCartDrawer .rcd__vendor-meta{ min-width: 0; }
+    #RoyalCartDrawer .rcd__vendor-name{
+      display:block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.1;
+    }
+    #RoyalCartDrawer .rcd__vendor small{
+      display:block; font-weight: 800; opacity: .75; margin-top: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #RoyalCartDrawer .rcd__vendor span{ font-weight: 950; opacity: .9; white-space: nowrap; }
+  </style>
+
+  <div class="rcd__overlay" data-rcd-overlay aria-hidden="true"></div>
+
+  <aside class="rcd__panel" role="dialog" aria-modal="true" aria-label="Carrinho" aria-hidden="true">
+    <header class="rcd__header">
+      <div class="rcd__title-wrap">
+        <h2 class="rcd__title">{{ section.settings.title | escape }}</h2>
+        <p class="rcd__subtitle">{{ section.settings.subtitle | escape }}</p>
+      </div>
+
+      <button class="rcd__close" type="button" aria-label="Fechar" data-rcd-close>
+        <span aria-hidden="true">✕</span>
+      </button>
+    </header>
+
+    <div class="rcd__minbox">
+      <p class="rcd__mintext" data-rcd-mintext>
+        {%- if qty_total == 0 -%}
+          {{ section.settings.min_empty_text | escape }}
+        {%- elsif missing_items > 0 -%}
+          {{ section.settings.min_missing_prefix | escape }} {{ missing_items }} {{ section.settings.min_missing_suffix | escape }}
+        {%- else -%}
+          {{ section.settings.min_ok_text | escape }}
+        {%- endif -%}
+      </p>
+
+      <div class="rcd__bar">
+        <div class="rcd__bar-fill" data-rcd-minbar style="width: {{ progress_items }}%">
+          <span class="rcd__bar-fire" aria-hidden="true">🔥</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="rcd__body">
+      <div class="rcd__items" data-rcd-items>
+        {% if cart.item_count == 0 %}
+          <div class="rcd__empty">
+            <p class="rcd__empty-title" style="font-weight:950; margin: 14px 0 4px;">{{ section.settings.empty_title | escape }}</p>
+            <p class="rcd__empty-text" style="margin:0; color: var(--rcd-muted); font-weight:700;">{{ section.settings.empty_text | escape }}</p>
+            <a class="rcd__btn rcd__btn--ghost" href="{{ routes.all_products_collection_url }}" style="margin-top:12px;">
+              {{ section.settings.empty_cta | escape }}
+            </a>
+          </div>
+        {% else %}
+          {% for item in cart.items %}
+            <article class="rcd__item" data-line="{{ forloop.index }}">
+              <a class="rcd__thumb" href="{{ item.url }}">
+                {% if item.image %}
+                  <img
+                    src="{{ item.image | img_url: '160x' }}"
+                    alt="{{ item.product.title | escape }}"
+                    loading="lazy"
+                    width="52"
+                    height="52"
+                  >
+                {% endif %}
+              </a>
+
+              <div class="rcd__meta">
+                <!-- LINHA 1: NOME + VARIANTE -->
+                <div class="rcd__row1">
+                  <a class="rcd__titlelink" href="{{ item.url }}">{{ item.product.title }}</a>
+
+                  {% if item.variant.title and item.variant.title != 'Default Title' %}
+                    <span class="rcd__vsep" aria-hidden="true">•</span>
+                    <span class="rcd__variant-inline">{{ item.variant.title }}</span>
+                  {% endif %}
+                </div>
+
+                <!-- LINHA 2: PREÇO + QTY + LIXEIRA -->
+                <div class="rcd__row2">
+                  <div class="rcd__price" aria-label="Preço do item">
+                    {% if item.variant.compare_at_price and item.variant.compare_at_price > item.final_price %}
+                      <span class="rcd__price-compare">{{ item.variant.compare_at_price | money }}</span>
+                    {% endif %}
+                    <span class="rcd__price-final">{{ item.final_price | money }}</span>
+                  </div>
+
+                  <div class="rcd__controls">
+                    <div class="rcd__qty" role="group" aria-label="Quantidade">
+                      <button class="rcd__qty-btn" type="button" data-rcd-qty-minus data-line="{{ forloop.index }}" aria-label="Diminuir">−</button>
+                      <input
+                        class="rcd__qty-input"
+                        type="number"
+                        min="0"
+                        value="{{ item.quantity }}"
+                        inputmode="numeric"
+                        data-rcd-qty-input
+                        data-line="{{ forloop.index }}"
+                        aria-label="Quantidade"
+                      >
+                      <button class="rcd__qty-btn" type="button" data-rcd-qty-plus data-line="{{ forloop.index }}" aria-label="Aumentar">+</button>
+                    </div>
+
+                    <button class="rcd__trash" type="button" data-rcd-remove data-line="{{ forloop.index }}" aria-label="Remover">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M3 6h18"></path>
+                        <path d="M8 6V4h8v2"></path>
+                        <path d="M19 6l-1 14H6L5 6"></path>
+                        <path d="M10 11v6"></path>
+                        <path d="M14 11v6"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="rcd__qty-note" data-rcd-qty-note data-line="{{ forloop.index }}">Sem mais disponível nessa numeração.</div>
+            </article>
+          {% endfor %}
+        {% endif %}
+      </div>
+
+      {%- assign upsell_handle = section.settings.upsell_collection -%}
+      {%- assign upsell_limit = section.settings.upsell_limit | default: 6 -%}
+      {%- if upsell_handle != blank and collections[upsell_handle] and collections[upsell_handle].products_count > 0 -%}
+        <div class="rcd__upsell" data-rcd-upsell style="margin-top:16px;">
+          <div class="rcd__upsell-head" style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px;">
+            <span class="rcd__upsell-title" style="font-weight:950;">{{ section.settings.upsell_title | escape }}</span>
+            {% if section.settings.upsell_badge != blank %}
+              <span class="rcd__upsell-badge" style="font-weight:900; color: var(--rcd-muted);">{{ section.settings.upsell_badge | escape }}</span>
+            {% endif %}
+          </div>
+
+          <div class="rcd__upsell-row" data-rcd-upsell-row style="display:flex; gap:10px; overflow:auto; padding-bottom:6px;">
+            {%- for p in collections[upsell_handle].products limit: upsell_limit -%}
+              <div class="rcd__upsell-card" style="min-width:260px; border:1px solid var(--rcd-border); border-radius:16px; padding:10px; display:flex; align-items:center; gap:10px;">
+                <a class="rcd__upsell-thumb" href="{{ p.url }}" style="width:44px; height:44px; border-radius:12px; overflow:hidden; background:#F3F4F6; flex:0 0 auto;">
+                  {% if p.featured_image %}
+                    <img
+                      src="{{ p.featured_image | img_url: '120x' }}"
+                      alt="{{ p.title | escape }}"
+                      loading="lazy"
+                      width="44"
+                      height="44"
+                      style="width:100%; height:100%; object-fit:cover; display:block;"
+                    >
+                  {% endif %}
+                </a>
+
+                <div class="rcd__upsell-info" style="flex:1 1 auto;">
+                  <a class="rcd__upsell-name" href="{{ p.url }}" style="font-weight:900; color: var(--rcd-text); text-decoration:none; display:block; line-height:1.15;">{{ p.title }}</a>
+                  <div class="rcd__upsell-price" style="margin-top:4px;">
+                    {% if p.selected_or_first_available_variant.compare_at_price > p.selected_or_first_available_variant.price %}
+                      <span style="color: var(--rcd-muted); text-decoration:line-through; font-weight:800; font-size:12px;">
+                        {{ p.selected_or_first_available_variant.compare_at_price | money }}
+                      </span>
+                    {% endif %}
+                    <span style="font-weight:950;">
+                      {{ p.selected_or_first_available_variant.price | money }}
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  class="rcd__upsell-add"
+                  type="button"
+                  data-rcd-upsell-add
+                  data-variant-id="{{ p.selected_or_first_available_variant.id }}"
+                  aria-label="Adicionar upsell"
+                  style="width:38px; height:38px; border-radius:12px; border:1px solid var(--rcd-border); background:#fff; font-weight:950; cursor:pointer;"
+                >
+                  <span aria-hidden="true">+</span>
+                </button>
+              </div>
+            {%- endfor -%}
+          </div>
+        </div>
+      {%- endif -%}
+    </div>
+
+    <footer class="rcd__footer">
+      <div class="rcd__totals">
+        <span class="rcd__totals-label">{{ section.settings.total_label | escape }}</span>
+        <strong class="rcd__totals-value" data-rcd-subtotal>{{ cart.total_price | money }}</strong>
+      </div>
+
+      <div class="rcd__actions">
+        <button type="button" class="rcd__btn rcd__btn--primary" data-rcd-request>
+          {{ section.settings.checkout_label | escape }}
+        </button>
+
+        <button type="button" class="rcd__btn rcd__btn--ghost" data-rcd-close>
+          {{ section.settings.viewcart_label | escape }}
+        </button>
+      </div>
+    </footer>
+  </aside>
+
+  <!-- MODAL: ESCOLHER VENDEDORA -->
+  <div class="rcd__vmodal" id="rcd-vmodal" aria-hidden="true">
+    <div class="rcd__vmodal-overlay" data-rcd-vclose></div>
+    <div class="rcd__vmodal-panel" role="dialog" aria-modal="true" aria-label="Escolher vendedora">
+      <button class="rcd__vmodal-close" type="button" data-rcd-vclose aria-label="Fechar">✕</button>
+      <div class="rcd__vmodal-title">{{ section.settings.modal_title | escape }}</div>
+      <div class="rcd__vmodal-sub">{{ section.settings.modal_subtitle | escape }}</div>
+
+      <div class="rcd__vendors">
+        {% assign vendor_blocks = section.blocks | where: 'type', 'vendor' %}
+        {% if vendor_blocks.size > 0 %}
+          {% for b in vendor_blocks %}
+            {%- assign initials = b.settings.name | default: 'V' | slice: 0, 1 | upcase -%}
+            <button
+              class="rcd__vendor"
+              type="button"
+              data-rcd-vendor
+              data-name="{{ b.settings.name | escape }}"
+              data-phone="{{ b.settings.phone | escape }}"
+              data-greet="{{ b.settings.greeting | escape }}"
+            >
+              <div class="rcd__vendor-left">
+                <div class="rcd__vendor-avatar" aria-hidden="true">
+                  {% if b.settings.photo != blank %}
+                    <img
+                      src="{{ b.settings.photo | img_url: '160x' }}"
+                      alt="{{ b.settings.name | escape }}"
+                      loading="lazy"
+                      width="44"
+                      height="44"
+                    >
+                  {% else %}
+                    {{ initials }}
+                  {% endif %}
+                </div>
+
+                <div class="rcd__vendor-meta">
+                  <span class="rcd__vendor-name">{{ b.settings.name | escape }}</span>
+                  {% if b.settings.note != blank %}
+                    <small>{{ b.settings.note | escape }}</small>
+                  {% endif %}
+                </div>
+              </div>
+
+              <span>WhatsApp →</span>
+            </button>
+          {% endfor %}
+        {% else %}
+          <div style="padding: 12px; border: 1px dashed var(--rcd-border); border-radius: 14px; color: var(--rcd-muted); font-weight: 800;">
+            Adicione blocos de “Vendedora” nas configurações da seção.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const root = document.getElementById('RoyalCartDrawer');
+      if(!root) return;
+
+      const minItems = Number(root.getAttribute('data-min-items') || '10');
+
+      // ===== Drawer open/close =====
+      const overlay = root.querySelector('[data-rcd-overlay]');
+      const panel = root.querySelector('.rcd__panel');
+
+      // ✅ Scroll lock robusto (iOS-safe)
+      const lockScroll = () => {
+        if(document.body.classList.contains('rcd-scroll-lock')) return;
+        const y = window.scrollY || window.pageYOffset || 0;
+        document.body.dataset.rcdScrollY = String(y);
+        document.body.classList.add('rcd-scroll-lock');
+        document.body.style.position = 'fixed';
+        document.body.style.top = (-y) + 'px';
+        document.body.style.left = '0';
+        document.body.style.right = '0';
+        document.body.style.width = '100%';
+      };
+      const unlockScroll = () => {
+        if(!document.body.classList.contains('rcd-scroll-lock')) return;
+        const y = Number(document.body.dataset.rcdScrollY || '0');
+        document.body.classList.remove('rcd-scroll-lock');
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        document.body.style.width = '';
+        delete document.body.dataset.rcdScrollY;
+        window.scrollTo(0, y);
+      };
+
+      const isOpen = () => root.classList.contains('is-open') || root.hasAttribute('open');
+
+      const openDrawer = () => {
+        root.classList.add('is-open');
+        root.setAttribute('open','');
+        if(panel) panel.setAttribute('aria-hidden','false');
+        lockScroll();
+      };
+
+      const closeDrawer = () => {
+        root.classList.remove('is-open');
+        root.removeAttribute('open');
+        if(panel) panel.setAttribute('aria-hidden','true');
+        unlockScroll();
+      };
+
+      window.RoyalCartDrawer = window.RoyalCartDrawer || {};
+      window.RoyalCartDrawer.open = openDrawer;
+      window.RoyalCartDrawer.close = closeDrawer;
+      window.RoyalCartDrawer.toggle = () => (isOpen() ? closeDrawer() : openDrawer());
+
+      if(overlay){
+        overlay.addEventListener('click', (e) => {
+          e.preventDefault();
+          closeDrawer();
+        });
+      }
+
+      root.addEventListener('click', (e) => {
+        const btn = e.target && e.target.closest ? e.target.closest('[data-rcd-close]') : null;
+        if(!btn) return;
+        e.preventDefault();
+        closeDrawer();
+      }, true);
+
+      // ✅ Template em JSON real (UTF-8)
+      const tplEl = root.querySelector('[data-rcd-template]');
+      let template = '';
+      try{
+        template = tplEl ? JSON.parse(tplEl.textContent || '""') : '';
+      }catch(e){ template = ''; }
+
+      const modal = root.querySelector('#rcd-vmodal');
+      const openBtn = root.querySelector('[data-rcd-request]');
+      const closeBtns = root.querySelectorAll('[data-rcd-vclose]');
+      const vendorBtns = root.querySelectorAll('[data-rcd-vendor]');
+
+      const minTextEl = root.querySelector('[data-rcd-mintext]');
+      const minBarEl = root.querySelector('[data-rcd-minbar]');
+      const itemsWrap = root.querySelector('[data-rcd-items]');
+      const subtotalEl = root.querySelector('[data-rcd-subtotal]');
+
+      const openModal = () => {
+        if(!modal) return;
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden','false');
+        lockScroll();
+      };
+      const closeModal = () => {
+        if(!modal) return;
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden','true');
+        if(!isOpen()) unlockScroll();
+      };
+
+      closeBtns.forEach(b => b.addEventListener('click', (e) => { e.preventDefault(); closeModal(); }));
+
+      if(openBtn){
+        openBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          openModal();
+        });
+      }
+
+      document.addEventListener('keydown', (e) => {
+        if(e.key !== 'Escape') return;
+        if(modal && modal.classList.contains('is-open')) closeModal();
+        if(isOpen()) closeDrawer();
+      });
+
+      const formatMoneyBRL = (cents) => {
+        try{
+          return (cents/100).toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
+        }catch(e){
+          return 'R$ ' + (cents/100).toFixed(2).replace('.',',');
+        }
+      };
+
+      const sumQty = (items=[]) => items.reduce((acc, it) => acc + (Number(it.quantity)||0), 0);
+
+      const updateMinUI = (qtyTotal) => {
+        if(!minBarEl || !minTextEl) return;
+
+        const progress = minItems > 0 ? Math.min(100, Math.round((qtyTotal * 100) / minItems)) : 0;
+        minBarEl.style.width = progress + '%';
+
+        const missing = Math.max(0, minItems - qtyTotal);
+
+        const emptyText = {{ section.settings.min_empty_text | json }};
+        const prefix = {{ section.settings.min_missing_prefix | json }};
+        const suffix = {{ section.settings.min_missing_suffix | json }};
+        const okText = {{ section.settings.min_ok_text | json }};
+
+        if(qtyTotal <= 0){
+          minTextEl.textContent = emptyText;
+        } else if(missing > 0){
+          minTextEl.textContent = (prefix || 'Faltam') + ' ' + missing + ' ' + (suffix || 'itens para atingir o pedido mínimo.');
+        } else {
+          minTextEl.textContent = okText;
+        }
+      };
+
+      const buildCartPermalink = (cart) => {
+        const items = (cart && cart.items) ? cart.items : [];
+        const parts = items
+          .filter(it => Number(it.quantity) > 0)
+          .map(it => (it.id + ':' + (Number(it.quantity)||1)));
+
+        if(!parts.length) return window.location.origin + '/cart';
+        return window.location.origin + '/cart/' + parts.join(',');
+      };
+
+      const E_RECEIPT = "\uD83E\uDDFE"; // 🧾
+      const E_MONEY   = "\uD83D\uDCB0"; // 💰
+      const E_LINK    = "\uD83D\uDD17"; // 🔗
+
+      // ✅ fetch com timeout p/ evitar travar em alguns aparelhos
+      const fetchJSONWithTimeout = async (url, ms) => {
+        const ctrl = new AbortController();
+        const t = setTimeout(() => ctrl.abort(), ms || 9000);
+        try{
+          const r = await fetch(url, { credentials: 'same-origin', signal: ctrl.signal });
+          return await r.json();
+        } finally {
+          clearTimeout(t);
+        }
+      };
+
+      const buildMessage = async (vendorName, greet) => {
+        const cart = await fetchJSONWithTimeout('/cart.js', 9000);
+
+        const qtyTotal = sumQty(cart.items || []);
+        const total = formatMoneyBRL(cart.total_price || 0);
+
+        updateMinUI(qtyTotal);
+
+        const lines = (cart.items || []).map(it => {
+          const title = it.product_title || it.title || 'Produto';
+          const variant = (it.variant_title && it.variant_title !== 'Default Title') ? (' (' + it.variant_title + ')') : '';
+          const q = it.quantity || 1;
+          return `• ${q}x ${title}${variant}`;
+        });
+
+        const cartUrl = buildCartPermalink(cart);
+
+        if(template && String(template).trim().length){
+          return String(template)
+            .replaceAll('{VEND}', vendorName || '')
+            .replaceAll('{QTD}', String(qtyTotal))
+            .replaceAll('{TOTAL}', total)
+            .replaceAll('{ITENS}', lines.join('\n'))
+            .replaceAll('{LINK}', cartUrl);
+        }
+
+        const hello = (greet && greet.trim().length) ? greet.trim() : `Olá ${vendorName || ''}!`;
+        return `${hello}\n\nQuero fazer um orçamento.\n\n${E_RECEIPT} Itens (${qtyTotal}):\n${lines.join('\n')}\n\n${E_MONEY} Total: ${total}\n${E_LINK} Carrinho do pedido: ${cartUrl}`;
+      };
+
+      const normalizePhone = (s) => (String(s || '').replace(/\D/g,''));
+
+      // ✅ Abrir WhatsApp sem ser bloqueado (pré-open no gesto do clique)
+      const openWhatsAppSafe = (phone, msg) => {
+        const url = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(msg);
+
+        // tenta abrir em nova aba (pré-aberta no clique)
+        // se falhar, abre no mesmo tab (location.href)
+        try{
+          const w = window.open('about:blank', '_blank', 'noopener');
+          if(w){
+            w.location.href = url;
+            return true;
+          }
+        }catch(e){}
+
+        window.location.href = url;
+        return false;
+      };
+
+      vendorBtns.forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          // ✅ evita propagação/ghost clicks no mobile
+          if(e){
+            e.preventDefault();
+            e.stopPropagation();
+          }
+
+          const name = btn.getAttribute('data-name') || 'Vendedora';
+          const phoneRaw = btn.getAttribute('data-phone') || '';
+          const greet = btn.getAttribute('data-greet') || '';
+          const phone = normalizePhone(phoneRaw);
+
+          if(!phone){
+            alert('Número de WhatsApp inválido. Configure o telefone no bloco da vendedora.');
+            return;
+          }
+
+          // UI loading
+          btn.disabled = true;
+          const originalText = btn.innerHTML;
+          btn.innerHTML = '<div class="rcd__vendor-left"><div class="rcd__vendor-meta"><span class="rcd__vendor-name">Preparando mensagem...</span><small>Aguarde</small></div></div><span>⏳</span>';
+
+          // ✅ pré-abre janela IMEDIATAMENTE para garantir user gesture
+          let preWin = null;
+          try{
+            preWin = window.open('about:blank', '_blank', 'noopener');
+          }catch(err){
+            preWin = null;
+          }
+
+          try{
+            const msg = await buildMessage(name, greet);
+
+            // só fecha modal quando já temos a msg
+            closeModal();
+
+            const url = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(msg);
+
+            // se a pré-janela foi aberta, navega nela (não bloqueia)
+            if(preWin){
+              try{
+                preWin.location.href = url;
+              }catch(e2){
+                // fallback
+                window.location.href = url;
+              }
+            }else{
+              // fallback: tenta abrir direto, se bloquear vai same-tab
+              try{
+                const w2 = window.open(url, '_blank', 'noopener');
+                if(!w2) window.location.href = url;
+              }catch(e3){
+                window.location.href = url;
+              }
+            }
+          }catch(err){
+            console.error(err);
+            // se abriu uma aba em branco e deu erro, fecha ela
+            try{ if(preWin) preWin.close(); }catch(e4){}
+            alert('Não consegui montar a mensagem do orçamento. Tente novamente.');
+          }finally{
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+          }
+        }, { capture: true });
+      });
+
+      // ===== Carrinho (change/add/remove) + aviso discreto sem estoque =====
+      const showQtyNote = (line, text) => {
+        const note = root.querySelector('[data-rcd-qty-note][data-line="'+ line +'"]');
+        if(!note) return;
+        note.textContent = text || 'Sem mais disponível nessa numeração.';
+        note.classList.add('is-show');
+        clearTimeout(note._t);
+        note._t = setTimeout(() => note.classList.remove('is-show'), 2200);
+      };
+
+      const postJSON = async (url, data) => {
+        const r = await fetch(url, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(data || {})
+        });
+        if(!r.ok) throw new Error('Request failed: ' + r.status);
+        return await r.json();
+      };
+
+      const fetchCart = async () => {
+        const r = await fetch('/cart.js', { credentials: 'same-origin' });
+        return await r.json();
+      };
+
+      const escapeHTML = (s) => String(s || '')
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+
+      const renderItems = (cart) => {
+        if(!itemsWrap) return;
+
+        if(!cart || !cart.items || cart.items.length === 0){
+          itemsWrap.innerHTML = `
+            <div class="rcd__empty">
+              <p class="rcd__empty-title" style="font-weight:950; margin: 14px 0 4px;">${escapeHTML({{ section.settings.empty_title | json }})}</p>
+              <p class="rcd__empty-text" style="margin:0; color: var(--rcd-muted); font-weight:700;">${escapeHTML({{ section.settings.empty_text | json }})}</p>
+              <a class="rcd__btn rcd__btn--ghost" href="{{ routes.all_products_collection_url }}" style="margin-top:12px;">
+                ${escapeHTML({{ section.settings.empty_cta | json }})}
+              </a>
+            </div>
+          `;
+          return;
+        }
+
+        const html = cart.items.map((it, idx) => {
+          const line = idx + 1;
+          const title = escapeHTML(it.product_title || it.title || 'Produto');
+          const url = it.url || '#';
+          const variantTitle = (it.variant_title && it.variant_title !== 'Default Title') ? escapeHTML(it.variant_title) : '';
+          const img = it.image ? it.image.replace(/(\.[a-zA-Z]+)$/, '_160x$1') : '';
+
+          // ✅ preço UNITÁRIO do item
+          const finalUnit = formatMoneyBRL(it.final_price || 0);
+          const compareUnit = (it.compare_at_price && it.compare_at_price > it.final_price) ? formatMoneyBRL(it.compare_at_price) : '';
+
+          return `
+            <article class="rcd__item" data-line="${line}">
+              <a class="rcd__thumb" href="${url}">
+                ${img ? `<img src="${img}" alt="${title}" loading="lazy" width="52" height="52">` : ``}
+              </a>
+
+              <div class="rcd__meta">
+                <div class="rcd__row1">
+                  <a class="rcd__titlelink" href="${url}">${title}</a>
+                  ${variantTitle ? `<span class="rcd__vsep" aria-hidden="true">•</span><span class="rcd__variant-inline">${variantTitle}</span>` : ``}
+                </div>
+
+                <div class="rcd__row2">
+                  <div class="rcd__price" aria-label="Preço do item">
+                    ${compareUnit ? `<span class="rcd__price-compare">${compareUnit}</span>` : ``}
+                    <span class="rcd__price-final">${finalUnit}</span>
+                  </div>
+
+                  <div class="rcd__controls">
+                    <div class="rcd__qty" role="group" aria-label="Quantidade">
+                      <button class="rcd__qty-btn" type="button" data-rcd-qty-minus data-line="${line}" aria-label="Diminuir">−</button>
+                      <input class="rcd__qty-input" type="number" min="0" value="${Number(it.quantity)||0}" inputmode="numeric" data-rcd-qty-input data-line="${line}" aria-label="Quantidade">
+                      <button class="rcd__qty-btn" type="button" data-rcd-qty-plus data-line="${line}" aria-label="Aumentar">+</button>
+                    </div>
+
+                    <button class="rcd__trash" type="button" data-rcd-remove data-line="${line}" aria-label="Remover">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M3 6h18"></path>
+                        <path d="M8 6V4h8v2"></path>
+                        <path d="M19 6l-1 14H6L5 6"></path>
+                        <path d="M10 11v6"></path>
+                        <path d="M14 11v6"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="rcd__qty-note" data-rcd-qty-note data-line="${line}">Sem mais disponível nessa numeração.</div>
+            </article>
+          `;
+        }).join('');
+
+        itemsWrap.innerHTML = html;
+      };
+
+      const refreshUIFromCart = (cart) => {
+        updateMinUI(sumQty(cart.items || []));
+        if(subtotalEl) subtotalEl.textContent = formatMoneyBRL(cart.total_price || 0);
+        renderItems(cart);
+      };
+
+      const setLineQty = async (line, nextQty, requestedFromPlus) => {
+        const qty = Math.max(0, Number(nextQty) || 0);
+
+        await postJSON('/cart/change.js', { line: Number(line), quantity: qty });
+        const cart = await fetchCart();
+
+        if(requestedFromPlus){
+          const it = (cart.items || [])[Number(line)-1];
+          const gotQty = it ? Number(it.quantity)||0 : 0;
+          if(gotQty < qty){
+            showQtyNote(line, 'Sem mais disponível nessa numeração.');
+          }
+        }
+
+        refreshUIFromCart(cart);
+      };
+
+      const removeLine = async (line) => {
+        await postJSON('/cart/change.js', { line: Number(line), quantity: 0 });
+        const cart = await fetchCart();
+        refreshUIFromCart(cart);
+      };
+
+      const addUpsell = async (variantId) => {
+        await postJSON('/cart/add.js', { id: Number(variantId), quantity: 1 });
+        const cart = await fetchCart();
+        refreshUIFromCart(cart);
+      };
+
+      root.addEventListener('click', async (e) => {
+        const plus = e.target.closest && e.target.closest('[data-rcd-qty-plus]');
+        const minus = e.target.closest && e.target.closest('[data-rcd-qty-minus]');
+        const rem = e.target.closest && e.target.closest('[data-rcd-remove]');
+        const ups = e.target.closest && e.target.closest('[data-rcd-upsell-add]');
+
+        try{
+          if(plus){
+            e.preventDefault();
+            const line = plus.getAttribute('data-line');
+            const input = root.querySelector('[data-rcd-qty-input][data-line="'+ line +'"]');
+            const cur = input ? Number(input.value)||0 : 0;
+            const next = cur + 1;
+
+            plus.disabled = true;
+            await setLineQty(line, next, true);
+            plus.disabled = false;
+            return;
+          }
+
+          if(minus){
+            e.preventDefault();
+            const line = minus.getAttribute('data-line');
+            const input = root.querySelector('[data-rcd-qty-input][data-line="'+ line +'"]');
+            const cur = input ? Number(input.value)||0 : 0;
+            const next = Math.max(0, cur - 1);
+
+            minus.disabled = true;
+            await setLineQty(line, next, false);
+            minus.disabled = false;
+            return;
+          }
+
+          if(rem){
+            e.preventDefault();
+            const line = rem.getAttribute('data-line');
+            rem.disabled = true;
+            await removeLine(line);
+            rem.disabled = false;
+            return;
+          }
+
+          if(ups){
+            e.preventDefault();
+            const vid = ups.getAttribute('data-variant-id');
+            if(!vid) return;
+            ups.disabled = true;
+            await addUpsell(vid);
+            ups.disabled = false;
+            return;
+          }
+        }catch(err){
+          console.error(err);
+          try{
+            const cart = await fetchCart();
+            refreshUIFromCart(cart);
+          }catch(e2){}
+          if(plus){
+            showQtyNote(plus.getAttribute('data-line'), 'Não foi possível aumentar. Pode estar sem estoque.');
+          }
+        }finally{
+          if(plus) plus.disabled = false;
+          if(minus) minus.disabled = false;
+        }
+      }, true);
+
+      root.addEventListener('change', async (e) => {
+        const input = e.target && e.target.matches ? (e.target.matches('[data-rcd-qty-input]') ? e.target : null) : null;
+        if(!input) return;
+
+        const line = input.getAttribute('data-line');
+        const next = Number(input.value) || 0;
+
+        try{
+          input.disabled = true;
+          await setLineQty(line, next, false);
+        }catch(err){
+          console.error(err);
+          try{
+            const cart = await fetchCart();
+            refreshUIFromCart(cart);
+          }catch(e2){}
+        }finally{
+          input.disabled = false;
+        }
+      });
+
+      const obs = new MutationObserver(async () => {
+        try{
+          const cart = await fetchCart();
+          refreshUIFromCart(cart);
+        }catch(e){}
+      });
+      obs.observe(root, { attributes: true, attributeFilter: ['class','open'] });
+
+      (async () => {
+        try{
+          const cart = await fetchCart();
+          refreshUIFromCart(cart);
+        }catch(e){}
+      })();
+    })();
+  </script>
+</section>
+
+{% schema %}
+{
+  "name": "Ajax Cart Drawer",
+  "settings": [
+    { "type": "text", "id": "title", "label": "Título", "default": "Seu carrinho" },
+    { "type": "text", "id": "subtitle", "label": "Subtítulo", "default": "Finalize seu pedido como orçamento via WhatsApp" },
+
+    { "type": "header", "content": "Pedido mínimo por quantidade" },
+    { "type": "range", "id": "min_items", "label": "Mínimo de itens no carrinho", "min": 1, "max": 50, "step": 1, "default": 10 },
+    { "type": "text", "id": "min_empty_text", "label": "Texto quando carrinho vazio", "default": "Adicione produtos para atingir o mínimo de 10 itens." },
+    { "type": "text", "id": "min_missing_prefix", "label": "Texto (prefixo) faltando itens", "default": "Faltam" },
+    { "type": "text", "id": "min_missing_suffix", "label": "Texto (sufixo) faltando itens", "default": "itens para atingir o pedido mínimo." },
+    { "type": "text", "id": "min_ok_text", "label": "Texto quando mínimo atingido", "default": "Pedido mínimo atingido ✅ Escolha uma vendedora para enviar o orçamento." },
+
+    { "type": "header", "content": "Carrinho vazio" },
+    { "type": "text", "id": "empty_title", "label": "Título carrinho vazio", "default": "Seu carrinho está vazio" },
+    { "type": "text", "id": "empty_text", "label": "Texto carrinho vazio", "default": "Adicione produtos para ver o resumo aqui." },
+    { "type": "text", "id": "empty_cta", "label": "CTA carrinho vazio", "default": "Ver produtos" },
+
+    { "type": "header", "content": "Upsell (opcional)" },
+    { "type": "text", "id": "upsell_title", "label": "Título Upsell", "default": "Leve junto com" },
+    { "type": "text", "id": "upsell_badge", "label": "Badge Upsell", "default": "OFERTA" },
+    { "type": "collection", "id": "upsell_collection", "label": "Coleção de Upsell" },
+    { "type": "range", "id": "upsell_limit", "min": 3, "max": 10, "step": 1, "label": "Qtd itens Upsell", "default": 6 },
+
+    { "type": "header", "content": "Rodapé" },
+    { "type": "text", "id": "total_label", "label": "Label Total", "default": "Total:" },
+    { "type": "text", "id": "checkout_label", "label": "Botão (abre modal)", "default": "Finalizar compra" },
+    { "type": "text", "id": "viewcart_label", "label": "Botão secundário", "default": "Continuar comprando" },
+
+    { "type": "header", "content": "Modal de vendedoras" },
+    { "type": "text", "id": "modal_title", "label": "Título do modal", "default": "Escolha uma vendedora" },
+    { "type": "text", "id": "modal_subtitle", "label": "Subtítulo do modal", "default": "Selecione para encaminhar seu orçamento no WhatsApp." },
+
+    {
+      "type": "textarea",
+      "id": "message_template",
+      "label": "Template da mensagem (opcional)",
+      "default": "Olá {VEND}!\n\nQuero fazer um orçamento.\n\n🧾 Itens ({QTD}):\n{ITENS}\n\n💰 Total: {TOTAL}\n🔗 Carrinho: {LINK}\n\nPode me ajudar?",
+      "info": "Use: {VEND} {QTD} {TOTAL} {ITENS} {LINK}"
+    },
+
+    { "type": "header", "content": "Cores & Aparência" },
+    { "type": "color", "id": "panel_bg", "label": "Fundo do drawer", "default": "#FFFFFF" },
+    { "type": "color", "id": "text_color", "label": "Texto principal", "default": "#111827" },
+    { "type": "color", "id": "muted_color", "label": "Texto secundário", "default": "#6B7280" },
+    { "type": "color", "id": "border_color", "label": "Bordas", "default": "#E5E7EB" },
+
+    { "type": "range", "id": "overlay_opacity", "label": "Overlay (opacidade %)", "min": 0, "max": 80, "step": 5, "default": 45 },
+
+    { "type": "header", "content": "Botão Finalizar" },
+    { "type": "color", "id": "primary_bg", "label": "Fundo", "default": "#00A86B" },
+    { "type": "color", "id": "primary_text", "label": "Texto", "default": "#FFFFFF" },
+    { "type": "color", "id": "primary_bg_hover", "label": "Hover", "default": "#008A58" },
+
+    { "type": "header", "content": "Botão X (Fechar)" },
+    { "type": "color", "id": "close_icon", "label": "Cor do X", "default": "#111827" },
+    { "type": "color", "id": "close_bg", "label": "Fundo do botão X", "default": "#F3F4F6" },
+    { "type": "color", "id": "close_bg_hover", "label": "Fundo do botão X (hover)", "default": "#E5E7EB" },
+
+    { "type": "header", "content": "Botão secundário (Ghost)" },
+    { "type": "color", "id": "ghost_bg", "label": "Fundo", "default": "#FFFFFF" },
+    { "type": "color", "id": "ghost_text", "label": "Texto", "default": "#111827" },
+    { "type": "color", "id": "ghost_border", "label": "Borda", "default": "#D1D5DB" },
+
+    { "type": "header", "content": "Modal & Chips vendedoras" },
+    { "type": "color", "id": "modal_bg", "label": "Fundo do modal", "default": "#FFFFFF" },
+    { "type": "color", "id": "modal_title_color", "label": "Cor do título do modal", "default": "#111827" },
+    { "type": "color", "id": "vendor_chip_bg", "label": "Chip: fundo", "default": "#F3F4F6" },
+    { "type": "color", "id": "vendor_chip_text", "label": "Chip: texto", "default": "#111827" },
+    { "type": "color", "id": "vendor_chip_border", "label": "Chip: borda", "default": "#E5E7EB" },
+    { "type": "color", "id": "vendor_chip_hover", "label": "Chip: hover", "default": "#E5E7EB" }
+  ],
+  "blocks": [
+    {
+      "type": "vendor",
+      "name": "Vendedora",
+      "settings": [
+        { "type": "image_picker", "id": "photo", "label": "Foto/Avatar (opcional)" },
+        { "type": "text", "id": "name", "label": "Nome", "default": "Vendedora 1" },
+        { "type": "text", "id": "phone", "label": "WhatsApp (com DDI/DD)", "default": "5562999999999", "info": "Somente números. Ex: 5562999999999" },
+        { "type": "text", "id": "note", "label": "Observação (opcional)", "default": "Atendimento rápido" },
+        { "type": "text", "id": "greeting", "label": "Saudação (opcional)", "default": "Olá! Tudo bem? 😊" }
+      ]
+    }
+  ],
+  "max_blocks": 10,
+  "presets": [
+    { "name": "Ajax Cart Drawer" }
+  ]
+}
+{% endschema %}
