@@ -362,7 +362,7 @@
         <input type="hidden" name="id" data-sku="{{ selected_variant.sku }}" value="{{ selected_variant.id }}">
       {%- endunless -%}
 
-      <div class="product-form__info-list">
+      <div class="product-form__info-list" style="margin-top: 24px; margin-bottom: 20px;">
         <div class="product-form__info-item">
           <span class="product-form__info-title text--strong">{{ 'product.form.price' | t }}:</span>
 
@@ -477,49 +477,6 @@
       {%- if section.settings.mostrar_campo_personalizado -%}      
       {% render "campo-de-personalizacao" %}
       {%- endif -%}
-      
-      <!--Código de colocar pessoas que estão acessando a pagina no momento colocar na pagina do produto-->
-
-	<div style="display: flex; margin-bottom: 17px;align-items: center;">
-		<div class="olho"></div>
-			<style>
-				.olho {
-					background: #ed5050;
-					border-radius: 50%;
-					margin: 0 15px;
-					height: 10px;
-					width: 10px;
-
-					box-shadow: 0 0 0 0 rgba(0, 0, 0, 1);
-					transform: scale(1);
-					animation: pulse 2s infinite;
-				}
-
-				@keyframes pulse {
-					0% {
-						transform: scale(0.95);
-						box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
-					}
-
-					70% {
-						transform: scale(1);
-						box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
-					}
-
-					100% {
-						transform: scale(0.95);
-						box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
-					}
-				}
-			</style>
-
-			  <p style="font-size: 16px; margin-top:3%"><b><span class="viwer_pro" ></span> pessoas</b> estão vendo esse produto agora</p>
-			  <script>
-				  $( ".viwer_pro" ).text(function(index) {
-					return Math.floor(Math.random(20) * 49) + 1;
-				  });
-			  </script>
-	</div>
       
     <!--INICIO FRETE OPÇÃO 01-->
      
@@ -707,7 +664,7 @@
     <!--FIM FRETE OPÇÃO 02-->
                  
     <div id="loader" class="loader"></div>
-      <div class="product-form__payment-container">
+      <div class="product-form__payment-container" style="margin-top: 28px;">
         {%- if product.template_suffix != 'contact' -%}
           {%- if selected_variant.available -%}
             {%- if product.template_suffix == 'pre-order' -%}
