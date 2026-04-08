@@ -225,12 +225,7 @@
 
     <span class="loading-bar"></span>
 
-    <!-- Shipping Banner (Fixed Top) -->
-    <div class="shipping-banner">
-      📦 FRETE GRÁTIS a partir de R$ 599,99
-    </div>
-
-    {% section 'announcement-bar' %}
+{% section 'announcement-bar' %}
 
     {%- unless request.page_type == 'cart' -%}
       {%- comment -%}As required by Shopify rules, popup must be removed on cart page to remove distraction{%- endcomment -%}

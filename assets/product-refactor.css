@@ -2,28 +2,7 @@
    PRODUCT PAGE REFACTORED - GLOBAL STYLES
    ============================================ */
 
-/* SHIPPING BANNER (Top) */
-.shipping-banner {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 36px;
-  background: white;
-  border-bottom: 1px solid #EEEEEE;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  color: #333333;
-  z-index: 999;
-  font-weight: 500;
-}
 
-/* Adjust page to account for top banner */
-body {
-  padding-top: 36px;
-}
 
 /* ============================================
    PRODUCT CONTAINER - RESPONSIVE
@@ -41,7 +20,7 @@ body {
 .product-gallery-wrapper {
   background: white;
   position: sticky;
-  top: 36px;
+  top: 0;
 }
 
 .product-info-wrapper {
@@ -69,9 +48,6 @@ body {
     padding-bottom: 100px;
   }
 
-  body {
-    padding-top: 36px;
-  }
 }
 
 /* ============================================
