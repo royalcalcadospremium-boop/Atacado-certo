@@ -1,8 +1,9 @@
 {% comment %}
-Royal • Collection Gummy Style (v1.2.8) — AJAX CART FIX
-- ✅ Correção de transbordamento no Mobile.
-- ✅ AJAX Cart: Abre o carrinho lateral do tema em vez de redirecionar.
-- ✅ Download direto e Modal Quick Buy integrados.
+Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
+- ✅ GRID MOBILE: Fix de transbordamento e cards alinhados.
+- ✅ DOWNLOAD PRO: Gera fotos com overlay (Título + Ref + Numeração).
+- ✅ QUICK BUY: Modal Premium integrado ao ícone de sacola.
+- ✅ PAGINAÇÃO: Fixo em 10 produtos para performance de download.
 {% endcomment %}
 
 {%- assign items_per_page = 10 -%}
@@ -16,14 +17,6 @@ Royal • Collection Gummy Style (v1.2.8) — AJAX CART FIX
         {%- break -%}
       {%- endunless -%}
     {%- endfor -%}
-  {%- elsif section.settings.filter_type == 'group' -%}
-    {%- for tag in collection.all_tags -%}
-      {%- assign tag_parts = tag | split: '_' -%}
-      {%- if tag_parts.size >= 2 -%}
-        {%- assign has_visible_tags = true -%}
-        {%- break -%}
-      {%- endif -%}
-    {%- endfor -%}
   {%- endif -%}
 {%- endif -%}
 
@@ -31,74 +24,109 @@ Royal • Collection Gummy Style (v1.2.8) — AJAX CART FIX
 {%- assign has_filters = false -%}
 {%- if quick_links_menu.links.size > 0 or has_visible_tags -%}{%- assign has_filters = true -%}{%- endif -%}
 
-<section id="royal-collection-gummy-{{ section.id }}"
-  class="royal-section-fix"
-  data-section-id="{{ section.id }}"
-  data-section-type="collection">
+<section id="royal-collection-gummy-{{ section.id }}" class="royal-section-fix" data-section-id="{{ section.id }}" data-section-type="collection">
 
   <style>
-    #royal-collection-gummy-{{ section.id }}, 
-    #royal-collection-gummy-{{ section.id }} * { box-sizing: border-box; }
+    #royal-collection-gummy-{{ section.id }}, #royal-collection-gummy-{{ section.id }} * { box-sizing: border-box; }
 
     #royal-collection-gummy-{{ section.id }}{
       --bg: {{ section.settings.bg | default: '#FFFFFF' }};
       --card: {{ section.settings.card_bg | default: '#ffffff' }};
       --primary: {{ section.settings.primary | default: '#111111' }};
       --green: {{ section.settings.green | default: '#B6E35C' }};
+      --text: {{ section.settings.text | default: '#333333' }};
       --radius: {{ section.settings.card_radius | default: 6 }}px;
-      --gap-d: 24px;
-      --gap-m: 10px;
       background: var(--bg);
       padding: 18px 0 34px;
       overflow-x: hidden;
     }
 
-    .rc-container{ max-width: 1320px; margin: 0 auto; padding: 0 16px; width: 100%; }
-    .rc-title{ color: var(--primary); font-weight: 540; font-size: clamp(24px, 3vw, 40px); margin: 6px 0 14px; letter-spacing: -0.02em; }
-    .rc-layout{ display: grid; grid-template-columns: {% if has_filters %}280px 1fr{% else %}1fr{% endif %}; gap: 22px; align-items: start; }
+    #royal-collection-gummy-{{ section.id }} .rc-container{ max-width: 1320px; margin: 0 auto; padding: 0 16px; width: 100%; }
+    #royal-collection-gummy-{{ section.id }} .rc-title{ color: var(--primary); font-weight: 700; font-size: clamp(22px, 3vw, 36px); margin: 10px 0; }
 
-    .rc-grid{ display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gap-d); width: 100%; }
-
-    @media (max-width: 1200px){ .rc-grid{ grid-template-columns: repeat(3, 1fr); } }
-
-    @media (max-width: 1000px){
-      .rc-layout{ grid-template-columns: 1fr; }
-      .rc-sidebar{ display:none; }
-      .rc-container{ padding: 0 10px; }
-      .rc-grid{ grid-template-columns: repeat(2, 1fr); gap: var(--gap-m); }
+    #royal-collection-gummy-{{ section.id }} .rc-layout{
+      display: grid;
+      grid-template-columns: {% if has_filters %}260px 1fr{% else %}1fr{% endif %};
+      gap: 24px;
+      align-items: start;
     }
 
-    .rc-card{ background: var(--card); border-radius: var(--radius); position: relative; overflow: hidden; display: flex; flex-direction: column; border: 1px solid #ececec; width: 100%; transition: transform .2s ease; }
-    .rc-media{ display: block; width: 100%; position: relative; aspect-ratio: 1/1; overflow: hidden; }
-    .rc-media img{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+    /* GRID CORE */
+    #royal-collection-gummy-{{ section.id }} .rc-grid{
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      width: 100%;
+    }
 
-    .rc-name{ font-size: 13px !important; font-weight: 600 !important; line-height: 1.3; margin: 8px 0 4px; color: #333; text-decoration: none; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .rc-price-value{ font-size: 15px !important; font-weight: 700 !important; color: #333; }
-    .rc-badge{ position: absolute; top: 8px; left: 8px; background: #1a1a1a; color: #fff; border-radius: 2px; font-size: 9px; padding: 3px 7px; z-index: 3; font-weight: 700; }
+    @media (max-width: 1100px){ #royal-collection-gummy-{{ section.id }} .rc-grid{ grid-template-columns: repeat(3, 1fr); } }
 
-    .nb-bag { position: absolute; bottom: 8px; right: 8px; background: #fff; border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 5px rgba(0,0,0,.16); z-index: 4; cursor: pointer; }
+    @media (max-width: 800px){
+      #royal-collection-gummy-{{ section.id }} .rc-layout{ grid-template-columns: 1fr; }
+      #royal-collection-gummy-{{ section.id }} .rc-sidebar{ display:none; }
+      #royal-collection-gummy-{{ section.id }} .rc-grid{ grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      #royal-collection-gummy-{{ section.id }} .rc-container{ padding: 0 10px; }
+    }
 
-    .rc-toolbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; margin-bottom: 10px; }
-    .rc-select { border: 1.5px solid #333; border-radius: 4px; padding: 5px 10px; font-size: 13px; font-weight: 600; }
-    .rc-select select { border: none; outline: none; background: transparent; cursor: pointer; }
+    /* CARDS */
+    #royal-collection-gummy-{{ section.id }} .rc-card{
+      background: var(--card);
+      border-radius: var(--radius);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #f0f0f0;
+      transition: transform 0.2s ease;
+    }
 
-    .rc-pagination { display: flex; justify-content: center; gap: 8px; padding: 30px 0; flex-wrap: wrap; }
-    .rc-page { min-width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border: 1px solid #ddd; border-radius: 4px; text-decoration: none; color: #333; font-size: 13px; }
-    .rc-page[aria-current="page"] { background: #333; color: #fff; border-color: #333; }
+    #royal-collection-gummy-{{ section.id }} .rc-media{
+      display: block; width: 100%; aspect-ratio: 1/1; position: relative; background: #f9f9f9;
+    }
+    #royal-collection-gummy-{{ section.id }} .rc-media img{
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
+    }
 
-    .rc-zip-btn { background: #fff; border: 1.5px solid #333; padding: 12px 24px; border-radius: 4px; font-weight: 700; font-size: 12px; cursor: pointer; text-transform: uppercase; transition: background 0.2s; }
-    .rc-zip-btn:hover { background: #f5f5f5; }
+    #royal-collection-gummy-{{ section.id }} .rc-name{
+      font-size: 13px; font-weight: 600; color: var(--text); text-decoration: none;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+      height: 34px; margin: 8px 0 4px; line-height: 1.3;
+    }
+
+    #royal-collection-gummy-{{ section.id }} .rc-price-value{ font-size: 15px; font-weight: 800; color: #111; }
+
+    #royal-collection-gummy-{{ section.id }} .rc-badge{
+      position: absolute; top: 8px; left: 8px; background: #1a1a1a; color: #fff;
+      border-radius: 2px; font-size: 10px; font-weight: 700; padding: 3px 6px; z-index: 2;
+    }
+
+    .nb-bag {
+      position: absolute; bottom: 8px; right: 8px; background: #fff; border: none;
+      border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; z-index: 3;
+    }
+
+    /* DOWNLOAD AREA */
+    .rc-pagination-wrapper { margin-top: 40px; text-align: center; border-top: 1px solid #eee; padding-top: 20px; }
+    .rc-zip-btn {
+      background: #111; color: #fff; border: none; padding: 14px 28px; border-radius: 4px;
+      font-weight: 700; font-size: 13px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .rc-zip-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    #zip-status { font-size: 12px; font-weight: 600; color: #555; margin-top: 10px; }
+
+    /* PAGINAÇÃO */
+    .rc-pagination { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
+    .rc-page { 
+      min-width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; 
+      border: 1px solid #ddd; border-radius: 4px; text-decoration: none; color: #111; font-weight: 600; font-size: 13px;
+    }
+    .rc-page[aria-current="page"] { background: #111; color: #fff; border-color: #111; }
 
     /* MODAL QUICK BUY */
-    .nb-qb-wrap { position: fixed; inset: 0; z-index: 999999; display: none; align-items: flex-end; justify-content: center; padding-bottom: 0; }
+    .nb-qb-wrap { position: fixed; inset: 0; z-index: 999999; display: none; align-items: flex-end; justify-content: center; background: rgba(0,0,0,0.5); }
     .nb-qb-wrap.nb-open { display: flex; }
-    .nb-qb-modal { background: #fff; width: 100%; max-width: 500px; border-radius: 14px 14px 0 0; position: relative; box-shadow: 0 -5px 25px rgba(0,0,0,0.2); animation: slideUp 0.3s ease; }
-    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-    @media(min-width: 768px){ .nb-qb-modal { border-radius: 14px; margin-bottom: 30px; } }
-    
-    .nb-sz-btn { padding: 10px; border: 1px solid #ddd; background: #fff; border-radius: 4px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
-    .nb-sz-btn.selected { border-color: #000; background: #000; color: #fff; }
-    .nb-sz-btn.nb-unavail { opacity: 0.4; cursor: not-allowed; }
+    .nb-qb-modal { background: #fff; width: 100%; max-width: 500px; border-radius: 16px 16px 0 0; padding: 20px; position: relative; }
   </style>
 
   <div class="rc-container">
@@ -107,58 +135,46 @@ Royal • Collection Gummy Style (v1.2.8) — AJAX CART FIX
     <div class="rc-layout">
       {%- if has_filters -%}
       <aside class="rc-sidebar">
-        <div style="font-weight: 700; margin-bottom: 15px; text-transform: uppercase; font-size: 11px; letter-spacing: 1px;">Categorias</div>
+        <div style="font-weight: 800; font-size: 12px; margin-bottom: 15px; border-bottom: 2px solid #111; padding-bottom: 5px;">CATEGORIAS</div>
         {%- for link in quick_links_menu.links -%}
-          <a href="{{ link.url }}" style="display: block; padding: 6px 0; color: #555; text-decoration: none; font-size: 14px;">{{ link.title }}</a>
+          <a href="{{ link.url }}" style="display: block; padding: 10px 0; color: #333; text-decoration: none; font-size: 14px; border-bottom: 1px solid #f5f5f5;">{{ link.title }}</a>
         {%- endfor -%}
       </aside>
       {%- endif -%}
 
       <main>
         {%- paginate collection.products by items_per_page -%}
-          <div class="rc-toolbar">
-            <span style="font-size: 11px; font-weight: 700; color: #777;">{{ collection.products_count }} ITENS</span>
-            <div class="rc-select">
-              <select data-rc-sort>
-                {%- for option in collection.sort_options -%}
-                  <option value="{{ option.value }}" {% if option.value == collection.sort_by %}selected{% endif %}>{{ option.name }}</option>
-                {%- endfor -%}
-              </select>
-            </div>
-          </div>
-
           <div class="rc-grid">
             {%- for product in collection.products -%}
               {%- assign v = product.selected_or_first_available_variant -%}
               <article class="rc-card" data-product-id="{{ product.id }}">
                 {%- if v.compare_at_price > v.price -%}
-                  {%- assign pct = v.compare_at_price | minus: v.price | times: 100.0 | divided_by: v.compare_at_price | round -%}
-                  <div class="rc-badge">-{{ pct }}%</div>
+                  <div class="rc-badge">OFERTA</div>
                 {%- endif -%}
 
                 <a class="rc-media" href="{{ product.url }}">
-                  <img src="{{ product.featured_image | img_url: '600x' }}" alt="{{ product.title }}" loading="lazy">
-                  <button class="nb-bag" type="button" onclick="event.preventDefault(); nbQB('{{ product.id }}')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                  <img src="{{ product.featured_image | img_url: '600x600', crop: 'center' }}" alt="{{ product.title }}" crossOrigin="anonymous">
+                  <button class="nb-bag" type="button" onclick="event.preventDefault(); openQuickBuy('{{ product.id }}')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
                   </button>
                 </a>
 
-                <div class="rc-body" style="padding: 12px;">
+                <div style="padding: 12px;">
                   <a href="{{ product.url }}" class="rc-name">{{ product.title }}</a>
-                  <div class="rc-prices">
-                    <span class="rc-price-value">{{ v.price | money }}</span>
-                  </div>
+                  <div class="rc-price-value">{{ v.price | money }}</div>
                 </div>
 
-                <script type="application/json" id="rcp-{{ section.id }}-{{ product.id }}">
+                {% comment %} Script de dados para o Download e Modal {% endcomment %}
+                <script type="application/json" id="data-{{ product.id }}">
                   {
                     "id": {{ product.id }},
                     "title": {{ product.title | json }},
-                    "image": "{{ product.featured_image | img_url: '200x' }}",
+                    "image": "{{ product.featured_image | img_url: '800x800' }}",
                     "price": "{{ v.price | money }}",
+                    "price_raw": {{ v.price }},
                     "variants": [
-                      {%- for variant in product.variants -%}
-                        { "id": {{ variant.id }}, "title": {{ variant.title | json }}, "available": {{ variant.available }} }{% unless forloop.last %},{% endunless %}
+                      {%- for var in product.variants -%}
+                        { "id": "{{ var.id }}", "title": {{ var.title | json }}, "available": {{ var.available }}, "inventory": {{ var.inventory_quantity | default: 0 }} }{% unless forloop.last %},{% endunless %}
                       {%- endfor -%}
                     ]
                   }
@@ -167,168 +183,165 @@ Royal • Collection Gummy Style (v1.2.8) — AJAX CART FIX
             {%- endfor -%}
           </div>
 
-          {%- if paginate.pages > 1 -%}
-            <nav class="rc-pagination">
-              {%- for part in paginate.parts -%}
-                {%- if part.is_link -%}
-                  <a href="{{ part.url }}" class="rc-page">{{ part.title }}</a>
-                {%- else -%}
-                  <span class="rc-page" {% if part.title == paginate.current_page %}aria-current="page"{% endif %}>{{ part.title }}</span>
-                {%- endif -%}
-              {%- endfor -%}
-            </nav>
-          {%- endif -%}
+          <div class="rc-pagination-wrapper">
+            {%- if paginate.pages > 1 -%}
+              <nav class="rc-pagination">
+                {%- for part in paginate.parts -%}
+                  {%- if part.is_link -%}<a href="{{ part.url }}" class="rc-page">{{ part.title }}</a>
+                  {%- else -%}<span class="rc-page" {% if part.title == paginate.current_page %}aria-current="page"{% endif %}>{{ part.title }}</span>
+                  {%- endif -%}
+                {%- endfor -%}
+              </nav>
+            {%- endif -%}
 
-          <div style="text-align: center; margin-top: 20px;">
-            <button type="button" class="rc-zip-btn" data-rc-zip>Baixar fotos + numerações</button>
-            <p id="zip-status" style="font-size: 11px; color: #999; margin-top: 10px; display: none;"></p>
+            <button type="button" class="rc-zip-btn" id="btn-download-all">Baixar fotos + numerações</button>
+            <p id="zip-status"></p>
           </div>
         {%- endpaginate -%}
       </main>
     </div>
   </div>
 
-  <!-- MODAL -->
-  <div class="nb-qb-overlay" id="nb-qb-overlay-{{ section.id }}" onclick="closeNbQB()" style="position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:999998; display:none;"></div>
-  <div class="nb-qb-wrap" id="nb-qb-wrap-{{ section.id }}">
-    <div class="nb-qb-modal" id="nb-qb-modal-{{ section.id }}"></div>
+  {% comment %} Modal Quick Buy Estrutura {% endcomment %}
+  <div class="nb-qb-wrap" id="modal-quick-buy" onclick="if(event.target==this) closeQuickBuy()">
+    <div class="nb-qb-modal" id="modal-content"></div>
   </div>
 
   <script>
     (function() {
-      const SID = "{{ section.id }}";
-      
-      // Ordenação
-      const s = document.querySelector('[data-rc-sort]');
-      if(s) s.addEventListener('change', e => {
-        const u = new URL(window.location.href);
-        u.searchParams.set('sort_by', e.target.value);
-        window.location.href = u.href;
+      // 1. LÓGICA DE DOWNLOAD COM CANVAS (PRO)
+      const btnDownload = document.getElementById('btn-download-all');
+      const statusText = document.getElementById('zip-status');
+
+      async function loadImage(url) {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = "Anonymous";
+          img.onload = () => resolve(img);
+          img.onerror = reject;
+          img.src = url;
+        });
+      }
+
+      function getRef(priceRaw) {
+        return String(Math.floor(priceRaw / 100)).padStart(4, '0');
+      }
+
+      function getSizes(variants) {
+        return variants.filter(v => v.available).map(v => v.title.replace(/[^0-9]/g, '')).filter(Boolean).join(' - ');
+      }
+
+      async function generatePhoto(data) {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const baseImg = await loadImage(data.image);
+        
+        canvas.width = 1000;
+        canvas.height = 1000;
+        ctx.drawImage(baseImg, 0, 0, 1000, 1000);
+
+        // Faixa Preta
+        ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+        ctx.fillRect(0, 880, 1000, 120);
+
+        // Texto Título (Limitado)
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 32px sans-serif";
+        const shortTitle = data.title.split(' ').slice(0, 4).join(' ');
+        ctx.fillText(shortTitle.toUpperCase(), 30, 930);
+
+        // Variações e Ref
+        const sizes = getSizes(data.variants);
+        ctx.font = "600 26px sans-serif";
+        ctx.fillText("TAMANHOS: " + (sizes || "Consultar"), 30, 970);
+        
+        ctx.font = "bold 24px sans-serif";
+        ctx.textAlign = "right";
+        ctx.fillText("REF: " + getRef(data.price_raw), 970, 970);
+
+        return canvas.toDataURL("image/jpeg", 0.9);
+      }
+
+      btnDownload.addEventListener('click', async () => {
+        btnDownload.disabled = true;
+        const cards = document.querySelectorAll('.rc-card');
+        statusText.innerText = "Processando imagens (0/" + cards.length + ")...";
+
+        for (let i = 0; i < cards.length; i++) {
+          try {
+            const id = cards[i].getAttribute('data-product-id');
+            const data = JSON.parse(document.getElementById('data-' + id).textContent);
+            
+            statusText.innerText = `Gerando ${i + 1} de ${cards.length}...`;
+            const dataUrl = await generatePhoto(data);
+            
+            const link = document.createElement('a');
+            link.href = dataUrl;
+            link.download = `PRODUTO-${getRef(data.price_raw)}.jpg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            await new Promise(r => setTimeout(r, 800)); // Delay para não travar o navegador
+          } catch (e) { console.error(e); }
+        }
+        statusText.innerText = "Concluído! Verifique seus downloads.";
+        btnDownload.disabled = false;
       });
 
-      window.selectedVid = null;
+      // 2. LÓGICA QUICK BUY
+      window.openQuickBuy = function(id) {
+        const data = JSON.parse(document.getElementById('data-' + id).textContent);
+        const modal = document.getElementById('modal-quick-buy');
+        const content = document.getElementById('modal-content');
 
-      window.nbQB = function(pid) {
-        const data = JSON.parse(document.getElementById(`rcp-${SID}-${pid}`).textContent);
-        const modal = document.getElementById(`nb-qb-modal-${SID}`);
-        
-        window.selectedVid = null;
-
-        let vHtml = data.variants.map(v => `
-          <button class="nb-sz-btn ${v.available ? '' : 'nb-unavail'}" 
-                  ${v.available ? `onclick="selectV(this, ${v.id})"` : 'disabled'}>
+        let variantsHtml = data.variants.map(v => `
+          <button onclick="selectVariant(this, '${v.id}')" class="sz-btn" ${!v.available ? 'disabled' : ''} 
+            style="padding:12px; border:1px solid #ddd; border-radius:4px; background:${v.available ? '#fff' : '#f5f5f5'}; cursor:pointer; font-weight:700; opacity:${v.available ? '1' : '0.4'}">
             ${v.title}
           </button>
         `).join('');
 
-        modal.innerHTML = `
-          <div style="padding: 20px; position: relative;">
-            <button onclick="closeNbQB()" style="position: absolute; top: 15px; right: 15px; border: none; background: none; font-size: 24px; cursor: pointer;">&times;</button>
-            <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 20px;">
-              <img src="${data.image}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 4px; border: 1px solid #eee;">
-              <div>
-                <h4 style="margin: 0; font-size: 14px;">${data.title}</h4>
-                <p style="margin: 5px 0 0; font-weight: 700;">${data.price}</p>
-              </div>
+        content.innerHTML = `
+          <button onclick="closeQuickBuy()" style="position:absolute; top:15px; right:15px; border:none; background:none; font-size:24px; cursor:pointer;">&times;</button>
+          <div style="display:flex; gap:15px; align-items:center; margin-bottom:20px;">
+            <img src="${data.image}" style="width:70px; height:70px; object-fit:cover; border-radius:8px;">
+            <div>
+              <h4 style="margin:0; font-size:14px;">${data.title}</h4>
+              <div style="font-weight:800; font-size:16px;">${data.price}</div>
             </div>
-            <p style="font-size: 11px; font-weight: 700; color: #777; margin-bottom: 10px; text-transform: uppercase;">Selecione o Tamanho:</p>
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px;">
-              ${vHtml}
-            </div>
-            <button id="btn-add-{{ section.id }}" disabled onclick="doAdd(this)" 
-                    style="width: 100%; background: #000; color: #fff; border: none; padding: 16px; font-weight: 700; border-radius: 4px; cursor: pointer; opacity: 0.5;">
-              ADICIONAR À SACOLA
-            </button>
           </div>
+          <div style="font-size:12px; font-weight:800; margin-bottom:10px;">ESCOLHA O TAMANHO:</div>
+          <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin-bottom:20px;">${variantsHtml}</div>
+          <button id="btn-add-final" disabled onclick="finalizeAdd(this)" style="width:100%; padding:16px; background:#111; color:#fff; border:none; border-radius:4px; font-weight:800; cursor:pointer; opacity:0.5;">ADICIONAR À SACOLA</button>
         `;
-
-        document.getElementById(`nb-qb-overlay-${SID}`).style.display = 'block';
-        document.getElementById(`nb-qb-wrap-${SID}`).style.display = 'flex';
-        document.body.style.overflow = 'hidden';
+        modal.classList.add('nb-open');
       };
 
-      window.selectV = function(btn, id) {
-        document.querySelectorAll('.nb-sz-btn').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        window.selectedVid = id;
-        const b = document.getElementById(`btn-add-${SID}`);
-        b.disabled = false; b.style.opacity = '1';
+      window.selectedId = null;
+      window.selectVariant = function(btn, id) {
+        document.querySelectorAll('.sz-btn').forEach(b => b.style.borderColor = "#ddd");
+        btn.style.borderColor = "#111";
+        window.selectedId = id;
+        const finalBtn = document.getElementById('btn-add-final');
+        finalBtn.disabled = false;
+        finalBtn.style.opacity = "1";
       };
 
-      window.closeNbQB = function() {
-        document.getElementById(`nb-qb-overlay-${SID}`).style.display = 'none';
-        document.getElementById(`nb-qb-wrap-${SID}`).style.display = 'none';
-        document.body.style.overflow = '';
-      };
-
-      // FUNÇÃO CORE: ADICIONAR E ABRIR CARRINHO LATERAL
-      window.doAdd = function(btn) {
-        if(!window.selectedVid) return;
-        btn.innerText = 'ADICIONANDO...';
-        btn.disabled = true;
-
+      window.finalizeAdd = function(btn) {
+        btn.innerText = "ADICIONANDO...";
         fetch('/cart/add.js', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ items: [{ id: window.selectedVid, quantity: 1 }] })
-        })
-        .then(res => res.json())
-        .then(data => {
-          btn.innerText = 'ADICIONADO!';
-          
-          // 1. Fecha o Modal de Compra Rápida
-          setTimeout(() => { closeNbQB(); }, 300);
-
-          // 2. Dispara eventos que a maioria dos temas Shopify escuta para abrir o Drawer
-          document.dispatchEvent(new CustomEvent('cart:updated', { bubbles: true, detail: { cart: data } }));
-          document.dispatchEvent(new CustomEvent('cart:refresh', { bubbles: true }));
-          document.dispatchEvent(new CustomEvent('ajaxProduct:added', { bubbles: true, detail: { product: data } }));
-
-          // 3. Fallback: Tenta forçar o clique no botão de carrinho do cabeçalho
-          setTimeout(() => {
-            const selectors = [
-              '.header__cart-icon', '.header__cart', '[data-action="open-drawer"]', 
-              '.site-header__cart', '[aria-controls="cart-drawer"]', '#cart-icon-bubble',
-              '.cart-toggle', '.header__icon--cart'
-            ];
-            let opened = false;
-            selectors.forEach(sel => {
-              const el = document.querySelector(sel);
-              if(el && !opened) { 
-                 el.click(); 
-                 opened = true; 
-              }
-            });
-            
-            // Se o tema tiver uma API global (como Prestige ou Warehouse)
-            if(!opened && window.theme && window.theme.CartDrawer) window.theme.CartDrawer.open();
-            if(!opened && window.RoyalCartDrawer) window.RoyalCartDrawer.open();
-          }, 600);
-        })
-        .catch(err => {
-          btn.innerText = 'ERRO AO ADICIONAR';
-          btn.disabled = false;
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ items: [{ id: window.selectedId, quantity: 1 }] })
+        }).then(() => {
+          window.location.href = '/cart';
         });
       };
 
-      // Download Fotos
-      const dBtn = document.querySelector('[data-rc-zip]');
-      if(dBtn) dBtn.addEventListener('click', async () => {
-        const st = document.getElementById('zip-status');
-        st.innerText = 'Processando fotos...'; st.style.display = 'block';
-        const cards = document.querySelectorAll('.rc-card');
-        for(let c of cards) {
-          const img = c.querySelector('.rc-media img');
-          const name = c.querySelector('.rc-name').innerText;
-          const a = document.createElement('a');
-          a.href = img.src.split('?')[0]; 
-          a.download = `${name}.jpg`;
-          document.body.appendChild(a); a.click(); document.body.removeChild(a);
-          await new Promise(r => setTimeout(r, 400));
-        }
-        st.innerText = 'Fotos baixadas com sucesso!';
-      });
-
+      window.closeQuickBuy = function() {
+        document.getElementById('modal-quick-buy').classList.remove('nb-open');
+      };
     })();
   </script>
 </section>
@@ -337,14 +350,11 @@ Royal • Collection Gummy Style (v1.2.8) — AJAX CART FIX
 {
   "name": "Collection Royal Gummy",
   "settings": [
-    { "type": "color", "id": "bg", "label": "Fundo", "default": "#FFFFFF" },
-    { "type": "color", "id": "card_bg", "label": "Fundo do card", "default": "#FFFFFF" },
-    { "type": "color", "id": "primary", "label": "Cor Principal", "default": "#111111" },
-    { "type": "color", "id": "green", "label": "Cor Destaque/Botão", "default": "#B6E35C" },
-    { "type": "range", "id": "card_radius", "label": "Raio do Card", "min": 0, "max": 40, "default": 6 },
-    { "type": "link_list", "id": "quick_links", "label": "Menu Lateral" },
-    { "type": "checkbox", "id": "show_filters", "label": "Mostrar Filtros", "default": true }
-  ],
-  "presets": [{ "name": "Royal Collection Gummy" }]
+    { "type": "color", "id": "bg", "label": "Fundo da Página", "default": "#FFFFFF" },
+    { "type": "color", "id": "card_bg", "label": "Fundo do Card", "default": "#FFFFFF" },
+    { "type": "color", "id": "primary", "label": "Cor de Texto", "default": "#111111" },
+    { "type": "link_list", "id": "quick_links", "label": "Menu de Filtros Lateral" },
+    { "type": "checkbox", "id": "show_filters", "label": "Habilitar Filtros", "default": true }
+  ]
 }
 {% endschema %}
