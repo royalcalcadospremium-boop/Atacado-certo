@@ -550,18 +550,7 @@
 	<script src="https://unpkg.com/dayjs@1.8.21/locale/pt-br.js"></script>
 	<script>dayjs.locale('pt-br')</script>
       
-      <div id="scrollToTop" class="botaoflutuante">        
-      		<span class="button button--primary" id="clicar" data-action="add-to-cart">{{ 'product.form.add_to_cart' | t }}</span>
-          
-          <script>
-            /* Mantido conforme seu código original (NÃO REMOVIDO):
-               Nosso módulo abaixo já trata anti-duplicação para evitar adicionar 2x
-               mesmo com este gatilho legacy ativo. */
-            $("#clicar").on("click", function() {
-              $(".product-form__add-button").trigger("click");
-            });
-          </script>
-    	</div>
+      <div id="scrollToTop" class="botaoflutuante" style="display:none!important"></div>
    
   
   </div>
