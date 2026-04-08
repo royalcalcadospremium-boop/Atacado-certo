@@ -129,10 +129,104 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     .nb-qb-wrap { position: fixed; inset: 0; z-index: 999999; display: none; align-items: flex-end; justify-content: center; background: rgba(0,0,0,0.5); }
     .nb-qb-wrap.nb-open { display: flex; }
     .nb-qb-modal { background: #fff; width: 100%; max-width: 500px; border-radius: 16px 16px 0 0; padding: 20px; position: relative; }
+
+    /* FILTER DRAWER */
+    .rc-filter-icon { 
+      position: fixed; top: 20px; right: 20px; width: 48px; height: 48px; 
+      background: #111; color: #fff; border: none; border-radius: 50%; 
+      display: flex; align-items: center; justify-content: center; cursor: pointer; 
+      z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.2); 
+    }
+    .rc-filter-icon:hover { background: #333; }
+
+    .rc-filter-drawer {
+      position: fixed; left: 0; top: 0; width: 100%; max-width: 360px; height: 100vh;
+      background: #fff; z-index: 9999; overflow-y: auto; transform: translateX(-100%);
+      transition: transform 0.3s ease; box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    }
+    .rc-filter-drawer.is-open { transform: translateX(0); }
+    .rc-filter-drawer-overlay {
+      position: fixed; inset: 0; z-index: 9998; background: rgba(0,0,0,0.5);
+      display: none;
+    }
+    .rc-filter-drawer.is-open ~ .rc-filter-drawer-overlay { display: block; }
+
+    .rc-filter-header {
+      padding: 16px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;
+    }
+    .rc-filter-title { font-weight: 800; font-size: 16px; }
+    .rc-filter-close { background: none; border: none; font-size: 24px; cursor: pointer; }
+
+    .rc-filter-group { border-bottom: 1px solid #f0f0f0; }
+    .rc-filter-group-title {
+      padding: 16px; font-weight: 700; font-size: 14px; cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center; background: #fafafa;
+    }
+    .rc-filter-group.is-open .rc-filter-group-content { display: block; }
+    .rc-filter-group-content { padding: 12px 16px; display: none; }
+
+    .rc-filter-option {
+      display: flex; align-items: center; gap: 8px; padding: 8px 0; cursor: pointer;
+    }
+    .rc-filter-option input { cursor: pointer; }
+    .rc-filter-option label { cursor: pointer; flex: 1; font-size: 13px; }
+
+    .rc-filter-actions {
+      padding: 16px; display: flex; gap: 8px; border-top: 1px solid #eee;
+      position: sticky; bottom: 0; background: #fff;
+    }
+    .rc-filter-reset, .rc-filter-apply {
+      flex: 1; padding: 12px; border-radius: 4px; border: none; font-weight: 700; font-size: 13px; cursor: pointer;
+    }
+    .rc-filter-reset { background: #f0f0f0; color: #111; }
+    .rc-filter-apply { background: #111; color: #fff; }
+
+    @media (max-width: 800px) {
+      .rc-filter-icon { top: 60px; }
+    }
   </style>
 
   <div class="rc-container">
     <h1 class="rc-title">{{ collection.title }}</h1>
+
+    <!-- FILTER ICON -->
+    <button class="rc-filter-icon" id="btn-filter-toggle" title="Filtros">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+      </svg>
+    </button>
+
+    <!-- FILTER DRAWER -->
+    <div class="rc-filter-drawer" id="filter-drawer">
+      <div class="rc-filter-header">
+        <div class="rc-filter-title">Filtros</div>
+        <button class="rc-filter-close" onclick="document.getElementById('filter-drawer').classList.remove('is-open');">✕</button>
+      </div>
+
+      <!-- Tamanhos -->
+      <div class="rc-filter-group">
+        <div class="rc-filter-group-title" onclick="this.parentElement.classList.toggle('is-open');">
+          Tamanho
+          <span>+</span>
+        </div>
+        <div class="rc-filter-group-content" id="sizes-filter"></div>
+      </div>
+
+      <!-- Modelos/Coleções -->
+      <div class="rc-filter-group">
+        <div class="rc-filter-group-title" onclick="this.parentElement.classList.toggle('is-open');">
+          Modelo/Coleção
+          <span>+</span>
+        </div>
+        <div class="rc-filter-group-content" id="models-filter"></div>
+      </div>
+
+      <div class="rc-filter-actions">
+        <button class="rc-filter-reset" onclick="resetFilters();">Limpar</button>
+        <button class="rc-filter-apply" onclick="applyFilters();">Aplicar</button>
+      </div>
+    </div>
+    <div class="rc-filter-drawer-overlay" onclick="document.getElementById('filter-drawer').classList.remove('is-open');"></div>
 
     <div class="rc-layout">
       {%- if has_filters -%}
@@ -211,6 +305,106 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+  <script>
+    // DADOS DOS PRODUTOS (para filtros)
+    const allProducts = [];
+    document.querySelectorAll('[id^="data-"]').forEach(el => {
+      try {
+        const data = JSON.parse(el.textContent);
+        allProducts.push(data);
+      } catch (e) { console.error(e); }
+    });
+
+    // COLETAR TAMANHOS E MODELOS ÚNICOS
+    const allSizes = new Set();
+    const allModels = new Set();
+
+    allProducts.forEach(product => {
+      // Tamanhos das variantes
+      product.variants.forEach(v => {
+        if (v.available && v.title && v.title !== 'Default Title') {
+          allSizes.add(v.title.trim());
+        }
+      });
+    });
+
+    // Modelos/Coleções (usando tags ou collections)
+    const collectionTags = {{ collection.all_tags | json }};
+    collectionTags.forEach(tag => {
+      if (!tag.includes('_') && tag.trim()) {
+        allModels.add(tag.trim());
+      }
+    });
+
+    // PREENCHER FILTROS
+    function renderFilters() {
+      // Tamanhos
+      const sizesHtml = Array.from(allSizes).sort().map(size => `
+        <div class="rc-filter-option">
+          <input type="checkbox" id="size-${size}" value="${size}" class="size-filter">
+          <label for="size-${size}">${size}</label>
+        </div>
+      `).join('');
+      document.getElementById('sizes-filter').innerHTML = sizesHtml || '<p style="font-size: 12px; color: #999;">Nenhum tamanho disponível</p>';
+
+      // Modelos
+      const modelsHtml = Array.from(allModels).sort().map(model => `
+        <div class="rc-filter-option">
+          <input type="checkbox" id="model-${model}" value="${model}" class="model-filter">
+          <label for="model-${model}">${model}</label>
+        </div>
+      `).join('');
+      document.getElementById('models-filter').innerHTML = modelsHtml || '<p style="font-size: 12px; color: #999;">Nenhuma coleção disponível</p>';
+    }
+
+    // APLICAR FILTROS
+    window.applyFilters = function() {
+      const selectedSizes = Array.from(document.querySelectorAll('.size-filter:checked')).map(el => el.value);
+      const selectedModels = Array.from(document.querySelectorAll('.model-filter:checked')).map(el => el.value);
+
+      document.querySelectorAll('.rc-card').forEach(card => {
+        const dataEl = card.querySelector('script[type="application/json"]');
+        if (!dataEl) return;
+
+        try {
+          const data = JSON.parse(dataEl.textContent);
+          const productId = card.getAttribute('data-product-id');
+
+          // Verificar se tem tamanho selecionado
+          const hasSizeMatch = selectedSizes.length === 0 || data.variants.some(v => selectedSizes.includes(v.title.trim()));
+          
+          // Verificar se tem modelo selecionado (usando tags da coleção)
+          const hasModelMatch = selectedModels.length === 0 || selectedModels.some(model => 
+            collectionTags.some(tag => tag.includes(model))
+          );
+
+          // Mostrar/ocultar card
+          card.style.display = (hasSizeMatch && hasModelMatch) ? 'flex' : 'none';
+        } catch (e) { console.error(e); }
+      });
+
+      // Fechar drawer
+      document.getElementById('filter-drawer').classList.remove('is-open');
+    };
+
+    // LIMPAR FILTROS
+    window.resetFilters = function() {
+      document.querySelectorAll('.size-filter, .model-filter').forEach(el => el.checked = false);
+      document.querySelectorAll('.rc-card').forEach(card => card.style.display = 'flex');
+      document.getElementById('filter-drawer').classList.remove('is-open');
+    };
+
+    // ABRIR/FECHAR DRAWER
+    document.getElementById('btn-filter-toggle').addEventListener('click', () => {
+      document.getElementById('filter-drawer').classList.toggle('is-open');
+    });
+
+    // Renderizar filtros ao carregar
+    renderFilters();
+
+    // SESSÃO: LÓGICA DE DOWNLOAD E QUICK BUY (resto do código)
+  </script>
 
   <script>
     (function() {
