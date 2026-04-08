@@ -17,65 +17,59 @@
 {%- endcapture -%}
  
 <style>
-  /* ===== ELIMINAR TODOS OS ESPAÇOS NA PÁGINA DE PRODUTO (mobile) ===== */
-  @media (max-width: 767px) {
+  /* ===== ELIMINAR TODOS OS ESPAÇOS NA PÁGINA DE PRODUTO ===== */
 
-    /* Breadcrumb oculto — era o espaço branco entre dots e título */
-    .page__sub-header {
-      display: none !important;
-    }
+  /* Zera gap entre todos os itens do product-block-list */
+  .product-block-list,
+  .product-block-list__wrapper {
+    gap: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
 
-    /* Container sem padding lateral */
-    .container--flush {
-      padding: 0 !important;
-    }
+  .product-block-list__item {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
 
-    /* Galeria sem margens */
-    .product-block-list__item--gallery {
-      margin: 0 !important;
-      padding: 0 !important;
-    }
+  /* Galeria sem margens */
+  .product-block-list__item--gallery {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
 
-    .product-block-list__item--gallery .card,
-    .product-block-list__item--gallery .card__section,
-    .product-block-list__item--gallery .card__section--tight {
-      border: none !important;
-      box-shadow: none !important;
-      border-radius: 0 !important;
-      padding: 0 !important;
-      margin: 0 !important;
-      background: transparent !important;
-    }
+  .product-block-list__item--gallery .card,
+  .product-block-list__item--gallery .card__section,
+  .product-block-list__item--gallery .card__section--tight {
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+  }
 
-    /* Zera gap entre todos os itens do product-block-list */
-    .product-block-list,
-    .product-block-list__wrapper {
-      gap: 0 !important;
-      padding: 0 !important;
-      margin: 0 !important;
-    }
+  /* Bloco de descrição externo — sem margens */
+  .product-block-list__item--description .card {
+    margin: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
 
-    .product-block-list__item {
-      margin: 0 !important;
-      padding: 0 !important;
-    }
+  /* Container da página */
+  .container--flush {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
 
-    /* Bloco de descrição externo (card separado) — sem margens */
-    .product-block-list__item--description .card {
-      margin: 0 !important;
-      border-radius: 0 !important;
-      box-shadow: none !important;
-    }
+  /* Esconde thumbnails */
+  .product-gallery .scroller {
+    display: none !important;
+  }
 
-    /* Esconde thumbnails */
-    .product-gallery .scroller {
-      display: none !important;
-    }
-
-    .product-gallery--with-thumbnails {
-      display: block !important;
-      grid-template-columns: 1fr !important;
-    }
+  .product-gallery--with-thumbnails {
+    display: block !important;
+    grid-template-columns: 1fr !important;
   }
 
   /* ===== DOTS — sobrepostos na imagem ===== */
@@ -174,9 +168,31 @@
     observer.observe(buyBtn);
   }
 
+  /* ---- Força remoção de todos os gaps/margens do product-block-list ---- */
+  function forceZeroGaps() {
+    var selectors = [
+      '.product-block-list',
+      '.product-block-list__wrapper',
+      '.product-block-list__item',
+      '.container--flush',
+      '.page__sub-header'
+    ];
+    selectors.forEach(function(sel) {
+      document.querySelectorAll(sel).forEach(function(el) {
+        el.style.setProperty('margin', '0', 'important');
+        el.style.setProperty('padding', '0', 'important');
+        el.style.setProperty('gap', '0', 'important');
+        if (sel === '.page__sub-header') {
+          el.style.setProperty('display', 'none', 'important');
+        }
+      });
+    });
+  }
+
   function init() {
     initGalleryDots();
     initFloatingBtn();
+    forceZeroGaps();
   }
 
   if (document.readyState === 'loading') {
@@ -193,47 +209,10 @@
   {% render 'royal-overlap', id: section.id %}
 
   {%- if template != 'product.quick-view' -%}
-    <div class="container container--flush">
-      <div class="page__sub-header">
-        <nav aria-label="{{ 'general.breadcrumb.title' | t }}" class="breadcrumb">
-          <ol class="breadcrumb__list">
-            <li class="breadcrumb__item">
-              <a class="breadcrumb__link link" href="{{ routes.root_url }}">{{ 'general.breadcrumb.home' | t }}</a> {%- render 'icon', icon: 'arrow-right' -%}
-            </li>
+    <div class="container container--flush" style="padding:0!important;margin:0!important;">
 
-            <li class="breadcrumb__item">
-              {%- if collection -%}
-                <a class="breadcrumb__link link" href="{{ collection.url }}">{{ collection.title }}</a> {%- render 'icon', icon: 'arrow-right' -%}
-              {%- else -%}
-                <a class="breadcrumb__link link" href="{{ routes.all_products_collection_url }}">{{- 'collection.general.all_products' | t -}}</a> {%- render 'icon', icon: 'arrow-right' -%}
-              {%- endif -%}
-            </li>
-
-            <li class="breadcrumb__item">
-              <span class="breadcrumb__link" aria-current="page">{{ product.title | truncate: 40 }}</span>
-            </li>
-          </ol>
-        </nav>
-
-         {%- if collection.previous_product or collection.next_product -%}
-          <div class="page__navigation">
-            {%- if collection.previous_product -%}
-              <span class="page__navigation-item page__navigation-item--prev">
-                <a href="{{ collection.previous_product.url }}" class="link" rel="prev">{%- render 'icon', icon: 'arrow-left' -%} {{- 'product.general.previous_product' | t -}}</a>
-              </span>
-            {%- endif -%}
-
-            {%- if collection.next_product -%}
-              <span class="page__navigation-item page__navigation-item--next">
-                <a href="{{ collection.next_product.url }}" class="link" rel="next">{{- 'product.general.next_product' | t -}} {%- render 'icon', icon: 'arrow-right' -%}</a>
-              </span>
-            {%- endif -%}
-          </div>
-        {%- endif -%}
-      </div>
-
-      <div class="product-block-list product-block-list--{{ section.settings.image_size }}">
-        <div class="product-block-list__wrapper">
+      <div class="product-block-list product-block-list--{{ section.settings.image_size }}" style="margin:0!important;padding:0!important;gap:0!important;">
+        <div class="product-block-list__wrapper" style="gap:0!important;padding:0!important;margin:0!important;">
           {%- if product.media.size > 0 -%}
             <div class="product-block-list__item product-block-list__item--gallery">
               {% render 'product-gallery' %}
