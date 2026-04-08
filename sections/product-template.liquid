@@ -488,9 +488,6 @@ ROYAL • Share via WhatsApp (v1.0)
   }
 </style>
 
-<!-- Product Page Refactored Styles -->
-{{ 'product-refactor.css' | asset_url | stylesheet_tag }}
-
 {%- comment -%} Dados do produto (para o JS construir a mensagem) {%- endcomment -%}
 <script id="rc-share-data-{{ section.id }}" type="application/json">
 {
@@ -753,7 +750,7 @@ ROYAL • Share via WhatsApp (v1.2)
 
     const slot = document.createElement('div');
     slot.className = 'rc-badge-slot rc-after-title';
-    // slot.appendChild(buildBtn()); // DESATIVADO: botão de compartilhar WhatsApp removido
+    slot.appendChild(buildBtn());
 
     if($('#rc-whats-anchor', root)){
       $('#rc-whats-anchor', root).replaceWith(slot);
