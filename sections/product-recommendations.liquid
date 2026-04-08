@@ -61,6 +61,7 @@
       display: flex;
       flex-direction: column;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      position: relative;
     }
 
     /* Imagem */
@@ -104,22 +105,22 @@
       line-height: 1.4;
     }
 
-    /* Ícone de sacola — baixo direito */
+    /* Ícone de sacola — canto inferior direito do CARD */
     .nb-rec-bag {
       position: absolute;
       bottom: 8px;
       right: 8px;
       width: 30px;
       height: 30px;
-      background: rgba(255,255,255,0.75);
+      background: rgba(255,255,255,0.72);
       border: none;
-      border-radius: 6px;
+      border-radius: 50%;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 0;
-      z-index: 2;
+      z-index: 10;
       text-decoration: none;
     }
 
@@ -269,16 +270,16 @@
                   {%- if has_lancamento -%}
                     <span class="nb-rec-badge">Lançamento</span>
                   {%- endif -%}
-
-                  <!-- Sacola -->
-                  <a href="{{ rec_p.url }}" class="nb-rec-bag" aria-label="Ver produto">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-                      <line x1="3" y1="6" x2="21" y2="6"/>
-                      <path d="M16 10a4 4 0 0 1-8 0"/>
-                    </svg>
-                  </a>
                 </div>
+
+                <!-- Sacola: canto inferior direito do card (fora do img-wrap) -->
+                <a href="{{ rec_p.url }}" class="nb-rec-bag" aria-label="Ver produto">
+                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                    <line x1="3" y1="6" x2="21" y2="6"/>
+                    <path d="M16 10a4 4 0 0 1-8 0"/>
+                  </svg>
+                </a>
 
                 <div class="nb-rec-card__info">
                   {%- if rec_p.type != blank -%}
