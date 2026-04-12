@@ -161,19 +161,46 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     .rc-filter-title { font-weight: 800; font-size: 16px; }
     .rc-filter-close { background: none; border: none; font-size: 24px; cursor: pointer; }
 
-    .rc-filter-group { border-bottom: 1px solid #f0f0f0; }
-    .rc-filter-group-title {
-      padding: 16px; font-weight: 700; font-size: 14px; cursor: pointer;
-      display: flex; justify-content: space-between; align-items: center; background: #fafafa;
+    /* Seções do filtro — sempre abertas */
+    .rc-filter-section { border-bottom: 1px solid #f0f0f0; padding: 14px 16px 16px; }
+    .rc-filter-section-title {
+      font-weight: 800; font-size: 11px; letter-spacing: 0.8px;
+      color: #777; text-transform: uppercase; margin-bottom: 12px;
     }
-    .rc-filter-group.is-open .rc-filter-group-content { display: block; }
-    .rc-filter-group-content { padding: 12px 16px; display: none; }
 
-    .rc-filter-option {
-      display: flex; align-items: center; gap: 8px; padding: 8px 0; cursor: pointer;
+    /* Chips de seleção */
+    .rc-filter-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .rc-filter-chips--circle { gap: 10px; }
+
+    .rc-filter-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border: 1.5px solid #ddd; border-radius: 20px;
+      cursor: pointer; font-size: 13px; font-weight: 600; color: #333;
+      background: #fff; transition: background 0.15s, border-color 0.15s, color 0.15s;
+      user-select: none;
     }
-    .rc-filter-option input { cursor: pointer; }
-    .rc-filter-option label { cursor: pointer; flex: 1; font-size: 13px; }
+    .rc-filter-chip input[type="checkbox"] { display: none; }
+    .rc-filter-chip:has(input:checked) { background: #111; border-color: #111; color: #fff; }
+
+    /* Chip com imagem circular */
+    .rc-filter-chip--circle {
+      flex-direction: column; align-items: center; padding: 10px 8px 8px;
+      border-radius: 10px; text-align: center; min-width: 70px; gap: 6px;
+    }
+    .rc-filter-circle-img {
+      width: 54px; height: 54px; border-radius: 50%; object-fit: cover;
+      border: 2px solid #eee; transition: border-color 0.15s;
+    }
+    .rc-filter-chip--circle:has(input:checked) .rc-filter-circle-img { border-color: #111; }
+    .rc-filter-circle-placeholder {
+      width: 54px; height: 54px; border-radius: 50%; background: #f0f0f0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 800; color: #666;
+      border: 2px solid #eee; transition: border-color 0.15s;
+    }
+    .rc-filter-chip--circle:has(input:checked) .rc-filter-circle-placeholder { border-color: #111; }
+    .rc-filter-chip--circle span { font-size: 11px; max-width: 68px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .rc-filter-empty { font-size: 12px; color: #aaa; font-style: italic; margin: 0; }
 
     .rc-filter-actions {
       padding: 16px; display: flex; gap: 8px; border-top: 1px solid #eee;
@@ -205,22 +232,56 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
         <button class="rc-filter-close" onclick="document.getElementById('filter-drawer').classList.remove('is-open');">✕</button>
       </div>
 
-      <!-- Tamanhos -->
-      <div class="rc-filter-group">
-        <div class="rc-filter-group-title" onclick="this.parentElement.classList.toggle('is-open');">
-          Tamanho
-          <span>+</span>
-        </div>
-        <div class="rc-filter-group-content" id="sizes-filter"></div>
+      <!-- TAMANHO -->
+      <div class="rc-filter-section">
+        <div class="rc-filter-section-title">Tamanho</div>
+        <div class="rc-filter-chips" id="sizes-filter"></div>
       </div>
 
-      <!-- Modelos/Coleções -->
-      <div class="rc-filter-group">
-        <div class="rc-filter-group-title" onclick="this.parentElement.classList.toggle('is-open');">
-          Modelo/Coleção
-          <span>+</span>
+      <!-- MARCAS -->
+      {%- assign marcas_menu = linklists[section.settings.marcas_menu] -%}
+      <div class="rc-filter-section">
+        <div class="rc-filter-section-title">Marcas</div>
+        <div class="rc-filter-chips{% if section.settings.marcas_show_images %} rc-filter-chips--circle{% endif %}" id="marcas-filter">
+          {%- if marcas_menu.links.size > 0 -%}
+            {%- for link in marcas_menu.links -%}
+              <label class="rc-filter-chip{% if section.settings.marcas_show_images %} rc-filter-chip--circle{% endif %}">
+                <input type="checkbox" class="marca-filter" value="{{ link.title | escape }}">
+                {%- if section.settings.marcas_show_images -%}
+                  {%- if link.object.image -%}
+                    <img src="{{ link.object.image | img_url: '80x80', crop: 'center' }}" class="rc-filter-circle-img" alt="{{ link.title | escape }}">
+                  {%- else -%}
+                    <div class="rc-filter-circle-placeholder">{{ link.title | slice: 0, 2 | upcase }}</div>
+                  {%- endif -%}
+                {%- endif -%}
+                <span>{{ link.title }}</span>
+              </label>
+            {%- endfor -%}
+          {%- endif -%}
         </div>
-        <div class="rc-filter-group-content" id="models-filter"></div>
+      </div>
+
+      <!-- COLEÇÃO / MODELO -->
+      {%- assign colecoes_menu = linklists[section.settings.colecoes_menu] -%}
+      <div class="rc-filter-section">
+        <div class="rc-filter-section-title">Coleção / Modelo</div>
+        <div class="rc-filter-chips{% if section.settings.colecoes_show_images %} rc-filter-chips--circle{% endif %}" id="models-filter">
+          {%- if colecoes_menu.links.size > 0 -%}
+            {%- for link in colecoes_menu.links -%}
+              <label class="rc-filter-chip{% if section.settings.colecoes_show_images %} rc-filter-chip--circle{% endif %}">
+                <input type="checkbox" class="model-filter" value="{{ link.title | escape }}">
+                {%- if section.settings.colecoes_show_images -%}
+                  {%- if link.object.image -%}
+                    <img src="{{ link.object.image | img_url: '80x80', crop: 'center' }}" class="rc-filter-circle-img" alt="{{ link.title | escape }}">
+                  {%- else -%}
+                    <div class="rc-filter-circle-placeholder">{{ link.title | slice: 0, 2 | upcase }}</div>
+                  {%- endif -%}
+                {%- endif -%}
+                <span>{{ link.title }}</span>
+              </label>
+            {%- endfor -%}
+          {%- endif -%}
+        </div>
       </div>
 
       <div class="rc-filter-actions">
@@ -271,6 +332,8 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
                     "image": "{{ product.featured_image | img_url: '800x800' }}",
                     "price": "{{ v.price | money }}",
                     "price_raw": {{ v.price }},
+                    "vendor": {{ product.vendor | json }},
+                    "tags": {{ product.tags | json }},
                     "variants": [
                       {%- for var in product.variants -%}
                         { "id": "{{ var.id }}", "title": {{ var.title | json }}, "available": {{ var.available }}, "inventory": {{ var.inventory_quantity | default: 0 }} }{% unless forloop.last %},{% endunless %}
@@ -318,8 +381,9 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
       } catch (e) { console.error(e); }
     });
 
-    // COLETAR TAMANHOS E MODELOS ÚNICOS
+    // COLETAR TAMANHOS, MARCAS E MODELOS ÚNICOS
     const allSizes = new Set();
+    const allVendors = new Set();
     const allModels = new Set();
 
     allProducts.forEach(product => {
@@ -329,83 +393,86 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
           allSizes.add(v.title.trim());
         }
       });
-    });
-
-    // Modelos/Coleções (usando tags ou collections)
-    const collectionTags = {{ collection.all_tags | json }};
-    collectionTags.forEach(tag => {
-      if (!tag.includes('_') && tag.trim()) {
-        allModels.add(tag.trim());
+      // Marca (vendor)
+      if (product.vendor) allVendors.add(product.vendor.trim());
+      // Tags para modelos/coleções
+      if (product.tags) {
+        product.tags.forEach(tag => {
+          if (!tag.includes('_') && tag.trim()) allModels.add(tag.trim());
+        });
       }
     });
 
     // PREENCHER FILTROS
-    function renderFilters() {
-      console.log('Tamanhos disponíveis:', Array.from(allSizes));
-      console.log('Modelos disponíveis:', Array.from(allModels));
-      
-      // Tamanhos
-      const sizesHtml = Array.from(allSizes).sort().map(size => `
-        <div class="rc-filter-option">
-          <input type="checkbox" id="size-${size}" value="${size}" class="size-filter">
-          <label for="size-${size}">${size}</label>
-        </div>
-      `).join('');
-      document.getElementById('sizes-filter').innerHTML = sizesHtml || '<p style="font-size: 12px; color: #999;">Nenhum tamanho disponível</p>';
+    function chip(value, cls) {
+      return `<label class="rc-filter-chip"><input type="checkbox" class="${cls}" value="${value}"><span>${value}</span></label>`;
+    }
 
-      // Modelos
-      const modelsHtml = Array.from(allModels).sort().map(model => `
-        <div class="rc-filter-option">
-          <input type="checkbox" id="model-${model}" value="${model}" class="model-filter">
-          <label for="model-${model}">${model}</label>
-        </div>
-      `).join('');
-      document.getElementById('models-filter').innerHTML = modelsHtml || '<p style="font-size: 12px; color: #999;">Nenhuma coleção disponível</p>';
+    function renderFilters() {
+      // Tamanhos — ordena numericamente quando possível
+      const sortedSizes = Array.from(allSizes).sort((a, b) => {
+        const na = parseFloat(a), nb = parseFloat(b);
+        return (!isNaN(na) && !isNaN(nb)) ? na - nb : a.localeCompare(b);
+      });
+      document.getElementById('sizes-filter').innerHTML =
+        sortedSizes.map(s => chip(s, 'size-filter')).join('') ||
+        '<p class="rc-filter-empty">Nenhum tamanho disponível</p>';
+
+      // Marcas — fallback por vendor se nenhum link list configurado
+      const marcasContainer = document.getElementById('marcas-filter');
+      if (marcasContainer && !marcasContainer.querySelector('label')) {
+        const sortedVendors = Array.from(allVendors).sort();
+        marcasContainer.innerHTML =
+          sortedVendors.map(v => chip(v, 'marca-filter')).join('') ||
+          '<p class="rc-filter-empty">Nenhuma marca disponível</p>';
+      }
+
+      // Coleção/Modelo — fallback por tags se nenhum link list configurado
+      const modelsContainer = document.getElementById('models-filter');
+      if (modelsContainer && !modelsContainer.querySelector('label')) {
+        const sortedModels = Array.from(allModels).sort();
+        modelsContainer.innerHTML =
+          sortedModels.map(m => chip(m, 'model-filter')).join('') ||
+          '<p class="rc-filter-empty">Nenhuma coleção disponível</p>';
+      }
     }
 
     // APLICAR FILTROS
     window.applyFilters = function() {
-      const selectedSizes = Array.from(document.querySelectorAll('.size-filter:checked')).map(el => el.value);
-      const selectedModels = Array.from(document.querySelectorAll('.model-filter:checked')).map(el => el.value);
-
-      console.log('Filtros aplicados:', { selectedSizes, selectedModels });
+      const selectedSizes  = Array.from(document.querySelectorAll('.size-filter:checked')).map(el => el.value);
+      const selectedMarcas = Array.from(document.querySelectorAll('.marca-filter:checked')).map(el => el.value.toLowerCase());
+      const selectedModels = Array.from(document.querySelectorAll('.model-filter:checked')).map(el => el.value.toLowerCase());
 
       document.querySelectorAll('.rc-card').forEach(card => {
         const dataEl = card.querySelector('script[type="application/json"]');
         if (!dataEl) return;
-
         try {
           const data = JSON.parse(dataEl.textContent);
-          const productId = card.getAttribute('data-product-id');
+          const tags  = (data.tags  || []).map(t => t.toLowerCase());
+          const vendor = (data.vendor || '').toLowerCase();
 
-          // Verificar se tem tamanho selecionado
-          let hasSizeMatch = selectedSizes.length === 0;
-          if (selectedSizes.length > 0) {
-            hasSizeMatch = data.variants.some(v => {
-              const variantTitle = String(v.title || '').trim();
-              return v.available && selectedSizes.includes(variantTitle);
-            });
-          }
-          
-          // Verificar se tem modelo selecionado (usando tags da coleção)
-          const hasModelMatch = selectedModels.length === 0 || selectedModels.some(model => 
-            collectionTags.some(tag => tag.toLowerCase().includes(model.toLowerCase()))
-          );
+          // Tamanho
+          const hasSizeMatch = selectedSizes.length === 0 ||
+            data.variants.some(v => v.available && selectedSizes.includes(String(v.title || '').trim()));
 
-          // Mostrar/ocultar card
-          const shouldShow = hasSizeMatch && hasModelMatch;
-          card.style.display = shouldShow ? 'flex' : 'none';
-          console.log(`Produto ${productId}: size=${hasSizeMatch}, model=${hasModelMatch}, show=${shouldShow}`);
+          // Marca — vendor ou tag contendo o nome
+          const hasMarcaMatch = selectedMarcas.length === 0 ||
+            selectedMarcas.some(m => vendor === m || tags.some(t => t.includes(m)));
+
+          // Coleção/Modelo — tag contendo o nome
+          const hasModelMatch = selectedModels.length === 0 ||
+            selectedModels.some(m => tags.some(t => t.includes(m)));
+
+          card.style.display = (hasSizeMatch && hasMarcaMatch && hasModelMatch) ? 'flex' : 'none';
         } catch (e) { console.error(e); }
       });
 
-      // Fechar drawer
       document.getElementById('filter-drawer').classList.remove('is-open');
     };
 
     // LIMPAR FILTROS
     window.resetFilters = function() {
-      document.querySelectorAll('.size-filter, .model-filter').forEach(el => el.checked = false);
+      document.querySelectorAll('.size-filter, .marca-filter, .model-filter').forEach(el => el.checked = false);
       document.querySelectorAll('.rc-card').forEach(card => card.style.display = 'flex');
       document.getElementById('filter-drawer').classList.remove('is-open');
     };
@@ -696,7 +763,13 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     { "type": "link_list", "id": "quick_links", "label": "Menu de Filtros Lateral" },
     { "type": "checkbox", "id": "show_filters", "label": "Habilitar Filtros", "default": true },
     { "type": "color", "id": "badge_bg", "label": "Cor do Badge de Desconto", "default": "#1a1a1a" },
-    { "type": "range", "id": "badge_opacity", "min": 0, "max": 100, "step": 10, "unit": "%", "label": "Opacidade do Badge", "default": 100 }
+    { "type": "range", "id": "badge_opacity", "min": 0, "max": 100, "step": 10, "unit": "%", "label": "Opacidade do Badge", "default": 100 },
+    { "type": "header", "content": "Filtro — Marcas" },
+    { "type": "link_list", "id": "marcas_menu", "label": "Menu de Marcas", "info": "Crie um menu onde cada link aponta para a coleção da marca. Deixe em branco para usar os fornecedores dos produtos automaticamente." },
+    { "type": "checkbox", "id": "marcas_show_images", "label": "Exibir imagens circulares das marcas", "default": false, "info": "Exibe a imagem da coleção em formato circular ao lado do nome da marca." },
+    { "type": "header", "content": "Filtro — Coleção / Modelo" },
+    { "type": "link_list", "id": "colecoes_menu", "label": "Menu de Coleções / Modelos", "info": "Crie um menu onde cada link aponta para a coleção/modelo. Deixe em branco para usar as tags dos produtos automaticamente." },
+    { "type": "checkbox", "id": "colecoes_show_images", "label": "Exibir imagens circulares das coleções", "default": false, "info": "Exibe a imagem da coleção em formato circular ao lado do nome." }
   ]
 }
 {% endschema %}
