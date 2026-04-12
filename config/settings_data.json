@@ -308,7 +308,7 @@
           "card_bg": "#ffffff",
           "primary": "#111111",
           "quick_links": "marcas-de-chinelo",
-          "show_filters": false,
+          "show_filters": true,
           "badge_bg": "#1a1a1a",
           "badge_opacity": 100,
           "marcas_menu": "main-menu",
