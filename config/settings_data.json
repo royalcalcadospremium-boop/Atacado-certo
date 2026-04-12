@@ -312,7 +312,7 @@
           "badge_bg": "#1a1a1a",
           "badge_opacity": 100,
           "marcas_menu": "main-menu",
-          "marcas_show_images": false,
+          "marcas_show_images": true,
           "colecoes_menu": "",
           "colecoes_show_images": false
         }
