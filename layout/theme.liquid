@@ -436,45 +436,68 @@
   'use strict';
 
   /*
-   * Elementos de grade/lista: cada um anima individualmente com stagger.
-   * O pai NÃO anima separado — foto e texto sobem juntos no mesmo bloco.
+   * Todos os cards/itens de grade do site — foto e texto sobem juntos.
    */
   var GRID_ITEMS = [
+    /* Produtos */
     '.product-item',
     '.product-card',
     '.collection-item',
+    /* Coleções */
+    '.collection-card',
+    '.collection-block-item',
+    /* Artigos / Blog */
     '.article-item',
+    '.blog-posts__item',
+    '.blog-sidebar__post-item',
+    '.blog-sidebar__item',
+    /* Promos / Banners */
     '.promo-block',
     '.offer-item',
     '.mosaic__item',
-    '.block-list__item',
+    '.promotion-list__item',
+    /* Links e logos */
     '.quick-links__link',
-    '.card',
     '.logo-list__item',
+    /* Cards customizados Royal */
+    '.royal-card',
     '.royal-cats__item',
-    '.royal-tabs-cards .tab-item',
     '.royal-flash__item',
+    '.royal-tabs-cards .tab-item',
+    '.royal-banner',
+    /* Cards de terceiros / snippets */
+    '.rc-card',
+    '.mco-card',
+    '.model-card',
+    '.nb-rec-card',
+    '.rcd__item',
+    '.rcd__upsell-card',
+    /* Genéricos */
+    '.card',
+    '.block-list__item',
+    '.grid__cell',
+    '.team__block-item',
+    '.faq__item',
+    '.video-item',
     '.recently-viewed__item',
-    '.blog-posts__item'
+    '.text-with-icons__item',
+    '.footer__block-item',
+    '.footer__aside-item'
   ].join(', ');
 
   /*
-   * Seções que NÃO têm grade: anima os filhos diretos do container.
-   * Ex: rich-text, image-with-text, slideshow, newsletter, video, mapa, etc.
+   * Seções simples sem grade interna: anima os filhos diretos.
    */
   var BLOCK_PARENTS = [
     '.image-with-text',
     '.rich-text__content',
-    '.text-with-icons__item',
     '.slideshow__slide',
     '.newsletter',
     '.video__wrapper',
     '.map__wrapper',
     '.page-content',
     '.featured-product__info',
-    '.featured-product__media',
-    '.promotion-list__item',
-    'footer .footer__column'
+    '.featured-product__media'
   ].join(', ');
 
   function addReveal(el, idx) {
