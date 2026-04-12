@@ -284,6 +284,7 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
           {%- if _col_ok -%}
             {%- for link in _col_list.links -%}
               {%- assign _col_link_handle = link.url | split: '/' | last | split: '?' | first -%}
+              {%- assign _linked_col = link.object -%}
               <label class="rc-filter-chip{% if section.settings.colecoes_show_images %} rc-filter-chip--circle{% endif %}">
                 <input type="checkbox" class="model-filter" value="{{ _col_link_handle | escape }}">
                 {%- if section.settings.colecoes_show_images -%}
@@ -295,6 +296,8 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
                 {%- endif -%}
                 <span>{{ link.title }}</span>
               </label>
+              {%- comment %} IDs dos produtos desta coleção — usados pelo JS para filtrar com precisão {%- endcomment -%}
+              <script type="application/json" class="rc-col-ids" data-handle="{{ _col_link_handle | escape }}">[{%- for p in _linked_col.products -%}{{ p.id }}{%- unless forloop.last -%},{%- endunless -%}{%- endfor -%}]</script>
             {%- endfor -%}
           {%- endif -%}
         </div>
@@ -398,6 +401,16 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
       } catch (e) { console.error(e); }
     });
 
+    // MAPA: handle da coleção → Set de IDs de produtos
+    const colProductMap = {};
+    document.querySelectorAll('script.rc-col-ids').forEach(el => {
+      try {
+        const handle = el.dataset.handle;
+        const ids = JSON.parse(el.textContent);
+        colProductMap[handle] = new Set(ids.map(String));
+      } catch (e) { console.error(e); }
+    });
+
     // COLETAR TAMANHOS, MARCAS E MODELOS ÚNICOS
     const allSizes = new Set();
     const allVendors = new Set();
@@ -476,13 +489,14 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
           const hasMarcaMatch = selectedMarcas.length === 0 ||
             selectedMarcas.some(m => vendor === m || tags.some(t => t.includes(m)));
 
-          // Coleção/Modelo — por handle de coleção (menu) ou tag (fallback JS)
-          const productCollections = data.collections || [];
+          // Coleção/Modelo — por ID no mapa de coleções (preciso) ou tag (fallback)
+          const pid = String(data.id);
           const hasModelMatch = selectedModels.length === 0 ||
-            selectedModels.some(m =>
-              productCollections.includes(m) ||
-              tags.some(t => t.includes(m))
-            );
+            selectedModels.some(m => {
+              const colIds = colProductMap[m];
+              if (colIds && colIds.size > 0) return colIds.has(pid);
+              return tags.some(t => t.includes(m));
+            });
 
           card.style.display = (hasSizeMatch && hasMarcaMatch && hasModelMatch) ? 'flex' : 'none';
         } catch (e) { console.error(e); }
