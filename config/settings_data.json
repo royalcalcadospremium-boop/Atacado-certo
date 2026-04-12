@@ -310,7 +310,11 @@
           "quick_links": "main-menu",
           "show_filters": false,
           "badge_bg": "#1a1a1a",
-          "badge_opacity": 100
+          "badge_opacity": 100,
+          "marcas_menu": "main-menu",
+          "marcas_show_images": false,
+          "colecoes_menu": "",
+          "colecoes_show_images": false
         }
       },
       "recently-viewed-products": {
@@ -1934,9 +1938,7 @@
         "collection-template": {
           "type": "collection-template",
           "settings": {
-            "default_view_layout": "grid",
-            "quick_links": "",
-            "filter_type": "tag"
+            "quick_links": ""
           }
         },
         "recently-viewed-products": {
@@ -2214,9 +2216,7 @@
         "collection-template": {
           "type": "collection-template",
           "settings": {
-            "default_view_layout": "grid",
-            "quick_links": "",
-            "filter_type": "tag"
+            "quick_links": ""
           }
         },
         "recently-viewed-products": {
