@@ -418,5 +418,86 @@
 {{ 'cart-drawer.css' | asset_url | stylesheet_tag }}
 <script src="{{ 'cart-drawer.js' | asset_url }}" defer></script>
 
+<!-- ── Scroll Reveal: Slide Up ── -->
+<style>
+  .scroll-reveal {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 0.65s ease, transform 0.65s ease;
+    will-change: opacity, transform;
+  }
+  .scroll-reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+<script>
+(function () {
+  'use strict';
+
+  var SELECTORS = [
+    '#main .shopify-section',
+    'footer .shopify-section',
+    '#main .product-item',
+    '#main .product-card',
+    '#main .collection-item',
+    '#main article',
+    '#main .image-wrapper',
+    '#main .banner__content',
+    '#main .text-column',
+    '#main .feature-chart',
+    '#main h1, #main h2, #main h3',
+    '#main .btn',
+    '#main img:not([data-scroll-skip])'
+  ].join(', ');
+
+  function init() {
+    var elements = Array.from(document.querySelectorAll(SELECTORS));
+
+    if (!elements.length || !('IntersectionObserver' in window)) {
+      // Fallback: mostra tudo sem animação
+      elements.forEach(function (el) { el.style.opacity = '1'; el.style.transform = 'none'; });
+      return;
+    }
+
+    // Adiciona stagger por seção
+    var sectionMap = new Map();
+    elements.forEach(function (el) {
+      var section = el.closest('.shopify-section') || el;
+      if (!sectionMap.has(section)) sectionMap.set(section, []);
+      sectionMap.get(section).push(el);
+    });
+
+    var delay = 0;
+    sectionMap.forEach(function (children) {
+      children.forEach(function (el, i) {
+        el.classList.add('scroll-reveal');
+        el.style.transitionDelay = (i * 80) + 'ms';
+      });
+    });
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.08,
+      rootMargin: '0px 0px -40px 0px'
+    });
+
+    elements.forEach(function (el) { observer.observe(el); });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
 </body>
 </html>
