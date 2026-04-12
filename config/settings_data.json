@@ -313,7 +313,7 @@
           "badge_opacity": 100,
           "marcas_menu": "main-menu",
           "marcas_show_images": true,
-          "colecoes_menu": "main-menu",
+          "colecoes_menu": "marcas-de-chinelo",
           "colecoes_show_images": false
         }
       },
