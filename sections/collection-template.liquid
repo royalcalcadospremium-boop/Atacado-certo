@@ -244,11 +244,11 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
       </div>
 
       <!-- MARCAS -->
-      {%- assign marcas_menu = linklists[section.settings.marcas_menu] -%}
       <div class="rc-filter-section">
         <div class="rc-filter-section-title">Marcas</div>
         <div class="rc-filter-chips{% if section.settings.marcas_show_images %} rc-filter-chips--circle{% endif %}" id="marcas-filter">
-          {%- if marcas_menu.links.size > 0 -%}
+          {%- if section.settings.marcas_use_menu -%}
+            {%- assign marcas_menu = linklists[section.settings.marcas_menu] -%}
             {%- for link in marcas_menu.links -%}
               <label class="rc-filter-chip{% if section.settings.marcas_show_images %} rc-filter-chip--circle{% endif %}">
                 <input type="checkbox" class="marca-filter" value="{{ link.title | escape }}">
@@ -267,11 +267,11 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
       </div>
 
       <!-- COLEÇÃO / MODELO -->
-      {%- assign colecoes_menu = linklists[section.settings.colecoes_menu] -%}
       <div class="rc-filter-section">
         <div class="rc-filter-section-title">Coleção / Modelo</div>
         <div class="rc-filter-chips{% if section.settings.colecoes_show_images %} rc-filter-chips--circle{% endif %}" id="models-filter">
-          {%- if colecoes_menu.links.size > 0 -%}
+          {%- if section.settings.colecoes_use_menu -%}
+            {%- assign colecoes_menu = linklists[section.settings.colecoes_menu] -%}
             {%- for link in colecoes_menu.links -%}
               <label class="rc-filter-chip{% if section.settings.colecoes_show_images %} rc-filter-chip--circle{% endif %}">
                 <input type="checkbox" class="model-filter" value="{{ link.title | escape }}">
@@ -770,11 +770,13 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     { "type": "color", "id": "badge_bg", "label": "Cor do Badge de Desconto", "default": "#1a1a1a" },
     { "type": "range", "id": "badge_opacity", "min": 0, "max": 100, "step": 10, "unit": "%", "label": "Opacidade do Badge", "default": 100 },
     { "type": "header", "content": "Filtro — Marcas" },
-    { "type": "link_list", "id": "marcas_menu", "label": "Menu de Marcas", "info": "Crie um menu onde cada link aponta para a coleção da marca. Deixe em branco para usar os fornecedores dos produtos automaticamente." },
-    { "type": "checkbox", "id": "marcas_show_images", "label": "Exibir imagens circulares das marcas", "default": false, "info": "Exibe a imagem da coleção em formato circular ao lado do nome da marca." },
+    { "type": "checkbox", "id": "marcas_use_menu", "label": "Usar menu personalizado para Marcas", "default": false, "info": "Ative para usar um menu próprio. Desativado: detecta marcas automaticamente pelos fornecedores dos produtos." },
+    { "type": "link_list", "id": "marcas_menu", "label": "Menu de Marcas", "info": "Selecione o menu com os links das marcas (cada link deve apontar para a coleção da marca)." },
+    { "type": "checkbox", "id": "marcas_show_images", "label": "Exibir imagens circulares das marcas", "default": false },
     { "type": "header", "content": "Filtro — Coleção / Modelo" },
-    { "type": "link_list", "id": "colecoes_menu", "label": "Menu de Coleções / Modelos", "info": "Crie um menu onde cada link aponta para a coleção/modelo. Deixe em branco para usar as tags dos produtos automaticamente." },
-    { "type": "checkbox", "id": "colecoes_show_images", "label": "Exibir imagens circulares das coleções", "default": false, "info": "Exibe a imagem da coleção em formato circular ao lado do nome." }
+    { "type": "checkbox", "id": "colecoes_use_menu", "label": "Usar menu personalizado para Coleção/Modelo", "default": false, "info": "Ative para usar um menu próprio. Desativado: detecta modelos automaticamente pelas tags dos produtos." },
+    { "type": "link_list", "id": "colecoes_menu", "label": "Menu de Coleções / Modelos" },
+    { "type": "checkbox", "id": "colecoes_show_images", "label": "Exibir imagens circulares das coleções", "default": false }
   ]
 }
 {% endschema %}
