@@ -314,7 +314,7 @@
           "marcas_menu": "main-menu",
           "marcas_show_images": true,
           "colecoes_menu": "marcas-de-chinelo",
-          "colecoes_show_images": false
+          "colecoes_show_images": true
         }
       },
       "recently-viewed-products": {
