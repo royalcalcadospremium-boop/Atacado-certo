@@ -651,66 +651,9 @@
       },
       "royal_category_cards_WkCwHp": {
         "type": "royal-category-cards",
-        "blocks": {
-          "category_zP6tHR": {
-            "type": "category",
-            "settings": {
-              "collection": "tenis",
-              "title": "Tênis",
-              "link": ""
-            }
-          },
-          "category_ENfEy9": {
-            "type": "category",
-            "settings": {
-              "collection": "chinelos",
-              "title": "Chinelos",
-              "link": ""
-            }
-          },
-          "category_kHjU47": {
-            "type": "category",
-            "settings": {
-              "collection": "camisetas",
-              "title": "Camisetas",
-              "link": ""
-            }
-          },
-          "category_g77nQp": {
-            "type": "category",
-            "settings": {
-              "collection": "bones",
-              "title": "",
-              "link": ""
-            }
-          },
-          "category_mpzwyR": {
-            "type": "category",
-            "settings": {
-              "collection": "bermudas",
-              "title": "",
-              "link": ""
-            }
-          },
-          "category_pAY8xy": {
-            "type": "category",
-            "settings": {
-              "collection": "calcas",
-              "title": "",
-              "link": ""
-            }
-          }
-        },
-        "block_order": [
-          "category_zP6tHR",
-          "category_ENfEy9",
-          "category_kHjU47",
-          "category_g77nQp",
-          "category_mpzwyR",
-          "category_pAY8xy"
-        ],
         "name": "Royal • Categoria Cards",
         "settings": {
+          "menu": "tipos-de-produtos",
           "desktop_compact": true,
           "desktop_fit_count": 7,
           "mobile_visible": 6,
