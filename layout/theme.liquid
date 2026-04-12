@@ -435,42 +435,93 @@
 (function () {
   'use strict';
 
-  /* Seleciona os blocos "raiz" — imagens dentro do card animam junto */
-  var SELECTORS = [
-    '#main .product-item',
-    '#main .product-card',
-    '#main .collection-item',
-    '#main article',
-    '#main .shopify-section > div > *',
-    'footer .shopify-section'
+  /*
+   * Elementos de grade/lista: cada um anima individualmente com stagger.
+   * O pai NÃO anima separado — foto e texto sobem juntos no mesmo bloco.
+   */
+  var GRID_ITEMS = [
+    '.product-item',
+    '.product-card',
+    '.collection-item',
+    '.article-item',
+    '.promo-block',
+    '.offer-item',
+    '.mosaic__item',
+    '.block-list__item',
+    '.quick-links__link',
+    '.card',
+    '.logo-list__item',
+    '.royal-cats__item',
+    '.royal-tabs-cards .tab-item',
+    '.royal-flash__item',
+    '.recently-viewed__item',
+    '.blog-posts__item'
   ].join(', ');
 
+  /*
+   * Seções que NÃO têm grade: anima os filhos diretos do container.
+   * Ex: rich-text, image-with-text, slideshow, newsletter, video, mapa, etc.
+   */
+  var BLOCK_PARENTS = [
+    '.image-with-text',
+    '.rich-text__content',
+    '.text-with-icons__item',
+    '.slideshow__slide',
+    '.newsletter',
+    '.video__wrapper',
+    '.map__wrapper',
+    '.page-content',
+    '.featured-product__info',
+    '.featured-product__media',
+    '.promotion-list__item',
+    'footer .footer__column'
+  ].join(', ');
+
+  function addReveal(el, idx) {
+    el.classList.add('scroll-reveal');
+    el._revealIdx = idx || 0;
+  }
+
   function init() {
-    var all = Array.from(document.querySelectorAll(SELECTORS));
+    if (!('IntersectionObserver' in window)) return;
 
-    /* Remove filhos que já estão cobertos pelo pai para evitar dupla animação */
-    var elements = all.filter(function (el) {
-      return !all.some(function (parent) {
-        return parent !== el && parent.contains(el);
-      });
+    /* 1) Itens de grade */
+    var gridEls = Array.from(document.querySelectorAll(GRID_ITEMS));
+
+    /* 2) Blocos de seção simples (excluindo os que já têm grade dentro) */
+    var blockEls = Array.from(document.querySelectorAll(BLOCK_PARENTS)).filter(function (el) {
+      return !el.querySelector(GRID_ITEMS);
     });
 
-    if (!elements.length || !('IntersectionObserver' in window)) {
-      elements.forEach(function (el) { el.style.opacity = '1'; el.style.transform = 'none'; });
-      return;
-    }
-
-    elements.forEach(function (el) {
-      el.classList.add('scroll-reveal');
+    /* 3) Fallback: seções que não foram cobertas acima */
+    var coveredSections = new Set();
+    gridEls.concat(blockEls).forEach(function (el) {
+      var sec = el.closest('.shopify-section');
+      if (sec) coveredSections.add(sec);
     });
+
+    var fallbackEls = Array.from(document.querySelectorAll('#main .shopify-section, footer .shopify-section'))
+      .filter(function (sec) { return !coveredSections.has(sec); })
+      .map(function (sec) { return Array.from(sec.children); })
+      .reduce(function (acc, arr) { return acc.concat(arr); }, []);
+
+    /* Junta tudo e remove duplicatas pai/filho */
+    var all = gridEls.concat(blockEls).concat(fallbackEls);
+    var unique = all.filter(function (el, i, arr) {
+      return arr.indexOf(el) === i &&
+        !arr.some(function (p) { return p !== el && p.contains(el); });
+    });
+
+    unique.forEach(function (el) { el.classList.add('scroll-reveal'); });
 
     var observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (!entry.isIntersecting) return;
-        /* Stagger leve entre irmãos visíveis ao mesmo tempo */
-        var siblings = Array.from(entry.target.parentElement.querySelectorAll('.scroll-reveal:not(.is-visible)'));
+        var siblings = Array.from(
+          entry.target.parentElement.querySelectorAll('.scroll-reveal:not(.is-visible)')
+        );
         var idx = siblings.indexOf(entry.target);
-        entry.target.style.transitionDelay = Math.min(idx, 4) * 55 + 'ms';
+        entry.target.style.transitionDelay = Math.min(idx, 5) * 55 + 'ms';
         entry.target.classList.add('is-visible');
         observer.unobserve(entry.target);
       });
@@ -479,7 +530,7 @@
       rootMargin: '0px 0px -30px 0px'
     });
 
-    elements.forEach(function (el) { observer.observe(el); });
+    unique.forEach(function (el) { observer.observe(el); });
   }
 
   if (document.readyState === 'loading') {
