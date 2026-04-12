@@ -283,8 +283,9 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
         <div class="rc-filter-chips{% if section.settings.colecoes_show_images %} rc-filter-chips--circle{% endif %}" id="models-filter"{% if _col_ok %} data-liquid="1"{% endif %}>
           {%- if _col_ok -%}
             {%- for link in _col_list.links -%}
+              {%- assign _col_link_handle = link.url | split: '/' | last | split: '?' | first -%}
               <label class="rc-filter-chip{% if section.settings.colecoes_show_images %} rc-filter-chip--circle{% endif %}">
-                <input type="checkbox" class="model-filter" value="{{ link.title | escape }}">
+                <input type="checkbox" class="model-filter" value="{{ _col_link_handle | escape }}">
                 {%- if section.settings.colecoes_show_images -%}
                   {%- if link.object.image -%}
                     <img src="{{ link.object.image | img_url: '80x80', crop: 'center' }}" class="rc-filter-circle-img" alt="{{ link.title | escape }}">
@@ -349,6 +350,7 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
                     "price_raw": {{ v.price }},
                     "vendor": {{ product.vendor | json }},
                     "tags": {{ product.tags | json }},
+                    "collections": [{% for c in product.collections %}"{{ c.handle }}"{% unless forloop.last %},{% endunless %}{% endfor %}],
                     "variants": [
                       {%- for var in product.variants -%}
                         { "id": "{{ var.id }}", "title": {{ var.title | json }}, "available": {{ var.available }}, "inventory": {{ var.inventory_quantity | default: 0 }} }{% unless forloop.last %},{% endunless %}
@@ -474,9 +476,13 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
           const hasMarcaMatch = selectedMarcas.length === 0 ||
             selectedMarcas.some(m => vendor === m || tags.some(t => t.includes(m)));
 
-          // Coleção/Modelo — tag contendo o nome
+          // Coleção/Modelo — por handle de coleção (menu) ou tag (fallback JS)
+          const productCollections = data.collections || [];
           const hasModelMatch = selectedModels.length === 0 ||
-            selectedModels.some(m => tags.some(t => t.includes(m)));
+            selectedModels.some(m =>
+              productCollections.includes(m) ||
+              tags.some(t => t.includes(m))
+            );
 
           card.style.display = (hasSizeMatch && hasMarcaMatch && hasModelMatch) ? 'flex' : 'none';
         } catch (e) { console.error(e); }
