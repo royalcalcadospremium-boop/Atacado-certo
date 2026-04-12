@@ -244,12 +244,17 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
       </div>
 
       <!-- MARCAS -->
+      {%- assign _marcas_handle = section.settings.marcas_menu | default: '' -%}
+      {%- assign _marcas_list   = linklists[_marcas_handle] -%}
+      {%- assign _marcas_ok     = false -%}
+      {%- if _marcas_handle != blank and _marcas_handle != 'main-menu' and _marcas_handle != 'footer' and _marcas_list.links.size > 0 -%}
+        {%- assign _marcas_ok = true -%}
+      {%- endif -%}
       <div class="rc-filter-section">
         <div class="rc-filter-section-title">Marcas</div>
-        <div class="rc-filter-chips{% if section.settings.marcas_show_images %} rc-filter-chips--circle{% endif %}" id="marcas-filter">
-          {%- if section.settings.marcas_use_menu -%}
-            {%- assign marcas_menu = linklists[section.settings.marcas_menu] -%}
-            {%- for link in marcas_menu.links -%}
+        <div class="rc-filter-chips{% if section.settings.marcas_show_images %} rc-filter-chips--circle{% endif %}" id="marcas-filter"{% if _marcas_ok %} data-liquid="1"{% endif %}>
+          {%- if _marcas_ok -%}
+            {%- for link in _marcas_list.links -%}
               <label class="rc-filter-chip{% if section.settings.marcas_show_images %} rc-filter-chip--circle{% endif %}">
                 <input type="checkbox" class="marca-filter" value="{{ link.title | escape }}">
                 {%- if section.settings.marcas_show_images -%}
@@ -267,12 +272,17 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
       </div>
 
       <!-- COLEÇÃO / MODELO -->
+      {%- assign _col_handle = section.settings.colecoes_menu | default: '' -%}
+      {%- assign _col_list   = linklists[_col_handle] -%}
+      {%- assign _col_ok     = false -%}
+      {%- if _col_handle != blank and _col_handle != 'main-menu' and _col_handle != 'footer' and _col_list.links.size > 0 -%}
+        {%- assign _col_ok = true -%}
+      {%- endif -%}
       <div class="rc-filter-section">
         <div class="rc-filter-section-title">Coleção / Modelo</div>
-        <div class="rc-filter-chips{% if section.settings.colecoes_show_images %} rc-filter-chips--circle{% endif %}" id="models-filter">
-          {%- if section.settings.colecoes_use_menu -%}
-            {%- assign colecoes_menu = linklists[section.settings.colecoes_menu] -%}
-            {%- for link in colecoes_menu.links -%}
+        <div class="rc-filter-chips{% if section.settings.colecoes_show_images %} rc-filter-chips--circle{% endif %}" id="models-filter"{% if _col_ok %} data-liquid="1"{% endif %}>
+          {%- if _col_ok -%}
+            {%- for link in _col_list.links -%}
               <label class="rc-filter-chip{% if section.settings.colecoes_show_images %} rc-filter-chip--circle{% endif %}">
                 <input type="checkbox" class="model-filter" value="{{ link.title | escape }}">
                 {%- if section.settings.colecoes_show_images -%}
@@ -423,18 +433,18 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
         sortedSizes.map(s => chip(s, 'size-filter')).join('') ||
         '<p class="rc-filter-empty">Nenhum tamanho disponível</p>';
 
-      // Marcas — fallback por vendor se nenhum link list configurado
+      // Marcas — fallback por vendor se Liquid não preencheu (sem data-liquid)
       const marcasContainer = document.getElementById('marcas-filter');
-      if (marcasContainer && !marcasContainer.querySelector('label')) {
+      if (marcasContainer && !marcasContainer.dataset.liquid) {
         const sortedVendors = Array.from(allVendors).sort();
         marcasContainer.innerHTML =
           sortedVendors.map(v => chip(v, 'marca-filter')).join('') ||
           '<p class="rc-filter-empty">Nenhuma marca disponível</p>';
       }
 
-      // Coleção/Modelo — fallback por tags se nenhum link list configurado
+      // Coleção/Modelo — fallback por tags se Liquid não preencheu (sem data-liquid)
       const modelsContainer = document.getElementById('models-filter');
-      if (modelsContainer && !modelsContainer.querySelector('label')) {
+      if (modelsContainer && !modelsContainer.dataset.liquid) {
         const sortedModels = Array.from(allModels).sort();
         modelsContainer.innerHTML =
           sortedModels.map(m => chip(m, 'model-filter')).join('') ||
@@ -770,12 +780,10 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     { "type": "color", "id": "badge_bg", "label": "Cor do Badge de Desconto", "default": "#1a1a1a" },
     { "type": "range", "id": "badge_opacity", "min": 0, "max": 100, "step": 10, "unit": "%", "label": "Opacidade do Badge", "default": 100 },
     { "type": "header", "content": "Filtro — Marcas" },
-    { "type": "checkbox", "id": "marcas_use_menu", "label": "Usar menu personalizado para Marcas", "default": false, "info": "Ative para usar um menu próprio. Desativado: detecta marcas automaticamente pelos fornecedores dos produtos." },
-    { "type": "link_list", "id": "marcas_menu", "label": "Menu de Marcas", "info": "Selecione o menu com os links das marcas (cada link deve apontar para a coleção da marca)." },
+    { "type": "link_list", "id": "marcas_menu", "label": "Menu de Marcas", "info": "Selecione o menu com as marcas. Deixe sem seleção para detectar automaticamente pelos fornecedores dos produtos." },
     { "type": "checkbox", "id": "marcas_show_images", "label": "Exibir imagens circulares das marcas", "default": false },
     { "type": "header", "content": "Filtro — Coleção / Modelo" },
-    { "type": "checkbox", "id": "colecoes_use_menu", "label": "Usar menu personalizado para Coleção/Modelo", "default": false, "info": "Ative para usar um menu próprio. Desativado: detecta modelos automaticamente pelas tags dos produtos." },
-    { "type": "link_list", "id": "colecoes_menu", "label": "Menu de Coleções / Modelos" },
+    { "type": "link_list", "id": "colecoes_menu", "label": "Menu de Coleções / Modelos", "info": "Selecione o menu com os modelos. Deixe sem seleção para detectar automaticamente pelas tags dos produtos." },
     { "type": "checkbox", "id": "colecoes_show_images", "label": "Exibir imagens circulares das coleções", "default": false }
   ]
 }
