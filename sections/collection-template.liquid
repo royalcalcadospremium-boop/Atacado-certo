@@ -131,17 +131,26 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     .nb-qb-modal { background: #fff; width: 100%; max-width: 500px; border-radius: 16px 16px 0 0; padding: 20px; position: relative; }
 
     /* FILTER DRAWER */
-    .rc-filter-icon { 
-      position: absolute; top: 0; right: 0; width: 48px; height: 48px; 
-      background: #111; color: #fff; border: none; border-radius: 50%; 
-      display: flex; align-items: center; justify-content: center; cursor: pointer; 
-      z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.2); 
-      transition: position 0.2s ease;
+    .rc-filter-icon {
+      position: absolute; top: 0; right: 0; width: 48px; height: 48px;
+      background: #111; color: #fff; border: none; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+      z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      transition: background 0.2s ease;
     }
-    .rc-filter-icon.is-floating {
-      position: fixed; top: 20px; right: 20px;
-    }
+    .rc-filter-icon.is-floating { position: fixed; top: 20px; right: 20px; }
     .rc-filter-icon:hover { background: #333; }
+    .rc-filter-icon.has-filters { background: #2563eb; }
+    .rc-filter-icon.has-filters:hover { background: #1d4ed8; }
+    /* Badge com número de filtros ativos */
+    .rc-filter-icon .rc-filter-badge {
+      display: none; position: absolute; top: -4px; right: -4px;
+      background: #fff; color: #2563eb; border: 2px solid #2563eb;
+      border-radius: 50%; width: 18px; height: 18px;
+      font-size: 10px; font-weight: 800; line-height: 1;
+      align-items: center; justify-content: center;
+    }
+    .rc-filter-icon.has-filters .rc-filter-badge { display: flex; }
 
     .rc-filter-drawer {
       position: fixed; left: 0; top: 0; width: 100%; max-width: 360px; height: 100vh;
@@ -231,6 +240,7 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
         </svg>
+        <span class="rc-filter-badge" id="rc-filter-badge">0</span>
       </button>
     </div>
     </button>
@@ -493,6 +503,7 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
       });
 
       document.getElementById('filter-drawer').classList.remove('is-open');
+      updateFilterBadge();
     };
 
     // LIMPAR FILTROS
@@ -500,7 +511,20 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
       document.querySelectorAll('.size-filter, .marca-filter, .model-filter').forEach(el => el.checked = false);
       document.querySelectorAll('.rc-card').forEach(card => card.style.display = 'flex');
       document.getElementById('filter-drawer').classList.remove('is-open');
+      updateFilterBadge();
     };
+
+    // BADGE: atualiza ícone de filtro com contagem de filtros ativos
+    function updateFilterBadge() {
+      const active = document.querySelectorAll('.size-filter:checked, .marca-filter:checked, .model-filter:checked').length;
+      const btn    = document.getElementById('btn-filter-toggle');
+      const badge  = document.getElementById('rc-filter-badge');
+      btn.classList.toggle('has-filters', active > 0);
+      if (badge) badge.textContent = active;
+    }
+
+    // Atualiza badge ao mudar qualquer checkbox
+    document.getElementById('filter-drawer').addEventListener('change', updateFilterBadge);
 
     // ABRIR/FECHAR DRAWER
     document.getElementById('btn-filter-toggle').addEventListener('click', () => {
