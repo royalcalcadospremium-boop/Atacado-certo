@@ -129,6 +129,16 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
       #royal-collection-gummy-{{ section.id }} .rc-container{ padding: 0 10px; }
     }
 
+    /* PAGINAÇÃO VIRTUAL */
+    #royal-collection-gummy-{{ section.id }} .rc-card.rc-page-hidden,
+    #royal-collection-gummy-{{ section.id }} .rc-card.rc-filtered-out { display: none !important; }
+    #royal-collection-gummy-{{ section.id }} .rc-load-more-btn {
+      display: none; margin: 24px auto; padding: 14px 32px;
+      background: #111; color: #fff; border: none; border-radius: 4px;
+      font-size: 14px; font-weight: 700; cursor: pointer; letter-spacing: 0.5px; width: 100%;
+    }
+    #royal-collection-gummy-{{ section.id }} .rc-load-more-btn:hover { background: #333; }
+
     /* CARDS */
     #royal-collection-gummy-{{ section.id }} .rc-card{
       background: var(--card);
@@ -407,6 +417,10 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
             {%- endfor -%}
           </div>
 
+          <div style="text-align:center;">
+            <button type="button" class="rc-load-more-btn" id="btn-load-more">Ver mais</button>
+          </div>
+
           <div class="rc-pagination-wrapper">
             {%- if paginate.pages > 1 -%}
               <nav class="rc-pagination">
@@ -558,6 +572,7 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
       var selectedSizes  = Array.from(document.querySelectorAll('.size-filter:checked')).map(function(el){ return el.value; });
       var selectedMarcas = Array.from(document.querySelectorAll('.marca-filter:checked')).map(function(el){ return el.value.toLowerCase(); });
 
+      RC_PAGE = 1;
       document.querySelectorAll('.rc-card').forEach(function(card) {
         var dataEl = card.querySelector('script[type="application/json"]');
         if (!dataEl) return;
@@ -575,9 +590,14 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
           var hasMarcaMatch = selectedMarcas.length === 0 ||
             selectedMarcas.some(function(m){ return vendor === m || tags.some(function(t){ return t.includes(m); }); });
 
-          card.style.display = (hasSizeMatch && hasMarcaMatch) ? 'flex' : 'none';
+          if (hasSizeMatch && hasMarcaMatch) {
+            card.classList.remove('rc-filtered-out');
+          } else {
+            card.classList.add('rc-filtered-out');
+          }
         } catch(e){ console.error(e); }
       });
+      applyDisplayLimit();
     }
 
     // APLICAR FILTROS
@@ -600,7 +620,9 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     // LIMPAR FILTROS
     window.resetFilters = function() {
       document.querySelectorAll('.size-filter, .marca-filter, .model-filter').forEach(function(el){ el.checked = false; });
-      document.querySelectorAll('.rc-card').forEach(function(card){ card.style.display = 'flex'; });
+      document.querySelectorAll('.rc-card').forEach(function(card){ card.classList.remove('rc-filtered-out'); });
+      RC_PAGE = 1;
+      applyDisplayLimit();
       try { sessionStorage.removeItem(RC_KEY); } catch(e){}
       document.getElementById('filter-drawer').classList.remove('is-open');
       updateFilterBadge();
@@ -645,6 +667,42 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
         if (card) grid.appendChild(card);
       });
     })();
+
+    // PAGINAÇÃO VIRTUAL: 10 produtos no mobile (2×5), 40 no desktop (4×10)
+    var RC_PAGE = 1;
+    function getPageSize() { return window.innerWidth <= 800 ? 10 : 40; }
+
+    function applyDisplayLimit() {
+      var pageSize = getPageSize();
+      var limit = RC_PAGE * pageSize;
+      var visibleCards = Array.from(document.querySelectorAll('.rc-card')).filter(function(c) {
+        return !c.classList.contains('rc-filtered-out');
+      });
+      visibleCards.forEach(function(card, i) {
+        if (i < limit) card.classList.remove('rc-page-hidden');
+        else card.classList.add('rc-page-hidden');
+      });
+      var btn = document.getElementById('btn-load-more');
+      if (btn) {
+        var remaining = visibleCards.length - limit;
+        if (remaining > 0) {
+          btn.style.display = 'block';
+          btn.textContent = 'Ver mais (' + Math.min(pageSize, remaining) + ' de ' + remaining + ' restantes)';
+        } else {
+          btn.style.display = 'none';
+        }
+      }
+    }
+
+    var loadMoreBtn = document.getElementById('btn-load-more');
+    if (loadMoreBtn) {
+      loadMoreBtn.addEventListener('click', function() {
+        RC_PAGE++;
+        applyDisplayLimit();
+      });
+    }
+
+    applyDisplayLimit();
 
     // MONITORAR SCROLL PARA TORNAR ÍCONE FLUTUANTE
     const filterIcon = document.getElementById('btn-filter-toggle');
@@ -793,8 +851,13 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
 
       btnDownload.addEventListener('click', async () => {
         btnDownload.disabled = true;
-        const cards = document.querySelectorAll('.rc-card');
         const device = isDesktop() ? 'desktop' : 'mobile';
+
+        // Desktop: todos os produtos filtrados (sem rc-filtered-out)
+        // Mobile: apenas os da página atual (sem rc-page-hidden e sem rc-filtered-out)
+        const cards = device === 'desktop'
+          ? document.querySelectorAll('.rc-card:not(.rc-filtered-out)')
+          : document.querySelectorAll('.rc-card:not(.rc-filtered-out):not(.rc-page-hidden)');
 
         statusText.innerText = `Processando ${cards.length} imagens...`;
 
@@ -805,7 +868,7 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
           try {
             const id = cards[i].getAttribute('data-product-id');
             const data = JSON.parse(document.getElementById('data-' + id).textContent);
-            
+
             statusText.innerText = `Gerando ${i + 1} de ${cards.length}...`;
             const dataUrl = await generatePhoto(data);
             const filename = `${String(i + 1).padStart(2, '0')}-${getRef(data.price_raw)}.jpg`;
