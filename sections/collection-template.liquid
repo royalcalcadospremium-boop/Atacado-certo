@@ -289,20 +289,17 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
           {%- if _col_ok -%}
             {%- for link in _col_list.links -%}
               {%- assign _col_link_handle = link.url | split: '/' | last | split: '?' | first -%}
-              {%- assign _col_active = false -%}
-              {%- if request.path contains _col_link_handle -%}{%- assign _col_active = true -%}{%- endif -%}
-              {%- if section.settings.colecoes_show_images -%}
-                <a href="{{ link.url }}" class="rc-filter-chip rc-filter-chip--circle{% if _col_active %} rc-col-active{% endif %}">
+              <label class="rc-filter-chip{% if section.settings.colecoes_show_images %} rc-filter-chip--circle{% endif %}">
+                <input type="checkbox" class="model-filter" value="{{ link.url | escape }}">
+                {%- if section.settings.colecoes_show_images -%}
                   {%- if link.object.image -%}
                     <img src="{{ link.object.image | img_url: '80x80', crop: 'center' }}" class="rc-filter-circle-img" alt="{{ link.title | escape }}">
                   {%- else -%}
                     <div class="rc-filter-circle-placeholder">{{ link.title | slice: 0, 2 | upcase }}</div>
                   {%- endif -%}
-                  <span>{{ link.title }}</span>
-                </a>
-              {%- else -%}
-                <a href="{{ link.url }}" class="rc-filter-chip{% if _col_active %} rc-col-active{% endif %}">{{ link.title }}</a>
-              {%- endif -%}
+                {%- endif -%}
+                <span>{{ link.title }}</span>
+              </label>
             {%- endfor -%}
           {%- endif -%}
         </div>
@@ -467,6 +464,13 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     window.applyFilters = function() {
       const selectedSizes  = Array.from(document.querySelectorAll('.size-filter:checked')).map(el => el.value);
       const selectedMarcas = Array.from(document.querySelectorAll('.marca-filter:checked')).map(el => el.value.toLowerCase());
+      const selectedModel  = document.querySelector('.model-filter:checked');
+
+      // Coleção/Modelo selecionada → navega para a URL da coleção
+      if (selectedModel) {
+        window.location.href = selectedModel.value;
+        return;
+      }
 
       document.querySelectorAll('.rc-card').forEach(card => {
         const dataEl = card.querySelector('script[type="application/json"]');
@@ -493,7 +497,7 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
 
     // LIMPAR FILTROS
     window.resetFilters = function() {
-      document.querySelectorAll('.size-filter, .marca-filter').forEach(el => el.checked = false);
+      document.querySelectorAll('.size-filter, .marca-filter, .model-filter').forEach(el => el.checked = false);
       document.querySelectorAll('.rc-card').forEach(card => card.style.display = 'flex');
       document.getElementById('filter-drawer').classList.remove('is-open');
     };
