@@ -474,10 +474,11 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     const allModels = new Set();
 
     allProducts.forEach(product => {
-      // Tamanhos das variantes
+      // Tamanhos das variantes — pega só a primeira opção (antes do " / ")
       product.variants.forEach(v => {
         if (v.available && v.title && v.title !== 'Default Title') {
-          allSizes.add(v.title.trim());
+          var sizeOnly = v.title.split(' / ')[0].trim();
+          if (sizeOnly) allSizes.add(sizeOnly);
         }
       });
       // Marca (vendor)
@@ -576,7 +577,10 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
           var vendor = (data.vendor || '').toLowerCase();
 
           var hasSizeMatch = selectedSizes.length === 0 ||
-            data.variants.some(function(v){ return v.available && selectedSizes.includes(String(v.title || '').trim()); });
+            data.variants.some(function(v){
+              var sizeOnly = String(v.title || '').split(' / ')[0].trim();
+              return v.available && selectedSizes.includes(sizeOnly);
+            });
 
           var hasMarcaMatch = selectedMarcas.length === 0 ||
             selectedMarcas.some(function(m){ return vendor === m || tags.some(function(t){ return t.includes(m); }); });
