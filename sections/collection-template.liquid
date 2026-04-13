@@ -480,6 +480,13 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     }
 
     function restoreFilterState() {
+      // Marca o chip de modelo que corresponde à URL atual
+      var currentPath = window.location.pathname.replace(/\/$/, '');
+      document.querySelectorAll('.model-filter').forEach(function(el){
+        var chipPath = el.value.split('?')[0].replace(/\/$/, '');
+        if (chipPath && currentPath.endsWith(chipPath)) el.checked = true;
+      });
+
       try {
         var raw = sessionStorage.getItem(RC_KEY);
         if (!raw) return;
