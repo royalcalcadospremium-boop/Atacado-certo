@@ -311,7 +311,7 @@
           "show_filters": true,
           "badge_bg": "#1a1a1a",
           "badge_opacity": 100,
-          "marcas_menu": "main-menu",
+          "marcas_menu": "tipos-de-produtos",
           "marcas_show_images": true,
           "colecoes_menu": "marcas-de-chinelo",
           "colecoes_show_images": true
