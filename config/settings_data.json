@@ -304,23 +304,13 @@
       "collection-template": {
         "type": "collection-template",
         "blocks": {
-          "tipo_Fezwxg": {
-            "type": "tipo",
-            "settings": {
-              "collection_handle": "collection.calcas",
-              "marcas_menu": "",
-              "marcas_show_images": false,
-              "modelos_menu": "",
-              "modelos_show_images": false
-            }
-          },
           "tipo_KbTKHD": {
             "type": "tipo",
             "settings": {
               "collection_handle": "collection.chinelos",
               "marcas_menu": "",
               "marcas_show_images": false,
-              "modelos_menu": "",
+              "modelos_menu": "marcas-de-chinelo",
               "modelos_show_images": false
             }
           },
@@ -363,15 +353,25 @@
               "modelos_menu": "",
               "modelos_show_images": false
             }
+          },
+          "tipo_Fezwxg": {
+            "type": "tipo",
+            "settings": {
+              "collection_handle": "collection.calcas",
+              "marcas_menu": "",
+              "marcas_show_images": false,
+              "modelos_menu": "",
+              "modelos_show_images": false
+            }
           }
         },
         "block_order": [
-          "tipo_Fezwxg",
           "tipo_KbTKHD",
           "tipo_8eKtw4",
           "tipo_Xeqw7W",
           "tipo_LAyEVj",
-          "tipo_cMqUYY"
+          "tipo_cMqUYY",
+          "tipo_Fezwxg"
         ],
         "settings": {
           "bg": "#ffffff",
