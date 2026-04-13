@@ -6,7 +6,7 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
 - ✅ PAGINAÇÃO: Fixo em 10 produtos para performance de download.
 {% endcomment %}
 
-{%- assign items_per_page = 48 -%}
+{%- assign items_per_page = 40 -%}
 
 {%- assign has_visible_tags = false -%}
 {%- if section.settings.show_filters -%}
@@ -129,8 +129,16 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
       #royal-collection-gummy-{{ section.id }} .rc-container{ padding: 0 10px; }
     }
 
-    /* FILTRO */
+    /* FILTRO + PAGINAÇÃO MOBILE */
     #royal-collection-gummy-{{ section.id }} .rc-card.rc-filtered-out { display: none !important; }
+    @media (max-width: 800px) {
+      #royal-collection-gummy-{{ section.id }} .rc-card.rc-mobile-hidden { display: none !important; }
+      #royal-collection-gummy-{{ section.id }} .rc-mobile-pages { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 16px 0 8px; }
+      #royal-collection-gummy-{{ section.id }} .rc-shopify-pages { margin-top: 4px; }
+    }
+    @media (min-width: 801px) {
+      #royal-collection-gummy-{{ section.id }} .rc-mobile-pages { display: none; }
+    }
 
     /* CARDS */
     #royal-collection-gummy-{{ section.id }} .rc-card{
@@ -411,8 +419,12 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
           </div>
 
           <div class="rc-pagination-wrapper">
+            {%- comment -%} Paginação mobile (sub-grupos de 10) — JS preenche {%- endcomment -%}
+            <nav class="rc-pagination rc-mobile-pages" id="rc-mobile-pages" aria-label="Páginas mobile"></nav>
+
+            {%- comment -%} Paginação Shopify (desktop + navegação entre blocos de 40) {%- endcomment -%}
             {%- if paginate.pages > 1 -%}
-              <nav class="rc-pagination">
+              <nav class="rc-pagination rc-shopify-pages">
                 {%- for part in paginate.parts -%}
                   {%- if part.is_link -%}<a href="{{ part.url }}" class="rc-page">{{ part.title }}</a>
                   {%- else -%}<span class="rc-page" {% if part.title == paginate.current_page %}aria-current="page"{% endif %}>{{ part.title }}</span>
@@ -585,6 +597,8 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
           }
         } catch(e){ console.error(e); }
       });
+      rcMobilePage = 1;
+      renderMobilePages();
     }
 
     // APLICAR FILTROS
@@ -608,6 +622,8 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     window.resetFilters = function() {
       document.querySelectorAll('.size-filter, .marca-filter, .model-filter').forEach(function(el){ el.checked = false; });
       document.querySelectorAll('.rc-card').forEach(function(card){ card.classList.remove('rc-filtered-out'); });
+      rcMobilePage = 1;
+      renderMobilePages();
       try { sessionStorage.removeItem(RC_KEY); } catch(e){}
       document.getElementById('filter-drawer').classList.remove('is-open');
       updateFilterBadge();
@@ -652,6 +668,46 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
         if (card) grid.appendChild(card);
       });
     })();
+
+    // SUB-PAGINAÇÃO MOBILE: 10 cards por grupo (2 colunas × 5 linhas)
+    // Desktop carrega 40 (4×10). Mobile divide em sub-páginas de 10 com botões numerados.
+    var rcMobilePage = 1;
+    var RC_MOBILE_PER = 10;
+
+    function renderMobilePages() {
+      if (window.innerWidth > 800) return;
+      var cards = Array.from(document.querySelectorAll('.rc-card:not(.rc-filtered-out)'));
+      var totalPages = Math.max(1, Math.ceil(cards.length / RC_MOBILE_PER));
+      if (rcMobilePage > totalPages) rcMobilePage = 1;
+
+      cards.forEach(function(card, i) {
+        var page = Math.floor(i / RC_MOBILE_PER) + 1;
+        if (page === rcMobilePage) card.classList.remove('rc-mobile-hidden');
+        else card.classList.add('rc-mobile-hidden');
+      });
+
+      var nav = document.getElementById('rc-mobile-pages');
+      if (!nav) return;
+      var html = '';
+      for (var p = 1; p <= totalPages; p++) {
+        if (p === rcMobilePage) {
+          html += '<span class="rc-page" aria-current="page">' + p + '</span>';
+        } else {
+          html += '<span class="rc-page" style="cursor:pointer" data-mp="' + p + '">' + p + '</span>';
+        }
+      }
+      nav.innerHTML = html;
+      nav.querySelectorAll('[data-mp]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          rcMobilePage = +this.dataset.mp;
+          renderMobilePages();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      });
+    }
+
+    renderMobilePages();
+    window.addEventListener('resize', renderMobilePages);
 
     // MONITORAR SCROLL PARA TORNAR ÍCONE FLUTUANTE
     const filterIcon = document.getElementById('btn-filter-toggle');
@@ -802,8 +858,11 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
         btnDownload.disabled = true;
         const device = isDesktop() ? 'desktop' : 'mobile';
 
-        // Processa apenas produtos visíveis (não filtrados)
-        const cards = document.querySelectorAll('.rc-card:not(.rc-filtered-out)');
+        // Desktop: todos os produtos filtrados da página Shopify atual
+        // Mobile: apenas os 10 visíveis na sub-página atual
+        const cards = device === 'mobile'
+          ? document.querySelectorAll('.rc-card:not(.rc-filtered-out):not(.rc-mobile-hidden)')
+          : document.querySelectorAll('.rc-card:not(.rc-filtered-out)');
 
         statusText.innerText = `Processando ${cards.length} imagens...`;
 
