@@ -585,7 +585,8 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
           var hasMarcaMatch = selectedMarcas.length === 0 ||
             selectedMarcas.some(function(m){ return vendor === m || tags.some(function(t){ return t.includes(m); }); });
 
-          card.style.display = (hasSizeMatch && hasMarcaMatch) ? 'flex' : 'none';
+          var noStock = card.getAttribute('data-no-stock') === '1';
+          card.style.display = (!noStock && hasSizeMatch && hasMarcaMatch) ? 'flex' : 'none';
         } catch(e){ console.error(e); }
       });
     }
@@ -610,7 +611,9 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     // LIMPAR FILTROS
     window.resetFilters = function() {
       document.querySelectorAll('.size-filter, .marca-filter, .model-filter').forEach(function(el){ el.checked = false; });
-      document.querySelectorAll('.rc-card').forEach(function(card){ card.style.display = 'flex'; });
+      document.querySelectorAll('.rc-card').forEach(function(card){
+        card.style.display = card.getAttribute('data-no-stock') === '1' ? 'none' : 'flex';
+      });
       try { sessionStorage.removeItem(RC_KEY); } catch(e){}
       document.getElementById('filter-drawer').classList.remove('is-open');
       updateFilterBadge();
@@ -642,7 +645,6 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
 
     // ORDENAÇÃO E OCULTAÇÃO POR ESTOQUE
     (function sortByStock() {
-      {% if section.settings.stock_sort %}
       var grid = document.querySelector('.rc-grid');
       if (!grid) return;
 
@@ -651,15 +653,13 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
         var total = 0;
         var allUntracked = true;
         (product.variants || []).forEach(function(v) {
-          if (v.tracked) {
-            allUntracked = false;
-            total += (v.inventory || 0);
-          }
+          if (v.tracked) { allUntracked = false; total += (v.inventory || 0); }
         });
         return { total: total, allUntracked: allUntracked };
       }
 
-      // Ordena: rastreados por estoque desc → não-rastreados por último
+      {% if section.settings.stock_sort %}
+      // Ordena: rastreados por estoque desc → não-rastreados (sem Tiny/Olist) por último
       var sorted = allProducts.slice().sort(function(a, b) {
         var ai = getStockInfo(a), bi = getStockInfo(b);
         if (ai.allUntracked && !bi.allUntracked) return 1;
@@ -667,15 +667,27 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
         return bi.total - ai.total;
       });
 
-      // Aplica ordenação e oculta zerados
+      // Aplica ordenação e marca/oculta zerados
       sorted.forEach(function(product) {
         var card = document.querySelector('[data-product-id="' + product.id + '"]');
         if (!card) return;
         var info = getStockInfo(product);
         if (!info.allUntracked && info.total <= 0) {
-          card.style.display = 'none'; // sem estoque → ocultar
+          card.setAttribute('data-no-stock', '1');
+          card.style.display = 'none'; // rastreado com estoque zero → ocultar
         } else {
           grid.appendChild(card); // reordena no DOM
+        }
+      });
+      {% else %}
+      // Só marca zerados (sem reordenar)
+      allProducts.forEach(function(product) {
+        var card = document.querySelector('[data-product-id="' + product.id + '"]');
+        if (!card) return;
+        var info = getStockInfo(product);
+        if (!info.allUntracked && info.total <= 0) {
+          card.setAttribute('data-no-stock', '1');
+          card.style.display = 'none';
         }
       });
       {% endif %}
