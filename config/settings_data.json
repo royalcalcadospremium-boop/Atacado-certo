@@ -310,11 +310,7 @@
           "quick_links": "marcas-de-chinelo",
           "show_filters": true,
           "badge_bg": "#1a1a1a",
-          "badge_opacity": 100,
-          "marcas_menu": "tipos-de-produtos",
-          "marcas_show_images": true,
-          "colecoes_menu": "marcas-de-chinelo",
-          "colecoes_show_images": true
+          "badge_opacity": 100
         }
       },
       "recently-viewed-products": {
@@ -664,92 +660,6 @@
           "media_standard_desktop": 118,
           "media_compact_desktop": 88,
           "media_compact_mobile": 48
-        }
-      },
-      "blog_posts_XUjtCC": {
-        "type": "blog-posts",
-        "name": "Blog posts",
-        "settings": {
-          "overlap_px": 0,
-          "overlap_px_mobile": 0,
-          "blog": "",
-          "title": "Blog posts",
-          "link_title": "View all",
-          "show_category": true,
-          "show_author": true,
-          "show_date": true,
-          "show_excerpt": false,
-          "stack_mobile": false
-        }
-      },
-      "royal_avalia_QW43rq": {
-        "type": "royal-avalia",
-        "blocks": {
-          "review_cgbhin": {
-            "type": "review",
-            "settings": {
-              "rating": 5,
-              "title": "Qualidade muito boa !",
-              "text": "<p>Produto top! Confortável e chegou rápido.</p>",
-              "author": "Fellipe C.",
-              "product": "Tênis Royal",
-              "verified": false
-            }
-          },
-          "review_8CJAJJ": {
-            "type": "review",
-            "settings": {
-              "rating": 5,
-              "title": "Qualidade excelente!",
-              "text": "<p>Produto top! Confortável e chegou rápido.</p>",
-              "author": "Fellipe C.",
-              "product": "Tênis Royal",
-              "verified": false
-            }
-          },
-          "review_P6Kgjy": {
-            "type": "review",
-            "settings": {
-              "rating": 5,
-              "title": "Qualidade excelente!",
-              "text": "<p>Produto top! Confortável e chegou rápido.</p>",
-              "author": "Amanda",
-              "product": "Tênis Royal",
-              "verified": false
-            }
-          }
-        },
-        "block_order": [
-          "review_cgbhin",
-          "review_8CJAJJ",
-          "review_P6Kgjy"
-        ],
-        "name": "Avaliações Royal (Home)",
-        "settings": {
-          "title": "Avaliações dos clientes",
-          "subtitle": "Veja o que estão falando sobre a Royal",
-          "show_topbar": true,
-          "title_style": "gradient",
-          "align_center": true,
-          "title_color": "#0e5cf2",
-          "grad_a": "#0e5cf2",
-          "grad_b": "#0a3bcf",
-          "card_bg": "#ffffff",
-          "card_text": "#111111",
-          "accent": "#0e5cf2",
-          "star_color": "#ffd700",
-          "layout": "carousel",
-          "desktop_visible": 3,
-          "mobile_visible": 1,
-          "image_height_desktop": 240,
-          "image_height_mobile": 200,
-          "show_arrows": true,
-          "desktop_peek": true,
-          "mobile_peek": true,
-          "hide_left_home": false,
-          "pad_y": 28,
-          "overlap_px": 20,
-          "overlap_px_mobile": 44
         }
       },
       "collection-enum": {
@@ -1620,9 +1530,7 @@
       "royal_mais_ofertas_duo_ygncqp",
       "royal_mais_ofertas_duo_Ye3WL3",
       "royal_mais_ofertas_duo_8TJMpE",
-      "1649913261818592e3",
-      "blog_posts_XUjtCC",
-      "royal_avalia_QW43rq"
+      "1649913261818592e3"
     ],
     "blocks": {
       "286197278318599166": {
