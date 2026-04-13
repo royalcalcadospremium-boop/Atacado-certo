@@ -24,6 +24,16 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
 {%- assign has_filters = false -%}
 {%- if quick_links_menu.links.size > 0 or has_visible_tags -%}{%- assign has_filters = true -%}{%- endif -%}
 
+{%- comment -%} Encontra o bloco de tipo de produto que corresponde à coleção atual {%- endcomment -%}
+{%- assign _active_tipo = nil -%}
+{%- for block in section.blocks -%}
+  {%- assign _bh = block.settings.collection_handle | downcase | strip -%}
+  {%- if _bh != blank and collection.handle contains _bh -%}
+    {%- assign _active_tipo = block -%}
+    {%- break -%}
+  {%- endif -%}
+{%- endfor -%}
+
 <section id="royal-collection-gummy-{{ section.id }}" class="royal-section-fix" data-section-id="{{ section.id }}" data-section-type="collection">
 
   <style>
@@ -257,20 +267,25 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
       </div>
 
       <!-- MARCAS -->
-      {%- assign _marcas_handle = section.settings.marcas_menu | default: '' -%}
-      {%- assign _marcas_list   = linklists[_marcas_handle] -%}
-      {%- assign _marcas_ok     = false -%}
+      {%- assign _marcas_handle = '' -%}
+      {%- assign _marcas_show_images = false -%}
+      {%- if _active_tipo -%}
+        {%- assign _marcas_handle = _active_tipo.settings.marcas_menu | default: '' -%}
+        {%- assign _marcas_show_images = _active_tipo.settings.marcas_show_images -%}
+      {%- endif -%}
+      {%- assign _marcas_list = linklists[_marcas_handle] -%}
+      {%- assign _marcas_ok   = false -%}
       {%- if _marcas_handle != blank and _marcas_handle != 'main-menu' and _marcas_handle != 'footer' and _marcas_list.links.size > 0 -%}
         {%- assign _marcas_ok = true -%}
       {%- endif -%}
       <div class="rc-filter-section">
         <div class="rc-filter-section-title">Marcas</div>
-        <div class="rc-filter-chips{% if section.settings.marcas_show_images %} rc-filter-chips--circle{% endif %}" id="marcas-filter"{% if _marcas_ok %} data-liquid="1"{% endif %}>
+        <div class="rc-filter-chips{% if _marcas_show_images %} rc-filter-chips--circle{% endif %}" id="marcas-filter"{% if _marcas_ok %} data-liquid="1"{% endif %}>
           {%- if _marcas_ok -%}
             {%- for link in _marcas_list.links -%}
-              <label class="rc-filter-chip{% if section.settings.marcas_show_images %} rc-filter-chip--circle{% endif %}">
+              <label class="rc-filter-chip{% if _marcas_show_images %} rc-filter-chip--circle{% endif %}">
                 <input type="checkbox" class="marca-filter" value="{{ link.title | escape }}">
-                {%- if section.settings.marcas_show_images -%}
+                {%- if _marcas_show_images -%}
                   {%- if link.object.image -%}
                     <img src="{{ link.object.image | img_url: '80x80', crop: 'center' }}" class="rc-filter-circle-img" alt="{{ link.title | escape }}">
                   {%- else -%}
@@ -285,21 +300,25 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
       </div>
 
       <!-- COLEÇÃO / MODELO -->
-      {%- assign _col_handle = section.settings.colecoes_menu | default: '' -%}
-      {%- assign _col_list   = linklists[_col_handle] -%}
-      {%- assign _col_ok     = false -%}
+      {%- assign _col_handle = '' -%}
+      {%- assign _col_show_images = false -%}
+      {%- if _active_tipo -%}
+        {%- assign _col_handle = _active_tipo.settings.modelos_menu | default: '' -%}
+        {%- assign _col_show_images = _active_tipo.settings.modelos_show_images -%}
+      {%- endif -%}
+      {%- assign _col_list = linklists[_col_handle] -%}
+      {%- assign _col_ok   = false -%}
       {%- if _col_handle != blank and _col_handle != 'main-menu' and _col_handle != 'footer' and _col_list.links.size > 0 -%}
         {%- assign _col_ok = true -%}
       {%- endif -%}
       <div class="rc-filter-section">
         <div class="rc-filter-section-title">Coleção / Modelo</div>
-        <div class="rc-filter-chips{% if section.settings.colecoes_show_images %} rc-filter-chips--circle{% endif %}" id="models-filter"{% if _col_ok %} data-liquid="1"{% endif %}>
+        <div class="rc-filter-chips{% if _col_show_images %} rc-filter-chips--circle{% endif %}" id="models-filter"{% if _col_ok %} data-liquid="1"{% endif %}>
           {%- if _col_ok -%}
             {%- for link in _col_list.links -%}
-              {%- assign _col_link_handle = link.url | split: '/' | last | split: '?' | first -%}
-              <label class="rc-filter-chip{% if section.settings.colecoes_show_images %} rc-filter-chip--circle{% endif %}">
+              <label class="rc-filter-chip{% if _col_show_images %} rc-filter-chip--circle{% endif %}">
                 <input type="checkbox" class="model-filter" value="{{ link.url | escape }}">
-                {%- if section.settings.colecoes_show_images -%}
+                {%- if _col_show_images -%}
                   {%- if link.object.image -%}
                     <img src="{{ link.object.image | img_url: '80x80', crop: 'center' }}" class="rc-filter-circle-img" alt="{{ link.title | escape }}">
                   {%- else -%}
@@ -858,13 +877,23 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     { "type": "link_list", "id": "quick_links", "label": "Menu de Filtros Lateral" },
     { "type": "checkbox", "id": "show_filters", "label": "Habilitar Filtros", "default": true },
     { "type": "color", "id": "badge_bg", "label": "Cor do Badge de Desconto", "default": "#1a1a1a" },
-    { "type": "range", "id": "badge_opacity", "min": 0, "max": 100, "step": 10, "unit": "%", "label": "Opacidade do Badge", "default": 100 },
-    { "type": "header", "content": "Filtro — Marcas" },
-    { "type": "link_list", "id": "marcas_menu", "label": "Menu de Marcas", "info": "Selecione o menu com as marcas. Deixe sem seleção para detectar automaticamente pelos fornecedores dos produtos." },
-    { "type": "checkbox", "id": "marcas_show_images", "label": "Exibir imagens circulares das marcas", "default": false },
-    { "type": "header", "content": "Filtro — Coleção / Modelo" },
-    { "type": "link_list", "id": "colecoes_menu", "label": "Menu de Coleções / Modelos", "info": "Selecione o menu com os modelos. Deixe sem seleção para detectar automaticamente pelas tags dos produtos." },
-    { "type": "checkbox", "id": "colecoes_show_images", "label": "Exibir imagens circulares das coleções", "default": false }
-  ]
+    { "type": "range", "id": "badge_opacity", "min": 0, "max": 100, "step": 10, "unit": "%", "label": "Opacidade do Badge", "default": 100 }
+  ],
+  "blocks": [
+    {
+      "type": "tipo",
+      "name": "Tipo de produto",
+      "settings": [
+        { "type": "text", "id": "collection_handle", "label": "Handle da coleção", "info": "Ex: chinelos — corresponde a coleções cujo handle contém este valor (chinelos, chinelos-eva, etc.)" },
+        { "type": "header", "content": "Filtro de Marcas" },
+        { "type": "link_list", "id": "marcas_menu", "label": "Menu de Marcas" },
+        { "type": "checkbox", "id": "marcas_show_images", "label": "Exibir imagens circulares", "default": false },
+        { "type": "header", "content": "Filtro de Modelos / Coleções" },
+        { "type": "link_list", "id": "modelos_menu", "label": "Menu de Modelos" },
+        { "type": "checkbox", "id": "modelos_show_images", "label": "Exibir imagens circulares", "default": false }
+      ]
+    }
+  ],
+  "max_blocks": 20
 }
 {% endschema %}
