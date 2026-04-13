@@ -470,69 +470,110 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
       }
     }
 
+    // PERSISTÊNCIA: chave única por coleção
+    var RC_KEY = 'rcf_{{ collection.handle }}';
+
+    function saveFilterState() {
+      var state = {
+        sizes:  Array.from(document.querySelectorAll('.size-filter:checked')).map(function(el){ return el.value; }),
+        brands: Array.from(document.querySelectorAll('.marca-filter:checked')).map(function(el){ return el.value; })
+      };
+      try { sessionStorage.setItem(RC_KEY, JSON.stringify(state)); } catch(e){}
+    }
+
+    function restoreFilterState() {
+      try {
+        var raw = sessionStorage.getItem(RC_KEY);
+        if (!raw) return;
+        var state = JSON.parse(raw);
+        (state.sizes  || []).forEach(function(v){
+          var el = document.querySelector('.size-filter[value="' + v + '"]');
+          if (el) el.checked = true;
+        });
+        (state.brands || []).forEach(function(v){
+          var el = document.querySelector('.marca-filter[value="' + v + '"]');
+          if (el) el.checked = true;
+        });
+        if ((state.sizes && state.sizes.length) || (state.brands && state.brands.length)) {
+          doFilterCards();
+        }
+        updateFilterBadge();
+      } catch(e){}
+    }
+
+    // Filtra os cards sem fechar o drawer nem salvar estado
+    function doFilterCards() {
+      var selectedSizes  = Array.from(document.querySelectorAll('.size-filter:checked')).map(function(el){ return el.value; });
+      var selectedMarcas = Array.from(document.querySelectorAll('.marca-filter:checked')).map(function(el){ return el.value.toLowerCase(); });
+
+      document.querySelectorAll('.rc-card').forEach(function(card) {
+        var dataEl = card.querySelector('script[type="application/json"]');
+        if (!dataEl) return;
+        try {
+          var data   = JSON.parse(dataEl.textContent);
+          var tags   = (data.tags   || []).map(function(t){ return t.toLowerCase(); });
+          var vendor = (data.vendor || '').toLowerCase();
+
+          var hasSizeMatch = selectedSizes.length === 0 ||
+            data.variants.some(function(v){ return v.available && selectedSizes.includes(String(v.title || '').trim()); });
+
+          var hasMarcaMatch = selectedMarcas.length === 0 ||
+            selectedMarcas.some(function(m){ return vendor === m || tags.some(function(t){ return t.includes(m); }); });
+
+          card.style.display = (hasSizeMatch && hasMarcaMatch) ? 'flex' : 'none';
+        } catch(e){ console.error(e); }
+      });
+    }
+
     // APLICAR FILTROS
     window.applyFilters = function() {
-      const selectedSizes  = Array.from(document.querySelectorAll('.size-filter:checked')).map(el => el.value);
-      const selectedMarcas = Array.from(document.querySelectorAll('.marca-filter:checked')).map(el => el.value.toLowerCase());
-      const selectedModel  = document.querySelector('.model-filter:checked');
+      var selectedModel = document.querySelector('.model-filter:checked');
 
       // Coleção/Modelo selecionada → navega para a URL da coleção
       if (selectedModel) {
+        saveFilterState();
         window.location.href = selectedModel.value;
         return;
       }
 
-      document.querySelectorAll('.rc-card').forEach(card => {
-        const dataEl = card.querySelector('script[type="application/json"]');
-        if (!dataEl) return;
-        try {
-          const data = JSON.parse(dataEl.textContent);
-          const tags  = (data.tags  || []).map(t => t.toLowerCase());
-          const vendor = (data.vendor || '').toLowerCase();
-
-          // Tamanho
-          const hasSizeMatch = selectedSizes.length === 0 ||
-            data.variants.some(v => v.available && selectedSizes.includes(String(v.title || '').trim()));
-
-          // Marca — vendor ou tag contendo o nome
-          const hasMarcaMatch = selectedMarcas.length === 0 ||
-            selectedMarcas.some(m => vendor === m || tags.some(t => t.includes(m)));
-
-          card.style.display = (hasSizeMatch && hasMarcaMatch) ? 'flex' : 'none';
-        } catch (e) { console.error(e); }
-      });
-
+      doFilterCards();
+      saveFilterState();
       document.getElementById('filter-drawer').classList.remove('is-open');
       updateFilterBadge();
     };
 
     // LIMPAR FILTROS
     window.resetFilters = function() {
-      document.querySelectorAll('.size-filter, .marca-filter, .model-filter').forEach(el => el.checked = false);
-      document.querySelectorAll('.rc-card').forEach(card => card.style.display = 'flex');
+      document.querySelectorAll('.size-filter, .marca-filter, .model-filter').forEach(function(el){ el.checked = false; });
+      document.querySelectorAll('.rc-card').forEach(function(card){ card.style.display = 'flex'; });
+      try { sessionStorage.removeItem(RC_KEY); } catch(e){}
       document.getElementById('filter-drawer').classList.remove('is-open');
       updateFilterBadge();
     };
 
-    // BADGE: atualiza ícone de filtro com contagem de filtros ativos
+    // BADGE: atualiza ícone com contagem e cor
     function updateFilterBadge() {
-      const active = document.querySelectorAll('.size-filter:checked, .marca-filter:checked, .model-filter:checked').length;
-      const btn    = document.getElementById('btn-filter-toggle');
-      const badge  = document.getElementById('rc-filter-badge');
+      var active = document.querySelectorAll('.size-filter:checked, .marca-filter:checked').length;
+      var btn   = document.getElementById('btn-filter-toggle');
+      var badge = document.getElementById('rc-filter-badge');
       btn.classList.toggle('has-filters', active > 0);
       if (badge) badge.textContent = active;
     }
 
     // Atualiza badge ao mudar qualquer checkbox
-    document.getElementById('filter-drawer').addEventListener('change', updateFilterBadge);
+    document.getElementById('filter-drawer').addEventListener('change', function(){
+      updateFilterBadge();
+      saveFilterState();
+    });
 
     // ABRIR/FECHAR DRAWER
     document.getElementById('btn-filter-toggle').addEventListener('click', () => {
       document.getElementById('filter-drawer').classList.toggle('is-open');
     });
 
-    // Renderizar filtros ao carregar
+    // Renderizar filtros ao carregar e restaurar estado salvo
     renderFilters();
+    restoreFilterState();
 
     // MONITORAR SCROLL PARA TORNAR ÍCONE FLUTUANTE
     const filterIcon = document.getElementById('btn-filter-toggle');
