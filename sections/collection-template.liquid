@@ -585,8 +585,7 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
           var hasMarcaMatch = selectedMarcas.length === 0 ||
             selectedMarcas.some(function(m){ return vendor === m || tags.some(function(t){ return t.includes(m); }); });
 
-          var noStock = card.getAttribute('data-no-stock') === '1';
-          card.style.display = (!noStock && hasSizeMatch && hasMarcaMatch) ? 'flex' : 'none';
+          card.style.display = (hasSizeMatch && hasMarcaMatch) ? 'flex' : 'none';
         } catch(e){ console.error(e); }
       });
     }
@@ -611,9 +610,7 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     // LIMPAR FILTROS
     window.resetFilters = function() {
       document.querySelectorAll('.size-filter, .marca-filter, .model-filter').forEach(function(el){ el.checked = false; });
-      document.querySelectorAll('.rc-card').forEach(function(card){
-        card.style.display = card.getAttribute('data-no-stock') === '1' ? 'none' : 'flex';
-      });
+      document.querySelectorAll('.rc-card').forEach(function(card){ card.style.display = 'flex'; });
       try { sessionStorage.removeItem(RC_KEY); } catch(e){}
       document.getElementById('filter-drawer').classList.remove('is-open');
       updateFilterBadge();
@@ -643,8 +640,32 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     renderFilters();
     restoreFilterState();
 
-    // Ordenação e ocultação por estoque feita no servidor (Liquid).
-    // JS apenas marca os cards com data-no-stock para o filtro respeitar.
+    // ORDENAÇÃO POR QUANTIDADE (JS garante ordem correta mesmo se Liquid sort falhar)
+    (function() {
+      var grid = document.querySelector('.rc-grid');
+      if (!grid || allProducts.length === 0) return;
+
+      function stockInfo(p) {
+        var total = 0, allUntracked = true;
+        (p.variants || []).forEach(function(v) {
+          if (v.tracked) { allUntracked = false; total += (v.inventory || 0); }
+        });
+        return { total: total, allUntracked: allUntracked };
+      }
+
+      // Ordena: rastreados por qtd desc → sem vinculação (Tiny/Olist) por último
+      var sorted = allProducts.slice().sort(function(a, b) {
+        var ai = stockInfo(a), bi = stockInfo(b);
+        if (ai.allUntracked && !bi.allUntracked) return 1;
+        if (!ai.allUntracked && bi.allUntracked) return -1;
+        return bi.total - ai.total;
+      });
+
+      sorted.forEach(function(p) {
+        var card = document.querySelector('[data-product-id="' + p.id + '"]');
+        if (card) grid.appendChild(card);
+      });
+    })();
 
     // MONITORAR SCROLL PARA TORNAR ÍCONE FLUTUANTE
     const filterIcon = document.getElementById('btn-filter-toggle');
