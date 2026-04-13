@@ -310,7 +310,8 @@
           "quick_links": "marcas-de-chinelo",
           "show_filters": true,
           "badge_bg": "#1a1a1a",
-          "badge_opacity": 100
+          "badge_opacity": 100,
+          "stock_sort": true
         }
       },
       "recently-viewed-products": {
@@ -1789,7 +1790,11 @@
         "collection-template": {
           "type": "collection-template",
           "settings": {
-            "quick_links": ""
+            "quick_links": "",
+            "show_filters": true,
+            "stock_sort": true,
+            "badge_bg": "#1a1a1a",
+            "badge_opacity": 100
           }
         },
         "recently-viewed-products": {
@@ -2067,7 +2072,11 @@
         "collection-template": {
           "type": "collection-template",
           "settings": {
-            "quick_links": ""
+            "quick_links": "",
+            "show_filters": true,
+            "stock_sort": true,
+            "badge_bg": "#1a1a1a",
+            "badge_opacity": 100
           }
         },
         "recently-viewed-products": {

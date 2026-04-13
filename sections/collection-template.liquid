@@ -6,7 +6,8 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
 - ✅ PAGINAÇÃO: Fixo em 10 produtos para performance de download.
 {% endcomment %}
 
-{%- assign items_per_page = 10 -%}
+{%- comment -%} 48 por página: cobre a maioria das coleções sem paginação, mantendo download funcional {%- endcomment -%}
+{%- assign items_per_page = 48 -%}
 
 {%- assign has_visible_tags = false -%}
 {%- if section.settings.show_filters -%}
