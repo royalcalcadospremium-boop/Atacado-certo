@@ -24,15 +24,64 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
 {%- assign has_filters = false -%}
 {%- if quick_links_menu.links.size > 0 or has_visible_tags -%}{%- assign has_filters = true -%}{%- endif -%}
 
-{%- comment -%} Encontra o bloco de tipo de produto que corresponde à coleção atual {%- endcomment -%}
-{%- assign _active_tipo = nil -%}
-{%- for block in section.blocks -%}
-  {%- assign _bh = block.settings.collection_handle | downcase | strip -%}
-  {%- if _bh != blank and collection.handle contains _bh -%}
-    {%- assign _active_tipo = block -%}
-    {%- break -%}
-  {%- endif -%}
-{%- endfor -%}
+{%- comment -%}
+  Detecta o tipo de produto pelo sufixo do template (collection.chinelos → sufixo = chinelos)
+  e monta os handles dos menus de marcas/modelos automaticamente.
+  Convenção de nomes: marcas-de-{sufixo} e modelos-de-{sufixo}
+  Fallback por blocos configurados manualmente no editor para casos especiais.
+{%- endcomment -%}
+
+{%- assign _suffix = template.suffix | downcase | strip -%}
+
+{%- comment -%} Mapa de sufixo → handles de menus {%- endcomment -%}
+{%- assign _marcas_handle     = '' -%}
+{%- assign _modelos_handle    = '' -%}
+{%- assign _marcas_imgs       = false -%}
+{%- assign _modelos_imgs      = false -%}
+
+{%- if _suffix == 'chinelos' -%}
+  {%- assign _marcas_handle  = 'marcas-de-chinelo' -%}
+  {%- assign _modelos_handle = 'modelos-de-chinelo' -%}
+  {%- assign _marcas_imgs    = true -%}
+  {%- assign _modelos_imgs   = true -%}
+{%- elsif _suffix == 'tenis' -%}
+  {%- assign _marcas_handle  = 'marcas-de-tenis' -%}
+  {%- assign _modelos_handle = 'modelos-de-tenis' -%}
+  {%- assign _marcas_imgs    = true -%}
+  {%- assign _modelos_imgs   = true -%}
+{%- elsif _suffix == 'bones' -%}
+  {%- assign _marcas_handle  = 'marcas-de-bones' -%}
+  {%- assign _modelos_handle = 'modelos-de-bones' -%}
+  {%- assign _marcas_imgs    = true -%}
+  {%- assign _modelos_imgs   = true -%}
+{%- elsif _suffix == 'bermudas' -%}
+  {%- assign _marcas_handle  = 'marcas-de-bermudas' -%}
+  {%- assign _modelos_handle = 'modelos-de-bermudas' -%}
+  {%- assign _marcas_imgs    = false -%}
+  {%- assign _modelos_imgs   = false -%}
+{%- elsif _suffix == 'calcas' -%}
+  {%- assign _marcas_handle  = 'marcas-de-calcas' -%}
+  {%- assign _modelos_handle = 'modelos-de-calcas' -%}
+  {%- assign _marcas_imgs    = false -%}
+  {%- assign _modelos_imgs   = false -%}
+{%- elsif _suffix == 'camisetas' -%}
+  {%- assign _marcas_handle  = 'marcas-de-camisetas' -%}
+  {%- assign _modelos_handle = 'modelos-de-camisetas' -%}
+  {%- assign _marcas_imgs    = false -%}
+  {%- assign _modelos_imgs   = false -%}
+{%- else -%}
+  {%- comment -%} Fallback: tenta usar blocos configurados manualmente {%- endcomment -%}
+  {%- for block in section.blocks -%}
+    {%- assign _bh = block.settings.collection_handle | downcase | strip -%}
+    {%- if _bh != blank and collection.handle contains _bh -%}
+      {%- assign _marcas_handle  = block.settings.marcas_menu  | default: '' -%}
+      {%- assign _modelos_handle = block.settings.modelos_menu | default: '' -%}
+      {%- assign _marcas_imgs    = block.settings.marcas_show_images -%}
+      {%- assign _modelos_imgs   = block.settings.modelos_show_images -%}
+      {%- break -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endif -%}
 
 <section id="royal-collection-gummy-{{ section.id }}" class="royal-section-fix" data-section-id="{{ section.id }}" data-section-type="collection">
 
@@ -267,25 +316,19 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
       </div>
 
       <!-- MARCAS -->
-      {%- assign _marcas_handle = '' -%}
-      {%- assign _marcas_show_images = false -%}
-      {%- if _active_tipo -%}
-        {%- assign _marcas_handle = _active_tipo.settings.marcas_menu | default: '' -%}
-        {%- assign _marcas_show_images = _active_tipo.settings.marcas_show_images -%}
-      {%- endif -%}
-      {%- assign _marcas_list = linklists[_marcas_handle] -%}
-      {%- assign _marcas_ok   = false -%}
-      {%- if _marcas_handle != blank and _marcas_handle != 'main-menu' and _marcas_handle != 'footer' and _marcas_list.links.size > 0 -%}
-        {%- assign _marcas_ok = true -%}
+      {%- assign _m_list = linklists[_marcas_handle] -%}
+      {%- assign _m_ok   = false -%}
+      {%- if _marcas_handle != blank and _marcas_handle != 'main-menu' and _marcas_handle != 'footer' and _m_list.links.size > 0 -%}
+        {%- assign _m_ok = true -%}
       {%- endif -%}
       <div class="rc-filter-section">
         <div class="rc-filter-section-title">Marcas</div>
-        <div class="rc-filter-chips{% if _marcas_show_images %} rc-filter-chips--circle{% endif %}" id="marcas-filter"{% if _marcas_ok %} data-liquid="1"{% endif %}>
-          {%- if _marcas_ok -%}
-            {%- for link in _marcas_list.links -%}
-              <label class="rc-filter-chip{% if _marcas_show_images %} rc-filter-chip--circle{% endif %}">
+        <div class="rc-filter-chips{% if _marcas_imgs %} rc-filter-chips--circle{% endif %}" id="marcas-filter"{% if _m_ok %} data-liquid="1"{% endif %}>
+          {%- if _m_ok -%}
+            {%- for link in _m_list.links -%}
+              <label class="rc-filter-chip{% if _marcas_imgs %} rc-filter-chip--circle{% endif %}">
                 <input type="checkbox" class="marca-filter" value="{{ link.title | escape }}">
-                {%- if _marcas_show_images -%}
+                {%- if _marcas_imgs -%}
                   {%- if link.object.image -%}
                     <img src="{{ link.object.image | img_url: '80x80', crop: 'center' }}" class="rc-filter-circle-img" alt="{{ link.title | escape }}">
                   {%- else -%}
@@ -300,25 +343,19 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
       </div>
 
       <!-- COLEÇÃO / MODELO -->
-      {%- assign _col_handle = '' -%}
-      {%- assign _col_show_images = false -%}
-      {%- if _active_tipo -%}
-        {%- assign _col_handle = _active_tipo.settings.modelos_menu | default: '' -%}
-        {%- assign _col_show_images = _active_tipo.settings.modelos_show_images -%}
-      {%- endif -%}
-      {%- assign _col_list = linklists[_col_handle] -%}
-      {%- assign _col_ok   = false -%}
-      {%- if _col_handle != blank and _col_handle != 'main-menu' and _col_handle != 'footer' and _col_list.links.size > 0 -%}
-        {%- assign _col_ok = true -%}
+      {%- assign _c_list = linklists[_modelos_handle] -%}
+      {%- assign _c_ok   = false -%}
+      {%- if _modelos_handle != blank and _modelos_handle != 'main-menu' and _modelos_handle != 'footer' and _c_list.links.size > 0 -%}
+        {%- assign _c_ok = true -%}
       {%- endif -%}
       <div class="rc-filter-section">
         <div class="rc-filter-section-title">Coleção / Modelo</div>
-        <div class="rc-filter-chips{% if _col_show_images %} rc-filter-chips--circle{% endif %}" id="models-filter"{% if _col_ok %} data-liquid="1"{% endif %}>
-          {%- if _col_ok -%}
-            {%- for link in _col_list.links -%}
-              <label class="rc-filter-chip{% if _col_show_images %} rc-filter-chip--circle{% endif %}">
+        <div class="rc-filter-chips{% if _modelos_imgs %} rc-filter-chips--circle{% endif %}" id="models-filter"{% if _c_ok %} data-liquid="1"{% endif %}>
+          {%- if _c_ok -%}
+            {%- for link in _c_list.links -%}
+              <label class="rc-filter-chip{% if _modelos_imgs %} rc-filter-chip--circle{% endif %}">
                 <input type="checkbox" class="model-filter" value="{{ link.url | escape }}">
-                {%- if _col_show_images -%}
+                {%- if _modelos_imgs -%}
                   {%- if link.object.image -%}
                     <img src="{{ link.object.image | img_url: '80x80', crop: 'center' }}" class="rc-filter-circle-img" alt="{{ link.title | escape }}">
                   {%- else -%}
