@@ -206,6 +206,11 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     .rc-filter-chip--circle:has(input:checked) .rc-filter-circle-placeholder { border-color: #111; }
     .rc-filter-chip--circle span { display: none; }
     .rc-filter-empty { font-size: 12px; color: #aaa; font-style: italic; margin: 0; }
+    /* Chips de navegação (Coleção/Modelo) */
+    a.rc-filter-chip { text-decoration: none; }
+    a.rc-filter-chip.rc-col-active { background: #111; border-color: #111; color: #fff; }
+    a.rc-filter-chip--circle.rc-col-active { background: transparent !important; }
+    a.rc-filter-chip--circle.rc-col-active .rc-filter-circle-img { border-color: #111; box-shadow: 0 0 0 2px #111; }
 
     .rc-filter-actions {
       padding: 16px; display: flex; gap: 8px; border-top: 1px solid #eee;
@@ -284,20 +289,20 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
           {%- if _col_ok -%}
             {%- for link in _col_list.links -%}
               {%- assign _col_link_handle = link.url | split: '/' | last | split: '?' | first -%}
-              {%- assign _linked_col = link.object -%}
-              <label class="rc-filter-chip{% if section.settings.colecoes_show_images %} rc-filter-chip--circle{% endif %}">
-                <input type="checkbox" class="model-filter" value="{{ _col_link_handle | escape }}">
-                {%- if section.settings.colecoes_show_images -%}
+              {%- assign _col_active = false -%}
+              {%- if request.path contains _col_link_handle -%}{%- assign _col_active = true -%}{%- endif -%}
+              {%- if section.settings.colecoes_show_images -%}
+                <a href="{{ link.url }}" class="rc-filter-chip rc-filter-chip--circle{% if _col_active %} rc-col-active{% endif %}">
                   {%- if link.object.image -%}
                     <img src="{{ link.object.image | img_url: '80x80', crop: 'center' }}" class="rc-filter-circle-img" alt="{{ link.title | escape }}">
                   {%- else -%}
                     <div class="rc-filter-circle-placeholder">{{ link.title | slice: 0, 2 | upcase }}</div>
                   {%- endif -%}
-                {%- endif -%}
-                <span>{{ link.title }}</span>
-              </label>
-              {%- comment %} IDs dos produtos desta coleção — usados pelo JS para filtrar com precisão {%- endcomment -%}
-              <script type="application/json" class="rc-col-ids" data-handle="{{ _col_link_handle | escape }}">[{%- for p in _linked_col.products -%}{{ p.id }}{%- unless forloop.last -%},{%- endunless -%}{%- endfor -%}]</script>
+                  <span>{{ link.title }}</span>
+                </a>
+              {%- else -%}
+                <a href="{{ link.url }}" class="rc-filter-chip{% if _col_active %} rc-col-active{% endif %}">{{ link.title }}</a>
+              {%- endif -%}
             {%- endfor -%}
           {%- endif -%}
         </div>
@@ -401,15 +406,6 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
       } catch (e) { console.error(e); }
     });
 
-    // MAPA: handle da coleção → Set de IDs de produtos
-    const colProductMap = {};
-    document.querySelectorAll('script.rc-col-ids').forEach(el => {
-      try {
-        const handle = el.dataset.handle;
-        const ids = JSON.parse(el.textContent);
-        colProductMap[handle] = new Set(ids.map(String));
-      } catch (e) { console.error(e); }
-    });
 
     // COLETAR TAMANHOS, MARCAS E MODELOS ÚNICOS
     const allSizes = new Set();
@@ -471,7 +467,6 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     window.applyFilters = function() {
       const selectedSizes  = Array.from(document.querySelectorAll('.size-filter:checked')).map(el => el.value);
       const selectedMarcas = Array.from(document.querySelectorAll('.marca-filter:checked')).map(el => el.value.toLowerCase());
-      const selectedModels = Array.from(document.querySelectorAll('.model-filter:checked')).map(el => el.value.toLowerCase());
 
       document.querySelectorAll('.rc-card').forEach(card => {
         const dataEl = card.querySelector('script[type="application/json"]');
@@ -489,16 +484,7 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
           const hasMarcaMatch = selectedMarcas.length === 0 ||
             selectedMarcas.some(m => vendor === m || tags.some(t => t.includes(m)));
 
-          // Coleção/Modelo — por ID no mapa de coleções (preciso) ou tag (fallback)
-          const pid = String(data.id);
-          const hasModelMatch = selectedModels.length === 0 ||
-            selectedModels.some(m => {
-              const colIds = colProductMap[m];
-              if (colIds && colIds.size > 0) return colIds.has(pid);
-              return tags.some(t => t.includes(m));
-            });
-
-          card.style.display = (hasSizeMatch && hasMarcaMatch && hasModelMatch) ? 'flex' : 'none';
+          card.style.display = (hasSizeMatch && hasMarcaMatch) ? 'flex' : 'none';
         } catch (e) { console.error(e); }
       });
 
@@ -507,7 +493,7 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
 
     // LIMPAR FILTROS
     window.resetFilters = function() {
-      document.querySelectorAll('.size-filter, .marca-filter, .model-filter').forEach(el => el.checked = false);
+      document.querySelectorAll('.size-filter, .marca-filter').forEach(el => el.checked = false);
       document.querySelectorAll('.rc-card').forEach(card => card.style.display = 'flex');
       document.getElementById('filter-drawer').classList.remove('is-open');
     };
