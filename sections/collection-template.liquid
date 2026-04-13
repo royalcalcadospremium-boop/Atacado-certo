@@ -449,12 +449,26 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     const allVendors = new Set();
     const allModels = new Set();
 
+    // Verifica se o valor parece um tamanho (número, faixa numérica ou letra de tamanho)
+    function isSizeValue(val) {
+      if (!val) return false;
+      var v = val.trim();
+      // Número puro: 33, 38, 42, etc.
+      if (/^\d+$/.test(v)) return true;
+      // Faixa numérica: 35/36, 41/42, etc.
+      if (/^\d+\/\d+$/.test(v)) return true;
+      // Tamanho de roupa: P, M, G, GG, PP, EG, XG, XGG, EGG, 2GG, etc.
+      if (/^(PP|P|M|G{1,3}|EG{1,3}|XG{1,3}|\d+GG?)$/i.test(v)) return true;
+      return false;
+    }
+
     allProducts.forEach(product => {
       // Tamanhos das variantes — pega só a primeira opção (antes do " / ")
+      // Ignora valores que não parecem tamanho (ex: nomes de cores)
       product.variants.forEach(v => {
         if (v.available && v.title && v.title !== 'Default Title') {
           var sizeOnly = v.title.split(' / ')[0].trim();
-          if (sizeOnly) allSizes.add(sizeOnly);
+          if (isSizeValue(sizeOnly)) allSizes.add(sizeOnly);
         }
       });
       // Marca (vendor)
