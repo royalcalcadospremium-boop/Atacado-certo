@@ -422,7 +422,7 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
                     "collections": [{% for c in product.collections %}"{{ c.handle }}"{% unless forloop.last %},{% endunless %}{% endfor %}],
                     "variants": [
                       {%- for var in product.variants -%}
-                        { "id": "{{ var.id }}", "title": {{ var.title | json }}, "available": {{ var.available }}, "inventory": {{ var.inventory_quantity | default: 0 }} }{% unless forloop.last %},{% endunless %}
+                        { "id": "{{ var.id }}", "title": {{ var.title | json }}, "available": {{ var.available }}, "inventory": {{ var.inventory_quantity | default: 0 }}, "tracked": {% if var.inventory_management == 'shopify' %}true{% else %}false{% endif %} }{% unless forloop.last %},{% endunless %}
                       {%- endfor -%}
                     ]
                   }
@@ -635,6 +635,47 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     // Renderizar filtros ao carregar e restaurar estado salvo
     renderFilters();
     restoreFilterState();
+
+    // ORDENAÇÃO E OCULTAÇÃO POR ESTOQUE
+    (function sortByStock() {
+      {% if section.settings.stock_sort %}
+      var grid = document.querySelector('.rc-grid');
+      if (!grid) return;
+
+      // Calcula o estoque total rastreado de cada produto
+      function getStockInfo(product) {
+        var total = 0;
+        var allUntracked = true;
+        (product.variants || []).forEach(function(v) {
+          if (v.tracked) {
+            allUntracked = false;
+            total += (v.inventory || 0);
+          }
+        });
+        return { total: total, allUntracked: allUntracked };
+      }
+
+      // Ordena: rastreados por estoque desc → não-rastreados por último
+      var sorted = allProducts.slice().sort(function(a, b) {
+        var ai = getStockInfo(a), bi = getStockInfo(b);
+        if (ai.allUntracked && !bi.allUntracked) return 1;
+        if (!ai.allUntracked && bi.allUntracked) return -1;
+        return bi.total - ai.total;
+      });
+
+      // Aplica ordenação e oculta zerados
+      sorted.forEach(function(product) {
+        var card = document.querySelector('[data-product-id="' + product.id + '"]');
+        if (!card) return;
+        var info = getStockInfo(product);
+        if (!info.allUntracked && info.total <= 0) {
+          card.style.display = 'none'; // sem estoque → ocultar
+        } else {
+          grid.appendChild(card); // reordena no DOM
+        }
+      });
+      {% endif %}
+    })();
 
     // MONITORAR SCROLL PARA TORNAR ÍCONE FLUTUANTE
     const filterIcon = document.getElementById('btn-filter-toggle');
@@ -914,7 +955,9 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     { "type": "link_list", "id": "quick_links", "label": "Menu de Filtros Lateral" },
     { "type": "checkbox", "id": "show_filters", "label": "Habilitar Filtros", "default": true },
     { "type": "color", "id": "badge_bg", "label": "Cor do Badge de Desconto", "default": "#1a1a1a" },
-    { "type": "range", "id": "badge_opacity", "min": 0, "max": 100, "step": 10, "unit": "%", "label": "Opacidade do Badge", "default": 100 }
+    { "type": "range", "id": "badge_opacity", "min": 0, "max": 100, "step": 10, "unit": "%", "label": "Opacidade do Badge", "default": 100 },
+    { "type": "header", "content": "Ordenação por Estoque" },
+    { "type": "checkbox", "id": "stock_sort", "label": "Ordenar por quantidade em estoque", "info": "Produtos com mais estoque aparecem primeiro. Produtos sem estoque ficam ocultos. Produtos sem rastreamento ficam por último. Desative para usar a ordem manual definida no admin do Shopify.", "default": true }
   ],
   "blocks": [
     {
