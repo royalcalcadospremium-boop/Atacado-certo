@@ -64,8 +64,8 @@
 
   /* ===== GALERIA COM THUMBNAILS ===== */
 
-  /* Desktop: thumbnails col1 (82px esquerda), imagem principal col2 (direita) */
-  /* HTML order: scroller primeiro, carousel segundo → grid os coloca na ordem certa */
+  /* Desktop: grid 2 colunas — thumbnails col1 (esquerda), imagem principal col2 (direita) */
+  /* HTML order: carousel primeiro, thumbnails depois → order:-1 empurra thumbnails para col1 */
   .product-gallery--with-thumbnails {
     display: grid !important;
     grid-template-columns: 82px 1fr !important;
@@ -73,8 +73,11 @@
     align-items: start !important;
   }
 
-  /* Lista vertical de thumbnails */
-  .product-gallery--with-thumbnails .rc-thumb-col { display: block !important; }
+  /* Thumbnails vão para a coluna esquerda no desktop */
+  .product-gallery--with-thumbnails .rc-thumb-col {
+    display: block !important;
+    order: -1;
+  }
   .product-gallery--with-thumbnails .rc-thumb-col .scroller__inner { overflow: visible !important; }
   .product-gallery--with-thumbnails .product-gallery__thumbnail-list {
     display: flex !important;
@@ -94,16 +97,18 @@
   .product-gallery__thumbnail.is-nav-selected,
   .product-gallery__thumbnail:hover { border-color: #111 !important; }
 
-  /* Mobile: imagem principal em cima (order:1), thumbnails em baixo (order:2) */
+  /* Mobile: flex coluna — HTML order já está certo (carousel em cima, thumbnails embaixo) */
   @media (max-width: 800px) {
     .product-gallery--with-thumbnails {
       display: flex !important;
       flex-direction: column !important;
       gap: 10px !important;
     }
-    /* No mobile, inverte a ordem: carousel aparece antes dos thumbnails */
-    .product-gallery--with-thumbnails .rc-main-col  { order: 1; }
-    .product-gallery--with-thumbnails .rc-thumb-col { order: 2; overflow-x: auto !important; }
+    /* Sem order no mobile — HTML order natural é o correto */
+    .product-gallery--with-thumbnails .rc-thumb-col {
+      order: unset;
+      overflow-x: auto !important;
+    }
     .product-gallery--with-thumbnails .rc-thumb-col .scroller__inner { overflow: visible !important; }
     .product-gallery--with-thumbnails .product-gallery__thumbnail-list {
       display: flex !important;
