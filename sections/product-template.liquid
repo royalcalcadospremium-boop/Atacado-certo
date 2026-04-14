@@ -62,14 +62,57 @@
     margin: 0 !important;
   }
 
-  /* Esconde thumbnails */
-  .product-gallery .scroller {
-    display: none !important;
+  /* ===== GALERIA COM THUMBNAILS ===== */
+
+  /* Desktop: thumbnails coluna da esquerda, imagem principal à direita */
+  .product-gallery--with-thumbnails {
+    display: grid !important;
+    grid-template-columns: 82px 1fr !important;
+    gap: 10px !important;
+    align-items: start !important;
   }
 
-  .product-gallery--with-thumbnails {
-    display: block !important;
-    grid-template-columns: 1fr !important;
+  /* Thumbnails à esquerda (order 1), imagem principal à direita (order 2) */
+  .product-gallery--with-thumbnails .product-gallery__carousel-wrapper { order: 2; }
+  .product-gallery--with-thumbnails .scroller { order: 1; display: block !important; }
+
+  /* Lista vertical de thumbnails */
+  .product-gallery--with-thumbnails .scroller .scroller__inner { overflow: visible !important; }
+  .product-gallery--with-thumbnails .product-gallery__thumbnail-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+  }
+
+  .product-gallery__thumbnail {
+    display: block;
+    border: 2px solid transparent;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    width: 78px;
+    flex-shrink: 0;
+  }
+  .product-gallery__thumbnail.is-nav-selected,
+  .product-gallery__thumbnail:hover { border-color: #111 !important; }
+
+  /* Mobile: imagem em cima, thumbnails em baixo em linha horizontal */
+  @media (max-width: 800px) {
+    .product-gallery--with-thumbnails {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 10px !important;
+    }
+    .product-gallery--with-thumbnails .product-gallery__carousel-wrapper { order: 1; }
+    .product-gallery--with-thumbnails .scroller { order: 2; display: block !important; overflow-x: auto !important; }
+    .product-gallery--with-thumbnails .scroller .scroller__inner { overflow: visible !important; }
+    .product-gallery--with-thumbnails .product-gallery__thumbnail-list {
+      display: flex !important;
+      flex-direction: row !important;
+      gap: 8px !important;
+      padding: 2px 0 !important;
+    }
+    .product-gallery__thumbnail { width: 68px !important; }
   }
 
   /* ===== DOTS — sobrepostos na imagem ===== */

@@ -593,10 +593,23 @@
 
       {%- form 'product', product, class: 'product-form' -%}
 
-        <!-- COLOR SELECTOR -->
+        <!-- VARIANTE COM IMAGEM: Cor + qualquer opção não-tamanho -->
         {%- unless product.has_only_default_variant -%}
           {%- for option in product.options_with_values -%}
-            {%- if option.name == 'Cor' or option.name == 'cor' or option.name == 'Color' or option.name == 'color' -%}
+            {%- assign opt_lower = option.name | downcase -%}
+            {%- comment -%} Detecta se é opção de tamanho/numeração {%- endcomment -%}
+            {%- assign first_val = option.values.first | strip -%}
+            {%- assign first_num = first_val | plus: 0 -%}
+            {%- assign is_size_opt = false -%}
+            {%- if opt_lower contains 'tamanho' or opt_lower contains 'size' or opt_lower contains 'numeraç' -%}
+              {%- assign is_size_opt = true -%}
+            {%- elsif first_num > 0 -%}
+              {%- assign is_size_opt = true -%}
+            {%- elsif first_val == 'P' or first_val == 'M' or first_val == 'G' or first_val == 'GG' or first_val == 'PP' or first_val == 'EG' or first_val == 'XG' or first_val == 'p' or first_val == 'm' or first_val == 'g' or first_val == 'gg' -%}
+              {%- assign is_size_opt = true -%}
+            {%- endif -%}
+            {%- unless is_size_opt -%}
+              {%- if opt_lower == 'cor' or opt_lower == 'color' or opt_lower == 'colour' or opt_lower == 'cores' -%}
               <div class="color-section">
                 <span class="section-label">Cor: <span class="selected-option-value" id="selected-color-{{ forloop.index }}">{{ option.selected_value }}</span></span>
                 <div class="color-grid">
@@ -648,19 +661,68 @@
                   {%- endfor -%}
                 </div>
               </div>
-            {%- endif -%}
+              {%- else -%}
+                {%- comment -%} Opção não-tamanho e não-cor: exibe com imagem da variante {%- endcomment -%}
+                <div class="color-section">
+                  <span class="section-label">{{ option.name }}: <span class="selected-option-value" id="selected-opt-{{ forloop.index }}">{{ option.selected_value }}</span></span>
+                  <div class="color-grid">
+                    {%- for value in option.values -%}
+                      {%- assign opt_swatch_img = nil -%}
+                      {%- for variant in product.variants -%}
+                        {%- if option.position == 1 and variant.option1 == value -%}
+                          {%- assign opt_swatch_img = variant.featured_media -%}
+                          {%- break -%}
+                        {%- elsif option.position == 2 and variant.option2 == value -%}
+                          {%- assign opt_swatch_img = variant.featured_media -%}
+                          {%- break -%}
+                        {%- elsif option.position == 3 and variant.option3 == value -%}
+                          {%- assign opt_swatch_img = variant.featured_media -%}
+                          {%- break -%}
+                        {%- endif -%}
+                      {%- endfor -%}
+                      {%- if opt_swatch_img -%}
+                        {%- assign opt_url = opt_swatch_img | img_url: '100x' -%}
+                      {%- else -%}
+                        {%- assign opt_url = product.featured_image | img_url: '100x' -%}
+                      {%- endif -%}
+                      <label class="color-item {% if value == option.selected_value %}is-selected{% endif %}"
+                             data-color-label-id="selected-opt-{{ forloop.parentloop.index }}">
+                        <input type="radio" name="option{{ option.position }}" value="{{ value | escape }}"
+                               {% if value == option.selected_value %}checked{% endif %}
+                               class="color-radio" data-color-value="{{ value | escape }}"
+                               data-color-label-id="selected-opt-{{ forloop.parentloop.index }}">
+                        <span class="color-thumbnail-wrapper">
+                          <img class="color-thumbnail" src="{{ opt_url }}" alt="{{ value | escape }}" loading="lazy" width="52" height="52">
+                          <span class="color-underline"></span>
+                        </span>
+                      </label>
+                    {%- endfor -%}
+                  </div>
+                </div>
+              {%- endif -%}
+            {%- endunless -%}
           {%- endfor -%}
         {%- endunless -%}
 
-        <!-- SIZE / OPTION SELECTOR (qualquer opção que não seja cor) -->
+        <!-- SIZE / OPTION SELECTOR (apenas tamanho/numeração) -->
         {%- unless product.has_only_default_variant -%}
           {%- for option in product.options_with_values -%}
             {%- assign opt_lower = option.name | downcase -%}
+            {%- assign first_val = option.values.first | strip -%}
+            {%- assign first_num = first_val | plus: 0 -%}
             {%- assign is_color_opt = false -%}
-            {%- if opt_lower == 'cor' or opt_lower == 'color' or opt_lower == 'colour' or opt_lower == 'cores' or opt_lower == 'color' -%}
+            {%- if opt_lower == 'cor' or opt_lower == 'color' or opt_lower == 'colour' or opt_lower == 'cores' -%}
               {%- assign is_color_opt = true -%}
             {%- endif -%}
-            {%- unless is_color_opt -%}
+            {%- assign is_size_opt = false -%}
+            {%- if opt_lower contains 'tamanho' or opt_lower contains 'size' or opt_lower contains 'numeraç' -%}
+              {%- assign is_size_opt = true -%}
+            {%- elsif first_num > 0 -%}
+              {%- assign is_size_opt = true -%}
+            {%- elsif first_val == 'P' or first_val == 'M' or first_val == 'G' or first_val == 'GG' or first_val == 'PP' or first_val == 'EG' or first_val == 'XG' or first_val == 'p' or first_val == 'm' or first_val == 'g' or first_val == 'gg' -%}
+              {%- assign is_size_opt = true -%}
+            {%- endif -%}
+            {%- if is_size_opt and is_color_opt == false -%}
               <div class="size-section" data-size-option-position="{{ option.position }}">
                 <div class="size-rows">
                   <div class="size-grid size-grid-row-1">
@@ -720,7 +782,7 @@
                   {%- endif -%}
                 </div>
               </div>
-            {%- endunless -%}
+            {%- endif -%}
           {%- endfor -%}
         {%- endunless -%}
 
