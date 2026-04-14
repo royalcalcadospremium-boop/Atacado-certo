@@ -64,7 +64,8 @@
 
   /* ===== GALERIA COM THUMBNAILS ===== */
 
-  /* Desktop: thumbnails coluna da esquerda, imagem principal à direita */
+  /* Desktop: thumbnails col1 (82px esquerda), imagem principal col2 (direita) */
+  /* HTML order: scroller primeiro, carousel segundo → grid os coloca na ordem certa */
   .product-gallery--with-thumbnails {
     display: grid !important;
     grid-template-columns: 82px 1fr !important;
@@ -72,12 +73,9 @@
     align-items: start !important;
   }
 
-  /* Thumbnails à esquerda (order 1), imagem principal à direita (order 2) */
-  .product-gallery--with-thumbnails .product-gallery__carousel-wrapper { order: 2; }
-  .product-gallery--with-thumbnails .scroller { order: 1; display: block !important; }
-
   /* Lista vertical de thumbnails */
-  .product-gallery--with-thumbnails .scroller .scroller__inner { overflow: visible !important; }
+  .product-gallery--with-thumbnails .rc-thumb-col { display: block !important; }
+  .product-gallery--with-thumbnails .rc-thumb-col .scroller__inner { overflow: visible !important; }
   .product-gallery--with-thumbnails .product-gallery__thumbnail-list {
     display: flex !important;
     flex-direction: column !important;
@@ -96,16 +94,17 @@
   .product-gallery__thumbnail.is-nav-selected,
   .product-gallery__thumbnail:hover { border-color: #111 !important; }
 
-  /* Mobile: imagem em cima, thumbnails em baixo em linha horizontal */
+  /* Mobile: imagem principal em cima (order:1), thumbnails em baixo (order:2) */
   @media (max-width: 800px) {
     .product-gallery--with-thumbnails {
       display: flex !important;
       flex-direction: column !important;
       gap: 10px !important;
     }
-    .product-gallery--with-thumbnails .product-gallery__carousel-wrapper { order: 1; }
-    .product-gallery--with-thumbnails .scroller { order: 2; display: block !important; overflow-x: auto !important; }
-    .product-gallery--with-thumbnails .scroller .scroller__inner { overflow: visible !important; }
+    /* No mobile, inverte a ordem: carousel aparece antes dos thumbnails */
+    .product-gallery--with-thumbnails .rc-main-col  { order: 1; }
+    .product-gallery--with-thumbnails .rc-thumb-col { order: 2; overflow-x: auto !important; }
+    .product-gallery--with-thumbnails .rc-thumb-col .scroller__inner { overflow: visible !important; }
     .product-gallery--with-thumbnails .product-gallery__thumbnail-list {
       display: flex !important;
       flex-direction: row !important;
