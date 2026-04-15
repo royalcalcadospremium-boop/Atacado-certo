@@ -765,29 +765,39 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const baseImg = await loadImage(data.image);
-        
-        canvas.width = 1000;
-        canvas.height = 1000;
-        ctx.drawImage(baseImg, 0, 0, 1000, 1000);
 
-        // Faixa Preta
+        // Usa as dimensões originais da imagem, sem redimensionar
+        const w = baseImg.naturalWidth;
+        const h = baseImg.naturalHeight;
+        canvas.width = w;
+        canvas.height = h;
+        ctx.drawImage(baseImg, 0, 0, w, h);
+
+        // Faixa preta na base: 12% da altura original
+        const barH = Math.round(h * 0.12);
         ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
-        ctx.fillRect(0, 880, 1000, 120);
+        ctx.fillRect(0, h - barH, w, barH);
 
-        // Texto Título (Limitado - 3 palavras)
+        // Fontes e posições proporcionais à largura original
+        const pad = Math.round(w * 0.03);
+        const fs1 = Math.round(w * 0.032);
+        const fs2 = Math.round(w * 0.026);
+        const y1  = h - barH + Math.round(barH * 0.42);
+        const y2  = h - barH + Math.round(barH * 0.78);
+
         ctx.fillStyle = "#ffffff";
-        ctx.font = "bold 32px sans-serif";
+        ctx.textAlign = "left";
+        ctx.font = `bold ${fs1}px sans-serif`;
         const shortTitle = data.title.split(' ').slice(0, 3).join(' ');
-        ctx.fillText(shortTitle.toUpperCase(), 30, 930);
+        ctx.fillText(shortTitle.toUpperCase(), pad, y1);
 
-        // Variações e Ref
         const sizes = getSizes(data.variants);
-        ctx.font = "600 26px sans-serif";
-        ctx.fillText("TAMANHOS: " + (sizes || "Consultar"), 30, 970);
-        
-        ctx.font = "bold 24px sans-serif";
+        ctx.font = `600 ${fs2}px sans-serif`;
+        ctx.fillText("TAMANHOS: " + (sizes || "Consultar"), pad, y2);
+
+        ctx.font = `bold ${fs2}px sans-serif`;
         ctx.textAlign = "right";
-        ctx.fillText("REF: " + getRef(data.price_raw), 970, 970);
+        ctx.fillText("REF: " + getRef(data.price_raw), w - pad, y2);
 
         return canvas.toDataURL("image/jpeg", 0.92);
       }

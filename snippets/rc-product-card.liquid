@@ -25,7 +25,7 @@
     {
       "id": {{ product.id }},
       "title": {{ product.title | json }},
-      "image": "{{ product.featured_image | img_url: '800x800' }}",
+      "image": "{{ product.featured_image | img_url: 'master' }}",
       "price": "{{ v.price | money }}",
       "price_raw": {{ v.price }},
       "vendor": {{ product.vendor | json }},
