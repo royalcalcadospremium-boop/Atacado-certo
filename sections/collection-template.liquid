@@ -133,8 +133,7 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     #royal-collection-gummy-{{ section.id }} .rc-card.rc-filtered-out { display: none !important; }
     @media (max-width: 800px) {
       #royal-collection-gummy-{{ section.id }} .rc-card.rc-mobile-hidden { display: none !important; }
-      #royal-collection-gummy-{{ section.id }} .rc-mobile-pages { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 16px 0 8px; }
-      #royal-collection-gummy-{{ section.id }} .rc-shopify-pages { display: none !important; }
+      #royal-collection-gummy-{{ section.id }} .rc-mobile-pages { display: none !important; }
     }
     @media (min-width: 801px) {
       #royal-collection-gummy-{{ section.id }} .rc-mobile-pages { display: none; }
@@ -669,45 +668,7 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
       });
     })();
 
-    // SUB-PAGINAÇÃO MOBILE: 10 cards por grupo (2 colunas × 5 linhas)
-    // Desktop carrega 40 (4×10). Mobile divide em sub-páginas de 10 com botões numerados.
-    var rcMobilePage = 1;
-    var RC_MOBILE_PER = 10;
-
-    function renderMobilePages() {
-      if (window.innerWidth > 800) return;
-      var cards = Array.from(document.querySelectorAll('.rc-card:not(.rc-filtered-out)'));
-      var totalPages = Math.max(1, Math.ceil(cards.length / RC_MOBILE_PER));
-      if (rcMobilePage > totalPages) rcMobilePage = 1;
-
-      cards.forEach(function(card, i) {
-        var page = Math.floor(i / RC_MOBILE_PER) + 1;
-        if (page === rcMobilePage) card.classList.remove('rc-mobile-hidden');
-        else card.classList.add('rc-mobile-hidden');
-      });
-
-      var nav = document.getElementById('rc-mobile-pages');
-      if (!nav) return;
-      var html = '';
-      for (var p = 1; p <= totalPages; p++) {
-        if (p === rcMobilePage) {
-          html += '<span class="rc-page" aria-current="page">' + p + '</span>';
-        } else {
-          html += '<span class="rc-page" style="cursor:pointer" data-mp="' + p + '">' + p + '</span>';
-        }
-      }
-      nav.innerHTML = html;
-      nav.querySelectorAll('[data-mp]').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          rcMobilePage = +this.dataset.mp;
-          renderMobilePages();
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-      });
-    }
-
-    renderMobilePages();
-    window.addEventListener('resize', renderMobilePages);
+    // Sub-paginação mobile removida: usa paginação do Shopify em todas as telas.
 
     // MONITORAR SCROLL PARA TORNAR ÍCONE FLUTUANTE
     const filterIcon = document.getElementById('btn-filter-toggle');
