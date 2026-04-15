@@ -838,6 +838,21 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
         });
       }
 
+      // Pré-carrega imagens com CORS para que o cache esteja pronto no 1º clique
+      (function preloadImages() {
+        document.querySelectorAll('.rc-card').forEach(function(card) {
+          try {
+            const id = card.getAttribute('data-product-id');
+            const data = JSON.parse(document.getElementById('data-' + id).textContent);
+            if (data.image) {
+              const img = new Image();
+              img.crossOrigin = "Anonymous";
+              img.src = data.image;
+            }
+          } catch(e) {}
+        });
+      })();
+
       // Share API (Mobile)
       async function shareImages(files, count) {
         try {
@@ -856,10 +871,9 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
           statusText.innerText = "✅ Imagens compartilhadas com sucesso!";
           btnDownload.disabled = false;
         } catch (err) {
-          if (err.name !== 'AbortError') {
-            statusText.innerText = "❌ Erro ao compartilhar imagens.";
-            btnDownload.disabled = false;
-          }
+          // AbortError = usuário cancelou; outros erros reativam o botão silenciosamente
+          btnDownload.disabled = false;
+          statusText.innerText = "";
         }
       }
 
