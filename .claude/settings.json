@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd /c/Users/guga0/Atacado-certo && git add -A && git diff --cached --quiet || (git commit -m \"Auto: $(date '+%Y-%m-%d %H:%M:%S')\" && git push origin main) 2>/dev/null || true",
+            "statusMessage": "Publicando no GitHub...",
+            "async": true
+          }
+        ]
+      }
+    ]
+  }
+}
