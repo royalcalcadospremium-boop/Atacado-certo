@@ -234,7 +234,14 @@
           "cycle_speed": 5,
           "use_custom_height": true,
           "hero_height_desktop": 560,
-          "hero_height_mobile": 380
+          "hero_height_mobile": 380,
+          "hero_v2_enable": false,
+          "hero_v2_headline": "OS MELHORES PARES. O MELHOR PREÇO.",
+          "hero_v2_subline": "Atacado · Dropshipping · Varejo — direto da fábrica",
+          "hero_v2_cta1_text": "Ver Coleção",
+          "hero_v2_cta1_url": "",
+          "hero_v2_cta2_text": "Falar no WhatsApp",
+          "hero_v2_cta2_url": ""
         }
       },
       "collection-list": {
