@@ -408,26 +408,13 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
         {%- paginate collection.products by items_per_page -%}
 
           {%- comment -%}
-            Ordenação server-side (Liquid):
-            ✕  product.available = false  → estoque zero rastreado → NÃO renderiza
-            Liquid não tem sort multi-campo, então separamos em dois grupos:
-            Grupo A (rastreados Olist/Tiny): variants[0].inventory_management == 'shopify'
-            Grupo B (sem vinculação): inventory_management != 'shopify'
-            Dentro de cada grupo: sort por total_inventory desc
-            O JS client-side re-aplica a mesma regra para garantir ordem correta.
+            Liquid: renderiza todos disponíveis (available=true).
+            Ordem inicial: total_inventory desc (aproximada).
+            A ordem definitiva é aplicada pelo JS abaixo via isTracked():
+              1º rastreados Olist/Tiny (tracked=true) → por estoque desc
+              2º sem vinculação (tracked=false) → por estoque desc
           {%- endcomment -%}
-          {%- assign _tracked = '' -%}
-          {%- assign _untracked = '' -%}
-          {%- for p in collection.products -%}
-            {%- if p.variants.first.inventory_management == 'shopify' -%}
-              {%- assign _tracked = _tracked | append: p.id | append: ',' -%}
-            {%- else -%}
-              {%- assign _untracked = _untracked | append: p.id | append: ',' -%}
-            {%- endif -%}
-          {%- endfor -%}
-          {%- assign _sorted_tracked   = collection.products | where_exp: 'p', 'p.variants.first.inventory_management == "shopify"' | sort: 'total_inventory' | reverse -%}
-          {%- assign _sorted_untracked = collection.products | where_exp: 'p', 'p.variants.first.inventory_management != "shopify"' | sort: 'total_inventory' | reverse -%}
-          {%- assign _sorted = _sorted_tracked | concat: _sorted_untracked -%}
+          {%- assign _sorted = collection.products | sort: 'total_inventory' | reverse -%}
 
           <div class="rc-grid">
             {%- for product in _sorted -%}
