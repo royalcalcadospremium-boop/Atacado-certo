@@ -660,16 +660,27 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     renderFilters();
     restoreFilterState();
 
-    // ORDENAÇÃO POR QUANTIDADE — JS garante a ordem final mesmo se Liquid sort falhar
-    // Rastreados com 0 estoque não existem no DOM (Liquid não os renderizou).
-    // Produtos sem vinculação têm inventory=0 → ficam naturalmente por último.
+    // ORDENAÇÃO: produtos integrados (Olist/Tiny) sempre primeiro
+    // Tier 1: rastreado + tem estoque > 0 (integração ativa com estoque real)
+    // Tier 2: rastreado + estoque = 0 (integração ativa sem estoque)
+    // Tier 3: não rastreado (produto manual sem gestão de estoque)
+    // Dentro de cada tier: maior estoque primeiro.
     (function() {
       var grid = document.querySelector('.rc-grid');
       if (!grid || allProducts.length === 0) return;
       function totalInv(p) {
         return (p.variants || []).reduce(function(s, v) { return s + (v.inventory || 0); }, 0);
       }
-      var sorted = allProducts.slice().sort(function(a, b) { return totalInv(b) - totalInv(a); });
+      function isTracked(p) {
+        return (p.variants || []).some(function(v) { return v.tracked; });
+      }
+      function sortScore(p) {
+        var inv = totalInv(p);
+        var tracked = isTracked(p);
+        var tier = tracked ? (inv > 0 ? 2 : 1) : 0;
+        return tier * 10000000 + inv;
+      }
+      var sorted = allProducts.slice().sort(function(a, b) { return sortScore(b) - sortScore(a); });
       sorted.forEach(function(p) {
         var card = document.querySelector('[data-product-id="' + p.id + '"]');
         if (card) grid.appendChild(card);
