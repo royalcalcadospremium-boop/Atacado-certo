@@ -533,6 +533,20 @@
           "stack_mobile": true
         }
       },
+      "royal-whatsapp-cta": {
+        "type": "royal-whatsapp-cta",
+        "settings": {
+          "show_section": true,
+          "eyebrow": "Atendimento especializado",
+          "headline": "Dúvidas sobre pedidos? Fale direto com nossa equipe.",
+          "subline": "Respondemos em minutos no WhatsApp. Segunda a sábado, das 8h às 18h.",
+          "phone": "5562985020940",
+          "prefill_message": "Olá! Gostaria de saber mais sobre os produtos.",
+          "cta_text": "Falar no WhatsApp agora",
+          "secondary_text": "Ver catálogo completo",
+          "secondary_link": "/collections/all"
+        }
+      },
       "static-promotion-list": {
         "type": "static-promotion-list",
         "settings": {
@@ -1595,7 +1609,8 @@
       "royal_mais_ofertas_duo_ygncqp",
       "royal_mais_ofertas_duo_Ye3WL3",
       "royal_mais_ofertas_duo_8TJMpE",
-      "1649913261818592e3"
+      "1649913261818592e3",
+      "royal-whatsapp-cta"
     ],
     "blocks": {
       "286197278318599166": {

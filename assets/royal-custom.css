@@ -180,7 +180,124 @@
 }
 
 /* ----------------------------------------------------------
-   6. COLLECTION PAGE — SEO subtitle
+   6. PRODUCT PAGE — Modality selector + Download button
+   ---------------------------------------------------------- */
+.pinfo-modality {
+  margin: 18px 0 14px;
+  border: 1px solid oklch(90% 0.005 248);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.pinfo-modality__label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: oklch(50% 0.01 248);
+  padding: 10px 14px 8px;
+  margin: 0;
+  border-bottom: 1px solid oklch(93% 0.005 248);
+}
+
+.pinfo-modality__tabs {
+  display: flex;
+  border-bottom: 1px solid oklch(93% 0.005 248);
+}
+
+.pinfo-modality__tab {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 9px 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: oklch(50% 0.01 248);
+  background: transparent;
+  border: none;
+  border-right: 1px solid oklch(93% 0.005 248);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.pinfo-modality__tab:last-child {
+  border-right: none;
+}
+
+.pinfo-modality__tab:hover {
+  background: oklch(96% 0.005 248);
+  color: oklch(20% 0.01 248);
+}
+
+.pinfo-modality__tab--active {
+  background: oklch(55% 0.22 145 / 0.07);
+  color: oklch(35% 0.18 145);
+}
+
+.pinfo-modality__panels {
+  padding: 12px 14px;
+}
+
+.pinfo-modality__panel {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: oklch(35% 0.01 248);
+}
+
+.pinfo-modality__panel strong {
+  color: oklch(18% 0.01 248);
+}
+
+.pinfo-modality__cta {
+  display: block;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: oklch(45% 0.18 145);
+  padding: 8px;
+  border-top: 1px solid oklch(93% 0.005 248);
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.pinfo-modality__cta:hover {
+  background: oklch(96% 0.005 248);
+}
+
+.pinfo-download {
+  margin: 10px 0 16px;
+  text-align: center;
+}
+
+.pinfo-download__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 20px;
+  background: oklch(20% 0.01 248);
+  color: oklch(96% 0.005 248);
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.pinfo-download__btn:hover {
+  opacity: 0.85;
+  color: oklch(96% 0.005 248);
+}
+
+.pinfo-download__hint {
+  font-size: 10.5px;
+  color: oklch(55% 0.01 248);
+  margin: 6px 0 0;
+}
+
+/* ----------------------------------------------------------
+   7. COLLECTION PAGE — SEO subtitle
    ---------------------------------------------------------- */
 .rc-collection-desc {
   font-size: 12px;
@@ -406,5 +523,110 @@
 
   .text-with-icons__item:last-child {
     border-bottom: none;
+  }
+}
+
+/* ----------------------------------------------------------
+   9. WHATSAPP CTA SECTION
+   ---------------------------------------------------------- */
+.royal-wacta {
+  background: oklch(12% 0.018 248);
+  padding: 52px 0;
+}
+
+.royal-wacta__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.royal-wacta__eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: oklch(60% 0.18 145);
+  margin: 0 0 8px;
+}
+
+.royal-wacta__headline {
+  font-size: clamp(20px, 2.5vw, 28px);
+  font-weight: 800;
+  color: oklch(96% 0.005 248);
+  margin: 0 0 8px;
+  line-height: 1.15;
+}
+
+.royal-wacta__subline {
+  font-size: 14px;
+  color: oklch(65% 0.01 248);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.royal-wacta__text {
+  flex: 1;
+  min-width: 260px;
+}
+
+.royal-wacta__actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.royal-wacta__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 26px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  background: oklch(52% 0.22 145);
+  color: oklch(98% 0 0);
+}
+
+.royal-wacta__btn:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+  color: oklch(98% 0 0);
+}
+
+.royal-wacta__btn--secondary {
+  background: transparent;
+  color: oklch(80% 0.01 248);
+  border: 1.5px solid oklch(40% 0.01 248);
+}
+
+.royal-wacta__btn--secondary:hover {
+  color: oklch(96% 0.005 248);
+  border-color: oklch(60% 0.01 248);
+}
+
+@media (max-width: 768px) {
+  .royal-wacta {
+    padding: 36px 0;
+  }
+
+  .royal-wacta__inner {
+    flex-direction: column;
+    text-align: center;
+    gap: 24px;
+  }
+
+  .royal-wacta__actions {
+    justify-content: center;
+  }
+
+  .royal-wacta__btn {
+    padding: 12px 20px;
+    font-size: 13px;
   }
 }
