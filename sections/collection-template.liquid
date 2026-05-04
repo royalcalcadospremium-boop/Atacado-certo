@@ -408,16 +408,14 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
         {%- paginate collection.products by items_per_page -%}
 
           {%- comment -%}
-            Liquid: renderiza todos disponíveis (available=true).
-            Ordem inicial: total_inventory desc (aproximada).
-            A ordem definitiva é aplicada pelo JS abaixo via isTracked():
-              1º rastreados Olist/Tiny (tracked=true) → por estoque desc
-              2º sem vinculação (tracked=false) → por estoque desc
+            Ordem: respeita a ordenação definida no Shopify Admin (manual ou automática).
+            No Admin → Coleções → selecione a coleção → Ordenar por: Manual
+            e arraste os produtos Olist/Tiny para o topo.
+            Produtos sem estoque (available=false) são ocultados.
           {%- endcomment -%}
-          {%- assign _sorted = collection.products | sort: 'total_inventory' | reverse -%}
 
           <div class="rc-grid">
-            {%- for product in _sorted -%}
+            {%- for product in collection.products -%}
               {%- unless product.available -%}{%- continue -%}{%- endunless -%}
               {%- render 'rc-product-card', product: product, product_index: forloop.index -%}
             {%- endfor -%}
@@ -658,29 +656,8 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     renderFilters();
     restoreFilterState();
 
-    // ORDENAÇÃO — Regra: Olist/Tiny (tracked=true) primeiro, depois por quantidade
-    // 1º produtos com qualquer variante rastreada pelo Shopify (integração Olist/Tiny)
-    // 2º dentro de cada grupo, ordem decrescente de estoque total
-    // Rastreados com 0 estoque não chegam ao DOM (Liquid filtrou com available=false)
-    (function() {
-      var grid = document.querySelector('.rc-grid');
-      if (!grid || allProducts.length === 0) return;
-      function totalInv(p) {
-        return (p.variants || []).reduce(function(s, v) { return s + (v.inventory || 0); }, 0);
-      }
-      function isTracked(p) {
-        return (p.variants || []).some(function(v) { return v.tracked === true; });
-      }
-      var sorted = allProducts.slice().sort(function(a, b) {
-        var aT = isTracked(a), bT = isTracked(b);
-        if (aT !== bT) return aT ? -1 : 1; // rastreados Olist/Tiny primeiro
-        return totalInv(b) - totalInv(a);  // dentro do grupo: mais estoque primeiro
-      });
-      sorted.forEach(function(p) {
-        var card = document.querySelector('[data-product-id="' + p.id + '"]');
-        if (card) grid.appendChild(card);
-      });
-    })();
+    // ORDENAÇÃO: respeitada pelo Shopify Admin (sem re-sort automático).
+    // Configure cada coleção como "Manual" no Admin e arraste Olist/Tiny para o topo.
 
     // SUB-PAGINAÇÃO MOBILE: 10 cards visíveis (não filtrados) por grupo
     var rcMobilePage = 1;
