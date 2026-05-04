@@ -795,6 +795,46 @@
 
       {%- endform -%}
 
+      <!-- MODALITY SELECTOR -->
+      <div class="pinfo-modality">
+        <p class="pinfo-modality__label">Como você quer comprar?</p>
+        <div class="pinfo-modality__tabs" role="tablist">
+          <button class="pinfo-modality__tab pinfo-modality__tab--active" role="tab" data-tab="atacado" aria-selected="true">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Atacado
+          </button>
+          <button class="pinfo-modality__tab" role="tab" data-tab="drop" aria-selected="false">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            Dropshipping
+          </button>
+          <button class="pinfo-modality__tab" role="tab" data-tab="varejo" aria-selected="false">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            Varejo
+          </button>
+        </div>
+        <div class="pinfo-modality__panels">
+          <div class="pinfo-modality__panel pinfo-modality__panel--active" id="tab-atacado" role="tabpanel">
+            <strong>Mínimo 10 pares</strong> — melhor preço por par para revenda. Misture modelos, cores e numerações no mesmo pedido. Pix ou boleto.
+          </div>
+          <div class="pinfo-modality__panel" id="tab-drop" role="tabpanel" hidden>
+            <strong>Qualquer quantidade</strong> — você vende, nós despachamos direto para seu cliente. Sem estoque mínimo. Perfeito para dropshippers e afiliados.
+          </div>
+          <div class="pinfo-modality__panel" id="tab-varejo" role="tabpanel" hidden>
+            <strong>Compra unitária</strong> — frete grátis acima de R$150. Entregamos em até 5 dias úteis com rastreio em tempo real.
+          </div>
+        </div>
+        <a href="/collections/all" class="pinfo-modality__cta">Ver todos os produtos</a>
+      </div>
+
+      <!-- BAIXAR PARA REVENDA -->
+      <div class="pinfo-download">
+        <a href="/collections/{{ product.type | handleize | default: 'all' }}" class="pinfo-download__btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Baixar fotos para revenda
+        </a>
+        <p class="pinfo-download__hint">Fotos com tabela de numeração prontas para WhatsApp e redes sociais</p>
+      </div>
+
       <!-- ACCORDIONS -->
       <div class="accordion-section">
         <div class="accordion-item">
@@ -942,5 +982,28 @@
       if (buyBtn) buyBtn.click();
     });
   }
+
+  // ---- Modality tabs ----
+  (function() {
+    var tabs = document.querySelectorAll('.pinfo-modality__tab');
+    if (!tabs.length) return;
+    tabs.forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        var key = this.dataset.tab;
+        tabs.forEach(function(t) {
+          t.classList.remove('pinfo-modality__tab--active');
+          t.setAttribute('aria-selected', 'false');
+        });
+        document.querySelectorAll('.pinfo-modality__panel').forEach(function(p) {
+          p.classList.remove('pinfo-modality__panel--active');
+          p.hidden = true;
+        });
+        this.classList.add('pinfo-modality__tab--active');
+        this.setAttribute('aria-selected', 'true');
+        var panel = document.getElementById('tab-' + key);
+        if (panel) { panel.classList.add('pinfo-modality__panel--active'); panel.hidden = false; }
+      });
+    });
+  })();
 })();
 </script>

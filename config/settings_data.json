@@ -491,32 +491,32 @@
             "type": "item",
             "settings": {
               "icon": "bi-mobile-payment",
-              "title": "Compra Segura",
-              "content": "<p>Ambiente  seguro para pagamentos online</p>"
+              "title": "Compra 100% Segura",
+              "content": "<p>Ambiente criptografado. Pix, boleto e cartão com proteção total.</p>"
             }
           },
           "text-with-icons-0": {
             "type": "item",
             "settings": {
               "icon": "bi-fast-delivery",
-              "title": "Frete Grátis",
-              "content": "<p>Envio rápido e acompanhado com código de rastreio<br/></p>"
+              "title": "Envio em até 48h",
+              "content": "<p>Despacho rápido com rastreio em tempo real direto no WhatsApp.</p>"
             }
           },
           "text-with-icons-2": {
             "type": "item",
             "settings": {
               "icon": "bi-love",
-              "title": "Suporte Profissional",
-              "content": "<p>Equipe de suporte de extrema qualidade a semana toda<br/></p>"
+              "title": "Suporte via WhatsApp",
+              "content": "<p>Atendimento direto com nossa equipe. Resposta em minutos.</p>"
             }
           },
           "text-with-icons-1": {
             "type": "item",
             "settings": {
               "icon": "bi-returns",
-              "title": "Satisfação ou Reembolso",
-              "content": "<p>Caso haja algo, devolvemos seu dinheiro com velocidade</p>"
+              "title": "Troca Garantida",
+              "content": "<p>Produto com defeito ou tamanho errado? A gente resolve sem burocracia.</p>"
             }
           }
         },
@@ -529,8 +529,22 @@
         "settings": {
           "overlap_px": 0,
           "overlap_px_mobile": 0,
-          "show_section": false,
-          "stack_mobile": false
+          "show_section": true,
+          "stack_mobile": true
+        }
+      },
+      "royal-whatsapp-cta": {
+        "type": "royal-whatsapp-cta",
+        "settings": {
+          "show_section": true,
+          "eyebrow": "Atendimento especializado",
+          "headline": "Dúvidas sobre pedidos? Fale direto com nossa equipe.",
+          "subline": "Respondemos em minutos no WhatsApp. Segunda a sábado, das 8h às 18h.",
+          "phone": "5562985020940",
+          "prefill_message": "Olá! Gostaria de saber mais sobre os produtos.",
+          "cta_text": "Falar no WhatsApp agora",
+          "secondary_text": "Ver catálogo completo",
+          "secondary_link": "/collections/all"
         }
       },
       "static-promotion-list": {
@@ -1595,7 +1609,8 @@
       "royal_mais_ofertas_duo_ygncqp",
       "royal_mais_ofertas_duo_Ye3WL3",
       "royal_mais_ofertas_duo_8TJMpE",
-      "1649913261818592e3"
+      "1649913261818592e3",
+      "royal-whatsapp-cta"
     ],
     "blocks": {
       "286197278318599166": {
