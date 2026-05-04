@@ -302,7 +302,14 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
 
   <div class="rc-container">
     <div style="position: relative; display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
-      <h1 class="rc-title" style="margin: 10px 0; margin-right: 60px;">{{ collection.title }}</h1>
+      <div>
+        <h1 class="rc-title" style="margin: 10px 0;">{{ collection.title }}</h1>
+        {%- if collection.description != blank -%}
+          <p class="rc-collection-desc">{{ collection.description | strip_html | truncatewords: 20 }}</p>
+        {%- else -%}
+          <p class="rc-collection-desc">Calçados e tênis das melhores marcas — Atacado, Dropshipping e Varejo.</p>
+        {%- endif -%}
+      </div>
       <!-- FILTER ICON -->
       <button class="rc-filter-icon" id="btn-filter-toggle" title="Filtros">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -414,7 +421,7 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
           <div class="rc-grid">
             {%- for product in _sorted -%}
               {%- unless product.available -%}{%- continue -%}{%- endunless -%}
-              {%- render 'rc-product-card', product: product -%}
+              {%- render 'rc-product-card', product: product, product_index: forloop.index -%}
             {%- endfor -%}
           </div>
 

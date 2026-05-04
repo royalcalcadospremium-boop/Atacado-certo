@@ -178,3 +178,233 @@
   margin-top: 8px;
   text-align: center;
 }
+
+/* ----------------------------------------------------------
+   6. COLLECTION PAGE — SEO subtitle
+   ---------------------------------------------------------- */
+.rc-collection-desc {
+  font-size: 12px;
+  color: oklch(50% 0.01 248);
+  margin: 0 60px 0 0;
+  line-height: 1.4;
+}
+
+/* ----------------------------------------------------------
+   7. HERO V2 — dark shell overlay sobre o slideshow
+   ---------------------------------------------------------- */
+#shopify-section-slideshow {
+  position: relative;
+}
+
+.hero-v2-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    oklch(9% 0.018 248 / 0.82) 0%,
+    oklch(9% 0.018 248 / 0.55) 55%,
+    oklch(9% 0.018 248 / 0.08) 100%
+  );
+}
+
+.hero-v2-overlay__inner {
+  max-width: 640px;
+  padding: 32px 24px;
+}
+
+.hero-v2-overlay__eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: oklch(72% 0.18 248);
+  margin: 0 0 10px;
+  opacity: 0.9;
+}
+
+.hero-v2-overlay__headline {
+  font-size: clamp(22px, 4vw, 44px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: oklch(97% 0.005 248);
+  margin: 0 0 12px;
+}
+
+.hero-v2-overlay__subline {
+  font-size: clamp(13px, 1.5vw, 16px);
+  font-weight: 400;
+  color: oklch(80% 0.03 248);
+  margin: 0 0 24px;
+  line-height: 1.5;
+}
+
+.hero-v2-overlay__ctas {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  pointer-events: all;
+}
+
+.hero-v2-overlay__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  white-space: nowrap;
+}
+
+.hero-v2-overlay__btn:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.hero-v2-overlay__btn--primary {
+  background: oklch(55% 0.22 145);
+  color: oklch(98% 0 0);
+}
+
+.hero-v2-overlay__btn--secondary {
+  background: oklch(45% 0.18 145 / 0.15);
+  color: oklch(97% 0.005 248);
+  border: 1.5px solid oklch(45% 0.18 145 / 0.5);
+  backdrop-filter: blur(4px);
+}
+
+@media (max-width: 768px) {
+  .hero-v2-overlay {
+    align-items: flex-end;
+    background: linear-gradient(
+      0deg,
+      oklch(9% 0.018 248 / 0.88) 0%,
+      oklch(9% 0.018 248 / 0.5) 55%,
+      oklch(9% 0.018 248 / 0.05) 100%
+    );
+  }
+
+  .hero-v2-overlay__inner {
+    max-width: 100%;
+    padding: 20px 16px 24px;
+  }
+
+  .hero-v2-overlay__headline {
+    font-size: 22px;
+  }
+
+  .hero-v2-overlay__subline {
+    font-size: 12px;
+    margin-bottom: 16px;
+  }
+
+  .hero-v2-overlay__btn {
+    padding: 10px 18px;
+    font-size: 13px;
+  }
+}
+
+/* ----------------------------------------------------------
+   7. TRUST BAR — text-with-icons upgrade
+   ---------------------------------------------------------- */
+.section--tight .text-with-icons {
+  padding: 20px 0;
+  border-top: 1px solid oklch(92% 0.005 248);
+  border-bottom: 1px solid oklch(92% 0.005 248);
+}
+
+.text-with-icons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+}
+
+.text-with-icons__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 20px;
+  border-right: 1px solid oklch(92% 0.005 248);
+}
+
+.text-with-icons__item:last-child {
+  border-right: none;
+}
+
+.text-with-icons__icon-wrapper {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: oklch(55% 0.22 145 / 0.08);
+  border-radius: 8px;
+  color: oklch(40% 0.18 145);
+}
+
+.text-with-icons__icon-wrapper svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.5;
+}
+
+.text-with-icons__title {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  margin: 0 0 2px !important;
+  color: oklch(18% 0.01 248);
+}
+
+.text-with-icons__content {
+  font-size: 11.5px !important;
+  line-height: 1.4;
+  color: oklch(45% 0.01 248);
+  margin: 0 !important;
+}
+
+.text-with-icons__content p {
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .text-with-icons {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .text-with-icons__item {
+    border-right: none;
+    border-bottom: 1px solid oklch(92% 0.005 248);
+    padding: 12px 16px;
+  }
+
+  .text-with-icons__item:nth-child(2n) {
+    border-left: 1px solid oklch(92% 0.005 248);
+  }
+
+  .text-with-icons__item:nth-last-child(-n+2) {
+    border-bottom: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .text-with-icons {
+    grid-template-columns: 1fr;
+  }
+
+  .text-with-icons__item {
+    border-left: none !important;
+  }
+
+  .text-with-icons__item:last-child {
+    border-bottom: none;
+  }
+}

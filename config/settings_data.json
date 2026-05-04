@@ -491,32 +491,32 @@
             "type": "item",
             "settings": {
               "icon": "bi-mobile-payment",
-              "title": "Compra Segura",
-              "content": "<p>Ambiente  seguro para pagamentos online</p>"
+              "title": "Compra 100% Segura",
+              "content": "<p>Ambiente criptografado. Pix, boleto e cartão com proteção total.</p>"
             }
           },
           "text-with-icons-0": {
             "type": "item",
             "settings": {
               "icon": "bi-fast-delivery",
-              "title": "Frete Grátis",
-              "content": "<p>Envio rápido e acompanhado com código de rastreio<br/></p>"
+              "title": "Envio em até 48h",
+              "content": "<p>Despacho rápido com rastreio em tempo real direto no WhatsApp.</p>"
             }
           },
           "text-with-icons-2": {
             "type": "item",
             "settings": {
               "icon": "bi-love",
-              "title": "Suporte Profissional",
-              "content": "<p>Equipe de suporte de extrema qualidade a semana toda<br/></p>"
+              "title": "Suporte via WhatsApp",
+              "content": "<p>Atendimento direto com nossa equipe. Resposta em minutos.</p>"
             }
           },
           "text-with-icons-1": {
             "type": "item",
             "settings": {
               "icon": "bi-returns",
-              "title": "Satisfação ou Reembolso",
-              "content": "<p>Caso haja algo, devolvemos seu dinheiro com velocidade</p>"
+              "title": "Troca Garantida",
+              "content": "<p>Produto com defeito ou tamanho errado? A gente resolve sem burocracia.</p>"
             }
           }
         },
@@ -529,8 +529,8 @@
         "settings": {
           "overlap_px": 0,
           "overlap_px_mobile": 0,
-          "show_section": false,
-          "stack_mobile": false
+          "show_section": true,
+          "stack_mobile": true
         }
       },
       "static-promotion-list": {
