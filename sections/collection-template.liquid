@@ -410,13 +410,24 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
           {%- comment -%}
             Ordenação server-side (Liquid):
             ✕  product.available = false  → estoque zero rastreado → NÃO renderiza
-            1º total_inventory alto       → mais estoque primeiro
-            2º total_inventory baixo      → menos estoque
-            3º total_inventory = 0        → sem vinculação (Tiny/Olist) → por último
-            O Shopify define available=false automaticamente para produtos rastreados com 0 estoque.
-            Produtos sem vinculação sempre têm available=true, mesmo com inventory=0.
+            Liquid não tem sort multi-campo, então separamos em dois grupos:
+            Grupo A (rastreados Olist/Tiny): variants[0].inventory_management == 'shopify'
+            Grupo B (sem vinculação): inventory_management != 'shopify'
+            Dentro de cada grupo: sort por total_inventory desc
+            O JS client-side re-aplica a mesma regra para garantir ordem correta.
           {%- endcomment -%}
-          {%- assign _sorted = collection.products | sort: 'total_inventory' | reverse -%}
+          {%- assign _tracked = '' -%}
+          {%- assign _untracked = '' -%}
+          {%- for p in collection.products -%}
+            {%- if p.variants.first.inventory_management == 'shopify' -%}
+              {%- assign _tracked = _tracked | append: p.id | append: ',' -%}
+            {%- else -%}
+              {%- assign _untracked = _untracked | append: p.id | append: ',' -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {%- assign _sorted_tracked   = collection.products | where_exp: 'p', 'p.variants.first.inventory_management == "shopify"' | sort: 'total_inventory' | reverse -%}
+          {%- assign _sorted_untracked = collection.products | where_exp: 'p', 'p.variants.first.inventory_management != "shopify"' | sort: 'total_inventory' | reverse -%}
+          {%- assign _sorted = _sorted_tracked | concat: _sorted_untracked -%}
 
           <div class="rc-grid">
             {%- for product in _sorted -%}
@@ -660,16 +671,24 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     renderFilters();
     restoreFilterState();
 
-    // ORDENAÇÃO POR QUANTIDADE — JS garante a ordem final mesmo se Liquid sort falhar
-    // Rastreados com 0 estoque não existem no DOM (Liquid não os renderizou).
-    // Produtos sem vinculação têm inventory=0 → ficam naturalmente por último.
+    // ORDENAÇÃO — Regra: Olist/Tiny (tracked=true) primeiro, depois por quantidade
+    // 1º produtos com qualquer variante rastreada pelo Shopify (integração Olist/Tiny)
+    // 2º dentro de cada grupo, ordem decrescente de estoque total
+    // Rastreados com 0 estoque não chegam ao DOM (Liquid filtrou com available=false)
     (function() {
       var grid = document.querySelector('.rc-grid');
       if (!grid || allProducts.length === 0) return;
       function totalInv(p) {
         return (p.variants || []).reduce(function(s, v) { return s + (v.inventory || 0); }, 0);
       }
-      var sorted = allProducts.slice().sort(function(a, b) { return totalInv(b) - totalInv(a); });
+      function isTracked(p) {
+        return (p.variants || []).some(function(v) { return v.tracked === true; });
+      }
+      var sorted = allProducts.slice().sort(function(a, b) {
+        var aT = isTracked(a), bT = isTracked(b);
+        if (aT !== bT) return aT ? -1 : 1; // rastreados Olist/Tiny primeiro
+        return totalInv(b) - totalInv(a);  // dentro do grupo: mais estoque primeiro
+      });
       sorted.forEach(function(p) {
         var card = document.querySelector('[data-product-id="' + p.id + '"]');
         if (card) grid.appendChild(card);
