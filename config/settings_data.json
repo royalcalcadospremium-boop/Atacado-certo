@@ -39,7 +39,7 @@
     "product_label_2_background": "#a95ebe",
     "product_star_color": "#ffb647",
     "ali_hunter_enable": true,
-    "botao_direito_enable": true,
+    "botao_direito_enable": false,
     "addzap": true,
     "numberzap": "5562991902661",
     "titlezap": "Fale Conosco \n<span>\nO melhor suporte é com a (Sua Loja)!\n</span>",

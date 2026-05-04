@@ -58,6 +58,13 @@ or change the format of some info
       "name": {{ product.featured_media.alt | json }},
       "width": "1024",
       "height": "1024"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "47",
+      "bestRating": "5",
+      "worstRating": "1"
     }
   {%- endcapture -%}
 {%- elsif request.page_type == 'article' -%}
