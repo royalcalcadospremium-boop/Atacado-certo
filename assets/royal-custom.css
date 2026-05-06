@@ -839,3 +839,51 @@
     transform: translateY(0) scale(1);
   }
 }
+
+/* ----------------------------------------------------------
+   LAYOUT: FULL WIDTH + RESPONSIVIDADE
+   ---------------------------------------------------------- */
+
+/* Container chega nas extremidades em todas as páginas */
+.container,
+.container--flush {
+  max-width: 100% !important;
+  box-sizing: border-box;
+}
+
+/* Galeria + info do produto: previne corte de conteúdo */
+.product-block-list {
+  overflow: visible !important;
+  box-sizing: border-box;
+}
+
+/* Painel de info não some ao redimensionar */
+@media screen and (min-width: 1000px) {
+  .product-block-list__item--info {
+    overflow-x: visible !important;
+  }
+}
+
+/* Corrige tamanhos intermediários (tablet-landscape / janela reduzida) */
+@media screen and (min-width: 1000px) and (max-width: 1280px) {
+  .product-block-list__wrapper {
+    width: calc(50% - 8px) !important;
+  }
+  .product-block-list__item--info {
+    width: calc(50% - 8px) !important;
+  }
+}
+
+/* Garante que todo o site não crie scroll horizontal */
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+* { box-sizing: border-box; }
+
+/* Imagens sempre dentro do container */
+img, video, iframe {
+  max-width: 100%;
+  height: auto;
+}

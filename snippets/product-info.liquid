@@ -794,7 +794,16 @@
           {%- endfor -%}
         {%- endunless -%}
 
-        <input type="hidden" name="id" value="{{ selected_variant.id }}" class="product-variant-id">
+        <input type="hidden" name="id" value="{{ selected_variant.id }}" class="product-variant-id" id="rc-variant-id">
+
+        {%- comment -%} Selects ocultos — exigidos pelo JS do tema Dropmeta para encontrar a variante {%- endcomment -%}
+        {%- for option in product.options_with_values -%}
+          <select name="options[{{ option.name | escape }}]" id="rc-select-{{ forloop.index }}" data-option-index="{{ forloop.index0 }}" style="display:none" aria-hidden="true">
+            {%- for value in option.values -%}
+              <option value="{{ value | escape }}" {% if value == option.selected_value %}selected{% endif %}>{{ value }}</option>
+            {%- endfor -%}
+          </select>
+        {%- endfor -%}
 
         <!-- URGENCY BADGE -->
         {%- if selected_variant.inventory_management == 'shopify' and selected_variant.inventory_quantity > 0 and selected_variant.inventory_quantity <= 10 -%}
@@ -880,10 +889,10 @@
 
       <!-- BAIXAR PARA REVENDA -->
       <div class="pinfo-download">
-        <a href="/collections/{{ product.type | handleize | default: 'all' }}" class="pinfo-download__btn">
+        <button type="button" class="pinfo-download__btn" id="btn-baixar-fotos" onclick="rcBaixarFotos()">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           Baixar fotos para revenda
-        </a>
+        </button>
         <p class="pinfo-download__hint">Fotos com tabela de numeração prontas para WhatsApp e redes sociais</p>
       </div>
 
@@ -923,6 +932,211 @@
 <button class="floating-buy-btn visible" id="floating-buy-btn">Comprar Agora</button>
 
 <script>
+/* ---- Dados do produto para JS ---- */
+var rcProductVariants = {{ product.variants | json }};
+var rcSelectedOpts = [
+  {{ selected_variant.option1 | json }},
+  {{ selected_variant.option2 | json }},
+  {{ selected_variant.option3 | json }}
+];
+var rcDownloadData = {
+  title: {{ product.title | json }},
+  sku: {{ selected_variant.sku | default: product.id | json }},
+  priceFormatted: {{ selected_variant.price | money | json }},
+  images: [{% for img in product.images %}"{{ img | img_url: 'master' }}"{% unless forloop.last %},{% endunless %}{% endfor %}],
+  variants: [{% for var in product.variants %}{title:{{ var.title | json }},available:{{ var.available }},inventory:{{ var.inventory_quantity | default: 0 }}}{% unless forloop.last %},{% endunless %}{% endfor %}]
+};
+
+/* ---- Formatar dinheiro ---- */
+function rcMoney(cents) {
+  return 'R$ ' + (cents / 100).toFixed(2).replace('.', ',');
+}
+
+/* ---- Encontrar variante pelos opts selecionados ---- */
+function rcFindVariant() {
+  return rcProductVariants.find(function(v) {
+    return (rcSelectedOpts[0] == null || v.option1 === rcSelectedOpts[0]) &&
+           (rcSelectedOpts[1] == null || v.option2 === rcSelectedOpts[1]) &&
+           (rcSelectedOpts[2] == null || v.option3 === rcSelectedOpts[2]);
+  });
+}
+
+/* ---- Atualizar UI quando variante muda ---- */
+function rcApplyVariant(v) {
+  if (!v) return;
+  // Hidden ID input (form submit)
+  var idInput = document.getElementById('rc-variant-id');
+  if (idInput) idInput.value = v.id;
+  // Preço
+  var priceEl = document.querySelector('[data-product-price]');
+  if (priceEl) priceEl.textContent = rcMoney(v.price);
+  // Badge de urgência
+  var urgency = document.querySelector('.product-urgency');
+  if (urgency) {
+    if (v.inventory_management === 'shopify' && v.inventory_quantity > 0 && v.inventory_quantity <= 10) {
+      urgency.querySelector('strong').textContent = v.inventory_quantity + ' pares';
+      urgency.style.display = 'flex';
+    } else {
+      urgency.style.display = 'none';
+    }
+  }
+}
+
+/* ---- Download: cartão de revenda (Canvas) ---- */
+function rcCriarCartao(data) {
+  return new Promise(function(resolve) {
+    var W = 800, H = 1080;
+    var canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    var ctx = canvas.getContext('2d');
+
+    function draw(productImg) {
+      ctx.fillStyle = '#f8f8f8';
+      ctx.fillRect(0, 0, W, H);
+
+      var y = 20;
+      if (productImg) {
+        var iAr = productImg.naturalWidth / productImg.naturalHeight;
+        var iH = Math.round(W / iAr);
+        iH = Math.min(iH, 460);
+        var iW = Math.round(iH * iAr);
+        ctx.drawImage(productImg, Math.round((W - iW) / 2), y, iW, iH);
+        y += iH;
+        // gradient fade
+        var g = ctx.createLinearGradient(0, y - 50, 0, y);
+        g.addColorStop(0, 'rgba(248,248,248,0)');
+        g.addColorStop(1, 'rgba(248,248,248,1)');
+        ctx.fillStyle = g; ctx.fillRect(0, y - 50, W, 50);
+      }
+      y += 18;
+
+      // Título
+      ctx.fillStyle = '#111';
+      ctx.font = 'bold 24px system-ui, Arial, sans-serif';
+      var title = data.title.length > 42 ? data.title.slice(0, 42) + '…' : data.title;
+      ctx.fillText(title, 32, y); y += 34;
+
+      // Ref
+      ctx.fillStyle = '#999';
+      ctx.font = '13px system-ui, Arial, sans-serif';
+      var sku = data.sku ? String(data.sku) : String(data.title).replace(/[^a-z0-9]/gi,'').slice(0,8).toUpperCase();
+      ctx.fillText('Ref.: ' + sku, 32, y); y += 28;
+
+      // Separador
+      ctx.strokeStyle = '#e0e0e0'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(32, y); ctx.lineTo(W - 32, y); ctx.stroke(); y += 18;
+
+      // Header tabela
+      ctx.fillStyle = '#555';
+      ctx.font = '600 11px system-ui, Arial, sans-serif';
+      ctx.fillText('DISPONIBILIDADE POR NUMERAÇÃO', 32, y); y += 22;
+
+      data.variants.forEach(function(v) {
+        var inv = v.inventory || 0;
+        var available = v.available;
+
+        ctx.fillStyle = available ? '#111' : '#bbb';
+        ctx.font = (available ? '600 ' : '400 ') + '15px system-ui, Arial, sans-serif';
+        ctx.fillText(v.title, 32, y + 1);
+
+        if (available) {
+          var dots = Math.max(1, Math.min(5, Math.ceil(inv / 3)));
+          for (var d = 0; d < 5; d++) {
+            ctx.beginPath();
+            ctx.arc(215 + d * 20, y - 4, 6, 0, Math.PI * 2);
+            ctx.fillStyle = d < dots ? '#22c55e' : '#e5e5e5';
+            ctx.fill();
+          }
+          if (inv > 0) {
+            ctx.fillStyle = '#aaa';
+            ctx.font = '11px system-ui, Arial, sans-serif';
+            ctx.fillText(inv + ' prs', 330, y + 1);
+          }
+        } else {
+          ctx.fillStyle = '#ddd'; ctx.font = '11px system-ui, Arial, sans-serif';
+          ctx.fillText('Esgotado', 215, y + 1);
+        }
+        y += 28;
+      });
+
+      y += 8;
+      // Preço sutil
+      ctx.fillStyle = '#ccc'; ctx.font = '11px system-ui, Arial, sans-serif';
+      ctx.fillText('· ' + data.priceFormatted + ' / par', 32, y); y += 36;
+
+      // Footer
+      ctx.fillStyle = '#111'; ctx.fillRect(0, H - 44, W, 44);
+      ctx.fillStyle = '#fff'; ctx.font = 'bold 13px system-ui, Arial, sans-serif';
+      ctx.fillText('ROYAL ATACADO', 32, H - 15);
+      ctx.fillStyle = '#666'; ctx.font = '11px system-ui, Arial, sans-serif';
+      var domain = 'royalatacado.com.br';
+      ctx.fillText(domain, W - 32 - ctx.measureText(domain).width, H - 15);
+
+      canvas.toBlob(resolve, 'image/png');
+    }
+
+    if (data.images && data.images.length > 0) {
+      var img = new Image(); img.crossOrigin = 'anonymous';
+      img.onload = function() { draw(img); };
+      img.onerror = function() { draw(null); };
+      var url = data.images[0]; if (url.startsWith('//')) url = 'https:' + url;
+      img.src = url;
+    } else { draw(null); }
+  });
+}
+
+/* ---- Download principal ---- */
+async function rcBaixarFotos() {
+  var btn = document.getElementById('btn-baixar-fotos');
+  if (!btn || btn.disabled) return;
+  var orig = btn.innerHTML;
+  btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.44-4.04"/></svg> Preparando…';
+  btn.disabled = true;
+
+  try {
+    if (typeof JSZip === 'undefined') {
+      await new Promise(function(ok, fail) {
+        var s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+        s.onload = ok; s.onerror = fail;
+        document.head.appendChild(s);
+      });
+    }
+
+    var zip = new JSZip();
+    var name = rcDownloadData.title.replace(/[^a-zA-Z0-9\s]/g,'').trim().slice(0,22).replace(/\s+/g,'-');
+
+    for (var i = 0; i < rcDownloadData.images.length; i++) {
+      try {
+        var u = rcDownloadData.images[i];
+        if (u.startsWith('//')) u = 'https:' + u;
+        var r = await fetch(u, { mode: 'cors' });
+        if (r.ok) {
+          var blob = await r.blob();
+          zip.file('foto-' + String(i + 1).padStart(2,'0') + '.jpg', blob);
+        }
+      } catch(e) { /* pula imagem com erro */ }
+    }
+
+    var card = await rcCriarCartao(rcDownloadData);
+    if (card) zip.file('tabela-revenda.png', card);
+
+    var zipBlob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(zipBlob);
+    a.download = name + '-royal.zip';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function() { URL.revokeObjectURL(a.href); }, 2000);
+
+    btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Baixado!';
+    setTimeout(function() { btn.innerHTML = orig; btn.disabled = false; }, 3500);
+  } catch(e) {
+    console.error('rcBaixarFotos:', e);
+    btn.innerHTML = orig; btn.disabled = false;
+    alert('Não foi possível baixar. Tente novamente.');
+  }
+}
+
 (function() {
   // ---- Accordion ----
   document.querySelectorAll('[data-accordion-btn]').forEach(function(btn) {
@@ -942,11 +1156,20 @@
       var labelEl = document.getElementById(labelId);
       if (labelEl) labelEl.textContent = this.dataset.colorValue;
 
-      // Update selected state
+      // Atualiza estado visual
       this.closest('.color-grid').querySelectorAll('.color-item').forEach(function(item) {
         item.classList.remove('is-selected');
       });
       this.closest('.color-item').classList.add('is-selected');
+
+      // Atualiza opts e variante
+      var optPos = parseInt((this.name || '').replace(/[^0-9]/g, ''), 10);
+      if (optPos >= 1) {
+        rcSelectedOpts[optPos - 1] = this.value;
+        var sel = document.getElementById('rc-select-' + optPos);
+        if (sel) { sel.value = this.value; sel.dispatchEvent(new Event('change', { bubbles: true })); }
+        rcApplyVariant(rcFindVariant());
+      }
     });
   });
 
@@ -957,22 +1180,19 @@
       var optionPos = parseInt(this.dataset.optionPosition, 10);
       var sizeValue = this.dataset.size;
 
-      // Update active button
-      sectionEl.querySelectorAll('.size-button').forEach(function(b) {
-        b.classList.remove('active');
-      });
+      // Atualiza botão ativo
+      sectionEl.querySelectorAll('.size-button').forEach(function(b) { b.classList.remove('active'); });
       this.classList.add('active');
 
-      // Update hidden select (if theme uses one)
-      var selects = document.querySelectorAll('select[name*="option"]');
-      selects.forEach(function(sel) {
-        // Try to match by position
-        var nameNum = parseInt((sel.name || '').replace(/[^0-9]/g, ''), 10);
-        if (nameNum === optionPos || selects.length === 1) {
-          sel.value = sizeValue;
-          sel.dispatchEvent(new Event('change', { bubbles: true }));
-        }
-      });
+      // Atualiza opts rastreados
+      rcSelectedOpts[optionPos - 1] = sizeValue;
+
+      // Atualiza select oculto (compatibilidade Dropmeta)
+      var sel = document.getElementById('rc-select-' + optionPos);
+      if (sel) { sel.value = sizeValue; sel.dispatchEvent(new Event('change', { bubbles: true })); }
+
+      // Atualiza variante e UI
+      rcApplyVariant(rcFindVariant());
     });
   });
 
