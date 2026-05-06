@@ -1394,7 +1394,7 @@
         "settings": {
           "hide_tabs": true,
           "show_view_more": true,
-          "view_more_label": "Ver mais",
+          "view_more_label": "Lançamento da Semana",
           "view_more_color": "#1f2a44",
           "view_more_bg": "#ffffff",
           "bg": "#f7f7f7",
