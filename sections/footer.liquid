@@ -148,12 +148,12 @@
         {%- endif -%}
         
         {%- if section.settings.mostrar_mensagemdeaviso -%}
-        <center style="margin-top: 20px;">
+        <div style="margin-top: 20px; text-align: center;">
           <p style="font-size: 9pt; line-height: 1.6; max-width: 480px; margin: 0 auto; opacity: 0.8;">
             Royal Calçados Atacado &mdash; empresa registrada no Brasil. Compre com segurança em nosso site oficial.
           </p>
           <p style="font-size: 9pt; opacity: 0.65; margin-top: 6px;">CNPJ: <strong>47.171.413/0001-00</strong></p>
-        </center>
+        </div>
         {%- endif -%}
         
         {%- if section.settings.show_payment_icons and shop.enabled_payment_types.size > 0 -%}
@@ -204,8 +204,7 @@
             </div-->
         </div>
 
-        <div>
-        <center>        
+        <div style="text-align: center;">
 
           <!-- SELOSPRETOS -->
           {%- if section.settings.mostrar_selospretos -%}
@@ -251,7 +250,6 @@
           {%- endif -%}
           <!-- Fim -->
 
-        </center>
         </div>
 
       </aside>

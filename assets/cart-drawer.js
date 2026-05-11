@@ -40,15 +40,25 @@
 
   const state = {
     isOpen: false,
-    loading: false
+    loading: false,
+    lastFocus: null
   };
+
+  const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
   const open = () => {
     if(state.isOpen) return;
     state.isOpen = true;
+    state.lastFocus = document.activeElement;
     root.classList.add('is-open');
     const panel = root.querySelector('.rcd__panel');
-    panel && panel.setAttribute('aria-hidden', 'false');
+    if (panel) {
+      panel.setAttribute('aria-hidden', 'false');
+      setTimeout(() => {
+        const firstFocusable = panel.querySelector(FOCUSABLE);
+        (firstFocusable || panel).focus({ preventScroll: true });
+      }, 50);
+    }
     document.documentElement.classList.add('rcd-lock');
     document.body.classList.add('rcd-lock');
   };
@@ -61,7 +71,37 @@
     panel && panel.setAttribute('aria-hidden', 'true');
     document.documentElement.classList.remove('rcd-lock');
     document.body.classList.remove('rcd-lock');
+    if (state.lastFocus && typeof state.lastFocus.focus === 'function') {
+      state.lastFocus.focus({ preventScroll: true });
+    }
+    state.lastFocus = null;
   };
+
+  // ESC fecha o drawer
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && state.isOpen) {
+      e.preventDefault();
+      close();
+    }
+  });
+
+  // Focus trap: mantém Tab/Shift+Tab dentro do panel quando aberto
+  document.addEventListener('keydown', (e) => {
+    if (!state.isOpen || e.key !== 'Tab') return;
+    const panel = root.querySelector('.rcd__panel');
+    if (!panel) return;
+    const items = Array.from(panel.querySelectorAll(FOCUSABLE)).filter(el => !el.hasAttribute('disabled') && el.offsetParent !== null);
+    if (items.length === 0) return;
+    const first = items[0];
+    const last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  });
 
   const fetchJSON = async (url, options = {}) => {
     const res = await fetch(url, {

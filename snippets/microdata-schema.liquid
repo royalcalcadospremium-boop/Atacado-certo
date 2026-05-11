@@ -18,6 +18,9 @@ or change the format of some info
     {%- endif -%}
   {%- endif -%}
 
+  {%- assign reviews_count = product.metafields.reviews.rating_count | default: product.metafields.ryviu.count -%}
+  {%- assign reviews_value = product.metafields.reviews.rating | default: product.metafields.ryviu.rating -%}
+
   {%- capture main_entity_microdata -%}
     "@type": "Product",
     "offers": [
@@ -26,13 +29,14 @@ or change the format of some info
           "@type": "Offer",
           "name": {{ variant.title | json }},
           "availability": {%- if variant.available -%}"https://schema.org/InStock"{%- else -%}"https://schema.org/OutOfStock"{%- endif -%},
+          "itemCondition": "https://schema.org/NewCondition",
           "price": {{ variant.price | divided_by: 100.0 | json }},
           "priceCurrency": {{ cart.currency.iso_code | json }},
           "priceValidUntil": "{{ 'now' | date: '%s' | plus: days_product_price_valid_until | date: '%Y-%m-%d'}}",
           {%- if variant.sku != blank -%}
             "sku": {{ variant.sku | json }},
           {%- endif -%}
-          "url": "{{ request.path }}{{ variant.url }}"
+          "url": "{{ shop.url }}{{ variant.url }}"
         }{% unless forloop.last %},{% endunless %}
       {%- endfor -%}
     ],
@@ -58,14 +62,16 @@ or change the format of some info
       "name": {{ product.featured_media.alt | json }},
       "width": "1024",
       "height": "1024"
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.9",
-      "reviewCount": "47",
-      "bestRating": "5",
-      "worstRating": "1"
     }
+    {%- if reviews_count and reviews_count != blank and reviews_count != 0 -%}
+      ,"aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": {{ reviews_value | default: 5 | json }},
+        "reviewCount": {{ reviews_count | json }},
+        "bestRating": "5",
+        "worstRating": "1"
+      }
+    {%- endif -%}
   {%- endcapture -%}
 {%- elsif request.page_type == 'article' -%}
   {%- capture main_entity_microdata -%}
@@ -180,7 +186,7 @@ or change the format of some info
 {% if main_entity_microdata != blank %}
   <script type="application/ld+json">
   {
-    "@context": "http://schema.org",
+    "@context": "https://schema.org",
     {{ main_entity_microdata }}
   }
   </script>
@@ -189,7 +195,7 @@ or change the format of some info
 {% if breadcrumb_entity_microdata != blank %}
   <script type="application/ld+json">
   {
-    "@context": "http://schema.org",
+    "@context": "https://schema.org",
     {{ breadcrumb_entity_microdata }}
   }
   </script>

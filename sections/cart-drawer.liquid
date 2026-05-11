@@ -522,10 +522,10 @@ AJUSTE (pedido do Fellipe):
 
   <div class="rcd__overlay" data-rcd-overlay aria-hidden="true"></div>
 
-  <aside class="rcd__panel" role="dialog" aria-modal="true" aria-label="Carrinho" aria-hidden="true">
+  <aside class="rcd__panel" role="dialog" aria-modal="true" aria-labelledby="rcd-title" aria-hidden="true" tabindex="-1">
     <header class="rcd__header">
       <div class="rcd__title-wrap">
-        <h2 class="rcd__title">{{ section.settings.title | escape }}</h2>
+        <h2 id="rcd-title" class="rcd__title">{{ section.settings.title | escape }}</h2>
         <p class="rcd__subtitle">{{ section.settings.subtitle | escape }}</p>
       </div>
 

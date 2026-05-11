@@ -16,11 +16,23 @@
   <div class="img-topbar topbar-flex container" style="padding: 0;">
 
     <a class="d-none imgdopc" href="{{ section.settings.linkimg }}">
-  <img src="{{ section.settings.imgpc | img_url: '1000x' }}" class="img-responsive-pc">
+      <img
+        src="{{ section.settings.imgpc | img_url: '1000x' }}"
+        class="img-responsive-pc"
+        {%- if section.settings.imgpc -%} width="{{ section.settings.imgpc.width }}" height="{{ section.settings.imgpc.height }}"{%- endif %}
+        alt="{{ section.settings.imgpc.alt | default: shop.name | escape }}"
+        loading="eager"
+        decoding="async">
     </a>
-    
+
     <a class="d-none imgdomob" href="{{ section.settings.linkimg }}">
-  <img src="{{ section.settings.imgmob | img_url: '1000x' }}" class="img-responsive-mob">
+      <img
+        src="{{ section.settings.imgmob | img_url: '1000x' }}"
+        class="img-responsive-mob"
+        {%- if section.settings.imgmob -%} width="{{ section.settings.imgmob.width }}" height="{{ section.settings.imgmob.height }}"{%- endif %}
+        alt="{{ section.settings.imgmob.alt | default: shop.name | escape }}"
+        loading="eager"
+        decoding="async">
     </a>
 
   </div>
@@ -501,11 +513,23 @@
   <div class="img-topbar topbar-flex container" style="padding: 0;">
 
     <a class="d-none imgdopc" href="{{ section.settings.linkimg }}">
-  <img src="{{ section.settings.imgpc | img_url: '1000x' }}" class="img-responsive-pc">
+      <img
+        src="{{ section.settings.imgpc | img_url: '1000x' }}"
+        class="img-responsive-pc"
+        {%- if section.settings.imgpc -%} width="{{ section.settings.imgpc.width }}" height="{{ section.settings.imgpc.height }}"{%- endif %}
+        alt="{{ section.settings.imgpc.alt | default: shop.name | escape }}"
+        loading="eager"
+        decoding="async">
     </a>
-    
+
     <a class="d-none imgdomob" href="{{ section.settings.linkimg }}">
-  <img src="{{ section.settings.imgmob | img_url: '1000x' }}" class="img-responsive-mob">
+      <img
+        src="{{ section.settings.imgmob | img_url: '1000x' }}"
+        class="img-responsive-mob"
+        {%- if section.settings.imgmob -%} width="{{ section.settings.imgmob.width }}" height="{{ section.settings.imgmob.height }}"{%- endif %}
+        alt="{{ section.settings.imgmob.alt | default: shop.name | escape }}"
+        loading="eager"
+        decoding="async">
     </a>
 
   </div>

@@ -122,7 +122,7 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
 
     @media (max-width: 1100px){ #royal-collection-gummy-{{ section.id }} .rc-grid{ grid-template-columns: repeat(3, 1fr); } }
 
-    @media (max-width: 800px){
+    @media (max-width: 767px){
       #royal-collection-gummy-{{ section.id }} .rc-layout{ grid-template-columns: 1fr; }
       #royal-collection-gummy-{{ section.id }} .rc-sidebar{ display:none; }
       #royal-collection-gummy-{{ section.id }} .rc-grid{ grid-template-columns: repeat(2, 1fr); gap: 10px; }
@@ -131,12 +131,12 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
 
     /* FILTRO + PAGINAÇÃO MOBILE */
     #royal-collection-gummy-{{ section.id }} .rc-card.rc-filtered-out { display: none !important; }
-    @media (max-width: 800px) {
+    @media (max-width: 767px) {
       #royal-collection-gummy-{{ section.id }} .rc-card.rc-mobile-hidden { display: none !important; }
       #royal-collection-gummy-{{ section.id }} .rc-mobile-pages { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 16px 0 8px; }
       #royal-collection-gummy-{{ section.id }} .rc-shopify-pages { display: none !important; }
     }
-    @media (min-width: 801px) {
+    @media (min-width: 768px) {
       #royal-collection-gummy-{{ section.id }} .rc-mobile-pages { display: none; }
     }
 
@@ -199,6 +199,18 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     .nb-qb-wrap { position: fixed; inset: 0; z-index: 999999; display: none; align-items: flex-end; justify-content: center; background: rgba(0,0,0,0.5); }
     .nb-qb-wrap.nb-open { display: flex; }
     .nb-qb-modal { background: #fff; width: 100%; max-width: 500px; border-radius: 16px 16px 0 0; padding: 20px; position: relative; }
+    .qb-close { position: absolute; top: 15px; right: 15px; border: none; background: none; font-size: 24px; cursor: pointer; line-height: 1; }
+    .qb-header { display: flex; gap: 15px; align-items: center; margin-bottom: 20px; }
+    .qb-thumb { width: 70px; height: 70px; object-fit: cover; border-radius: 8px; }
+    .qb-title { margin: 0; font-size: 14px; }
+    .qb-price { font-weight: 800; font-size: 16px; }
+    .qb-label { font-size: 12px; font-weight: 800; margin-bottom: 10px; }
+    .qb-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
+    .sz-btn { padding: 12px; border: 1px solid #ddd; border-radius: 4px; background: #fff; cursor: pointer; font-weight: 700; transition: border-color 0.15s ease; }
+    .sz-btn.is-selected { border-color: #111; }
+    .sz-btn.is-unavailable, .sz-btn[disabled] { background: #f5f5f5; opacity: 0.4; cursor: not-allowed; }
+    .qb-add { width: 100%; padding: 16px; background: #111; color: #fff; border: none; border-radius: 4px; font-weight: 800; cursor: pointer; opacity: 0.5; transition: opacity 0.15s ease; }
+    .qb-add.is-ready, .qb-add:not([disabled]) { opacity: 1; }
 
     /* FILTER DRAWER */
     .rc-filter-icon {
@@ -690,12 +702,13 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     // SUB-PAGINAÇÃO MOBILE: 10 cards visíveis (não filtrados) por grupo
     var rcMobilePage = 1;
     var RC_MOBILE_PER = 10;
+    var RC_MOBILE_BREAKPOINT = 768;
 
     function renderMobilePages() {
-      if (window.innerWidth > 800) return;
+      if (window.innerWidth > RC_MOBILE_BREAKPOINT) return;
       var cards = Array.from(document.querySelectorAll('.rc-card:not(.rc-filtered-out)'));
       var totalPages = Math.max(1, Math.ceil(cards.length / RC_MOBILE_PER));
-      if (rcMobilePage > totalPages) rcMobilePage = 1;
+      if (rcMobilePage > totalPages || rcMobilePage < 1) rcMobilePage = 1;
 
       cards.forEach(function(card, i) {
         var page = Math.floor(i / RC_MOBILE_PER) + 1;
@@ -705,26 +718,52 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
 
       var nav = document.getElementById('rc-mobile-pages');
       if (!nav) return;
-      var html = '';
+      var frag = document.createDocumentFragment();
       for (var p = 1; p <= totalPages; p++) {
+        var span = document.createElement('span');
+        span.className = 'rc-page';
+        span.textContent = String(p);
         if (p === rcMobilePage) {
-          html += '<span class="rc-page" aria-current="page">' + p + '</span>';
+          span.setAttribute('aria-current', 'page');
         } else {
-          html += '<span class="rc-page" style="cursor:pointer" data-mp="' + p + '">' + p + '</span>';
+          span.setAttribute('role', 'button');
+          span.setAttribute('tabindex', '0');
+          span.dataset.mp = String(p);
         }
+        frag.appendChild(span);
       }
-      nav.innerHTML = html;
-      nav.querySelectorAll('[data-mp]').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          rcMobilePage = +this.dataset.mp;
-          renderMobilePages();
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-      });
+      nav.replaceChildren(frag);
     }
 
+    // Event delegation: um único listener no nav, sem acúmulo entre renders
+    (function bindMobilePagesNav() {
+      var nav = document.getElementById('rc-mobile-pages');
+      if (!nav || nav.dataset.rcBound === '1') return;
+      nav.dataset.rcBound = '1';
+      function gotoPage(target) {
+        var btn = target && target.closest && target.closest('[data-mp]');
+        if (!btn) return false;
+        rcMobilePage = parseInt(btn.dataset.mp, 10) || 1;
+        renderMobilePages();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return true;
+      }
+      nav.addEventListener('click', function(e) { gotoPage(e.target); });
+      nav.addEventListener('keydown', function(e) {
+        if ((e.key === 'Enter' || e.key === ' ') && gotoPage(e.target)) e.preventDefault();
+      });
+    })();
+
     renderMobilePages();
-    window.addEventListener('resize', renderMobilePages);
+
+    // Resize com debounce — evita disparar a cada pixel
+    (function () {
+      var resizeTimer = null;
+      window.addEventListener('resize', function () {
+        if (resizeTimer) clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(renderMobilePages, 150);
+      });
+    })();
 
     // MONITORAR SCROLL PARA TORNAR ÍCONE FLUTUANTE
     const filterIcon = document.getElementById('btn-filter-toggle');
@@ -940,43 +979,83 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
         }
       });
 
-      // 2. LÓGICA QUICK BUY
+      // 2. LÓGICA QUICK BUY (montagem via DOM API — sem innerHTML para evitar XSS)
       window.openQuickBuy = function(id) {
-        const data = JSON.parse(document.getElementById('data-' + id).textContent);
+        const dataEl = document.getElementById('data-' + id);
+        if (!dataEl) return;
+        const data = JSON.parse(dataEl.textContent);
         const modal = document.getElementById('modal-quick-buy');
         const content = document.getElementById('modal-content');
+        content.replaceChildren();
 
-        let variantsHtml = data.variants.map(v => `
-          <button onclick="selectVariant(this, '${v.id}')" class="sz-btn" ${!v.available ? 'disabled' : ''} 
-            style="padding:12px; border:1px solid #ddd; border-radius:4px; background:${v.available ? '#fff' : '#f5f5f5'}; cursor:pointer; font-weight:700; opacity:${v.available ? '1' : '0.4'}">
-            ${v.title}
-          </button>
-        `).join('');
+        const closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.className = 'qb-close';
+        closeBtn.setAttribute('aria-label', 'Fechar');
+        closeBtn.textContent = '×';
+        closeBtn.addEventListener('click', window.closeQuickBuy);
 
-        content.innerHTML = `
-          <button onclick="closeQuickBuy()" style="position:absolute; top:15px; right:15px; border:none; background:none; font-size:24px; cursor:pointer;">&times;</button>
-          <div style="display:flex; gap:15px; align-items:center; margin-bottom:20px;">
-            <img src="${data.image}" style="width:70px; height:70px; object-fit:cover; border-radius:8px;">
-            <div>
-              <h4 style="margin:0; font-size:14px;">${data.title}</h4>
-              <div style="font-weight:800; font-size:16px;">${data.price}</div>
-            </div>
-          </div>
-          <div style="font-size:12px; font-weight:800; margin-bottom:10px;">ESCOLHA O TAMANHO:</div>
-          <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin-bottom:20px;">${variantsHtml}</div>
-          <button id="btn-add-final" disabled onclick="finalizeAdd(this)" style="width:100%; padding:16px; background:#111; color:#fff; border:none; border-radius:4px; font-weight:800; cursor:pointer; opacity:0.5;">ADICIONAR À SACOLA</button>
-        `;
+        const header = document.createElement('div');
+        header.className = 'qb-header';
+        const img = document.createElement('img');
+        img.src = data.image;
+        img.alt = data.title || '';
+        img.className = 'qb-thumb';
+        img.width = 70;
+        img.height = 70;
+        const headerText = document.createElement('div');
+        const title = document.createElement('h4');
+        title.className = 'qb-title';
+        title.textContent = data.title;
+        const price = document.createElement('div');
+        price.className = 'qb-price';
+        price.textContent = data.price;
+        headerText.append(title, price);
+        header.append(img, headerText);
+
+        const label = document.createElement('div');
+        label.className = 'qb-label';
+        label.textContent = 'ESCOLHA O TAMANHO:';
+
+        const grid = document.createElement('div');
+        grid.className = 'qb-grid';
+        data.variants.forEach(v => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'sz-btn';
+          btn.textContent = v.title;
+          btn.dataset.variantId = String(v.id);
+          if (!v.available) {
+            btn.disabled = true;
+            btn.classList.add('is-unavailable');
+          }
+          btn.addEventListener('click', () => window.selectVariant(btn, v.id));
+          grid.appendChild(btn);
+        });
+
+        const addBtn = document.createElement('button');
+        addBtn.type = 'button';
+        addBtn.id = 'btn-add-final';
+        addBtn.className = 'qb-add';
+        addBtn.disabled = true;
+        addBtn.textContent = 'ADICIONAR À SACOLA';
+        addBtn.addEventListener('click', () => window.finalizeAdd(addBtn));
+
+        content.append(closeBtn, header, label, grid, addBtn);
         modal.classList.add('nb-open');
       };
 
       window.selectedId = null;
       window.selectVariant = function(btn, id) {
-        document.querySelectorAll('.sz-btn').forEach(b => b.style.borderColor = "#ddd");
-        btn.style.borderColor = "#111";
+        const prev = btn.parentElement && btn.parentElement.querySelector('.sz-btn.is-selected');
+        if (prev) prev.classList.remove('is-selected');
+        btn.classList.add('is-selected');
         window.selectedId = id;
         const finalBtn = document.getElementById('btn-add-final');
-        finalBtn.disabled = false;
-        finalBtn.style.opacity = "1";
+        if (finalBtn) {
+          finalBtn.disabled = false;
+          finalBtn.classList.add('is-ready');
+        }
       };
 
       window.finalizeAdd = function(btn) {
