@@ -203,12 +203,34 @@
     }
   };
 
-  const refreshCart = async () => {
-    const cart = await fetchJSON('/cart.js');
-    renderItems(cart);
-    renderTotals(cart);
-    document.dispatchEvent(new CustomEvent('rcd:cart-updated', { detail: cart }));
-    return cart;
+  // Deduplica chamadas concorrentes/sequenciais a /cart.js:
+  // - Se já há uma chamada em vôo, retorna a mesma promise
+  // - Se acabou de retornar (<250 ms), serve o cache
+  let _cartInflight = null;
+  let _cartLast = null;
+  let _cartLastAt = 0;
+  const REFRESH_THROTTLE_MS = 250;
+
+  const refreshCart = async (force = false) => {
+    if (_cartInflight) return _cartInflight;
+    const now = Date.now();
+    if (!force && _cartLast && (now - _cartLastAt) < REFRESH_THROTTLE_MS) {
+      return _cartLast;
+    }
+    _cartInflight = (async () => {
+      try {
+        const cart = await fetchJSON('/cart.js');
+        renderItems(cart);
+        renderTotals(cart);
+        document.dispatchEvent(new CustomEvent('rcd:cart-updated', { detail: cart }));
+        _cartLast = cart;
+        _cartLastAt = Date.now();
+        return cart;
+      } finally {
+        _cartInflight = null;
+      }
+    })();
+    return _cartInflight;
   };
 
   const changeLineQty = async (line, quantity) => {
@@ -217,7 +239,7 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ line, quantity })
     });
-    return refreshCart();
+    return refreshCart(true);
   };
 
   const addVariant = async (variantId, quantity = 1) => {
@@ -226,7 +248,7 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: Number(variantId), quantity: Number(quantity) })
     });
-    return refreshCart();
+    return refreshCart(true);
   };
 
   // ✅ auto-detecta links/botões que levam ao carrinho e marca como gatilho do drawer

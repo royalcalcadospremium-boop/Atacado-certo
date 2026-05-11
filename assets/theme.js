@@ -9992,7 +9992,7 @@
       this.options = JSON.parse(this.element.getAttribute('data-section-settings'));
       this.collectionFilterTagElements = this.element.querySelectorAll('[data-tag]');
       this.currentUrl = new URL(window.location.href);
-      this.currentTags = this.options['currentTags'];
+      this.currentTags = this.options['currentTags'] || [];
 
       if (Shopify.designMode && window.SPR) {
         window.SPR.initDomEls();
