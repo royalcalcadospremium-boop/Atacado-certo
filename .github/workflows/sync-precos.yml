@@ -1,0 +1,66 @@
+name: Sync preços de atacado (Olist → Shopify)
+
+on:
+  schedule:
+    # Roda todo dia às 04:00 BRT (07:00 UTC)
+    - cron: '0 7 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Simular sem gravar (1 = dry-run, 0 = executar)'
+        required: false
+        default: '0'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Montar .env a partir dos secrets
+        working-directory: sync
+        env:
+          TINY_CLIENT_ID: ${{ secrets.TINY_CLIENT_ID }}
+          TINY_CLIENT_SECRET: ${{ secrets.TINY_CLIENT_SECRET }}
+          TINY_REFRESH_TOKEN: ${{ secrets.TINY_REFRESH_TOKEN }}
+          SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_STORE_DOMAIN }}
+          SHOPIFY_ADMIN_TOKEN: ${{ secrets.SHOPIFY_ADMIN_TOKEN }}
+          OLIST_PRICELIST_NAME: ${{ vars.OLIST_PRICELIST_NAME || 'ATACADO' }}
+        run: |
+          cat > .env <<EOF
+          TINY_CLIENT_ID=$TINY_CLIENT_ID
+          TINY_CLIENT_SECRET=$TINY_CLIENT_SECRET
+          TINY_REFRESH_TOKEN=$TINY_REFRESH_TOKEN
+          TINY_REDIRECT_URI=http://localhost:3000/oauth/callback
+          SHOPIFY_STORE_DOMAIN=$SHOPIFY_STORE_DOMAIN
+          SHOPIFY_ADMIN_TOKEN=$SHOPIFY_ADMIN_TOKEN
+          OLIST_PRICELIST_NAME=$OLIST_PRICELIST_NAME
+          SHOPIFY_METAFIELD_NAMESPACE=custom
+          SHOPIFY_METAFIELD_KEY=preco_atacado
+          OLIST_USE_PROMO_PRICE=1
+          EOF
+
+      - name: Rodar sync
+        working-directory: sync
+        env:
+          DRY_RUN: ${{ inputs.dry_run || '0' }}
+        run: node sync-precos.js
+
+      - name: Atualizar refresh_token rotacionado nos secrets (se mudou)
+        if: success()
+        working-directory: sync
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # O refresh_token do Olist pode ser rotacionado a cada uso.
+          # Se mudou, atualiza o secret via gh CLI.
+          NEW=$(grep '^TINY_REFRESH_TOKEN=' .env | cut -d'=' -f2-)
+          if [ -n "$NEW" ] && [ "$NEW" != "${{ secrets.TINY_REFRESH_TOKEN }}" ]; then
+            echo "Refresh token rotacionado — atualizando secret"
+            echo "$NEW" | gh secret set TINY_REFRESH_TOKEN
+          fi

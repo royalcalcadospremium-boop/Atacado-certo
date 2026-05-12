@@ -108,6 +108,43 @@
     line-height: 1.5;
   }
 
+  /* Callout de preço atacado (página de produto) */
+  .wholesale-callout {
+    margin-top: 10px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #00d864 0%, #00b350 100%);
+    color: #fff;
+    box-shadow: 0 6px 16px rgba(0, 216, 100, 0.25);
+  }
+  .wholesale-callout__label {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    opacity: 0.95;
+  }
+  .wholesale-callout__price {
+    font-size: 22px;
+    font-weight: 900;
+    line-height: 1.1;
+    margin-top: 2px;
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+  }
+  .wholesale-callout__unit {
+    font-size: 12px;
+    font-weight: 700;
+    opacity: 0.85;
+  }
+  .wholesale-callout__hint {
+    font-size: 11px;
+    font-weight: 600;
+    opacity: 0.9;
+    margin-top: 4px;
+  }
+
   /* ====== SECTION LABEL ====== */
   .section-label {
     font-size: 14px;
@@ -578,6 +615,17 @@
       </div>
 
       <!-- PRICE -->
+      {%- assign retail_cents_pi = selected_variant.price -%}
+      {%- assign wholesale_cents_pi = product.metafields.custom.preco_atacado -%}
+      {%- if wholesale_cents_pi == blank or wholesale_cents_pi == 0 -%}
+        {%- assign w_discount_pi = settings.atacado_discount_percent | default: 15 -%}
+        {%- assign w_factor_pi = 100 | minus: w_discount_pi -%}
+        {%- assign wholesale_cents_pi = retail_cents_pi | times: w_factor_pi | divided_by: 100 -%}
+      {%- else -%}
+        {%- assign wholesale_cents_pi = wholesale_cents_pi | times: 100 | round -%}
+      {%- endif -%}
+      {%- assign atacado_min_pi = settings.atacado_min_qty | default: 10 -%}
+
       <div class="price-section">
         {%- if selected_variant.compare_at_price > selected_variant.price -%}
           {%- assign discount_pct = selected_variant.compare_at_price | minus: selected_variant.price | times: 100 | divided_by: selected_variant.compare_at_price | round -%}
@@ -589,6 +637,12 @@
         {%- else -%}
           <div class="product-price" data-product-price>{{ selected_variant.price | money_without_trailing_zeros }}</div>
         {%- endif -%}
+
+        <div class="wholesale-callout" data-wholesale-block>
+          <div class="wholesale-callout__label">A partir de {{ atacado_min_pi }} pares</div>
+          <div class="wholesale-callout__price" data-wholesale-price>{{ wholesale_cents_pi | money_without_trailing_zeros }}<span class="wholesale-callout__unit">/par</span></div>
+          <div class="wholesale-callout__hint">Preço de atacado · automático no checkout ao atingir o mínimo</div>
+        </div>
       </div>
 
       {%- form 'product', product, class: 'product-form' -%}
@@ -961,15 +1015,35 @@ function rcFindVariant() {
   });
 }
 
+/* ---- Razão varejo→atacado (para recalcular ao trocar variante) ---- */
+var rcRetailBaseCents = {{ retail_cents_pi | json }};
+var rcWholesaleBaseCents = {{ wholesale_cents_pi | json }};
+var rcWholesaleRatio = (rcRetailBaseCents > 0)
+  ? (rcWholesaleBaseCents / rcRetailBaseCents)
+  : (100 - ({{ settings.atacado_discount_percent | default: 15 | json }})) / 100;
+
 /* ---- Atualizar UI quando variante muda ---- */
 function rcApplyVariant(v) {
   if (!v) return;
   // Hidden ID input (form submit)
   var idInput = document.getElementById('rc-variant-id');
   if (idInput) idInput.value = v.id;
-  // Preço
+  // Preço varejo
   var priceEl = document.querySelector('[data-product-price]');
   if (priceEl) priceEl.textContent = rcMoney(v.price);
+  // Preço atacado (proporcional à razão do produto)
+  var wholesaleEl = document.querySelector('[data-wholesale-price]');
+  if (wholesaleEl) {
+    var wholesaleCents = Math.round(v.price * rcWholesaleRatio);
+    var unit = wholesaleEl.querySelector('.wholesale-callout__unit');
+    wholesaleEl.textContent = rcMoney(wholesaleCents);
+    if (unit) wholesaleEl.appendChild(unit); else {
+      var u = document.createElement('span');
+      u.className = 'wholesale-callout__unit';
+      u.textContent = '/par';
+      wholesaleEl.appendChild(u);
+    }
+  }
   // Badge de urgência
   var urgency = document.querySelector('.product-urgency');
   if (urgency) {

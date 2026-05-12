@@ -1,8 +1,26 @@
 {%- comment -%}
   Snippet: rc-product-card.liquid
   Requer: product (objeto Shopify)
+
+  Preço de atacado:
+  1) Usa product.metafields.custom.preco_atacado (populado pelo sync Olist) se existir
+  2) Fallback: aplica settings.atacado_discount_percent sobre o preço de varejo
 {%- endcomment -%}
 {%- assign v = product.selected_or_first_available_variant -%}
+
+{%- assign retail_cents = v.price -%}
+{%- assign wholesale_cents = product.metafields.custom.preco_atacado -%}
+{%- if wholesale_cents == blank or wholesale_cents == 0 -%}
+  {%- assign wholesale_discount = settings.atacado_discount_percent | default: 15 -%}
+  {%- assign wholesale_factor = 100 | minus: wholesale_discount -%}
+  {%- assign wholesale_cents = retail_cents | times: wholesale_factor | divided_by: 100 -%}
+{%- else -%}
+  {%- comment -%} metafield vem em reais (ex: 27.90), converter para cents {%- endcomment -%}
+  {%- assign wholesale_cents = wholesale_cents | times: 100 | round -%}
+{%- endif -%}
+
+{%- assign atacado_min = settings.atacado_min_qty | default: 10 -%}
+
 <article class="rc-card" data-product-id="{{ product.id }}">
   {%- if v.compare_at_price > v.price -%}
     {%- assign discount_pct = v.compare_at_price | minus: v.price | times: 100 | divided_by: v.compare_at_price | round -%}
@@ -18,7 +36,17 @@
 
   <div style="padding: 12px;">
     <a href="{{ product.url }}" class="rc-name">{{ product.title }}</a>
-    <div class="rc-price-value">{{ v.price | money }}</div>
+
+    <div class="rc-price-block">
+      <div class="rc-price-row rc-price-row--retail">
+        <span class="rc-price-label">1 par</span>
+        <span class="rc-price-value">{{ retail_cents | money }}</span>
+      </div>
+      <div class="rc-price-row rc-price-row--wholesale">
+        <span class="rc-price-label">{{ atacado_min }}+ pares</span>
+        <span class="rc-price-value rc-price-value--wholesale">{{ wholesale_cents | money }}</span>
+      </div>
+    </div>
   </div>
 
   <script type="application/json" id="data-{{ product.id }}">
@@ -26,8 +54,11 @@
       "id": {{ product.id }},
       "title": {{ product.title | json }},
       "image": "{{ product.featured_image | img_url: 'master' }}",
-      "price": "{{ v.price | money }}",
-      "price_raw": {{ v.price }},
+      "price": "{{ retail_cents | money }}",
+      "price_raw": {{ retail_cents }},
+      "wholesale_price": "{{ wholesale_cents | money }}",
+      "wholesale_price_raw": {{ wholesale_cents }},
+      "wholesale_min_qty": {{ atacado_min }},
       "vendor": {{ product.vendor | json }},
       "tags": {{ product.tags | json }},
       "collections": [{% for c in product.collections %}"{{ c.handle }}"{% unless forloop.last %},{% endunless %}{% endfor %}],

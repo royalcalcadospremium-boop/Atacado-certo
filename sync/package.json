@@ -1,0 +1,15 @@
+{
+  "name": "royal-sync-precos",
+  "version": "1.0.0",
+  "description": "Sincroniza preços de atacado do Olist (Tiny ERP) para metafields do Shopify",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "auth": "node oauth-bootstrap.js",
+    "sync": "node sync-precos.js",
+    "sync:dry": "DRY_RUN=1 node sync-precos.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

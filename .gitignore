@@ -1,0 +1,26 @@
+# Credenciais — NUNCA commitar
+*.env
+.tiny-credentials.env
+.shopify-credentials.env
+.env.local
+.env.*.local
+
+# Diretórios de scripts/sync
+/sync/node_modules
+/sync/.env
+/sync/dist
+
+# Editor / sistema
+.DS_Store
+Thumbs.db
+*.swp
+*.bak
+*.tmp
+
+# Playwright artifacts
+.playwright-mcp/
+*.png
+!assets/*.png
+
+# Logs
+*.log
