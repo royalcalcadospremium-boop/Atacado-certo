@@ -52,15 +52,17 @@ jobs:
           DRY_RUN: ${{ inputs.dry_run || '0' }}
         run: node sync-precos.js
 
-      - name: Rotacionar TINY_REFRESH_TOKEN se mudou
-        if: success()
+      - name: Rotacionar TINY_REFRESH_TOKEN se mudou (opcional — requer secret GH_PAT)
+        if: success() && env.GH_TOKEN != ''
+        continue-on-error: true
         working-directory: sync
         env:
-          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           # O Olist rotaciona refresh_token a cada renovação. Atualiza o secret se necessário.
+          # Requer Personal Access Token com escopo `repo` ou `actions:write` no secret GH_PAT.
           NEW=$(grep '^TINY_REFRESH_TOKEN=' .env | cut -d'=' -f2-)
           if [ -n "$NEW" ] && [ "$NEW" != "${{ secrets.TINY_REFRESH_TOKEN }}" ]; then
             echo "Refresh token rotacionado — atualizando secret"
-            echo -n "$NEW" | gh secret set TINY_REFRESH_TOKEN --repo "${{ github.repository }}"
+            echo -n "$NEW" | gh secret set TINY_REFRESH_TOKEN --repo "${{ github.repository }}" || echo "Falhou ao atualizar secret (provavelmente sem permissao)"
           fi
