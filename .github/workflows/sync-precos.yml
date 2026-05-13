@@ -1,8 +1,8 @@
-name: Sync preços de atacado (Olist → Shopify)
+name: Sync preço de varejo (Olist → Shopify)
 
 on:
   schedule:
-    # Roda todo dia às 04:00 BRT (07:00 UTC)
+    # Todo dia às 04:00 BRT (07:00 UTC)
     - cron: '0 7 * * *'
   workflow_dispatch:
     inputs:
@@ -11,10 +11,13 @@ on:
         required: false
         default: '0'
 
+permissions:
+  contents: read
+
 jobs:
   sync:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -22,7 +25,7 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Montar .env a partir dos secrets
+      - name: Montar sync/.env
         working-directory: sync
         env:
           TINY_CLIENT_ID: ${{ secrets.TINY_CLIENT_ID }}
@@ -30,7 +33,6 @@ jobs:
           TINY_REFRESH_TOKEN: ${{ secrets.TINY_REFRESH_TOKEN }}
           SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_STORE_DOMAIN }}
           SHOPIFY_ADMIN_TOKEN: ${{ secrets.SHOPIFY_ADMIN_TOKEN }}
-          OLIST_PRICELIST_NAME: ${{ vars.OLIST_PRICELIST_NAME || 'ATACADO' }}
         run: |
           cat > .env <<EOF
           TINY_CLIENT_ID=$TINY_CLIENT_ID
@@ -39,9 +41,8 @@ jobs:
           TINY_REDIRECT_URI=http://localhost:3000/oauth/callback
           SHOPIFY_STORE_DOMAIN=$SHOPIFY_STORE_DOMAIN
           SHOPIFY_ADMIN_TOKEN=$SHOPIFY_ADMIN_TOKEN
-          OLIST_PRICELIST_NAME=$OLIST_PRICELIST_NAME
           SHOPIFY_METAFIELD_NAMESPACE=custom
-          SHOPIFY_METAFIELD_KEY=preco_atacado
+          SHOPIFY_METAFIELD_KEY=preco_varejo
           OLIST_USE_PROMO_PRICE=1
           EOF
 
@@ -51,16 +52,15 @@ jobs:
           DRY_RUN: ${{ inputs.dry_run || '0' }}
         run: node sync-precos.js
 
-      - name: Atualizar refresh_token rotacionado nos secrets (se mudou)
+      - name: Rotacionar TINY_REFRESH_TOKEN se mudou
         if: success()
         working-directory: sync
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
         run: |
-          # O refresh_token do Olist pode ser rotacionado a cada uso.
-          # Se mudou, atualiza o secret via gh CLI.
+          # O Olist rotaciona refresh_token a cada renovação. Atualiza o secret se necessário.
           NEW=$(grep '^TINY_REFRESH_TOKEN=' .env | cut -d'=' -f2-)
           if [ -n "$NEW" ] && [ "$NEW" != "${{ secrets.TINY_REFRESH_TOKEN }}" ]; then
             echo "Refresh token rotacionado — atualizando secret"
-            echo "$NEW" | gh secret set TINY_REFRESH_TOKEN
+            echo -n "$NEW" | gh secret set TINY_REFRESH_TOKEN --repo "${{ github.repository }}"
           fi

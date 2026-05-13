@@ -1,105 +1,100 @@
-# Setup — Sync Preços Atacado (Olist → Shopify)
+# Setup — Sync Preço de Varejo (Olist → Shopify)
 
-Sincronização que lê a Lista de Preços **ATACADO** do Olist (ex-Tiny ERP) e grava o preço de atacado em um metafield de cada produto no Shopify (`custom.preco_atacado`). O tema lê esse metafield e exibe os 2 preços nos cards e na página de produto.
+Sincronização que lê o **preço promocional** (Dados Gerais) de cada produto no Olist (ex-Tiny ERP) via API v3 OAuth e grava em `product.metafields.custom.preco_varejo` no Shopify. O tema lê esse metafield e exibe os 2 preços nos cards (`1 par` = varejo, `10+ pares` = atacado).
+
+**Arquitetura:**
+```
+Olist API v3 OAuth         sync/sync-precos.js          Shopify Admin GraphQL
+/produtos                  ─────────────►                metafields custom.preco_varejo
+precos.precoPromocional                                  (lido pelo rc-product-card.liquid)
+```
+
+Mapeamento por SKU (`Olist.sku ⇄ Shopify.variant.sku`).
 
 ## Pré-requisitos
 
 - Node.js 20+
-- Conta Olist com API v3 habilitada
-- Loja Shopify com permissão para criar Custom Apps
+- App OAuth criado no Olist (Configurações → Aplicativos)
+- Custom App no Shopify Admin com escopos `read_products` + `write_products`
 
 ---
 
-## 1) Gerar credenciais Olist (API v3 / OAuth)
+## 1) Olist: criar app OAuth v3
 
-1. Entre em https://erp.tiny.com.br
-2. Configurações → API → **API v3** → **Criar aplicação**
-3. Preencha:
-   - **Nome:** `Royal Atacado - Sync Preços`
-   - **URL de redirecionamento:** `http://localhost:3000/oauth/callback`
-   - **Escopos:** marque tudo relacionado a **Produtos** e **Listas de Preços** (leitura)
-4. Salve → você recebe **Client ID** e **Client Secret**
+1. Em `https://erp.olist.com/aplicativos_api` (precisa da extensão **"Gestão de Aplicativos"** instalada na Loja de Extensões)
+2. **+ novo aplicativo**
+3. Preencher:
+   - **Nome:** `Royal Atacado Sync`
+   - **URL de Redirecionamento:** `http://localhost:3000/oauth/callback`
+   - **Permissões:** marque "Produtos" e "Lista de Preços" (leitura)
+4. Salvar → copie **Client ID** e **Client Secret**
 
-## 2) Gerar credencial Shopify (Admin API)
+## 2) Shopify: Admin API token
 
-1. Shopify Admin → Configurações (engrenagem) → **Apps e canais de vendas**
-2. **Desenvolver apps** → confirme se pedir → **Criar um app**
-3. Nome: `Sync Preços Atacado`
-4. **Configuração da Admin API** → escopos:
-   - `read_products`
-   - `write_products`
-5. **Instalar app** → copie o **Admin API access token** (`shpat_...`)
-6. Confirme o domínio `.myshopify.com` em Configurações → Domínios
+1. Shopify Admin → Configurações → Apps → **Desenvolver apps**
+2. Reutilize um app existente OU crie um novo
+3. Em **Configuração da Admin API**, marque `read_products` + `write_products`
+4. **Instalar app** → revele o **Admin API access token** (`shpat_...`)
 
 ## 3) Setup local
 
 ```bash
 cd sync
 cp .env.example .env
-# Edite .env preenchendo TINY_CLIENT_ID, TINY_CLIENT_SECRET, SHOPIFY_STORE_DOMAIN, SHOPIFY_ADMIN_TOKEN
+# Edite .env: preencha TINY_CLIENT_ID, TINY_CLIENT_SECRET,
+# SHOPIFY_STORE_DOMAIN, SHOPIFY_ADMIN_TOKEN
 
-# Rode o bootstrap OAuth (abre browser pra você autorizar)
-npm run auth
-# Após autorizar, o arquivo .env recebe TINY_ACCESS_TOKEN e TINY_REFRESH_TOKEN automaticamente.
+# Bootstrap OAuth (1ª vez) — abre browser pra você autorizar:
+node oauth-flow.js
+# Após autorizar, o .env recebe TINY_ACCESS_TOKEN e TINY_REFRESH_TOKEN.
 
-# Teste em modo simulado (não grava nada):
-npm run sync:dry
+# Simulação (não grava):
+DRY_RUN=1 node sync-precos.js
 
-# Quando estiver OK, rode de fato:
-npm run sync
+# Execução real:
+node sync-precos.js
 ```
 
-## 4) Automatizar via GitHub Actions (rodar 1x por dia)
+Tempo esperado: **~1 minuto** pra ~9k produtos no Olist e ~4k SKUs no Shopify (estratégia: pre-fetch do Shopify em memória + batches de 25 metafields por mutation).
 
-1. No repositório GitHub: **Settings → Secrets and variables → Actions → New repository secret**
+## 4) Automatizar via GitHub Actions (sync diário)
+
+1. No GitHub: **Settings → Secrets and variables → Actions → New repository secret**
 2. Crie 5 secrets:
    - `TINY_CLIENT_ID`
    - `TINY_CLIENT_SECRET`
-   - `TINY_REFRESH_TOKEN` (pegue do `.env` após `npm run auth`)
-   - `SHOPIFY_STORE_DOMAIN` (ex: `royalatacado.myshopify.com`)
+   - `TINY_REFRESH_TOKEN` (pegue do `sync/.env` após `node oauth-flow.js`)
+   - `SHOPIFY_STORE_DOMAIN` (ex: `812091-2.myshopify.com`)
    - `SHOPIFY_ADMIN_TOKEN`
-3. (Opcional) Variable: `OLIST_PRICELIST_NAME` (default `ATACADO`)
+3. **Opcional:** crie um Personal Access Token (PAT) com escopo `repo` + `actions:write` e adicione como secret `GH_PAT` — isso permite que o workflow atualize automaticamente o secret `TINY_REFRESH_TOKEN` quando o Olist rotaciona. Se você não criar, a rotação não funciona e em ~30 dias o sync para — basta rodar `node oauth-flow.js` localmente de novo nesse caso.
 4. O workflow `.github/workflows/sync-precos.yml` roda automaticamente todo dia às 04h BRT.
-5. Pra rodar manualmente: aba **Actions → Sync preços de atacado → Run workflow**.
+5. Pra rodar manualmente: aba **Actions → Sync preço de varejo (Olist → Shopify) → Run workflow**.
 
 ---
 
-## Como funciona
+## Detalhes técnicos
 
-```
-┌────────────────┐    ┌──────────────────┐    ┌──────────────────┐
-│  Olist v3 API  │ →  │ sync-precos.js   │ →  │  Shopify Admin   │
-│  Lista ATACADO │    │ - lê Olist       │    │  metafield       │
-│  por SKU       │    │ - mapeia por SKU │    │  custom.preco_   │
-│                │    │ - grava Shopify  │    │  atacado         │
-└────────────────┘    └──────────────────┘    └──────────────────┘
-                                                       │
-                                                       ↓
-                                              ┌──────────────────┐
-                                              │  Tema Shopify    │
-                                              │  rc-product-card │
-                                              │  product-info    │
-                                              │  → 2 preços!     │
-                                              └──────────────────┘
-```
-
-**Mapeamento de SKU:** `Olist.codigo === Shopify.variant.sku`. Garanta que estão idênticos nos dois sistemas (geralmente já estão pela integração nativa).
-
-**Fallback no tema:** Se um produto **não tiver** o metafield (ex: sincronização ainda não rodou, SKU não encontrado, produto novo), o card usa `settings.atacado_discount_percent` (configurável no admin do tema, default 15%) sobre o preço de varejo.
+- **Origem do preço:** `precos.precoPromocional` (campo "Preço promocional" da aba Dados Gerais do Olist). Se zero/vazio, cai pra `precos.preco`.
+- **Destino:** `product.metafields.custom.preco_varejo` (tipo `number_decimal`, valor em reais com 2 casas).
+- **Mapeamento:** SKU. Se um SKU do Olist não existe como variant no Shopify, é ignorado (esperado pra produtos do ERP que não foram importados pra loja).
+- **Idempotente:** Pode rodar várias vezes sem problema — sempre sobrescreve com o valor atual.
+- **Resiliente:** Retry exponencial em falhas de rede (1s/2s/4s/8s). Erros isolados em batches não derrubam o sync inteiro.
 
 ---
 
 ## Troubleshooting
 
-**"Lista ATACADO não encontrada"**
-- O nome da lista no Olist precisa bater com `OLIST_PRICELIST_NAME` (case-insensitive). Default: `ATACADO`. Altere no `.env` se sua lista tem outro nome.
-
-**"SKU não encontrado no Shopify"**
-- O SKU do produto no Olist (campo "Código") deve ser idêntico ao SKU da variant no Shopify.
-- Verifique no Olist (aba "Dados gerais" → "Código SKU") e no Shopify Admin (produto → Variants → SKU).
+**"Falta TINY_REFRESH_TOKEN no .env"**
+- Rode `node oauth-flow.js` localmente uma vez pra fazer o bootstrap.
 
 **Erro 401 do Olist**
-- O refresh_token expirou (após 30 dias sem uso). Rode `npm run auth` de novo.
+- O refresh_token expirou (Olist mantém só 30 dias offline). Rode `node oauth-flow.js` de novo.
 
 **Erro 401/403 do Shopify**
-- Token sem permissão. Vá no Admin App e adicione `write_products`. Pode ser necessário reinstalar.
+- O app foi desinstalado ou o token foi revogado. Reinstale o app (Admin → Configurações → Apps → "Desenvolver apps" → o app → Instalar) e revele um token novo.
+
+**"Sem match no Shopify" alto**
+- Esperado se o Olist tem mais produtos que o Shopify (ex: 9k Olist vs 4k Shopify). Apenas SKUs presentes em ambos são sincronizados.
+
+**Quero forçar reprocessar tudo**
+- Já é sempre `metafieldsSet` (upsert), então rodar de novo já reprocessa todos os 349 com o valor atual do Olist.
