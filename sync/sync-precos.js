@@ -1,14 +1,17 @@
-// Sincroniza preços da Lista "ATACADO" do Olist (Tiny ERP v3) para metafields
-// dos produtos no Shopify Admin API.
+// Sincroniza PREÇO DE VAREJO do Olist (Tiny ERP v3) para metafields do Shopify.
 //
-// Mapeamento por SKU (Olist.código === Shopify.variant.sku).
-// Metafield gravado em: custom.preco_atacado (number_decimal) no PRODUTO.
+// Fonte: /produtos do Olist → campo `preco_promocional` (Dados Gerais)
+//        Esse é o "Preço promocional Varejo" que o Fellipe usa.
+// Destino: product.metafields.custom.preco_varejo no Shopify
+// Mapeamento: Olist.codigo === Shopify.variant.sku
+//
+// O preço de atacado já está em Shopify.product.variant.price (vindo da integração nativa Olist).
 //
 // Uso:
 //   1) Configurar .env (use .env.example como referência)
-//   2) `npm run auth` (1ª vez, para gerar refresh_token)
-//   3) `npm run sync:dry` (simula, mostra o que vai mudar sem gravar)
-//   4) `npm run sync` (executa de fato)
+//   2) `npm run auth` — 1ª vez, gera refresh_token
+//   3) `npm run sync:dry` — simula, mostra o que vai mudar sem gravar
+//   4) `npm run sync` — executa de fato
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -51,14 +54,16 @@ for (const k of required) {
   }
 }
 
-const PRICELIST_NAME = env.OLIST_PRICELIST_NAME || 'ATACADO';
-const USE_PROMO = env.OLIST_USE_PROMO_PRICE !== '0';
 const METAFIELD_NS = env.SHOPIFY_METAFIELD_NAMESPACE || 'custom';
-const METAFIELD_KEY = env.SHOPIFY_METAFIELD_KEY || 'preco_atacado';
+const METAFIELD_KEY = env.SHOPIFY_METAFIELD_KEY || 'preco_varejo';
+const USE_PROMO = env.OLIST_USE_PROMO_PRICE !== '0';
+
+const OLIST_API_BASE = 'https://api.tiny.com.br/public-api/v3';
+const OLIST_TOKEN_URL = 'https://accounts.tiny.com.br/realms/tiny/protocol/openid-connect/token';
 
 // ---------- Olist v3 ----------
 async function refreshOlistToken() {
-  const res = await fetch('https://accounts.tiny.com.br/realms/tiny/protocol/openid-connect/token', {
+  const res = await fetch(OLIST_TOKEN_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
@@ -89,7 +94,7 @@ async function ensureOlistToken() {
 
 async function olistGET(path) {
   await ensureOlistToken();
-  const url = `https://api.tiny.com.br/public-api/v3${path}`;
+  const url = `${OLIST_API_BASE}${path}`;
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${env.TINY_ACCESS_TOKEN}` }
   });
@@ -97,24 +102,23 @@ async function olistGET(path) {
     await refreshOlistToken();
     return olistGET(path);
   }
+  if (res.status === 429) {
+    // rate limit: aguarda 5s e tenta de novo (1x)
+    await new Promise(r => setTimeout(r, 5000));
+    const retry = await fetch(url, { headers: { Authorization: `Bearer ${env.TINY_ACCESS_TOKEN}` } });
+    if (!retry.ok) throw new Error(`Olist ${retry.status} em ${path}: ${await retry.text()}`);
+    return retry.json();
+  }
   if (!res.ok) throw new Error(`Olist ${res.status} em ${path}: ${await res.text()}`);
   return res.json();
 }
 
-async function listOlistPriceLists() {
-  // Endpoint pode variar conforme cliente. Testa os dois mais comuns.
-  try {
-    return await olistGET('/listas-de-precos');
-  } catch (_) {
-    return await olistGET('/listas_de_precos');
-  }
-}
-
-async function* iterateOlistProductsInList(listId) {
+// Lista produtos com paginação. Retorna iterador async de produtos {id, sku, preco, precoPromocional}
+async function* iterateOlistProducts() {
   let offset = 0;
   const limit = 100;
   while (true) {
-    const data = await olistGET(`/listas-de-precos/${listId}/produtos?limit=${limit}&offset=${offset}`);
+    const data = await olistGET(`/produtos?limit=${limit}&offset=${offset}`);
     const items = data.itens || data.produtos || data.data || [];
     if (items.length === 0) break;
     for (const item of items) yield item;
@@ -147,7 +151,7 @@ async function findShopifyProductBySku(sku) {
          edges { node { id sku product { id title } } }
        }
      }`,
-    { q: `sku:${JSON.stringify(sku).slice(1, -1)}` }
+    { q: `sku:${sku}` }
   );
   const edge = data.productVariants.edges[0];
   return edge ? edge.node : null;
@@ -176,53 +180,63 @@ async function setProductMetafield(productGid, value) {
 }
 
 // ---------- main ----------
-function pickPrice(item) {
-  // item esperado: { codigo|sku, preco, precoPromocional }
-  const sku = item.codigo || item.sku || item.codigoSku || (item.produto && item.produto.codigo);
-  const promo = Number(item.precoPromocional ?? item.preco_promocional ?? 0);
-  const normal = Number(item.preco ?? item.precoVenda ?? 0);
-  const value = USE_PROMO && promo > 0 ? promo : normal;
+function pickRetailPrice(item) {
+  // item esperado do Olist v3: { id, sku, codigo, descricao, precos: { preco, precoPromocional, precoCusto } }
+  const sku = item.sku || item.codigo || item.codigoSku;
+  const precos = item.precos || item;
+  const promo = Number(precos.precoPromocional ?? item.precoPromocional ?? 0);
+  const normal = Number(precos.preco ?? item.preco ?? 0);
+  // Usa preço promocional se houver E setting permitir; caso contrário, preço normal
+  const value = (USE_PROMO && promo > 0) ? promo : normal;
   return { sku, value };
 }
 
 async function run() {
-  console.log(`\n=== Sync Olist → Shopify (${DRY_RUN ? 'DRY-RUN' : 'EXECUTANDO'}) ===`);
-  console.log(`Lista alvo: "${PRICELIST_NAME}"`);
+  console.log(`\n=== Sync VAREJO Olist → Shopify (${DRY_RUN ? 'DRY-RUN' : 'EXECUTANDO'}) ===`);
+  console.log(`Origem: /produtos (preco_promocional = preço de varejo)`);
+  console.log(`Destino: ${METAFIELD_NS}.${METAFIELD_KEY}`);
+  console.log();
 
-  const lists = await listOlistPriceLists();
-  const allLists = lists.itens || lists.listas || lists.data || lists;
-  const target = (Array.isArray(allLists) ? allLists : []).find(l =>
-    (l.nome || l.descricao || '').toUpperCase() === PRICELIST_NAME.toUpperCase()
-  );
-  if (!target) {
-    console.error(`Lista "${PRICELIST_NAME}" não encontrada no Olist. Listas disponíveis:`);
-    console.error(JSON.stringify(allLists, null, 2));
-    process.exit(2);
-  }
-  console.log(`Lista encontrada (id ${target.id}). Lendo produtos...`);
+  let touched = 0, skipped = 0, missing = 0, total = 0;
+  const skuCache = new Set(); // evita reprocessar SKUs duplicados (variações no Olist)
 
-  let touched = 0, skipped = 0, missing = 0;
-  for await (const item of iterateOlistProductsInList(target.id)) {
-    const { sku, value } = pickPrice(item);
+  for await (const item of iterateOlistProducts()) {
+    total++;
+    const { sku, value } = pickRetailPrice(item);
+
     if (!sku) { skipped++; continue; }
     if (!value || value <= 0) { skipped++; continue; }
+    if (skuCache.has(sku)) { skipped++; continue; }
+    skuCache.add(sku);
 
     const variant = await findShopifyProductBySku(sku);
-    if (!variant) { missing++; console.log(`  - SKU ${sku} não encontrado no Shopify`); continue; }
+    if (!variant) { missing++; continue; }
 
     if (DRY_RUN) {
-      console.log(`  · ${sku} → R$ ${value.toFixed(2)} (produto: ${variant.product.title})`);
+      console.log(`  · ${sku} → R$ ${value.toFixed(2)} (${variant.product.title})`);
     } else {
-      await setProductMetafield(variant.product.id, value.toFixed(2));
-      console.log(`  ✓ ${sku} → R$ ${value.toFixed(2)} (produto: ${variant.product.title})`);
+      try {
+        await setProductMetafield(variant.product.id, value.toFixed(2));
+        console.log(`  ✓ ${sku} → R$ ${value.toFixed(2)} (${variant.product.title})`);
+      } catch (err) {
+        console.error(`  ✗ ${sku}: ${err.message}`);
+      }
     }
     touched++;
+
+    // suaviza rate limit do Shopify Admin API
+    if (touched % 20 === 0) await new Promise(r => setTimeout(r, 500));
   }
 
-  console.log(`\nResumo: ${touched} atualizados · ${missing} sem match no Shopify · ${skipped} ignorados (sem preço/sku)`);
+  console.log(`\nResumo:`);
+  console.log(`  Total Olist:          ${total}`);
+  console.log(`  Atualizados:          ${touched}`);
+  console.log(`  Sem match no Shopify: ${missing}`);
+  console.log(`  Ignorados (sem preço/sku/duplicados): ${skipped}`);
 }
 
 run().catch(err => {
   console.error('\nFalha:', err.message);
+  if (err.stack) console.error(err.stack);
   process.exit(1);
 });

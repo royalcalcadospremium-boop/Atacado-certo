@@ -2,28 +2,34 @@
   Snippet: rc-product-card.liquid
   Requer: product (objeto Shopify)
 
-  Preço de atacado:
-  1) Usa product.metafields.custom.preco_atacado (populado pelo sync Olist) se existir
-  2) Fallback: aplica settings.atacado_discount_percent sobre o preço de varejo
+  Lógica de preços:
+  - v.price (Shopify)            = PREÇO DE ATACADO   (vem da integração Olist nativa)
+  - metafield custom.preco_varejo = PREÇO DE VAREJO   (sincronizado por sync/sync-precos.js)
+  - Fallback se metafield ausente: varejo = atacado / (1 - desconto%) — só pra não quebrar o card
 {%- endcomment -%}
 {%- assign v = product.selected_or_first_available_variant -%}
 
-{%- assign retail_cents = v.price -%}
-{%- assign wholesale_cents = product.metafields.custom.preco_atacado -%}
-{%- if wholesale_cents == blank or wholesale_cents == 0 -%}
-  {%- assign wholesale_discount = settings.atacado_discount_percent | default: 15 -%}
-  {%- assign wholesale_factor = 100 | minus: wholesale_discount -%}
-  {%- assign wholesale_cents = retail_cents | times: wholesale_factor | divided_by: 100 -%}
+{%- assign wholesale_cents = v.price -%}
+{%- assign retail_raw = product.metafields.custom.preco_varejo -%}
+{%- if retail_raw == blank or retail_raw == 0 -%}
+  {%- comment -%} Fallback: estima varejo = atacado / (1 - desconto%) {%- endcomment -%}
+  {%- assign wd = settings.atacado_discount_percent | default: 30 -%}
+  {%- assign factor = 100 | minus: wd -%}
+  {%- if factor > 0 -%}
+    {%- assign retail_cents = wholesale_cents | times: 100 | divided_by: factor -%}
+  {%- else -%}
+    {%- assign retail_cents = wholesale_cents -%}
+  {%- endif -%}
 {%- else -%}
-  {%- comment -%} metafield vem em reais (ex: 27.90), converter para cents {%- endcomment -%}
-  {%- assign wholesale_cents = wholesale_cents | times: 100 | round -%}
+  {%- comment -%} metafield vem em reais (ex: 37.90) — converter para cents {%- endcomment -%}
+  {%- assign retail_cents = retail_raw | times: 100 | round -%}
 {%- endif -%}
 
 {%- assign atacado_min = settings.atacado_min_qty | default: 10 -%}
 
 <article class="rc-card" data-product-id="{{ product.id }}">
-  {%- if v.compare_at_price > v.price -%}
-    {%- assign discount_pct = v.compare_at_price | minus: v.price | times: 100 | divided_by: v.compare_at_price | round -%}
+  {%- if retail_cents > wholesale_cents -%}
+    {%- assign discount_pct = retail_cents | minus: wholesale_cents | times: 100 | divided_by: retail_cents | round -%}
     <div class="rc-badge">-{{ discount_pct }}%</div>
   {%- endif -%}
 
@@ -54,10 +60,10 @@
       "id": {{ product.id }},
       "title": {{ product.title | json }},
       "image": "{{ product.featured_image | img_url: 'master' }}",
-      "price": "{{ retail_cents | money }}",
-      "price_raw": {{ retail_cents }},
-      "wholesale_price": "{{ wholesale_cents | money }}",
-      "wholesale_price_raw": {{ wholesale_cents }},
+      "price": "{{ wholesale_cents | money }}",
+      "price_raw": {{ wholesale_cents }},
+      "retail_price": "{{ retail_cents | money }}",
+      "retail_price_raw": {{ retail_cents }},
       "wholesale_min_qty": {{ atacado_min }},
       "vendor": {{ product.vendor | json }},
       "tags": {{ product.tags | json }},

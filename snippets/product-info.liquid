@@ -614,28 +614,33 @@
         <a href="#reviews" class="rating-link" data-review-count>(5) Clique e veja!</a>
       </div>
 
-      <!-- PRICE -->
-      {%- assign retail_cents_pi = selected_variant.price -%}
-      {%- assign wholesale_cents_pi = product.metafields.custom.preco_atacado -%}
-      {%- if wholesale_cents_pi == blank or wholesale_cents_pi == 0 -%}
-        {%- assign w_discount_pi = settings.atacado_discount_percent | default: 15 -%}
-        {%- assign w_factor_pi = 100 | minus: w_discount_pi -%}
-        {%- assign wholesale_cents_pi = retail_cents_pi | times: w_factor_pi | divided_by: 100 -%}
+      <!-- PRICE
+           - selected_variant.price = ATACADO (vem da integração Olist)
+           - metafield custom.preco_varejo = VAREJO (sincronizado pelo sync/sync-precos.js)
+      -->
+      {%- assign wholesale_cents_pi = selected_variant.price -%}
+      {%- assign retail_raw_pi = product.metafields.custom.preco_varejo -%}
+      {%- if retail_raw_pi == blank or retail_raw_pi == 0 -%}
+        {%- comment -%} Fallback: estima varejo a partir do atacado {%- endcomment -%}
+        {%- assign wd_pi = settings.atacado_discount_percent | default: 30 -%}
+        {%- assign factor_pi = 100 | minus: wd_pi -%}
+        {%- if factor_pi > 0 -%}
+          {%- assign retail_cents_pi = wholesale_cents_pi | times: 100 | divided_by: factor_pi -%}
+        {%- else -%}
+          {%- assign retail_cents_pi = wholesale_cents_pi -%}
+        {%- endif -%}
       {%- else -%}
-        {%- assign wholesale_cents_pi = wholesale_cents_pi | times: 100 | round -%}
+        {%- assign retail_cents_pi = retail_raw_pi | times: 100 | round -%}
       {%- endif -%}
       {%- assign atacado_min_pi = settings.atacado_min_qty | default: 10 -%}
 
       <div class="price-section">
-        {%- if selected_variant.compare_at_price > selected_variant.price -%}
-          {%- assign discount_pct = selected_variant.compare_at_price | minus: selected_variant.price | times: 100 | divided_by: selected_variant.compare_at_price | round -%}
+        <div class="product-price" data-product-price>{{ retail_cents_pi | money_without_trailing_zeros }}</div>
+        {%- if retail_cents_pi > wholesale_cents_pi -%}
+          {%- assign retail_discount_pct = retail_cents_pi | minus: wholesale_cents_pi | times: 100 | divided_by: retail_cents_pi | round -%}
           <div class="price-row">
-            <div class="product-price" data-product-price>{{ selected_variant.price | money_without_trailing_zeros }}</div>
-            <span class="discount-badge">-{{ discount_pct }}%</span>
+            <span class="discount-badge">-{{ retail_discount_pct }}% no atacado</span>
           </div>
-          <div class="price-compare">{{ selected_variant.compare_at_price | money_without_trailing_zeros }}</div>
-        {%- else -%}
-          <div class="product-price" data-product-price>{{ selected_variant.price | money_without_trailing_zeros }}</div>
         {%- endif -%}
 
         <div class="wholesale-callout" data-wholesale-block>
@@ -1015,12 +1020,13 @@ function rcFindVariant() {
   });
 }
 
-/* ---- Razão varejo→atacado (para recalcular ao trocar variante) ---- */
+/* ---- Razão varejo↔atacado (para recalcular ao trocar variante) ----
+   v.price = atacado.  Varejo = atacado × rcRetailRatio  */
 var rcRetailBaseCents = {{ retail_cents_pi | json }};
 var rcWholesaleBaseCents = {{ wholesale_cents_pi | json }};
-var rcWholesaleRatio = (rcRetailBaseCents > 0)
-  ? (rcWholesaleBaseCents / rcRetailBaseCents)
-  : (100 - ({{ settings.atacado_discount_percent | default: 15 | json }})) / 100;
+var rcRetailRatio = (rcWholesaleBaseCents > 0)
+  ? (rcRetailBaseCents / rcWholesaleBaseCents)
+  : (100 / (100 - ({{ settings.atacado_discount_percent | default: 30 | json }})));
 
 /* ---- Atualizar UI quando variante muda ---- */
 function rcApplyVariant(v) {
@@ -1028,15 +1034,17 @@ function rcApplyVariant(v) {
   // Hidden ID input (form submit)
   var idInput = document.getElementById('rc-variant-id');
   if (idInput) idInput.value = v.id;
-  // Preço varejo
+  // Preço varejo (label "1 par" exibe esse) = v.price × ratio
   var priceEl = document.querySelector('[data-product-price]');
-  if (priceEl) priceEl.textContent = rcMoney(v.price);
-  // Preço atacado (proporcional à razão do produto)
+  if (priceEl) {
+    var retailCents = Math.round(v.price * rcRetailRatio);
+    priceEl.textContent = rcMoney(retailCents);
+  }
+  // Preço atacado (callout verde "A partir de N pares") = v.price direto
   var wholesaleEl = document.querySelector('[data-wholesale-price]');
   if (wholesaleEl) {
-    var wholesaleCents = Math.round(v.price * rcWholesaleRatio);
     var unit = wholesaleEl.querySelector('.wholesale-callout__unit');
-    wholesaleEl.textContent = rcMoney(wholesaleCents);
+    wholesaleEl.textContent = rcMoney(v.price);
     if (unit) wholesaleEl.appendChild(unit); else {
       var u = document.createElement('span');
       u.className = 'wholesale-callout__unit';
