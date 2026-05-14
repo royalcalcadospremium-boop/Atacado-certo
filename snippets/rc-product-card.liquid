@@ -2,27 +2,23 @@
   Snippet: rc-product-card.liquid
   Requer: product (objeto Shopify)
 
-  Lógica de preços:
-  - v.price (Shopify)            = PREÇO DE ATACADO   (vem da integração Olist nativa)
-  - metafield custom.preco_varejo = PREÇO DE VAREJO   (sincronizado por sync/sync-precos.js)
-  - Fallback se metafield ausente: varejo = atacado / (1 - desconto%) — só pra não quebrar o card
+  Lógica de preços (a partir de 14-mai-2026):
+  - v.price (Shopify)            = PREÇO DE VAREJO (sincronizado pelo sync/sync-precos.js)
+  - metafield custom.preco_atacado = PREÇO DE ATACADO (sincronizado pelo sync)
+  - Shopify Function aplica desconto progressivo quando carrinho >= 10 pares.
+
+  Fallback se metafield ausente: atacado ≈ varejo × (1 - desconto%) — só pra não quebrar o card.
 {%- endcomment -%}
 {%- assign v = product.selected_or_first_available_variant -%}
 
-{%- assign wholesale_cents = v.price -%}
-{%- assign retail_raw = product.metafields.custom.preco_varejo -%}
-{%- if retail_raw == blank or retail_raw == 0 -%}
-  {%- comment -%} Fallback: estima varejo = atacado / (1 - desconto%) {%- endcomment -%}
-  {%- assign wd = settings.atacado_discount_percent | default: 30 -%}
+{%- assign retail_cents = v.price -%}
+{%- assign wholesale_raw = product.metafields.custom.preco_atacado -%}
+{%- if wholesale_raw == blank or wholesale_raw == 0 -%}
+  {%- assign wd = settings.atacado_discount_percent | default: 40 -%}
   {%- assign factor = 100 | minus: wd -%}
-  {%- if factor > 0 -%}
-    {%- assign retail_cents = wholesale_cents | times: 100 | divided_by: factor -%}
-  {%- else -%}
-    {%- assign retail_cents = wholesale_cents -%}
-  {%- endif -%}
+  {%- assign wholesale_cents = retail_cents | times: factor | divided_by: 100 -%}
 {%- else -%}
-  {%- comment -%} metafield vem em reais (ex: 37.90) — converter para cents {%- endcomment -%}
-  {%- assign retail_cents = retail_raw | times: 100 | round -%}
+  {%- assign wholesale_cents = wholesale_raw | times: 100 | round -%}
 {%- endif -%}
 
 {%- assign atacado_min = settings.atacado_min_qty | default: 10 -%}
@@ -60,10 +56,10 @@
       "id": {{ product.id }},
       "title": {{ product.title | json }},
       "image": "{{ product.featured_image | img_url: 'master' }}",
-      "price": "{{ wholesale_cents | money }}",
-      "price_raw": {{ wholesale_cents }},
-      "retail_price": "{{ retail_cents | money }}",
-      "retail_price_raw": {{ retail_cents }},
+      "price": "{{ retail_cents | money }}",
+      "price_raw": {{ retail_cents }},
+      "wholesale_price": "{{ wholesale_cents | money }}",
+      "wholesale_price_raw": {{ wholesale_cents }},
       "wholesale_min_qty": {{ atacado_min }},
       "vendor": {{ product.vendor | json }},
       "tags": {{ product.tags | json }},

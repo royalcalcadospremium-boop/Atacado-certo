@@ -614,23 +614,20 @@
         <a href="#reviews" class="rating-link" data-review-count>(5) Clique e veja!</a>
       </div>
 
-      <!-- PRICE
-           - selected_variant.price = ATACADO (vem da integração Olist)
-           - metafield custom.preco_varejo = VAREJO (sincronizado pelo sync/sync-precos.js)
+      <!-- PRICE (sentido invertido a partir de 14-mai-2026)
+           - selected_variant.price = VAREJO (sincronizado pelo sync)
+           - metafield custom.preco_atacado = ATACADO (sincronizado pelo sync)
+           - Shopify Function aplica desconto progressivo no carrinho (10/50/100/200+ pares)
       -->
-      {%- assign wholesale_cents_pi = selected_variant.price -%}
-      {%- assign retail_raw_pi = product.metafields.custom.preco_varejo -%}
-      {%- if retail_raw_pi == blank or retail_raw_pi == 0 -%}
-        {%- comment -%} Fallback: estima varejo a partir do atacado {%- endcomment -%}
-        {%- assign wd_pi = settings.atacado_discount_percent | default: 30 -%}
+      {%- assign retail_cents_pi = selected_variant.price -%}
+      {%- assign wholesale_raw_pi = product.metafields.custom.preco_atacado -%}
+      {%- if wholesale_raw_pi == blank or wholesale_raw_pi == 0 -%}
+        {%- comment -%} Fallback: estima atacado a partir do varejo {%- endcomment -%}
+        {%- assign wd_pi = settings.atacado_discount_percent | default: 40 -%}
         {%- assign factor_pi = 100 | minus: wd_pi -%}
-        {%- if factor_pi > 0 -%}
-          {%- assign retail_cents_pi = wholesale_cents_pi | times: 100 | divided_by: factor_pi -%}
-        {%- else -%}
-          {%- assign retail_cents_pi = wholesale_cents_pi -%}
-        {%- endif -%}
+        {%- assign wholesale_cents_pi = retail_cents_pi | times: factor_pi | divided_by: 100 -%}
       {%- else -%}
-        {%- assign retail_cents_pi = retail_raw_pi | times: 100 | round -%}
+        {%- assign wholesale_cents_pi = wholesale_raw_pi | times: 100 | round -%}
       {%- endif -%}
       {%- assign atacado_min_pi = settings.atacado_min_qty | default: 10 -%}
 
@@ -646,7 +643,7 @@
         <div class="wholesale-callout" data-wholesale-block>
           <div class="wholesale-callout__label">A partir de {{ atacado_min_pi }} pares</div>
           <div class="wholesale-callout__price" data-wholesale-price>{{ wholesale_cents_pi | money_without_trailing_zeros }}<span class="wholesale-callout__unit">/par</span></div>
-          <div class="wholesale-callout__hint">Preço de atacado · automático no checkout ao atingir o mínimo</div>
+          <div class="wholesale-callout__hint">Desconto progressivo: 50+ pares −R$1 / 100+ −R$2 / 200+ −R$3</div>
         </div>
       </div>
 
@@ -1020,31 +1017,29 @@ function rcFindVariant() {
   });
 }
 
-/* ---- Razão varejo↔atacado (para recalcular ao trocar variante) ----
-   v.price = atacado.  Varejo = atacado × rcRetailRatio  */
+/* ---- Razão varejo↔atacado (recalcular ao trocar variante) ----
+   v.price = VAREJO.  Atacado = v.price × rcWholesaleRatio  */
 var rcRetailBaseCents = {{ retail_cents_pi | json }};
 var rcWholesaleBaseCents = {{ wholesale_cents_pi | json }};
-var rcRetailRatio = (rcWholesaleBaseCents > 0)
-  ? (rcRetailBaseCents / rcWholesaleBaseCents)
-  : (100 / (100 - ({{ settings.atacado_discount_percent | default: 30 | json }})));
+var rcWholesaleRatio = (rcRetailBaseCents > 0)
+  ? (rcWholesaleBaseCents / rcRetailBaseCents)
+  : (100 - ({{ settings.atacado_discount_percent | default: 40 | json }})) / 100;
 
 /* ---- Atualizar UI quando variante muda ---- */
 function rcApplyVariant(v) {
   if (!v) return;
-  // Hidden ID input (form submit)
+  // Hidden ID input
   var idInput = document.getElementById('rc-variant-id');
   if (idInput) idInput.value = v.id;
-  // Preço varejo (label "1 par" exibe esse) = v.price × ratio
+  // Preço varejo (1 par) = v.price direto
   var priceEl = document.querySelector('[data-product-price]');
-  if (priceEl) {
-    var retailCents = Math.round(v.price * rcRetailRatio);
-    priceEl.textContent = rcMoney(retailCents);
-  }
-  // Preço atacado (callout verde "A partir de N pares") = v.price direto
+  if (priceEl) priceEl.textContent = rcMoney(v.price);
+  // Preço atacado (callout verde N+ pares) = v.price × ratio
   var wholesaleEl = document.querySelector('[data-wholesale-price]');
   if (wholesaleEl) {
+    var wholesaleCents = Math.round(v.price * rcWholesaleRatio);
     var unit = wholesaleEl.querySelector('.wholesale-callout__unit');
-    wholesaleEl.textContent = rcMoney(v.price);
+    wholesaleEl.textContent = rcMoney(wholesaleCents);
     if (unit) wholesaleEl.appendChild(unit); else {
       var u = document.createElement('span');
       u.className = 'wholesale-callout__unit';

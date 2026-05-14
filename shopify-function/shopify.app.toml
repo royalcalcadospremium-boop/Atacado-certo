@@ -1,0 +1,18 @@
+# Conecta a extensão de Function ao app "Sync Precos Atacado" já criado no Dev Dashboard.
+# Client ID capturado em 12-mai-2026.
+client_id = "f0601edf7723a67f783d995b35ed630c"
+name = "sync-precos-atacado"
+# application_url aponta de volta para o admin da loja (app sem backend próprio — somente Function)
+application_url = "https://admin.shopify.com/store/812091-2/discounts"
+embedded = false
+
+[build]
+
+[access_scopes]
+scopes = "read_products,write_products,read_discounts,write_discounts"
+
+[auth]
+redirect_urls = [ "https://admin.shopify.com/store/812091-2/discounts" ]
+
+[webhooks]
+api_version = "2025-01"

@@ -1,0 +1,21 @@
+api_version = "2025-07"
+uid = "115ab033-e89f-ca3e-fedb-a2c2bac8f917fe482002"
+
+[[extensions]]
+name = "Atacado Tier Discount"
+handle = "atacado-tier-discount"
+type = "function"
+description = "Desconto progressivo no carrinho conforme quantidade total de pares"
+
+  [extensions.ui]
+  handle = "discount-ui"
+
+  [[extensions.targeting]]
+  target = "cart.lines.discounts.generate.run"
+  input_query = "src/cart_lines_discounts_generate_run.graphql"
+  export = "cart_lines_discounts_generate_run"
+
+  [extensions.build]
+  command = "C:/Users/guga0/.cargo/bin/cargo.exe build --target=wasm32-wasip1 --release"
+  path = "target/wasm32-wasip1/release/atacado-tier-discount.wasm"
+  watch = ["src/**/*.rs"]

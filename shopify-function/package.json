@@ -1,0 +1,24 @@
+{
+  "name": "sync-precos-atacado-functions",
+  "version": "1.0.0",
+  "description": "Shopify Functions do app Sync Precos Atacado",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "shopify app dev",
+    "deploy": "shopify app deploy"
+  },
+  "dependencies": {
+    "@preact/signals": "^2.9.0",
+    "@shopify/shopify_function": "^1.0.0",
+    "@shopify/ui-extensions": "~2026.01.0",
+    "preact": "^10.29.1"
+  },
+  "devDependencies": {
+    "@shopify/cli": "^3.x",
+    "typescript": "^5.4.0"
+  }
+}

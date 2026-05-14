@@ -1,0 +1,6 @@
+{
+  "name": "Atacado Tier Discount",
+  "description": "Desconto progressivo automatico por quantidade total no carrinho",
+  "title": "Desconto Progressivo Atacado",
+  "info": "Aplicado automaticamente conforme a quantidade total de pares no carrinho: 10-49 = atacado | 50-99 = -R$1 | 100-199 = -R$2 | 200+ = -R$3. Preco de atacado vem do metafield custom.preco_atacado de cada produto."
+}

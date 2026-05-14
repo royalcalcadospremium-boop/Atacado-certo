@@ -24,3 +24,6 @@ Thumbs.db
 
 # Logs
 *.log
+/sync/sync-log.txt
+/shopify-function/extensions/**/dist
+/shopify-function/extensions/**/target

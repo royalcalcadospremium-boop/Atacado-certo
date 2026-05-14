@@ -1,0 +1,15 @@
+node_modules/
+.shopify/
+deploy.log
+
+# Rust build artifacts
+extensions/**/target/
+extensions/**/Cargo.lock
+
+# Playwright artifacts
+.playwright-mcp/
+*.png
+
+# OS
+.DS_Store
+Thumbs.db

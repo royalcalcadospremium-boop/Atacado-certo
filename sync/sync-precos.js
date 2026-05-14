@@ -1,21 +1,23 @@
-// Sincroniza PREÇO DE VAREJO do Olist (Tiny ERP v3) para metafields do Shopify.
+// Sincroniza preços do Olist (Tiny ERP v3) para o Shopify.
 //
-// Estratégia OTIMIZADA:
-// 1) Pre-fetch de TODOS os produtos Shopify via cursor pagination (~80 calls)
-//    e monta índice em memória: { sku → productGid }
-// 2) Itera todos os produtos Olist (com paginação interna)
-// 3) Cada hit no índice → enfileira em batch
-// 4) Persiste em batches de 25 metafields por mutação (metafieldsSet)
+// DUAS GRAVAÇÕES por produto:
+//   1. variant.price       = PREÇO DE VAREJO (precoPromocional da aba Dados Gerais do Olist)
+//   2. product.metafield   = PREÇO DE ATACADO (precoPromocional da Lista ATACADO do Olist)
+//      custom.preco_atacado
 //
-// Tempo esperado: ~5 minutos pra ~9k produtos (versus ~3-4h da versão item-a-item).
+// A Shopify Function "atacado-tier-discount" lê o metafield e aplica desconto progressivo
+// quando o carrinho atinge 10/50/100/200+ pares.
 //
-// Origem: /produtos do Olist → campo `precos.precoPromocional` (Dados Gerais)
-// Destino: product.metafields.custom.preco_varejo
-// Mapeamento: Olist.sku === Shopify.variant.sku
+// Estratégia otimizada:
+//  - 1 chamada GET /listas-precos/{id ATACADO} retorna TODOS os 7000+ preços atacado de uma vez
+//  - Iteração paginada de /produtos para varejo
+//  - Pre-fetch Shopify (cursor) → índice sku → variantGid + productGid
+//  - Bulk updates: productVariantsBulkUpdate (em batch por produto) + metafieldsSet (até 25 por chamada)
 //
 // Uso:
-//   1) `npm run sync:dry` — simula sem gravar (mostra lista + estatística)
-//   2) `npm run sync` — executa de fato
+//   node oauth-flow.js       # 1ª vez, gera refresh_token
+//   DRY_RUN=1 node sync-precos.js   # preview
+//   node sync-precos.js              # executa
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -25,12 +27,12 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ENV_PATH = join(__dirname, '.env');
 const DRY_RUN = process.env.DRY_RUN === '1';
 
-// ---------- env helpers ----------
 function loadEnv() {
   const raw = readFileSync(ENV_PATH, 'utf8');
   const env = {};
   for (const line of raw.split('\n')) {
-    const m = line.match(/^([A-Z_][A-Z0-9_]*)=(.*)$/);
+    const clean = line.replace(/\r$/, '');
+    const m = clean.match(/^([A-Z_][A-Z0-9_]*)=(.*)$/);
     if (m) env[m[1]] = m[2];
   }
   return env;
@@ -54,8 +56,9 @@ for (const k of required) {
 }
 
 const METAFIELD_NS = env.SHOPIFY_METAFIELD_NAMESPACE || 'custom';
-const METAFIELD_KEY = env.SHOPIFY_METAFIELD_KEY || 'preco_varejo';
+const METAFIELD_KEY = env.SHOPIFY_METAFIELD_KEY || 'preco_atacado';
 const USE_PROMO = env.OLIST_USE_PROMO_PRICE !== '0';
+const OLIST_LIST_NAME = (env.OLIST_LIST_NAME || 'ATACADO').toUpperCase().trim();
 const OLIST_API_BASE = 'https://api.tiny.com.br/public-api/v3';
 const OLIST_TOKEN_URL = 'https://accounts.tiny.com.br/realms/tiny/protocol/openid-connect/token';
 
@@ -63,9 +66,8 @@ const OLIST_TOKEN_URL = 'https://accounts.tiny.com.br/realms/tiny/protocol/openi
 async function fetchWithRetry(url, options = {}, attempts = 4) {
   let lastErr;
   for (let i = 0; i < attempts; i++) {
-    try {
-      return await fetch(url, options);
-    } catch (err) {
+    try { return await fetch(url, options); }
+    catch (err) {
       lastErr = err;
       const wait = 1000 * Math.pow(2, i);
       console.error(`  ! fetch falhou (${i + 1}/${attempts}) — aguardando ${wait}ms: ${err.message}`);
@@ -88,7 +90,7 @@ async function refreshOlistToken() {
     })
   });
   const data = await res.json();
-  if (!res.ok) throw new Error('Falha ao renovar token Olist: ' + JSON.stringify(data));
+  if (!res.ok) throw new Error('Falha renovar token Olist: ' + JSON.stringify(data));
   env.TINY_ACCESS_TOKEN = data.access_token;
   if (data.refresh_token) env.TINY_REFRESH_TOKEN = data.refresh_token;
   env.TINY_TOKEN_EXPIRES_AT = String(Date.now() + (data.expires_in * 1000) - 60_000);
@@ -130,6 +132,30 @@ async function* iterateOlistProducts() {
   }
 }
 
+async function getAtacadoListId() {
+  const data = await olistGET('/listas-precos');
+  const lists = data.itens || [];
+  const target = lists.find(l => (l.descricao || '').trim().toUpperCase() === OLIST_LIST_NAME);
+  if (!target) throw new Error(`Lista de preços "${OLIST_LIST_NAME}" não encontrada. Disponíveis: ${lists.map(l => l.descricao).join(', ')}`);
+  return target.id;
+}
+
+// Retorna Map sku → atacadoBRL (em reais)
+async function fetchAtacadoPrices(listId) {
+  const data = await olistGET(`/listas-precos/${listId}`);
+  const excecoes = data.excecoes || [];
+  const map = new Map();
+  for (const e of excecoes) {
+    const sku = (e.codigo || '').trim();
+    if (!sku) continue;
+    const promo = Number(e.precoPromocional || 0);
+    const normal = Number(e.preco || 0);
+    const v = (USE_PROMO && promo > 0) ? promo : normal;
+    if (v > 0) map.set(sku, v);
+  }
+  return map;
+}
+
 // ---------- Shopify Admin ----------
 async function shopifyGraphQL(query, variables = {}) {
   const res = await fetchWithRetry(`https://${env.SHOPIFY_STORE_DOMAIN}/admin/api/2025-01/graphql.json`, {
@@ -145,11 +171,12 @@ async function shopifyGraphQL(query, variables = {}) {
   return json.data;
 }
 
-// Pré-baixa todos os produtos do Shopify com cursor pagination.
-// Retorna Map: sku → { productGid, productTitle }
+// Índice: Map<productGid, { title, variants: [{variantGid, sku}] }>
+// Também: Map<sku, { productGid, variantGid }>
 async function buildShopifyIndex() {
-  console.log('Indexando produtos do Shopify (pode levar 1-3 min)...');
-  const index = new Map();
+  console.log('Indexando produtos do Shopify...');
+  const byProduct = new Map();
+  const bySku = new Map();
   let cursor = null;
   let pages = 0;
 
@@ -163,7 +190,7 @@ async function buildShopifyIndex() {
               id
               title
               variants(first: 100) {
-                edges { node { sku } }
+                edges { node { id sku } }
               }
             }
           }
@@ -174,22 +201,39 @@ async function buildShopifyIndex() {
     pages++;
     for (const edge of data.products.edges) {
       const p = edge.node;
+      const variantsArr = [];
       for (const v of p.variants.edges) {
-        const sku = v.node.sku;
-        if (sku && !index.has(sku)) {
-          index.set(sku, { productGid: p.id, productTitle: p.title });
-        }
+        const sku = (v.node.sku || '').trim();
+        if (!sku) continue;
+        variantsArr.push({ variantGid: v.node.id, sku });
+        bySku.set(sku, { productGid: p.id, variantGid: v.node.id });
       }
+      if (variantsArr.length > 0) byProduct.set(p.id, { title: p.title, variants: variantsArr });
     }
-    if (pages % 10 === 0) console.log(`  ${pages} páginas (${index.size} SKUs)`);
+    if (pages % 10 === 0) console.log(`  ${pages} páginas (${bySku.size} SKUs)`);
     if (!data.products.pageInfo.hasNextPage) break;
     cursor = data.products.pageInfo.endCursor;
   }
-  console.log(`Índice Shopify pronto: ${index.size} SKUs em ${pages} páginas.\n`);
-  return index;
+  console.log(`Índice Shopify pronto: ${byProduct.size} produtos · ${bySku.size} SKUs em ${pages} páginas.\n`);
+  return { byProduct, bySku };
 }
 
-// Envia até 25 metafields numa única mutation
+async function bulkUpdateVariantPrices(productGid, variantsData) {
+  // variantsData: [{ id: variantGid, price: "79.90" }]
+  const data = await shopifyGraphQL(
+    `mutation($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
+       productVariantsBulkUpdate(productId: $productId, variants: $variants) {
+         productVariants { id price }
+         userErrors { field message }
+       }
+     }`,
+    { productId: productGid, variants: variantsData }
+  );
+  const errs = data.productVariantsBulkUpdate.userErrors;
+  if (errs && errs.length) throw new Error('variantsBulkUpdate: ' + JSON.stringify(errs));
+  return data.productVariantsBulkUpdate.productVariants.length;
+}
+
 async function setMetafieldsBatch(metafields) {
   const data = await shopifyGraphQL(
     `mutation($metafields: [MetafieldsSetInput!]!) {
@@ -206,88 +250,144 @@ async function setMetafieldsBatch(metafields) {
 }
 
 // ---------- main ----------
-function pickRetailPrice(item) {
-  const sku = item.sku || item.codigo;
+function pickVarejoPrice(item) {
+  const sku = (item.sku || item.codigo || '').trim();
   const precos = item.precos || item;
   const promo = Number(precos.precoPromocional ?? 0);
   const normal = Number(precos.preco ?? 0);
-  const value = (USE_PROMO && promo > 0) ? promo : normal;
-  return { sku, value };
+  const v = (USE_PROMO && promo > 0) ? promo : normal;
+  return { sku, value: v };
 }
 
 async function run() {
-  console.log(`\n=== Sync VAREJO Olist → Shopify (${DRY_RUN ? 'DRY-RUN' : 'EXECUTANDO'}) ===`);
-  console.log(`Origem: /produtos (preco_promocional = preço de varejo)`);
-  console.log(`Destino: ${METAFIELD_NS}.${METAFIELD_KEY}\n`);
+  console.log(`\n=== Sync VAREJO + ATACADO Olist → Shopify (${DRY_RUN ? 'DRY-RUN' : 'EXECUTANDO'}) ===`);
+  console.log(`variant.price = varejo (precoPromocional Dados Gerais)`);
+  console.log(`${METAFIELD_NS}.${METAFIELD_KEY} = atacado (precoPromocional Lista ${OLIST_LIST_NAME})\n`);
 
   // Fase 1: índice Shopify
-  const shopifyIndex = await buildShopifyIndex();
+  const { byProduct, bySku } = await buildShopifyIndex();
 
-  // Fase 2: itera Olist e agrupa metafields a aplicar
-  console.log('Lendo produtos do Olist...');
-  const queue = new Map(); // productGid → { value, sku, title }
-  let total = 0, skipped = 0, missing = 0;
+  // Fase 2A: preços atacado em 1 chamada
+  console.log(`Buscando preços da Lista ${OLIST_LIST_NAME}...`);
+  const listId = await getAtacadoListId();
+  console.log(`Lista ID: ${listId}`);
+  const atacadoBySku = await fetchAtacadoPrices(listId);
+  console.log(`Pre-fetch atacado: ${atacadoBySku.size} SKUs.\n`);
+
+  // Fase 2B: itera Olist produtos pra pegar varejo
+  console.log('Lendo produtos do Olist (varejo)...');
+  // queue: Map<productGid, { variants: [{variantGid, varejo}], atacadoValue, productTitle }>
+  const productQueue = new Map();
+  const skuAtacadoUsed = new Map(); // sku → atacado (pra debug)
+  let total = 0, skipped = 0, missing = 0, missingAtacado = 0;
 
   for await (const item of iterateOlistProducts()) {
     total++;
-    const { sku, value } = pickRetailPrice(item);
-    if (!sku || !value || value <= 0) { skipped++; continue; }
-    const hit = shopifyIndex.get(sku);
+    const { sku, value: varejo } = pickVarejoPrice(item);
+    if (!sku || !varejo || varejo <= 0) { skipped++; continue; }
+
+    const hit = bySku.get(sku);
     if (!hit) { missing++; continue; }
-    // Se mesmo product já está na queue, mantém o primeiro preço encontrado
-    // (todas as variantes do mesmo produto geralmente têm o mesmo preço)
-    if (!queue.has(hit.productGid)) {
-      queue.set(hit.productGid, { value, sku, title: hit.productTitle });
+
+    const atacado = atacadoBySku.get(sku);
+    if (!atacado) {
+      missingAtacado++;
+      // Se não tem atacado, ainda atualiza varejo no variant.price
     }
-    if (total % 1000 === 0) console.log(`  Olist: ${total} produtos lidos (${queue.size} a atualizar)`);
+
+    let entry = productQueue.get(hit.productGid);
+    if (!entry) {
+      entry = {
+        productTitle: byProduct.get(hit.productGid)?.title || '',
+        variants: [],
+        atacadoValue: atacado || null
+      };
+      productQueue.set(hit.productGid, entry);
+    }
+    // Adiciona variante (se ainda não tiver)
+    if (!entry.variants.find(v => v.variantGid === hit.variantGid)) {
+      entry.variants.push({ variantGid: hit.variantGid, varejo, sku });
+    }
+    if (atacado && !entry.atacadoValue) entry.atacadoValue = atacado;
+    if (atacado) skuAtacadoUsed.set(sku, atacado);
+
+    if (total % 1000 === 0) console.log(`  Olist: ${total} produtos lidos (${productQueue.size} a atualizar)`);
   }
 
-  console.log(`\nOlist lido: ${total} itens · ${queue.size} produtos a atualizar · ${missing} sem match · ${skipped} ignorados`);
+  console.log(`\nResumo da leitura:`);
+  console.log(`  Total Olist lido:           ${total}`);
+  console.log(`  Sem preço/sku (ignorados):  ${skipped}`);
+  console.log(`  Sem match no Shopify:       ${missing}`);
+  console.log(`  Sem preço atacado:          ${missingAtacado}`);
+  console.log(`  Produtos a atualizar:       ${productQueue.size}`);
 
   if (DRY_RUN) {
-    let n = 0;
-    for (const [gid, info] of queue) {
-      if (n < 20) console.log(`  · ${info.sku} → R$ ${info.value.toFixed(2)} (${info.title})`);
-      n++;
+    let i = 0;
+    for (const [gid, info] of productQueue) {
+      if (i++ < 15) {
+        const v = info.variants[0];
+        console.log(`  · ${v.sku} | varejo R$ ${v.varejo.toFixed(2)} | atacado R$ ${(info.atacadoValue || 0).toFixed(2)} (${info.variants.length} variants) | ${info.productTitle}`);
+      }
     }
-    console.log(`\n[DRY-RUN] ${queue.size} metafields seriam escritos.`);
+    console.log(`\n[DRY-RUN] ${productQueue.size} produtos seriam atualizados.`);
     return;
   }
 
-  // Fase 3: grava em batches de 25
-  console.log(`\nGravando ${queue.size} metafields em batches de 25...`);
-  const entries = Array.from(queue.entries());
-  let written = 0, failed = 0;
+  // Fase 3A: bulk update variant prices (varejo no .price)
+  console.log(`\nAtualizando variant.price em ${productQueue.size} produtos...`);
+  let pricesWritten = 0, pricesFailed = 0;
+  const productsArr = Array.from(productQueue.entries());
+  for (let i = 0; i < productsArr.length; i++) {
+    const [productGid, info] = productsArr[i];
+    const variantsInput = info.variants.map(v => ({
+      id: v.variantGid,
+      price: v.varejo.toFixed(2)
+    }));
+    try {
+      await bulkUpdateVariantPrices(productGid, variantsInput);
+      pricesWritten += variantsInput.length;
+    } catch (err) {
+      pricesFailed += variantsInput.length;
+      console.error(`  ✗ prices ${info.productTitle.substring(0, 40)}: ${err.message}`);
+    }
+    if (i % 20 === 19) {
+      console.log(`  ${i + 1}/${productsArr.length} produtos — ${pricesWritten} variants escritas`);
+      await new Promise(r => setTimeout(r, 200));
+    }
+  }
+  console.log(`Prices: ${pricesWritten} variants atualizadas (${pricesFailed} falhas)\n`);
 
-  for (let i = 0; i < entries.length; i += 25) {
-    const slice = entries.slice(i, i + 25);
-    const metafields = slice.map(([gid, info]) => ({
-      ownerId: gid,
+  // Fase 3B: metafields atacado em batches de 25
+  console.log(`Gravando metafield ${METAFIELD_NS}.${METAFIELD_KEY} em batches...`);
+  const metafieldsList = productsArr
+    .filter(([, info]) => info.atacadoValue && info.atacadoValue > 0)
+    .map(([productGid, info]) => ({
+      ownerId: productGid,
       namespace: METAFIELD_NS,
       key: METAFIELD_KEY,
       type: 'number_decimal',
-      value: info.value.toFixed(2)
+      value: info.atacadoValue.toFixed(2)
     }));
+  let mfWritten = 0, mfFailed = 0;
+  for (let i = 0; i < metafieldsList.length; i += 25) {
+    const slice = metafieldsList.slice(i, i + 25);
     try {
-      const n = await setMetafieldsBatch(metafields);
-      written += n;
-      if ((i / 25) % 10 === 0) {
-        console.log(`  batch ${Math.floor(i / 25) + 1}/${Math.ceil(entries.length / 25)} — ${written} escritos`);
-      }
+      const n = await setMetafieldsBatch(slice);
+      mfWritten += n;
     } catch (err) {
-      failed += slice.length;
-      console.error(`  ✗ batch ${i / 25}: ${err.message}`);
+      mfFailed += slice.length;
+      console.error(`  ✗ metafield batch: ${err.message}`);
     }
-    // pequeno respiro pra rate limit (Shopify: 2000 cost / 100 restore-rate)
+    if ((i / 25) % 5 === 0) console.log(`  batch ${Math.floor(i / 25) + 1}/${Math.ceil(metafieldsList.length / 25)}`);
     await new Promise(r => setTimeout(r, 100));
   }
 
   console.log(`\nResumo final:`);
-  console.log(`  Produtos Olist lidos:       ${total}`);
-  console.log(`  Sem match no Shopify:       ${missing}`);
-  console.log(`  Sem preço/sku (ignorados):  ${skipped}`);
-  console.log(`  Metafields escritos:        ${written}`);
-  console.log(`  Falhas:                     ${failed}`);
+  console.log(`  Produtos lidos no Olist:       ${total}`);
+  console.log(`  variant.price atualizados:     ${pricesWritten}`);
+  console.log(`  metafield preço atacado:       ${mfWritten}`);
+  console.log(`  Falhas (prices):               ${pricesFailed}`);
+  console.log(`  Falhas (metafields):           ${mfFailed}`);
 }
 
 run().catch(err => {
