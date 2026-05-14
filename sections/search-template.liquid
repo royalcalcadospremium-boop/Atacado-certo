@@ -4,6 +4,8 @@ Royal • Search Template — idêntico ao Collection Gummy Style (v1.0)
 
 {%- assign items_per_page = 48 -%}
 
+{%- render 'rc-tier-card-assets' -%}
+
 {%- assign quick_links_menu = linklists[section.settings.quick_links] -%}
 {%- assign has_filters = false -%}
 {%- if quick_links_menu.links.size > 0 -%}{%- assign has_filters = true -%}{%- endif -%}

@@ -8,6 +8,8 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
 
 {%- assign items_per_page = 50 -%}
 
+{%- render 'rc-tier-card-assets' -%}
+
 {%- assign has_visible_tags = false -%}
 {%- if section.settings.show_filters -%}
   {%- if section.settings.filter_type == 'tag' -%}
@@ -166,32 +168,7 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     }
 
     #royal-collection-gummy-{{ section.id }} .rc-price-value{ font-size: 15px; font-weight: 800; color: #111; }
-
-    /* Bloco com 2 preços: varejo + atacado */
-    #royal-collection-gummy-{{ section.id }} .rc-price-block{
-      display: flex; flex-direction: column; gap: 2px; margin-top: 4px;
-    }
-    #royal-collection-gummy-{{ section.id }} .rc-price-row{
-      display: flex; align-items: baseline; justify-content: space-between; gap: 6px;
-    }
-    #royal-collection-gummy-{{ section.id }} .rc-price-row .rc-price-label{
-      font-size: 11px; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 0.02em;
-    }
-    #royal-collection-gummy-{{ section.id }} .rc-price-row--retail .rc-price-value{
-      font-size: 13px; font-weight: 700; color: #666;
-    }
-    #royal-collection-gummy-{{ section.id }} .rc-price-row--wholesale{
-      background: #00d864;
-      padding: 4px 8px;
-      border-radius: 6px;
-      margin-top: 2px;
-    }
-    #royal-collection-gummy-{{ section.id }} .rc-price-row--wholesale .rc-price-label{
-      color: #fff; font-weight: 800; font-size: 10px;
-    }
-    #royal-collection-gummy-{{ section.id }} .rc-price-row--wholesale .rc-price-value--wholesale{
-      color: #fff; font-size: 15px; font-weight: 900; letter-spacing: -0.01em;
-    }
+    /* Estilos dos tier-boxes (VAREJO + ATACADO seletor) ficam no snippet rc-tier-card-assets.liquid */
 
     #royal-collection-gummy-{{ section.id }} .rc-badge{
       position: absolute; top: 8px; left: 8px; background: var(--badge-bg); opacity: var(--badge-opacity); color: #fff;

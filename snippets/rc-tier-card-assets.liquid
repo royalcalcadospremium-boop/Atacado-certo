@@ -1,0 +1,173 @@
+{%- comment -%}
+  Snippet: rc-tier-card-assets.liquid
+  CSS + JS globais para os tier-cards (VAREJO + ATACADO com seletor).
+  Os estilos são prefixados com .rc-card para escopo, e o JS roda 1x via flag global.
+  Inclua em cada section que renderiza rc-product-card.liquid.
+{%- endcomment -%}
+
+{%- unless rc_tier_card_assets_loaded -%}
+{%- assign rc_tier_card_assets_loaded = true -%}
+
+<style>
+/* === Tier-card boxes (VAREJO + ATACADO com seletor) === */
+.rc-card .rc-tier-retail{
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid #ececec;
+  border-radius: 8px;
+  background: #fff;
+  margin-top: 6px;
+}
+.rc-card .rc-tier-retail-left{ display: flex; flex-direction: column; line-height: 1.05; }
+.rc-card .rc-tier-label-mini{
+  font-size: 9px; font-weight: 700; color: #999; letter-spacing: 0.06em;
+}
+.rc-card .rc-tier-qty{
+  font-size: 12px; font-weight: 800; color: #111; letter-spacing: 0.01em;
+}
+.rc-card .rc-tier-price-retail{
+  font-size: 14px; font-weight: 800; color: #111;
+}
+
+.rc-card .rc-tier-wholesale{
+  position: relative;
+  margin-top: 6px;
+  border: 1.5px solid #00d864;
+  border-radius: 8px;
+  background: #fff;
+  padding: 4px 8px 6px;
+}
+.rc-card .rc-tier-wholesale-label{
+  font-size: 9px; font-weight: 800; color: #00a04a; letter-spacing: 0.06em;
+  margin-bottom: 2px;
+}
+.rc-card .rc-tier-wholesale-row{ display: flex; align-items: center; gap: 4px; }
+.rc-card .rc-tier-select{
+  display: inline-flex; align-items: center; gap: 4px;
+  background: #fff;
+  border: 1px solid #d0d0d0;
+  border-radius: 5px;
+  padding: 3px 6px;
+  font-size: 10px; font-weight: 800; color: #111;
+  cursor: pointer; font-family: inherit;
+  letter-spacing: 0.02em;
+}
+.rc-card .rc-tier-select:hover{ border-color: #00d864; }
+.rc-card .rc-tier-current{ white-space: nowrap; }
+.rc-card .rc-tier-chevron{
+  font-size: 8px; color: #666; transition: transform 0.15s ease;
+}
+.rc-card .rc-tier-select[aria-expanded="true"] .rc-tier-chevron{
+  transform: rotate(180deg);
+}
+.rc-card .rc-tier-perpar{
+  font-size: 9px; color: #666; font-weight: 600; letter-spacing: 0.02em;
+}
+.rc-card .rc-tier-price-display{
+  margin-left: auto;
+  font-size: 16px; font-weight: 900; color: #00a04a;
+  letter-spacing: -0.01em;
+}
+
+.rc-card .rc-tier-options{
+  position: absolute;
+  left: 6px; right: 6px;
+  top: calc(100% + 2px);
+  background: #fff;
+  border: 1.5px solid #00d864;
+  border-radius: 8px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.10);
+  z-index: 30;
+  overflow: hidden;
+}
+.rc-card .rc-tier-option{
+  display: flex; align-items: center; justify-content: space-between; gap: 6px;
+  width: 100%;
+  padding: 7px 10px;
+  background: #fff; border: none; cursor: pointer;
+  font-family: inherit; text-align: left;
+}
+.rc-card .rc-tier-option + .rc-tier-option{ border-top: 1px solid #f0f0f0; }
+.rc-card .rc-tier-option:hover{ background: #f5fff5; }
+.rc-card .rc-tier-option--active{ background: #edfaf2; }
+.rc-card .rc-tier-opt-qty{
+  font-size: 11px; font-weight: 800; color: #111; letter-spacing: 0.02em;
+}
+.rc-card .rc-tier-option--active .rc-tier-opt-qty{ color: #007a35; }
+.rc-card .rc-tier-opt-price{
+  font-size: 12px; font-weight: 800; color: #111; margin-left: auto;
+}
+.rc-card .rc-tier-opt-check{
+  width: 14px; height: 14px; border-radius: 50%;
+  flex: 0 0 14px;
+  background: transparent; position: relative;
+}
+.rc-card .rc-tier-option--active .rc-tier-opt-check{ background: #00d864; }
+.rc-card .rc-tier-option--active .rc-tier-opt-check::after{
+  content: ""; position: absolute;
+  left: 4px; top: 2px;
+  width: 4px; height: 7px;
+  border: solid #fff; border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+</style>
+
+<script>
+(function(){
+  if (window.__rcTiersInit) return;
+  window.__rcTiersInit = true;
+
+  function closeAllExcept(except) {
+    document.querySelectorAll('.rc-tier-options').forEach(function(opts){
+      if (opts !== except) {
+        opts.setAttribute('hidden','');
+        var btn = opts.parentElement && opts.parentElement.querySelector('.rc-tier-select');
+        if (btn) btn.setAttribute('aria-expanded','false');
+      }
+    });
+  }
+
+  window.rcToggleTiers = function(btn, ev) {
+    if (ev) { ev.preventDefault(); ev.stopPropagation(); }
+    var box = btn.closest('.rc-tier-wholesale');
+    var opts = box && box.querySelector('.rc-tier-options');
+    if (!opts) return;
+    var isOpen = !opts.hasAttribute('hidden');
+    closeAllExcept(isOpen ? null : opts);
+    if (isOpen) {
+      opts.setAttribute('hidden','');
+      btn.setAttribute('aria-expanded','false');
+    } else {
+      opts.removeAttribute('hidden');
+      btn.setAttribute('aria-expanded','true');
+    }
+  };
+
+  window.rcPickTier = function(optBtn, ev) {
+    if (ev) { ev.preventDefault(); ev.stopPropagation(); }
+    var box = optBtn.closest('.rc-tier-wholesale');
+    if (!box) return;
+    var qty = optBtn.getAttribute('data-qty');
+    var priceText = optBtn.querySelector('.rc-tier-opt-price').innerText.trim();
+    var display = box.querySelector('[data-price-display]');
+    var current = box.querySelector('.rc-tier-current');
+    if (display) display.innerText = priceText;
+    if (current) { current.innerText = qty + ' PARES'; current.setAttribute('data-qty', qty); }
+    box.querySelectorAll('.rc-tier-option').forEach(function(b){ b.classList.remove('rc-tier-option--active'); });
+    optBtn.classList.add('rc-tier-option--active');
+    var opts = box.querySelector('.rc-tier-options');
+    if (opts) opts.setAttribute('hidden','');
+    var btn = box.querySelector('.rc-tier-select');
+    if (btn) btn.setAttribute('aria-expanded','false');
+  };
+
+  // Fecha dropdown ao clicar fora
+  document.addEventListener('click', function(e){
+    if (!e.target.closest || !e.target.closest('.rc-tier-wholesale')) {
+      closeAllExcept(null);
+    }
+  });
+})();
+</script>
+{%- endunless -%}

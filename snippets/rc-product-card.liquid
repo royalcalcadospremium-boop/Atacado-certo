@@ -4,8 +4,9 @@
 
   Lógica de preços (a partir de 14-mai-2026):
   - v.price (Shopify)            = PREÇO DE VAREJO (sincronizado pelo sync/sync-precos.js)
-  - metafield custom.preco_atacado = PREÇO DE ATACADO (sincronizado pelo sync)
-  - Shopify Function aplica desconto progressivo quando carrinho >= 10 pares.
+  - metafield custom.preco_atacado = PREÇO DE ATACADO base (10+ pares)
+  - Tiers de atacado: -R$1 (50+) | -R$2 (100+) | -R$3 (200+)
+  - Shopify Function aplica os descontos progressivos no carrinho.
 
   Fallback se metafield ausente: atacado ≈ varejo × (1 - desconto%) — só pra não quebrar o card.
 {%- endcomment -%}
@@ -21,7 +22,14 @@
   {%- assign wholesale_cents = wholesale_raw | times: 100 | round -%}
 {%- endif -%}
 
-{%- assign atacado_min = settings.atacado_min_qty | default: 10 -%}
+{%- comment -%} Calcula os 4 tiers de atacado em centavos {%- endcomment -%}
+{%- assign t10 = wholesale_cents -%}
+{%- assign t50 = wholesale_cents | minus: 100 -%}
+{%- assign t100 = wholesale_cents | minus: 200 -%}
+{%- assign t200 = wholesale_cents | minus: 300 -%}
+{%- if t50 < 0 -%}{%- assign t50 = 0 -%}{%- endif -%}
+{%- if t100 < 0 -%}{%- assign t100 = 0 -%}{%- endif -%}
+{%- if t200 < 0 -%}{%- assign t200 = 0 -%}{%- endif -%}
 
 <article class="rc-card" data-product-id="{{ product.id }}">
   {%- if retail_cents > wholesale_cents -%}
@@ -39,14 +47,51 @@
   <div style="padding: 12px;">
     <a href="{{ product.url }}" class="rc-name">{{ product.title }}</a>
 
-    <div class="rc-price-block">
-      <div class="rc-price-row rc-price-row--retail">
-        <span class="rc-price-label">1 par</span>
-        <span class="rc-price-value">{{ retail_cents | money }}</span>
+    {%- comment -%} Box VAREJO {%- endcomment -%}
+    <div class="rc-tier-retail">
+      <div class="rc-tier-retail-left">
+        <span class="rc-tier-label-mini">VAREJO</span>
+        <span class="rc-tier-qty">1 PAR</span>
       </div>
-      <div class="rc-price-row rc-price-row--wholesale">
-        <span class="rc-price-label">{{ atacado_min }}+ pares</span>
-        <span class="rc-price-value rc-price-value--wholesale">{{ wholesale_cents | money }}</span>
+      <span class="rc-tier-price-retail">{{ retail_cents | money }}</span>
+    </div>
+
+    {%- comment -%} Box ATACADO com dropdown {%- endcomment -%}
+    <div class="rc-tier-wholesale"
+         data-t10="{{ t10 | money }}"
+         data-t50="{{ t50 | money }}"
+         data-t100="{{ t100 | money }}"
+         data-t200="{{ t200 | money }}">
+      <div class="rc-tier-wholesale-label">ATACADO</div>
+      <div class="rc-tier-wholesale-row">
+        <button class="rc-tier-select" type="button" aria-haspopup="listbox" aria-expanded="false" onclick="rcToggleTiers(this, event)">
+          <span class="rc-tier-current" data-qty="10">10 PARES</span>
+          <span class="rc-tier-chevron" aria-hidden="true">▾</span>
+        </button>
+        <span class="rc-tier-perpar">por par</span>
+        <span class="rc-tier-price-display" data-price-display>{{ t10 | money }}</span>
+      </div>
+      <div class="rc-tier-options" role="listbox" hidden>
+        <button type="button" role="option" data-qty="10"  onclick="rcPickTier(this, event)" class="rc-tier-option rc-tier-option--active">
+          <span class="rc-tier-opt-qty">10 PARES</span>
+          <span class="rc-tier-opt-price">{{ t10 | money }}</span>
+          <span class="rc-tier-opt-check" aria-hidden="true"></span>
+        </button>
+        <button type="button" role="option" data-qty="50"  onclick="rcPickTier(this, event)" class="rc-tier-option">
+          <span class="rc-tier-opt-qty">50 PARES</span>
+          <span class="rc-tier-opt-price">{{ t50 | money }}</span>
+          <span class="rc-tier-opt-check" aria-hidden="true"></span>
+        </button>
+        <button type="button" role="option" data-qty="100" onclick="rcPickTier(this, event)" class="rc-tier-option">
+          <span class="rc-tier-opt-qty">100 PARES</span>
+          <span class="rc-tier-opt-price">{{ t100 | money }}</span>
+          <span class="rc-tier-opt-check" aria-hidden="true"></span>
+        </button>
+        <button type="button" role="option" data-qty="200" onclick="rcPickTier(this, event)" class="rc-tier-option">
+          <span class="rc-tier-opt-qty">200 PARES</span>
+          <span class="rc-tier-opt-price">{{ t200 | money }}</span>
+          <span class="rc-tier-opt-check" aria-hidden="true"></span>
+        </button>
       </div>
     </div>
   </div>
@@ -60,7 +105,7 @@
       "price_raw": {{ retail_cents }},
       "wholesale_price": "{{ wholesale_cents | money }}",
       "wholesale_price_raw": {{ wholesale_cents }},
-      "wholesale_min_qty": {{ atacado_min }},
+      "wholesale_min_qty": 10,
       "vendor": {{ product.vendor | json }},
       "tags": {{ product.tags | json }},
       "collections": [{% for c in product.collections %}"{{ c.handle }}"{% unless forloop.last %},{% endunless %}{% endfor %}],

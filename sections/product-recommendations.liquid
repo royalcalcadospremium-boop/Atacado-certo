@@ -9,6 +9,7 @@
 {%- endcapture -%}
 
 {%- if section.settings.show_product_recommendations -%}
+{%- render 'rc-tier-card-assets' -%}
 <section class="section nb-rec-section" data-section-id="{{ section.id }}" data-section-type="product-recommendations" data-section-settings='{{ section_settings }}'>
   {% render 'royal-overlap', id: section.id %}
 
@@ -253,7 +254,7 @@
                 {%- endif -%}
               {%- endfor -%}
 
-              <div class="nb-rec-card">
+              <div class="nb-rec-card rc-card">
                 <div class="nb-rec-card__img-wrap">
                   <a href="{{ rec_p.url }}">
                     <img
@@ -288,7 +289,7 @@
 
                   <a href="{{ rec_p.url }}" class="nb-rec-title">{{ rec_p.title }}</a>
 
-                  <p class="nb-rec-price">{{ rec_p.price | money_without_trailing_zeros }}</p>
+                  {%- render 'rc-tier-boxes', product: rec_p -%}
                 </div>
               </div>
             {%- else -%}

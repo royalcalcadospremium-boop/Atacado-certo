@@ -10,6 +10,8 @@ FIX:
 IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
 {% endcomment %}
 
+{%- render 'rc-tier-card-assets' -%}
+
 <section id="royal-tabs-cards-{{ section.id }}" class="royal-tabs-cards">
 
   {% liquid
@@ -758,7 +760,7 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
                 %}
 
                 <div class="slide">
-                  <div class="card"
+                  <div class="card rc-card"
                     data-product-id="{{ p.id }}"
                     data-has-variants="{% if has_variants %}true{% else %}false{% endif %}"
                     data-product-url="{{ p.url }}">
@@ -789,10 +791,10 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
                       </button>
                     </div>
 
-                    <a href="{{ p.url }}" class="content" style="text-decoration:none;">
-                      <div class="title">{{ p.title }}</div>
-                      <div class="now">{{ price | money }}</div>
-                    </a>
+                    <div class="content" style="padding: 8px 10px;">
+                      <a href="{{ p.url }}" class="title" style="text-decoration:none;display:block;">{{ p.title }}</a>
+                      {%- render 'rc-tier-boxes', product: p -%}
+                    </div>
 
                     <script type="application/json" id="rcp-{{ section.id }}-{{ p.id }}">
                     {
@@ -892,7 +894,7 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
                   %}
 
                   <div class="slide">
-                    <div class="card"
+                    <div class="card rc-card"
                       data-product-id="{{ p.id }}"
                       data-has-variants="{% if has_variants %}true{% else %}false{% endif %}"
                       data-product-url="{{ p.url }}">
@@ -923,10 +925,10 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
                         </button>
                       </div>
 
-                      <a href="{{ p.url }}" class="content" style="text-decoration:none;">
-                        <div class="title">{{ p.title }}</div>
-                        <div class="now">{{ price | money }}</div>
-                      </a>
+                      <div class="content" style="padding: 8px 10px;">
+                        <a href="{{ p.url }}" class="title" style="text-decoration:none;display:block;">{{ p.title }}</a>
+                        {%- render 'rc-tier-boxes', product: p -%}
+                      </div>
 
                       <script type="application/json" id="rcp-{{ section.id }}-{{ p.id }}">
                       {
