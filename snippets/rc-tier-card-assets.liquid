@@ -70,44 +70,50 @@
   letter-spacing: -0.01em;
 }
 
-.rc-card .rc-tier-options{
-  position: absolute;
-  left: 6px; right: 6px;
-  top: calc(100% + 2px);
+/* O dropdown e movido para document.body quando aberto (rc-tier-options-floating)
+   para fugir do overflow:hidden dos cards. Inline (hidden) ele tambem fica position:fixed
+   por seguranca, escondido. */
+.rc-tier-options{
+  position: fixed;
   background: #fff;
   border: 1.5px solid #00d864;
   border-radius: 8px;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.10);
-  z-index: 30;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  z-index: 99999;
   overflow: hidden;
+  min-width: 180px;
+  max-width: 280px;
 }
-.rc-card .rc-tier-option{
+.rc-tier-options[hidden]{ display: none !important; }
+.rc-tier-option{
   display: flex; align-items: center; justify-content: space-between; gap: 6px;
   width: 100%;
-  padding: 7px 10px;
+  padding: 9px 12px;
   background: #fff; border: none; cursor: pointer;
   font-family: inherit; text-align: left;
 }
-.rc-card .rc-tier-option + .rc-tier-option{ border-top: 1px solid #f0f0f0; }
-.rc-card .rc-tier-option:hover{ background: #f5fff5; }
-.rc-card .rc-tier-option--active{ background: #edfaf2; }
-.rc-card .rc-tier-opt-qty{
-  font-size: 11px; font-weight: 800; color: #111; letter-spacing: 0.02em;
+.rc-tier-option + .rc-tier-option{ border-top: 1px solid #f0f0f0; }
+.rc-tier-option:hover{ background: #f5fff5; }
+.rc-tier-option--active{ background: #edfaf2; }
+.rc-tier-opt-qty{
+  font-size: 12px; font-weight: 800; color: #111; letter-spacing: 0.02em;
+  white-space: nowrap;
 }
-.rc-card .rc-tier-option--active .rc-tier-opt-qty{ color: #007a35; }
-.rc-card .rc-tier-opt-price{
-  font-size: 12px; font-weight: 800; color: #111; margin-left: auto;
+.rc-tier-option--active .rc-tier-opt-qty{ color: #007a35; }
+.rc-tier-opt-price{
+  font-size: 13px; font-weight: 800; color: #111; margin-left: auto;
+  white-space: nowrap;
 }
-.rc-card .rc-tier-opt-check{
-  width: 14px; height: 14px; border-radius: 50%;
-  flex: 0 0 14px;
+.rc-tier-opt-check{
+  width: 16px; height: 16px; border-radius: 50%;
+  flex: 0 0 16px;
   background: transparent; position: relative;
 }
-.rc-card .rc-tier-option--active .rc-tier-opt-check{ background: #00d864; }
-.rc-card .rc-tier-option--active .rc-tier-opt-check::after{
+.rc-tier-option--active .rc-tier-opt-check{ background: #00d864; }
+.rc-tier-option--active .rc-tier-opt-check::after{
   content: ""; position: absolute;
-  left: 4px; top: 2px;
-  width: 4px; height: 7px;
+  left: 5px; top: 3px;
+  width: 4px; height: 8px;
   border: solid #fff; border-width: 0 2px 2px 0;
   transform: rotate(45deg);
 }
@@ -118,35 +124,88 @@
   if (window.__rcTiersInit) return;
   window.__rcTiersInit = true;
 
-  function closeAllExcept(except) {
-    document.querySelectorAll('.rc-tier-options').forEach(function(opts){
-      if (opts !== except) {
-        opts.setAttribute('hidden','');
-        var btn = opts.parentElement && opts.parentElement.querySelector('.rc-tier-select');
-        if (btn) btn.setAttribute('aria-expanded','false');
-      }
-    });
+  // O overlay aberto vive em document.body para fugir do overflow:hidden dos cards.
+  // Guardamos: { opts: HTMLElement, origParent: Node, origNext: Node, anchorBtn: HTMLElement, box: HTMLElement }
+  var openState = null;
+
+  function positionOverlay() {
+    if (!openState) return;
+    var rect = openState.anchorBtn.getBoundingClientRect();
+    var opts = openState.opts;
+    // Largura: pelo menos a do botao, mas com min/max do CSS
+    opts.style.minWidth = Math.max(rect.width, 180) + 'px';
+    // Pre-medir altura
+    opts.style.left = '0px';
+    opts.style.top = '0px';
+    var optsRect = opts.getBoundingClientRect();
+    var vw = window.innerWidth, vh = window.innerHeight;
+    // Esquerda alinhada ao botao, mas presa ao viewport com 8px de margem
+    var left = rect.left;
+    if (left + optsRect.width > vw - 8) left = vw - 8 - optsRect.width;
+    if (left < 8) left = 8;
+    // Top abaixo do botao por padrao; se nao couber, sobe para acima
+    var top = rect.bottom + 4;
+    if (top + optsRect.height > vh - 8) {
+      var above = rect.top - 4 - optsRect.height;
+      if (above >= 8) top = above;
+      else top = Math.max(8, vh - 8 - optsRect.height);
+    }
+    opts.style.left = left + 'px';
+    opts.style.top  = top  + 'px';
+  }
+
+  function closeCurrent() {
+    if (!openState) return;
+    var st = openState;
+    openState = null;
+    // Devolve o overlay para o lugar original
+    st.opts.setAttribute('hidden','');
+    st.opts.style.left = '';
+    st.opts.style.top  = '';
+    st.opts.style.minWidth = '';
+    if (st.origNext && st.origNext.parentNode === st.origParent) {
+      st.origParent.insertBefore(st.opts, st.origNext);
+    } else {
+      st.origParent.appendChild(st.opts);
+    }
+    if (st.anchorBtn) st.anchorBtn.setAttribute('aria-expanded','false');
   }
 
   window.rcToggleTiers = function(btn, ev) {
     if (ev) { ev.preventDefault(); ev.stopPropagation(); }
     var box = btn.closest('.rc-tier-wholesale');
     var opts = box && box.querySelector('.rc-tier-options');
-    if (!opts) return;
-    var isOpen = !opts.hasAttribute('hidden');
-    closeAllExcept(isOpen ? null : opts);
-    if (isOpen) {
-      opts.setAttribute('hidden','');
-      btn.setAttribute('aria-expanded','false');
-    } else {
-      opts.removeAttribute('hidden');
-      btn.setAttribute('aria-expanded','true');
+    if (!opts) {
+      // Caso ja esteja flutuando, o querySelector dentro do box nao acha. Verifica openState.
+      if (openState && openState.anchorBtn === btn) { closeCurrent(); return; }
+      return;
     }
+    // Se este botao ja esta aberto, fecha
+    if (openState && openState.anchorBtn === btn) { closeCurrent(); return; }
+    // Fecha qualquer outro aberto
+    closeCurrent();
+    // Move o overlay pro body
+    openState = {
+      opts: opts,
+      origParent: opts.parentNode,
+      origNext: opts.nextSibling,
+      anchorBtn: btn,
+      box: box
+    };
+    document.body.appendChild(opts);
+    opts.removeAttribute('hidden');
+    btn.setAttribute('aria-expanded','true');
+    positionOverlay();
   };
 
   window.rcPickTier = function(optBtn, ev) {
     if (ev) { ev.preventDefault(); ev.stopPropagation(); }
-    var box = optBtn.closest('.rc-tier-wholesale');
+    // O option agora pode estar dentro do body. Achamos o box pelo openState
+    var box = openState && openState.box;
+    if (!box) {
+      // Fallback (inline, nunca movido)
+      box = optBtn.closest('.rc-tier-wholesale');
+    }
     if (!box) return;
     var qty = optBtn.getAttribute('data-qty');
     var priceText = optBtn.querySelector('.rc-tier-opt-price').innerText.trim();
@@ -154,20 +213,33 @@
     var current = box.querySelector('.rc-tier-current');
     if (display) display.innerText = priceText;
     if (current) { current.innerText = qty + ' PARES'; current.setAttribute('data-qty', qty); }
-    box.querySelectorAll('.rc-tier-option').forEach(function(b){ b.classList.remove('rc-tier-option--active'); });
+    var opts = openState ? openState.opts : box.querySelector('.rc-tier-options');
+    if (opts) {
+      opts.querySelectorAll('.rc-tier-option').forEach(function(b){ b.classList.remove('rc-tier-option--active'); });
+    }
     optBtn.classList.add('rc-tier-option--active');
-    var opts = box.querySelector('.rc-tier-options');
-    if (opts) opts.setAttribute('hidden','');
-    var btn = box.querySelector('.rc-tier-select');
-    if (btn) btn.setAttribute('aria-expanded','false');
+    closeCurrent();
   };
 
   // Fecha dropdown ao clicar fora
   document.addEventListener('click', function(e){
-    if (!e.target.closest || !e.target.closest('.rc-tier-wholesale')) {
-      closeAllExcept(null);
-    }
+    if (!openState) return;
+    var inOverlay = openState.opts.contains(e.target);
+    var inAnchor  = openState.anchorBtn.contains(e.target);
+    if (!inOverlay && !inAnchor) closeCurrent();
   });
+
+  // Reposiciona / fecha em scroll / resize
+  window.addEventListener('scroll', function(){
+    if (openState) positionOverlay();
+  }, true);
+  window.addEventListener('resize', function(){
+    if (openState) positionOverlay();
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && openState) closeCurrent();
+  });
+
 })();
 </script>
 {%- endunless -%}
