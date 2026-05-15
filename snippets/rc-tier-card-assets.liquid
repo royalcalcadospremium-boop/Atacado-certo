@@ -353,14 +353,14 @@
   var mo = new MutationObserver(function(){ attachAll(); });
   mo.observe(document.body, { childList: true, subtree: true });
 
-  // Loop principal: a cada 3s alterna .is-auto-flipped nos visiveis (so mobile)
+  // Loop principal: a cada 5s alterna .is-auto-flipped nos visiveis (so mobile)
   setInterval(function(){
     if (!isMobileNow()) return;
     if (!visibleMedias.size) return;
     visibleMedias.forEach(function(m){
       m.classList.toggle('is-auto-flipped');
     });
-  }, 3000);
+  }, 5000);
 
   // Reposiciona em scroll/resize, fecha em Esc
   window.addEventListener('scroll', function(){ if (openState) positionOverlay(); }, true);
