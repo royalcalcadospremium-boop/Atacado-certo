@@ -1,11 +1,9 @@
 {%- comment -%}
   Snippet: rc-tier-boxes.liquid
-  Renderiza somente os 2 boxes de preço (VAREJO + ATACADO com seletor).
+  Bloco compacto de preços VAREJO + ATACADO com divider, idêntico ao mock final.
   Requer: product (ou alias p)
-  Use em sections que tem layout proprio de card e so quer trocar o bloco de preco.
-
-  Importante: o wrapper que envolver este snippet PRECISA ter a classe .rc-card
-  para os estilos do rc-tier-card-assets.liquid se aplicarem.
+  O wrapper PRECISA ter classe .rc-card para os estilos do rc-tier-card-assets.liquid pegarem.
+  Tiers do dropdown: 10 (base), 50 (-R$1), 100 (-R$2), 200 (-R$3).
 {%- endcomment -%}
 {%- assign __p = product | default: p -%}
 {%- assign __v = __p.selected_or_first_available_variant -%}
@@ -20,52 +18,62 @@
   {%- assign wholesale_cents = wholesale_raw | times: 100 | round -%}
 {%- endif -%}
 
-{%- assign t10 = wholesale_cents -%}
-{%- assign t50 = wholesale_cents | minus: 100 -%}
+{%- assign t10  = wholesale_cents -%}
+{%- assign t50  = wholesale_cents | minus: 100 -%}
 {%- assign t100 = wholesale_cents | minus: 200 -%}
 {%- assign t200 = wholesale_cents | minus: 300 -%}
-{%- if t50 < 0 -%}{%- assign t50 = 0 -%}{%- endif -%}
+{%- if t50  < 0 -%}{%- assign t50  = 0 -%}{%- endif -%}
 {%- if t100 < 0 -%}{%- assign t100 = 0 -%}{%- endif -%}
 {%- if t200 < 0 -%}{%- assign t200 = 0 -%}{%- endif -%}
 
-<div class="rc-tier-retail">
-  <div class="rc-tier-retail-left">
-    <span class="rc-tier-label-mini">VAREJO</span>
-    <span class="rc-tier-qty">1 PAR</span>
-  </div>
-  <span class="rc-tier-price-retail">{{ retail_cents | money }}</span>
-</div>
+<div class="rc-tier-table">
 
-<div class="rc-tier-wholesale">
-  <div class="rc-tier-wholesale-label">ATACADO</div>
-  <div class="rc-tier-wholesale-row">
-    <button class="rc-tier-select" type="button" aria-haspopup="listbox" aria-expanded="false" onclick="rcToggleTiers(this, event)">
-      <span class="rc-tier-current" data-qty="10">10 PARES</span>
-      <span class="rc-tier-chevron" aria-hidden="true">▾</span>
-    </button>
-    <span class="rc-tier-perpar">por par</span>
-    <span class="rc-tier-price-display" data-price-display>{{ t10 | money }}</span>
+  {%- comment -%} Linha VAREJO {%- endcomment -%}
+  <div class="rc-tier-section rc-tier-section--retail">
+    <div class="rc-tier-section-left">
+      <span class="rc-tier-label">VAREJO</span>
+      <span class="rc-tier-qty">1 PAR</span>
+    </div>
+    <span class="rc-tier-price-retail">{{ retail_cents | money }}</span>
   </div>
-  <div class="rc-tier-options" role="listbox" hidden>
-    <button type="button" role="option" data-qty="10"  onclick="rcPickTier(this, event)" class="rc-tier-option rc-tier-option--active">
-      <span class="rc-tier-opt-qty">10 PARES</span>
-      <span class="rc-tier-opt-price">{{ t10 | money }}</span>
-      <span class="rc-tier-opt-check" aria-hidden="true"></span>
-    </button>
-    <button type="button" role="option" data-qty="50"  onclick="rcPickTier(this, event)" class="rc-tier-option">
-      <span class="rc-tier-opt-qty">50 PARES</span>
-      <span class="rc-tier-opt-price">{{ t50 | money }}</span>
-      <span class="rc-tier-opt-check" aria-hidden="true"></span>
-    </button>
-    <button type="button" role="option" data-qty="100" onclick="rcPickTier(this, event)" class="rc-tier-option">
-      <span class="rc-tier-opt-qty">100 PARES</span>
-      <span class="rc-tier-opt-price">{{ t100 | money }}</span>
-      <span class="rc-tier-opt-check" aria-hidden="true"></span>
-    </button>
-    <button type="button" role="option" data-qty="200" onclick="rcPickTier(this, event)" class="rc-tier-option">
-      <span class="rc-tier-opt-qty">200 PARES</span>
-      <span class="rc-tier-opt-price">{{ t200 | money }}</span>
-      <span class="rc-tier-opt-check" aria-hidden="true"></span>
-    </button>
+
+  <div class="rc-tier-divider"></div>
+
+  {%- comment -%} Linha ATACADO com dropdown {%- endcomment -%}
+  <div class="rc-tier-section rc-tier-section--wholesale">
+    <div class="rc-tier-section-left">
+      <span class="rc-tier-label rc-tier-label--green">ATACADO</span>
+      <div class="rc-tier-select-row">
+        <button class="rc-tier-select" type="button" aria-haspopup="listbox" aria-expanded="false" onclick="rcToggleTiers(this, event)">
+          <span class="rc-tier-current" data-qty="10">10 PARES</span>
+          <span class="rc-tier-chevron" aria-hidden="true">▾</span>
+        </button>
+        <span class="rc-tier-perpar">por par</span>
+      </div>
+    </div>
+    <span class="rc-tier-price-wholesale" data-price-display>{{ t10 | money }}</span>
+
+    <div class="rc-tier-options" role="listbox" hidden>
+      <button type="button" role="option" data-qty="10"  onclick="rcPickTier(this, event)" class="rc-tier-option rc-tier-option--active">
+        <span class="rc-tier-opt-check" aria-hidden="true"></span>
+        <span class="rc-tier-opt-qty">10 PARES</span>
+        <span class="rc-tier-opt-price">{{ t10 | money }}</span>
+      </button>
+      <button type="button" role="option" data-qty="50"  onclick="rcPickTier(this, event)" class="rc-tier-option">
+        <span class="rc-tier-opt-check" aria-hidden="true"></span>
+        <span class="rc-tier-opt-qty">50 PARES</span>
+        <span class="rc-tier-opt-price">{{ t50 | money }}</span>
+      </button>
+      <button type="button" role="option" data-qty="100" onclick="rcPickTier(this, event)" class="rc-tier-option">
+        <span class="rc-tier-opt-check" aria-hidden="true"></span>
+        <span class="rc-tier-opt-qty">100 PARES</span>
+        <span class="rc-tier-opt-price">{{ t100 | money }}</span>
+      </button>
+      <button type="button" role="option" data-qty="200" onclick="rcPickTier(this, event)" class="rc-tier-option">
+        <span class="rc-tier-opt-check" aria-hidden="true"></span>
+        <span class="rc-tier-opt-qty">200 PARES</span>
+        <span class="rc-tier-opt-price">{{ t200 | money }}</span>
+      </button>
+    </div>
   </div>
 </div>

@@ -47,53 +47,7 @@
   <div style="padding: 12px;">
     <a href="{{ product.url }}" class="rc-name">{{ product.title }}</a>
 
-    {%- comment -%} Box VAREJO {%- endcomment -%}
-    <div class="rc-tier-retail">
-      <div class="rc-tier-retail-left">
-        <span class="rc-tier-label-mini">VAREJO</span>
-        <span class="rc-tier-qty">1 PAR</span>
-      </div>
-      <span class="rc-tier-price-retail">{{ retail_cents | money }}</span>
-    </div>
-
-    {%- comment -%} Box ATACADO com dropdown {%- endcomment -%}
-    <div class="rc-tier-wholesale"
-         data-t10="{{ t10 | money }}"
-         data-t50="{{ t50 | money }}"
-         data-t100="{{ t100 | money }}"
-         data-t200="{{ t200 | money }}">
-      <div class="rc-tier-wholesale-label">ATACADO</div>
-      <div class="rc-tier-wholesale-row">
-        <button class="rc-tier-select" type="button" aria-haspopup="listbox" aria-expanded="false" onclick="rcToggleTiers(this, event)">
-          <span class="rc-tier-current" data-qty="10">10 PARES</span>
-          <span class="rc-tier-chevron" aria-hidden="true">▾</span>
-        </button>
-        <span class="rc-tier-perpar">por par</span>
-        <span class="rc-tier-price-display" data-price-display>{{ t10 | money }}</span>
-      </div>
-      <div class="rc-tier-options" role="listbox" hidden>
-        <button type="button" role="option" data-qty="10"  onclick="rcPickTier(this, event)" class="rc-tier-option rc-tier-option--active">
-          <span class="rc-tier-opt-qty">10 PARES</span>
-          <span class="rc-tier-opt-price">{{ t10 | money }}</span>
-          <span class="rc-tier-opt-check" aria-hidden="true"></span>
-        </button>
-        <button type="button" role="option" data-qty="50"  onclick="rcPickTier(this, event)" class="rc-tier-option">
-          <span class="rc-tier-opt-qty">50 PARES</span>
-          <span class="rc-tier-opt-price">{{ t50 | money }}</span>
-          <span class="rc-tier-opt-check" aria-hidden="true"></span>
-        </button>
-        <button type="button" role="option" data-qty="100" onclick="rcPickTier(this, event)" class="rc-tier-option">
-          <span class="rc-tier-opt-qty">100 PARES</span>
-          <span class="rc-tier-opt-price">{{ t100 | money }}</span>
-          <span class="rc-tier-opt-check" aria-hidden="true"></span>
-        </button>
-        <button type="button" role="option" data-qty="200" onclick="rcPickTier(this, event)" class="rc-tier-option">
-          <span class="rc-tier-opt-qty">200 PARES</span>
-          <span class="rc-tier-opt-price">{{ t200 | money }}</span>
-          <span class="rc-tier-opt-check" aria-hidden="true"></span>
-        </button>
-      </div>
-    </div>
+    {%- render 'rc-tier-boxes', product: product -%}
   </div>
 
   <script type="application/json" id="data-{{ product.id }}">

@@ -9,113 +9,145 @@
 {%- assign rc_tier_card_assets_loaded = true -%}
 
 <style>
-/* === Tier-card boxes (VAREJO + ATACADO com seletor) === */
-.rc-card .rc-tier-retail{
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 8px;
-  padding: 6px 10px;
-  border: 1px solid #ececec;
-  border-radius: 8px;
-  background: #fff;
-  margin-top: 6px;
+/* === Tier-card: tabela compacta com divider (match do mock) === */
+.rc-card .rc-tier-table{
+  margin-top: 8px;
+  /* sem border, sem background — fica embutido no card */
 }
-.rc-card .rc-tier-retail-left{ display: flex; flex-direction: column; line-height: 1.05; }
-.rc-card .rc-tier-label-mini{
-  font-size: 9px; font-weight: 700; color: #999; letter-spacing: 0.06em;
+.rc-card .rc-tier-section{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 0;
+  position: relative;
+}
+.rc-card .rc-tier-section-left{
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+.rc-card .rc-tier-label{
+  font-size: 11px; font-weight: 600; color: #aaa;
+  letter-spacing: 0.06em;
+}
+.rc-card .rc-tier-label--green{
+  color: #00a04a;
+  font-weight: 700;
 }
 .rc-card .rc-tier-qty{
-  font-size: 12px; font-weight: 800; color: #111; letter-spacing: 0.01em;
-}
-.rc-card .rc-tier-price-retail{
-  font-size: 14px; font-weight: 800; color: #111;
-}
-
-.rc-card .rc-tier-wholesale{
-  position: relative;
-  margin-top: 6px;
-  border: 1.5px solid #00d864;
-  border-radius: 8px;
-  background: #fff;
-  padding: 4px 8px 6px;
-}
-.rc-card .rc-tier-wholesale-label{
-  font-size: 9px; font-weight: 800; color: #00a04a; letter-spacing: 0.06em;
-  margin-bottom: 2px;
-}
-.rc-card .rc-tier-wholesale-row{ display: flex; align-items: center; gap: 4px; }
-.rc-card .rc-tier-select{
-  display: inline-flex; align-items: center; gap: 4px;
-  background: #fff;
-  border: 1px solid #d0d0d0;
-  border-radius: 5px;
-  padding: 3px 6px;
-  font-size: 10px; font-weight: 800; color: #111;
-  cursor: pointer; font-family: inherit;
+  font-size: 14px; font-weight: 700; color: #111;
   letter-spacing: 0.02em;
 }
+.rc-card .rc-tier-price-retail{
+  font-size: 15px; font-weight: 700; color: #111;
+  white-space: nowrap;
+}
+.rc-card .rc-tier-divider{
+  height: 1px;
+  background: #ececec;
+  margin: 0;
+}
+
+/* Linha do ATACADO */
+.rc-card .rc-tier-select-row{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+  flex-wrap: wrap;
+}
+.rc-card .rc-tier-select{
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #fff;
+  border: 1.5px solid #ddd;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px; font-weight: 700; color: #111;
+  cursor: pointer; font-family: inherit;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  transition: border-color 0.15s ease;
+}
 .rc-card .rc-tier-select:hover{ border-color: #00d864; }
+.rc-card .rc-tier-select[aria-expanded="true"]{ border-color: #00d864; }
 .rc-card .rc-tier-current{ white-space: nowrap; }
 .rc-card .rc-tier-chevron{
-  font-size: 8px; color: #666; transition: transform 0.15s ease;
+  font-size: 10px; color: #666;
+  transition: transform 0.15s ease;
 }
 .rc-card .rc-tier-select[aria-expanded="true"] .rc-tier-chevron{
   transform: rotate(180deg);
 }
 .rc-card .rc-tier-perpar{
-  font-size: 9px; color: #666; font-weight: 600; letter-spacing: 0.02em;
+  font-size: 12px; color: #888; font-weight: 500;
 }
-.rc-card .rc-tier-price-display{
-  margin-left: auto;
-  font-size: 16px; font-weight: 900; color: #00a04a;
+.rc-card .rc-tier-price-wholesale{
+  font-size: 22px; font-weight: 800; color: #00a04a;
   letter-spacing: -0.01em;
+  white-space: nowrap;
+  align-self: flex-end;
 }
 
-/* O dropdown e movido para document.body quando aberto (rc-tier-options-floating)
-   para fugir do overflow:hidden dos cards. Inline (hidden) ele tambem fica position:fixed
-   por seguranca, escondido. */
+/* === Overlay dropdown (sem borda verde, com sombra suave) === */
+/* O dropdown e movido para document.body quando aberto para fugir do overflow:hidden dos cards. */
 .rc-tier-options{
   position: fixed;
   background: #fff;
-  border: 1.5px solid #00d864;
-  border-radius: 8px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.06);
   z-index: 99999;
   overflow: hidden;
-  min-width: 180px;
-  max-width: 280px;
+  min-width: 220px;
+  max-width: 320px;
+  padding: 4px 0;
 }
 .rc-tier-options[hidden]{ display: none !important; }
+
 .rc-tier-option{
-  display: flex; align-items: center; justify-content: space-between; gap: 6px;
+  display: flex; align-items: center; gap: 10px;
   width: 100%;
-  padding: 9px 12px;
+  padding: 9px 16px;
   background: #fff; border: none; cursor: pointer;
   font-family: inherit; text-align: left;
 }
-.rc-tier-option + .rc-tier-option{ border-top: 1px solid #f0f0f0; }
-.rc-tier-option:hover{ background: #f5fff5; }
-.rc-tier-option--active{ background: #edfaf2; }
-.rc-tier-opt-qty{
-  font-size: 12px; font-weight: 800; color: #111; letter-spacing: 0.02em;
-  white-space: nowrap;
-}
-.rc-tier-option--active .rc-tier-opt-qty{ color: #007a35; }
-.rc-tier-opt-price{
-  font-size: 13px; font-weight: 800; color: #111; margin-left: auto;
-  white-space: nowrap;
-}
+.rc-tier-option:hover{ background: #f8f8f8; }
+.rc-tier-option--active{ background: transparent; }
+
+/* Checkmark à esquerda (reserva espaço sempre, mostra ✓ só no ativo) */
 .rc-tier-opt-check{
-  width: 16px; height: 16px; border-radius: 50%;
-  flex: 0 0 16px;
-  background: transparent; position: relative;
+  width: 14px; height: 14px;
+  flex: 0 0 14px;
+  position: relative;
 }
-.rc-tier-option--active .rc-tier-opt-check{ background: #00d864; }
-.rc-tier-option--active .rc-tier-opt-check::after{
-  content: ""; position: absolute;
-  left: 5px; top: 3px;
-  width: 4px; height: 8px;
-  border: solid #fff; border-width: 0 2px 2px 0;
+.rc-tier-option--active .rc-tier-opt-check::before{
+  content: "";
+  position: absolute;
+  left: 1px; top: 2px;
+  width: 7px; height: 11px;
+  border: solid #00a04a;
+  border-width: 0 2.5px 2.5px 0;
   transform: rotate(45deg);
+}
+
+.rc-tier-opt-qty{
+  font-size: 13px; font-weight: 700; color: #111;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.rc-tier-option--active .rc-tier-opt-qty{
+  font-weight: 800; color: #111;
+}
+.rc-tier-opt-price{
+  font-size: 13px; font-weight: 700; color: #111;
+  margin-left: auto;
+  white-space: nowrap;
+}
+.rc-tier-option--active .rc-tier-opt-price{
+  color: #00a04a; font-weight: 800;
 }
 </style>
 
