@@ -102,11 +102,19 @@ Royal • Categoria Cards v9.6.1
       display: flex; flex-wrap: nowrap;
       gap: var(--gap);
       justify-content: flex-start;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      -webkit-overflow-scrolling: touch;
+      overflow-x: auto; overflow-y: hidden;
       padding: 0;
-      touch-action: pan-y; overscroll-behavior-x: contain;
+      /* pan-y: dedo no card so passa scroll VERTICAL pra pagina (sem sambar).
+         JS controla o drag horizontal continuo (sem snap-type que cria "pulo"). */
+      touch-action: pan-y;
+      overscroll-behavior: contain;
+      scroll-behavior: smooth;
+      /* snap proximity (suave). Desativado durante drag via .rcd-dragging */
+      scroll-snap-type: x proximity;
+    }
+    #royal-cats-{{ section.id }} .track.rcd-dragging{
+      scroll-snap-type: none !important;
+      scroll-behavior: auto !important;
     }
     #royal-cats-{{ section.id }} .track::-webkit-scrollbar{ display: none; }
 
@@ -248,9 +256,9 @@ Royal • Categoria Cards v9.6.1
       window.addEventListener('resize', updateArrows);
       updateArrows();
 
-      /* Drag horizontal manual (mobile) com detecao de direcao.
-         Horizontal: rola o carrossel, bloqueia scroll vertical da pagina.
-         Vertical: nao previne, deixa a pagina rolar (card nao samba). */
+      /* Drag horizontal CONTINUO (mobile): segue o dedo pixel a pixel sem pulo.
+         Horizontal: scrolla o track, bloqueia scroll vertical da pagina.
+         Vertical: NAO previne, deixa a pagina rolar (card nao samba). */
       let tStartX = 0, tStartY = 0, tScrollStart = 0, tAxis = null;
       track.addEventListener('touchstart', (e) => {
         if (!e.touches || !e.touches.length) return;
@@ -264,16 +272,24 @@ Royal • Categoria Cards v9.6.1
         const dx = e.touches[0].clientX - tStartX;
         const dy = e.touches[0].clientY - tStartY;
         if (tAxis === null) {
-          if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy) * 1.3) tAxis = 'x';
-          else if (Math.abs(dy) > 8) tAxis = 'y';
+          if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy) * 1.3) {
+            tAxis = 'x';
+            track.classList.add('rcd-dragging'); // desativa snap durante drag
+          } else if (Math.abs(dy) > 8) {
+            tAxis = 'y';
+          }
         }
         if (tAxis === 'x') {
           track.scrollLeft = tScrollStart - dx;
           if (e.cancelable) e.preventDefault();
         }
       }, { passive: false });
-      track.addEventListener('touchend',    () => { tAxis = null; }, { passive: true });
-      track.addEventListener('touchcancel', () => { tAxis = null; }, { passive: true });
+      function endTouchCats(){
+        tAxis = null;
+        track.classList.remove('rcd-dragging');
+      }
+      track.addEventListener('touchend',    endTouchCats, { passive: true });
+      track.addEventListener('touchcancel', endTouchCats, { passive: true });
     })();
   </script>
 </section>
