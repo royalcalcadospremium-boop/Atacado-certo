@@ -1,123 +1,139 @@
 {%- comment -%}
   Snippet: rc-tier-card-assets.liquid
-  CSS + JS globais para os tier-cards (VAREJO + ATACADO com seletor).
-  Os estilos são prefixados com .rc-card para escopo, e o JS roda 1x via flag global.
-  Inclua em cada section que renderiza rc-product-card.liquid.
+  CSS + JS globais. Renderizado UMA vez por pagina (flag rc_tier_card_assets_loaded).
+  Layout compacto SEM labels "VAREJO"/"ATACADO"/"por par" — apenas qty + preço.
 {%- endcomment -%}
 
 {%- unless rc_tier_card_assets_loaded -%}
 {%- assign rc_tier_card_assets_loaded = true -%}
 
 <style>
-/* === Tier-card: tabela compacta com divider (match do mock) === */
+/* ===========================================================================
+   Tier-card: tabela compacta de 2 linhas (varejo + atacado dropdown)
+   Layout grid (1fr auto) garante alinhamento perfeito desktop + mobile.
+   =========================================================================== */
 .rc-card .rc-tier-table{
-  margin-top: 8px;
-  /* sem border, sem background — fica embutido no card */
+  margin-top: 6px;
+  font-size: 0; /* anula whitespace entre spans */
 }
+
 .rc-card .rc-tier-section{
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 6px 0;
-  position: relative;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 12px;
 }
-.rc-card .rc-tier-section-left{
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-  flex: 1;
-}
-.rc-card .rc-tier-label{
-  font-size: 11px; font-weight: 600; color: #aaa;
-  letter-spacing: 0.06em;
-}
-.rc-card .rc-tier-label--green{
-  color: #00a04a;
-  font-weight: 700;
-}
-.rc-card .rc-tier-qty{
-  font-size: 14px; font-weight: 700; color: #111;
-  letter-spacing: 0.02em;
-}
-.rc-card .rc-tier-price-retail{
-  font-size: 15px; font-weight: 700; color: #111;
-  white-space: nowrap;
-}
+
 .rc-card .rc-tier-divider{
   height: 1px;
   background: #ececec;
   margin: 0;
 }
 
-/* Linha do ATACADO */
-.rc-card .rc-tier-select-row{
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 2px;
-  flex-wrap: wrap;
+/* Linha VAREJO (1 PAR ............ R$ XX,XX) */
+.rc-card .rc-tier-qty{
+  font-size: 12px;
+  font-weight: 700;
+  color: #111;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+.rc-card .rc-tier-price-retail{
+  font-size: 13px;
+  font-weight: 700;
+  color: #111;
+  white-space: nowrap;
+  line-height: 1.2;
+  text-align: right;
+}
+
+/* Linha ATACADO ([10 PARES ▾] ...... R$ XX,XX em verde) */
+.rc-card .rc-tier-section--wholesale{
+  position: relative; /* ancora pro dropdown inline (fallback) */
 }
 .rc-card .rc-tier-select{
-  display: inline-flex; align-items: center; gap: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   background: #fff;
-  border: 1.5px solid #ddd;
-  border-radius: 6px;
-  padding: 5px 10px;
-  font-size: 12px; font-weight: 700; color: #111;
-  cursor: pointer; font-family: inherit;
+  border: 1.3px solid #d8d8d8;
+  border-radius: 5px;
+  padding: 3px 7px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #111;
+  cursor: pointer;
+  font-family: inherit;
   letter-spacing: 0.02em;
   white-space: nowrap;
+  line-height: 1.2;
   transition: border-color 0.15s ease;
+  justify-self: start;
 }
-.rc-card .rc-tier-select:hover{ border-color: #00d864; }
-.rc-card .rc-tier-select[aria-expanded="true"]{ border-color: #00d864; }
-.rc-card .rc-tier-current{ white-space: nowrap; }
+.rc-card .rc-tier-select:hover,
+.rc-card .rc-tier-select[aria-expanded="true"]{
+  border-color: #00d864;
+}
 .rc-card .rc-tier-chevron{
-  font-size: 10px; color: #666;
+  font-size: 9px;
+  color: #666;
   transition: transform 0.15s ease;
 }
 .rc-card .rc-tier-select[aria-expanded="true"] .rc-tier-chevron{
   transform: rotate(180deg);
 }
-.rc-card .rc-tier-perpar{
-  font-size: 12px; color: #888; font-weight: 500;
-}
 .rc-card .rc-tier-price-wholesale{
-  font-size: 22px; font-weight: 800; color: #00a04a;
+  font-size: 16px;
+  font-weight: 800;
+  color: #00a04a;
   letter-spacing: -0.01em;
   white-space: nowrap;
-  align-self: flex-end;
+  line-height: 1.1;
+  text-align: right;
 }
 
-/* === Overlay dropdown (sem borda verde, com sombra suave) === */
-/* O dropdown e movido para document.body quando aberto para fugir do overflow:hidden dos cards. */
+/* Mobile: reduz um pouquinho */
+@media (max-width: 480px){
+  .rc-card .rc-tier-qty{ font-size: 11px; }
+  .rc-card .rc-tier-price-retail{ font-size: 12px; }
+  .rc-card .rc-tier-select{ font-size: 10px; padding: 2px 6px; }
+  .rc-card .rc-tier-price-wholesale{ font-size: 14px; }
+}
+
+/* ===========================================================================
+   Overlay dropdown (posicionado com position:fixed via JS, fora do card)
+   =========================================================================== */
 .rc-tier-options{
   position: fixed;
   background: #fff;
   border: none;
   border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.06);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.14), 0 2px 6px rgba(0,0,0,0.06);
   z-index: 99999;
   overflow: hidden;
-  min-width: 220px;
+  min-width: 200px;
   max-width: 320px;
   padding: 4px 0;
 }
 .rc-tier-options[hidden]{ display: none !important; }
 
 .rc-tier-option{
-  display: flex; align-items: center; gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   width: 100%;
-  padding: 9px 16px;
-  background: #fff; border: none; cursor: pointer;
-  font-family: inherit; text-align: left;
+  padding: 9px 14px;
+  background: #fff;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
 }
 .rc-tier-option:hover{ background: #f8f8f8; }
-.rc-tier-option--active{ background: transparent; }
 
-/* Checkmark à esquerda (reserva espaço sempre, mostra ✓ só no ativo) */
+/* Checkmark à esquerda (reserva espaço sempre, só mostra ✓ no ativo) */
 .rc-tier-opt-check{
   width: 14px; height: 14px;
   flex: 0 0 14px;
@@ -126,7 +142,7 @@
 .rc-tier-option--active .rc-tier-opt-check::before{
   content: "";
   position: absolute;
-  left: 1px; top: 2px;
+  left: 1px; top: 1px;
   width: 7px; height: 11px;
   border: solid #00a04a;
   border-width: 0 2.5px 2.5px 0;
@@ -134,20 +150,23 @@
 }
 
 .rc-tier-opt-qty{
-  font-size: 13px; font-weight: 700; color: #111;
+  font-size: 13px;
+  font-weight: 700;
+  color: #111;
   letter-spacing: 0.02em;
   white-space: nowrap;
 }
-.rc-tier-option--active .rc-tier-opt-qty{
-  font-weight: 800; color: #111;
-}
+.rc-tier-option--active .rc-tier-opt-qty{ font-weight: 800; }
 .rc-tier-opt-price{
-  font-size: 13px; font-weight: 700; color: #111;
+  font-size: 13px;
+  font-weight: 700;
+  color: #111;
   margin-left: auto;
   white-space: nowrap;
 }
 .rc-tier-option--active .rc-tier-opt-price{
-  color: #00a04a; font-weight: 800;
+  color: #00a04a;
+  font-weight: 800;
 }
 </style>
 
@@ -156,26 +175,29 @@
   if (window.__rcTiersInit) return;
   window.__rcTiersInit = true;
 
-  // O overlay aberto vive em document.body para fugir do overflow:hidden dos cards.
-  // Guardamos: { opts: HTMLElement, origParent: Node, origNext: Node, anchorBtn: HTMLElement, box: HTMLElement }
+  // Estado: overlay aberto vive em document.body. Guardamos referencias para devolver depois.
   var openState = null;
 
-  function positionOverlay() {
+  function getWholesaleBox(btn) {
+    // Aceita qualquer container que tenha .rc-tier-options dentro (a linha de atacado).
+    var section = btn.closest('.rc-tier-section--wholesale');
+    if (section) return section;
+    // Fallback para layouts antigos
+    return btn.closest('.rc-tier-wholesale') || btn.parentElement;
+  }
+
+  function positionOverlay(){
     if (!openState) return;
     var rect = openState.anchorBtn.getBoundingClientRect();
     var opts = openState.opts;
-    // Largura: pelo menos a do botao, mas com min/max do CSS
-    opts.style.minWidth = Math.max(rect.width, 180) + 'px';
-    // Pre-medir altura
+    opts.style.minWidth = Math.max(rect.width, 200) + 'px';
     opts.style.left = '0px';
-    opts.style.top = '0px';
+    opts.style.top  = '0px';
     var optsRect = opts.getBoundingClientRect();
     var vw = window.innerWidth, vh = window.innerHeight;
-    // Esquerda alinhada ao botao, mas presa ao viewport com 8px de margem
     var left = rect.left;
     if (left + optsRect.width > vw - 8) left = vw - 8 - optsRect.width;
     if (left < 8) left = 8;
-    // Top abaixo do botao por padrao; se nao couber, sobe para acima
     var top = rect.bottom + 4;
     if (top + optsRect.height > vh - 8) {
       var above = rect.top - 4 - optsRect.height;
@@ -186,41 +208,35 @@
     opts.style.top  = top  + 'px';
   }
 
-  function closeCurrent() {
+  function closeCurrent(){
     if (!openState) return;
     var st = openState;
     openState = null;
-    // Devolve o overlay para o lugar original
     st.opts.setAttribute('hidden','');
     st.opts.style.left = '';
     st.opts.style.top  = '';
     st.opts.style.minWidth = '';
     if (st.origNext && st.origNext.parentNode === st.origParent) {
       st.origParent.insertBefore(st.opts, st.origNext);
-    } else {
+    } else if (st.origParent) {
       st.origParent.appendChild(st.opts);
     }
     if (st.anchorBtn) st.anchorBtn.setAttribute('aria-expanded','false');
   }
 
-  window.rcToggleTiers = function(btn, ev) {
+  window.rcToggleTiers = function(btn, ev){
     if (ev) { ev.preventDefault(); ev.stopPropagation(); }
-    var box = btn.closest('.rc-tier-wholesale');
-    var opts = box && box.querySelector('.rc-tier-options');
-    if (!opts) {
-      // Caso ja esteja flutuando, o querySelector dentro do box nao acha. Verifica openState.
-      if (openState && openState.anchorBtn === btn) { closeCurrent(); return; }
-      return;
-    }
-    // Se este botao ja esta aberto, fecha
+    // Se este botao ja esta aberto, fecha.
     if (openState && openState.anchorBtn === btn) { closeCurrent(); return; }
-    // Fecha qualquer outro aberto
+    var box = getWholesaleBox(btn);
+    if (!box) return;
+    var opts = box.querySelector('.rc-tier-options');
+    if (!opts) return;
     closeCurrent();
-    // Move o overlay pro body
     openState = {
       opts: opts,
       origParent: opts.parentNode,
-      origNext: opts.nextSibling,
+      origNext:  opts.nextSibling,
       anchorBtn: btn,
       box: box
     };
@@ -230,14 +246,9 @@
     positionOverlay();
   };
 
-  window.rcPickTier = function(optBtn, ev) {
+  window.rcPickTier = function(optBtn, ev){
     if (ev) { ev.preventDefault(); ev.stopPropagation(); }
-    // O option agora pode estar dentro do body. Achamos o box pelo openState
-    var box = openState && openState.box;
-    if (!box) {
-      // Fallback (inline, nunca movido)
-      box = optBtn.closest('.rc-tier-wholesale');
-    }
+    var box = (openState && openState.box) || getWholesaleBox(optBtn);
     if (!box) return;
     var qty = optBtn.getAttribute('data-qty');
     var priceText = optBtn.querySelector('.rc-tier-opt-price').innerText.trim();
@@ -247,31 +258,28 @@
     if (current) { current.innerText = qty + ' PARES'; current.setAttribute('data-qty', qty); }
     var opts = openState ? openState.opts : box.querySelector('.rc-tier-options');
     if (opts) {
-      opts.querySelectorAll('.rc-tier-option').forEach(function(b){ b.classList.remove('rc-tier-option--active'); });
+      opts.querySelectorAll('.rc-tier-option').forEach(function(b){
+        b.classList.remove('rc-tier-option--active');
+      });
     }
     optBtn.classList.add('rc-tier-option--active');
     closeCurrent();
   };
 
-  // Fecha dropdown ao clicar fora
+  // Fecha overlay ao clicar fora
   document.addEventListener('click', function(e){
     if (!openState) return;
-    var inOverlay = openState.opts.contains(e.target);
-    var inAnchor  = openState.anchorBtn.contains(e.target);
-    if (!inOverlay && !inAnchor) closeCurrent();
+    if (openState.opts.contains(e.target)) return;
+    if (openState.anchorBtn.contains(e.target)) return;
+    closeCurrent();
   });
 
-  // Reposiciona / fecha em scroll / resize
-  window.addEventListener('scroll', function(){
-    if (openState) positionOverlay();
-  }, true);
-  window.addEventListener('resize', function(){
-    if (openState) positionOverlay();
-  });
+  // Reposiciona em scroll/resize, fecha em Esc
+  window.addEventListener('scroll', function(){ if (openState) positionOverlay(); }, true);
+  window.addEventListener('resize', function(){ if (openState) positionOverlay(); });
   document.addEventListener('keydown', function(e){
     if (e.key === 'Escape' && openState) closeCurrent();
   });
-
 })();
 </script>
 {%- endunless -%}

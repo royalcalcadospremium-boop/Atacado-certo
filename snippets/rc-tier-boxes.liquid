@@ -1,9 +1,8 @@
 {%- comment -%}
   Snippet: rc-tier-boxes.liquid
-  Bloco compacto de preços VAREJO + ATACADO com divider, idêntico ao mock final.
-  Requer: product (ou alias p)
-  O wrapper PRECISA ter classe .rc-card para os estilos do rc-tier-card-assets.liquid pegarem.
-  Tiers do dropdown: 10 (base), 50 (-R$1), 100 (-R$2), 200 (-R$3).
+  Bloco compacto: linha varejo (1 PAR | preço) + divider + linha atacado (dropdown | preço verde).
+  Sem labels "VAREJO" / "ATACADO" (limpo).
+  Tiers: 10 (base) | 50 (-R$1) | 100 (-R$2) | 200 (-R$3).
 {%- endcomment -%}
 {%- assign __p = product | default: p -%}
 {%- assign __v = __p.selected_or_first_available_variant -%}
@@ -28,29 +27,18 @@
 
 <div class="rc-tier-table">
 
-  {%- comment -%} Linha VAREJO {%- endcomment -%}
   <div class="rc-tier-section rc-tier-section--retail">
-    <div class="rc-tier-section-left">
-      <span class="rc-tier-label">VAREJO</span>
-      <span class="rc-tier-qty">1 PAR</span>
-    </div>
+    <span class="rc-tier-qty">1 PAR</span>
     <span class="rc-tier-price-retail">{{ retail_cents | money }}</span>
   </div>
 
   <div class="rc-tier-divider"></div>
 
-  {%- comment -%} Linha ATACADO com dropdown {%- endcomment -%}
   <div class="rc-tier-section rc-tier-section--wholesale">
-    <div class="rc-tier-section-left">
-      <span class="rc-tier-label rc-tier-label--green">ATACADO</span>
-      <div class="rc-tier-select-row">
-        <button class="rc-tier-select" type="button" aria-haspopup="listbox" aria-expanded="false" onclick="rcToggleTiers(this, event)">
-          <span class="rc-tier-current" data-qty="10">10 PARES</span>
-          <span class="rc-tier-chevron" aria-hidden="true">▾</span>
-        </button>
-        <span class="rc-tier-perpar">por par</span>
-      </div>
-    </div>
+    <button class="rc-tier-select" type="button" aria-haspopup="listbox" aria-expanded="false" onclick="rcToggleTiers(this, event)">
+      <span class="rc-tier-current" data-qty="10">10 PARES</span>
+      <span class="rc-tier-chevron" aria-hidden="true">▾</span>
+    </button>
     <span class="rc-tier-price-wholesale" data-price-display>{{ t10 | money }}</span>
 
     <div class="rc-tier-options" role="listbox" hidden>
