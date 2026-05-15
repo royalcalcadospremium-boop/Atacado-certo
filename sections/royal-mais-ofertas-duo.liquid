@@ -205,9 +205,9 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
       -webkit-overflow-scrolling:touch;
       scrollbar-width:none; -ms-overflow-style:none;
       padding-bottom: 6px;
-      /* Permite scroll vertical da pagina E swipe horizontal do carrossel.
-         O navegador escolhe a direcao com base no movimento inicial. */
-      touch-action: pan-x pan-y;
+      /* SO swipe horizontal — o dedo no carrossel nao rola a pagina vertical.
+         Pra rolar a pagina, usuario toca FORA do carrossel. */
+      touch-action: pan-x;
       overscroll-behavior-x: contain;
     }
     #royal-tabs-cards-{{ section.id }} .track::-webkit-scrollbar{ display:none; }
