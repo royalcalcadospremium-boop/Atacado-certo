@@ -178,15 +178,36 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
 
     /* Carrossel */
     #royal-tabs-cards-{{ section.id }} .viewport{ position:relative; overflow:hidden; }
+    /* Setinhas de navegacao (desktop) */
+    #royal-tabs-cards-{{ section.id }} .rc-nav{
+      position: absolute; top: 50%; transform: translateY(-50%);
+      z-index: 5;
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: #fff;
+      border: 1px solid #e5e5e5;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.10);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: #222;
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+    #royal-tabs-cards-{{ section.id }} .rc-nav:hover{ background: #f7f7f7; transform: translateY(-50%) scale(1.05); }
+    #royal-tabs-cards-{{ section.id }} .rc-nav--prev{ left: 4px; }
+    #royal-tabs-cards-{{ section.id }} .rc-nav--next{ right: 4px; }
+    /* Esconde no mobile/tablet */
+    @media (max-width: 989px){
+      #royal-tabs-cards-{{ section.id }} .rc-nav{ display: none; }
+    }
     #royal-tabs-cards-{{ section.id }} .track{
       display:flex; gap:var(--gap);
       overflow-x:auto; scroll-snap-type:x mandatory;
       -webkit-overflow-scrolling:touch;
       scrollbar-width:none; -ms-overflow-style:none;
       padding-bottom: 6px;
-      /* Mobile: so responde a swipe horizontal, deixando o scroll vertical
-         da pagina passar reto. Resolve o "drag fica solto" no mobile. */
-      touch-action: pan-x;
+      /* Permite scroll vertical da pagina E swipe horizontal do carrossel.
+         O navegador escolhe a direcao com base no movimento inicial. */
+      touch-action: pan-x pan-y;
       overscroll-behavior-x: contain;
     }
     #royal-tabs-cards-{{ section.id }} .track::-webkit-scrollbar{ display:none; }
@@ -727,6 +748,12 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
       {% assign coll = section.settings.collection_fallback %}
       <div class="panel is-active">
         <div class="viewport">
+          <button class="rc-nav rc-nav--prev" type="button" aria-label="Anterior">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <button class="rc-nav rc-nav--next" type="button" aria-label="Proximo">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
           <div class="track">
             {% if coll and coll.products_count > 0 %}
               {% for product in coll.products limit: limit_count %}
@@ -857,6 +884,12 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
         {% assign coll = b.settings.collection %}
         <div class="panel {% if forloop.first %}is-active{% endif %}" data-panel="{{ b.id }}">
           <div class="viewport">
+            <button class="rc-nav rc-nav--prev" type="button" aria-label="Anterior">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <button class="rc-nav rc-nav--next" type="button" aria-label="Proximo">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
             <div class="track">
               {% if coll and coll.products_count > 0 %}
                 {% for product in coll.products limit: limit_count %}
@@ -1103,6 +1136,37 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
         var dy = Math.abs(e.clientY - _pointerStartY);
         if(dx > 6 || dy > 6) _isDragging = true;
       }, { passive: true });
+
+      /* Setinhas de navegacao (desktop) — scrolla o .track ativo */
+      root.querySelectorAll('.viewport').forEach(function(vp){
+        var track = vp.querySelector('.track');
+        if (!track) return;
+        function stepPx(){
+          var firstSlide = track.querySelector('.slide');
+          if (!firstSlide) return 320;
+          var cs = window.getComputedStyle(track);
+          var gap = parseFloat(cs.columnGap || cs.gap || '14') || 14;
+          return firstSlide.offsetWidth + gap;
+        }
+        var prevBtn = vp.querySelector('.rc-nav--prev');
+        var nextBtn = vp.querySelector('.rc-nav--next');
+        if (prevBtn) prevBtn.addEventListener('click', function(e){
+          e.stopPropagation();
+          track.scrollBy({ left: -stepPx() * 2, behavior: 'smooth' });
+        });
+        if (nextBtn) nextBtn.addEventListener('click', function(e){
+          e.stopPropagation();
+          track.scrollBy({ left: stepPx() * 2, behavior: 'smooth' });
+        });
+        // Esconde setas quando estiver no inicio/fim
+        function updateNav(){
+          var max = track.scrollWidth - track.clientWidth - 2;
+          if (prevBtn) prevBtn.style.opacity = track.scrollLeft <= 2 ? '0.4' : '1';
+          if (nextBtn) nextBtn.style.opacity = track.scrollLeft >= max ? '0.4' : '1';
+        }
+        track.addEventListener('scroll', updateNav, { passive: true });
+        updateNav();
+      });
 
       root.addEventListener('click', function(e){
         if(_isDragging) return;

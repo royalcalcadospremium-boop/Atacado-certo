@@ -37,9 +37,9 @@
   .card:hover .rc-media-swap .rc-img-primary,
   .nb-rec-card:hover .rc-media-swap .rc-img-primary{ opacity: 0; }
 }
-/* Mobile touch (classe is-touched aplicada via JS) */
-.rc-media-swap.is-touched .rc-img-secondary{ opacity: 1; }
-.rc-media-swap.is-touched .rc-img-primary{ opacity: 0; }
+/* Mobile: rotacao automatica a cada 3s via JS (.is-auto-flipped) */
+.rc-media-swap.is-auto-flipped .rc-img-secondary{ opacity: 1; }
+.rc-media-swap.is-auto-flipped .rc-img-primary{ opacity: 0; }
 
 /* ===========================================================================
    Tier-card: tabela compacta de 2 linhas (varejo + atacado dropdown)
@@ -307,39 +307,60 @@
     closeCurrent();
   });
 
-  /* ============ Image swap on touch (mobile) ============
-     Desktop usa :hover via CSS. No mobile, ao tocar/segurar/arrastar
-     dentro do media, vira a segunda foto; volta sozinho apos 1.6s ou
-     ao tocar fora. */
-  var _touchTimers = new WeakMap();
-
-  function clearTouchTimer(media){
-    var t = _touchTimers.get(media);
-    if (t) { clearTimeout(t); _touchTimers.delete(media); }
+  /* ============ Image swap automatico (mobile) ============
+     Desktop usa :hover via CSS. No mobile, alterna primary <-> secondary
+     a cada 3s, em CADA card visivel no viewport (IntersectionObserver).
+     Sem interacao do usuario (nao usa touch). */
+  function isMobileNow(){
+    return window.matchMedia('(hover: none) and (pointer: coarse), (max-width: 767px)').matches;
   }
 
-  function touchOn(media){
-    if (!media) return;
-    media.classList.add('is-touched');
-    clearTouchTimer(media);
-    var t = setTimeout(function(){ media.classList.remove('is-touched'); }, 1800);
-    _touchTimers.set(media, t);
+  var visibleMedias = new Set();
+  var mediaIO = null;
+  function ensureObserver(){
+    if (mediaIO) return mediaIO;
+    mediaIO = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        var m = en.target;
+        if (en.isIntersecting) {
+          visibleMedias.add(m);
+        } else {
+          visibleMedias.delete(m);
+          m.classList.remove('is-auto-flipped');
+        }
+      });
+    }, { rootMargin: '50px' });
+    return mediaIO;
   }
 
-  function touchOff(media){
-    if (!media) return;
-    media.classList.remove('is-touched');
-    clearTouchTimer(media);
-  }
-
-  document.addEventListener('touchstart', function(e){
-    var media = e.target.closest('.rc-media-swap');
-    // Tira swap de outros medias abertos
-    document.querySelectorAll('.rc-media-swap.is-touched').forEach(function(m){
-      if (m !== media) touchOff(m);
+  function attachAll(){
+    var io = ensureObserver();
+    document.querySelectorAll('.rc-media-swap').forEach(function(m){
+      if (m.__rcObserved) return;
+      // So observa cards que tem realmente foto secundaria
+      if (!m.querySelector('.rc-img-secondary')) return;
+      m.__rcObserved = true;
+      io.observe(m);
     });
-    if (media) touchOn(media);
-  }, { passive: true });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', attachAll);
+  } else {
+    attachAll();
+  }
+  // Reaplica quando DOM muda (carrosseis com lazy load, etc)
+  var mo = new MutationObserver(function(){ attachAll(); });
+  mo.observe(document.body, { childList: true, subtree: true });
+
+  // Loop principal: a cada 3s alterna .is-auto-flipped nos visiveis (so mobile)
+  setInterval(function(){
+    if (!isMobileNow()) return;
+    if (!visibleMedias.size) return;
+    visibleMedias.forEach(function(m){
+      m.classList.toggle('is-auto-flipped');
+    });
+  }, 3000);
 
   // Reposiciona em scroll/resize, fecha em Esc
   window.addEventListener('scroll', function(){ if (openState) positionOverlay(); }, true);

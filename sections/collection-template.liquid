@@ -817,6 +817,14 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
         return String(Math.floor(priceRaw / 100)).padStart(4, '0');
       }
 
+      /* Usa o preco de ATACADO (10 pares, ja vem do metafield) como referencia
+         no overlay e no nome do arquivo. Fallback para varejo se nao tiver atacado. */
+      function getRefPrice(data) {
+        return (data.wholesale_price_raw && data.wholesale_price_raw > 0)
+          ? data.wholesale_price_raw
+          : data.price_raw;
+      }
+
       function getSizes(variants) {
         return variants.filter(v => v.available).map(v => v.title.replace(/[^0-9]/g, '')).filter(Boolean).join(' - ');
       }
@@ -857,7 +865,7 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
 
         ctx.font = `bold ${fs2}px sans-serif`;
         ctx.textAlign = "right";
-        ctx.fillText("REF: " + getRef(data.price_raw), w - pad, y2);
+        ctx.fillText("REF: " + getRef(getRefPrice(data)), w - pad, y2);
 
         return canvas.toDataURL("image/jpeg", 0.92);
       }
@@ -959,7 +967,7 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
 
             statusText.innerText = `Gerando ${i + 1} de ${cards.length}...`;
             const dataUrl = await generatePhoto(data);
-            const filename = `${String(i + 1).padStart(2, '0')}-${getRef(data.price_raw)}.jpg`;
+            const filename = `${String(i + 1).padStart(2, '0')}-${getRef(getRefPrice(data))}.jpg`;
 
             images.push({ dataUrl, filename });
 

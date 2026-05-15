@@ -106,7 +106,8 @@ Royal • Ofertas Relâmpago (v2.6 — overlap fix)
     #royal-flash-{{ section.id }} .viewport{ position:relative; overflow:hidden }
     #royal-flash-{{ section.id }} .track{
       display:flex; gap:var(--gap); overflow-x:auto; scroll-snap-type:x mandatory;
-      -webkit-overflow-scrolling:touch; scrollbar-width:none; -ms-overflow-style:none; padding-bottom:8px
+      -webkit-overflow-scrolling:touch; scrollbar-width:none; -ms-overflow-style:none; padding-bottom:8px;
+      touch-action: pan-x pan-y; overscroll-behavior-x: contain;
     }
     #royal-flash-{{ section.id }} .track::-webkit-scrollbar{ display:none }
     #royal-flash-{{ section.id }} .card{

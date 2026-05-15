@@ -99,6 +99,8 @@ cantos arredondados.
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none; -ms-overflow-style: none;
       padding-bottom: 8px;
+      touch-action: pan-x pan-y;
+      overscroll-behavior-x: contain;
     }
     #royal-duo-{{ section.id }} .track::-webkit-scrollbar{ display: none; }
 
