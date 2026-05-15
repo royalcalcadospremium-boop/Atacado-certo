@@ -195,9 +195,13 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
     #royal-tabs-cards-{{ section.id }} .rc-nav:hover{ background: #f7f7f7; transform: translateY(-50%) scale(1.05); }
     #royal-tabs-cards-{{ section.id }} .rc-nav--prev{ left: 4px; }
     #royal-tabs-cards-{{ section.id }} .rc-nav--next{ right: 4px; }
-    /* Esconde no mobile/tablet */
-    @media (max-width: 989px){
-      #royal-tabs-cards-{{ section.id }} .rc-nav{ display: none; }
+    /* Mobile: setinhas menores mas visiveis (unica forma de navegar lateral) */
+    @media (max-width: 767px){
+      #royal-tabs-cards-{{ section.id }} .rc-nav{
+        width: 32px; height: 32px;
+      }
+      #royal-tabs-cards-{{ section.id }} .rc-nav--prev{ left: 2px; }
+      #royal-tabs-cards-{{ section.id }} .rc-nav--next{ right: 2px; }
     }
     #royal-tabs-cards-{{ section.id }} .track{
       display:flex; gap:var(--gap);
@@ -205,10 +209,9 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
       -webkit-overflow-scrolling:touch;
       scrollbar-width:none; -ms-overflow-style:none;
       padding-bottom: 6px;
-      /* Permite swipe horizontal NO carrossel e tambem o scroll vertical da
-         pagina passar reto pelo dedo no card. O navegador decide pela direcao
-         inicial do movimento. */
-      touch-action: pan-x pan-y;
+      /* pan-y: dedo no card so passa scroll VERTICAL pra pagina (sem sambar).
+         Carrossel rola lateralmente APENAS via setinhas. */
+      touch-action: pan-y;
       overscroll-behavior-x: contain;
     }
     #royal-tabs-cards-{{ section.id }} .track::-webkit-scrollbar{ display:none; }
