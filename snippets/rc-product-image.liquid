@@ -1,0 +1,44 @@
+{%- comment -%}
+  Snippet: rc-product-image.liquid
+  Renderiza wrapper .rc-media-swap com 2 imagens (primaria + secundaria) para
+  efeito hover/touch swap. Sem efeito se o produto so tem 1 imagem.
+
+  Parametros:
+  - product (obrigatorio)
+  - size (default '600x600')
+  - alt (default product.title)
+  - loading (default 'lazy')
+  - img_class (classe extra opcional aplicada nas 2 imagens)
+{%- endcomment -%}
+{%- assign __p = product | default: p -%}
+{%- assign __size = size | default: '600x600' -%}
+{%- assign __alt  = alt  | default: __p.title -%}
+{%- assign __loading = loading | default: 'lazy' -%}
+{%- assign __extra_class = img_class | default: '' -%}
+
+{%- assign __primary   = __p.featured_image -%}
+{%- assign __secondary = '' -%}
+{%- if __p.images.size > 1 -%}
+  {%- for img in __p.images -%}
+    {%- if img.id != __primary.id -%}
+      {%- assign __secondary = img -%}
+      {%- break -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endif -%}
+
+<div class="rc-media-swap">
+  <img class="rc-img-primary {{ __extra_class }}"
+       src="{{ __primary | img_url: __size, crop: 'center' }}"
+       alt="{{ __alt | escape }}"
+       loading="{{ __loading }}"
+       width="600" height="600">
+  {%- if __secondary != '' and __secondary != blank -%}
+    <img class="rc-img-secondary {{ __extra_class }}"
+         src="{{ __secondary | img_url: __size, crop: 'center' }}"
+         alt=""
+         aria-hidden="true"
+         loading="lazy"
+         width="600" height="600">
+  {%- endif -%}
+</div>

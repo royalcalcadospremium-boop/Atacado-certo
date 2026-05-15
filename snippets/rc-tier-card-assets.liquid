@@ -9,6 +9,39 @@
 
 <style>
 /* ===========================================================================
+   Image swap (foto 1 -> foto 2 ao hover/touch). Usa wrapper .rc-media-swap
+   com 2 <img> empilhadas (.rc-img-primary / .rc-img-secondary).
+   O wrapper ocupa 100% do container (.rc-media, .imgwrap, .nb-rec-card__img-wrap).
+   =========================================================================== */
+.rc-media-swap{
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+}
+.rc-media-swap .rc-img-primary,
+.rc-media-swap .rc-img-secondary{
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: contain;
+  transition: opacity 0.3s ease;
+}
+.rc-media-swap .rc-img-secondary{
+  opacity: 0;
+  pointer-events: none;
+}
+/* Desktop hover (acionado pelo card pai, nao so pela imagem) */
+@media (hover: hover){
+  .rc-card:hover .rc-media-swap .rc-img-secondary,
+  .card:hover .rc-media-swap .rc-img-secondary,
+  .nb-rec-card:hover .rc-media-swap .rc-img-secondary{ opacity: 1; }
+  .rc-card:hover .rc-media-swap .rc-img-primary,
+  .card:hover .rc-media-swap .rc-img-primary,
+  .nb-rec-card:hover .rc-media-swap .rc-img-primary{ opacity: 0; }
+}
+/* Mobile touch (classe is-touched aplicada via JS) */
+.rc-media-swap.is-touched .rc-img-secondary{ opacity: 1; }
+.rc-media-swap.is-touched .rc-img-primary{ opacity: 0; }
+
+/* ===========================================================================
    Tier-card: tabela compacta de 2 linhas (varejo + atacado dropdown)
    Layout grid (1fr auto) garante alinhamento perfeito desktop + mobile.
    =========================================================================== */
@@ -273,6 +306,40 @@
     if (openState.anchorBtn.contains(e.target)) return;
     closeCurrent();
   });
+
+  /* ============ Image swap on touch (mobile) ============
+     Desktop usa :hover via CSS. No mobile, ao tocar/segurar/arrastar
+     dentro do media, vira a segunda foto; volta sozinho apos 1.6s ou
+     ao tocar fora. */
+  var _touchTimers = new WeakMap();
+
+  function clearTouchTimer(media){
+    var t = _touchTimers.get(media);
+    if (t) { clearTimeout(t); _touchTimers.delete(media); }
+  }
+
+  function touchOn(media){
+    if (!media) return;
+    media.classList.add('is-touched');
+    clearTouchTimer(media);
+    var t = setTimeout(function(){ media.classList.remove('is-touched'); }, 1800);
+    _touchTimers.set(media, t);
+  }
+
+  function touchOff(media){
+    if (!media) return;
+    media.classList.remove('is-touched');
+    clearTouchTimer(media);
+  }
+
+  document.addEventListener('touchstart', function(e){
+    var media = e.target.closest('.rc-media-swap');
+    // Tira swap de outros medias abertos
+    document.querySelectorAll('.rc-media-swap.is-touched').forEach(function(m){
+      if (m !== media) touchOff(m);
+    });
+    if (media) touchOn(media);
+  }, { passive: true });
 
   // Reposiciona em scroll/resize, fecha em Esc
   window.addEventListener('scroll', function(){ if (openState) positionOverlay(); }, true);

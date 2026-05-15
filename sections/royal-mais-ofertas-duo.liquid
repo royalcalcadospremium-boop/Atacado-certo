@@ -184,6 +184,10 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
       -webkit-overflow-scrolling:touch;
       scrollbar-width:none; -ms-overflow-style:none;
       padding-bottom: 6px;
+      /* Mobile: so responde a swipe horizontal, deixando o scroll vertical
+         da pagina passar reto. Resolve o "drag fica solto" no mobile. */
+      touch-action: pan-x;
+      overscroll-behavior-x: contain;
     }
     #royal-tabs-cards-{{ section.id }} .track::-webkit-scrollbar{ display:none; }
 
@@ -771,11 +775,7 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
 
                       <a class="imgwrap" href="{{ p.url }}">
                         {% if featured %}
-                          <img
-                            src="{{ img_url }}"
-                            alt="{{ featured.alt | default: p.title | escape }}"
-                            loading="lazy"
-                          >
+                          {%- render 'rc-product-image', product: p, size: '600x', alt: featured.alt -%}
                         {% else %}
                           {{ 'product-1' | placeholder_svg_tag }}
                         {% endif %}
@@ -905,11 +905,7 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
 
                         <a class="imgwrap" href="{{ p.url }}">
                           {% if featured %}
-                            <img
-                              src="{{ img_url }}"
-                              alt="{{ featured.alt | default: p.title | escape }}"
-                              loading="lazy"
-                            >
+                            {%- render 'rc-product-image', product: p, size: '600x', alt: featured.alt -%}
                           {% else %}
                             {{ 'product-1' | placeholder_svg_tag }}
                           {% endif %}

@@ -47,6 +47,8 @@
       scrollbar-width: none;
       padding-right: 16px;
       padding-bottom: 16px;
+      touch-action: pan-x;
+      overscroll-behavior-x: contain;
     }
 
     .nb-rec-scroller::-webkit-scrollbar {
@@ -257,14 +259,7 @@
               <div class="nb-rec-card rc-card">
                 <div class="nb-rec-card__img-wrap">
                   <a href="{{ rec_p.url }}">
-                    <img
-                      class="nb-rec-card__img"
-                      src="{{ rec_p.featured_image | img_url: '400x' }}"
-                      alt="{{ rec_p.title | escape }}"
-                      loading="lazy"
-                      width="400"
-                      height="400"
-                    >
+                    {%- render 'rc-product-image', product: rec_p, size: '400x', alt: rec_p.title, img_class: 'nb-rec-card__img' -%}
                   </a>
 
                   <!-- Badge -->
