@@ -1,0 +1,72 @@
+{%- comment -%}
+  Apple-pure announcement bar (Subsistema 1, v2).
+  A single thin parchment strip — minimum chrome, single optional CTA.
+  Sync nudge: 2026-05-16 17:30.
+{%- endcomment -%}
+
+{%- if section.settings.show_announcement -%}
+<section class="ad-announcement" data-section-id="{{ section.id }}" data-section-type="announcement-bar" role="region" aria-label="Aviso da loja">
+  <div class="ad-announcement__inner">
+    {%- if section.settings.text != blank -%}
+      <p class="ad-announcement__text ad-caption">{{ section.settings.text }}</p>
+    {%- endif -%}
+    {%- if section.settings.cta_text != blank and section.settings.cta_url != blank -%}
+      <a class="ad-announcement__cta ad-caption-strong" href="{{ section.settings.cta_url }}">
+        {{ section.settings.cta_text }}
+        <span aria-hidden="true">&rsaquo;</span>
+      </a>
+    {%- endif -%}
+  </div>
+</section>
+
+<style>
+  #shopify-section-{{ section.id }} .ad-announcement {
+    background-color: var(--ad-color-canvas-parchment);
+    color: var(--ad-color-ink);
+    border-bottom: var(--ad-border-soft);
+  }
+  #shopify-section-{{ section.id }} .ad-announcement__inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--ad-space-md);
+    padding: 8px var(--ad-space-lg);
+    min-height: 32px;
+    max-width: 1440px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  #shopify-section-{{ section.id }} .ad-announcement__text {
+    margin: 0;
+    color: var(--ad-color-ink-muted-80);
+  }
+  #shopify-section-{{ section.id }} .ad-announcement__cta {
+    color: var(--ad-color-primary);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  #shopify-section-{{ section.id }} .ad-announcement__cta:hover {
+    text-decoration: underline;
+  }
+  @media (max-width: 640px) {
+    #shopify-section-{{ section.id }} .ad-announcement__inner {
+      padding: 6px var(--ad-space-md);
+      gap: var(--ad-space-xs);
+      flex-wrap: wrap;
+    }
+  }
+</style>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Barra de anúncio (Apple)",
+  "settings": [
+    { "type": "checkbox", "id": "show_announcement", "label": "Mostrar barra", "default": true },
+    { "type": "text", "id": "text", "label": "Texto", "default": "Atacado · Dropshipping · Varejo — direto da fábrica" },
+    { "type": "header", "content": "Link opcional" },
+    { "type": "text", "id": "cta_text", "label": "Texto do link", "default": "" },
+    { "type": "url", "id": "cta_url", "label": "URL do link" }
+  ]
+}
+{% endschema %}
