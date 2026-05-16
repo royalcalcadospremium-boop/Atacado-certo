@@ -1,0 +1,379 @@
+{%- comment -%}
+  Apple-pure home (Subsistema 2).
+  Single section, block-driven. The user adds blocks in the customizer
+  to build the home page as a stack of edge-to-edge Apple tiles.
+
+  Block types:
+    - tile             : full-bleed tile (hero, product, environment quote)
+    - collection_grid  : Apple utility cards from a collection
+    - brand_strip      : compact row of brand logos
+
+  Renders nothing (empty home) until at least one block is added.
+{%- endcomment -%}
+
+<div class="ad-home" data-section-id="{{ section.id }}" data-section-type="apple-home">
+  {%- for block in section.blocks -%}
+    {%- case block.type -%}
+
+      {%- when 'tile' -%}
+        {%- assign _variant = block.settings.variant | default: 'light' -%}
+        {%- assign _eyebrow = block.settings.eyebrow -%}
+        {%- assign _headline = block.settings.headline -%}
+        {%- assign _tagline = block.settings.tagline -%}
+        {%- assign _image = block.settings.image -%}
+        {%- assign _image_align = block.settings.image_align | default: 'below' -%}
+        <section class="ad-tile ad-tile--{{ _variant }} ad-home__tile ad-home__tile--{{ _image_align }}" {{ block.shopify_attributes }}>
+          <div class="ad-home__tile-inner">
+            <div class="ad-home__tile-text">
+              {%- if _eyebrow != blank -%}
+                <p class="ad-home__eyebrow ad-caption-strong">{{ _eyebrow }}</p>
+              {%- endif -%}
+              {%- if _headline != blank -%}
+                <h2 class="ad-home__headline {% if block.settings.headline_size == 'hero' %}ad-hero-display{% else %}ad-display-lg{% endif %}">{{ _headline }}</h2>
+              {%- endif -%}
+              {%- if _tagline != blank -%}
+                <p class="ad-home__tagline ad-lead">{{ _tagline }}</p>
+              {%- endif -%}
+              {%- if block.settings.cta1_label != blank and block.settings.cta1_url != blank -%}
+                <div class="ad-home__ctas">
+                  {%- if _variant contains 'dark' -%}
+                    {%- assign _cta_variant = 'primary' -%}
+                    {%- assign _cta2_variant = 'text-link-on-dark' -%}
+                  {%- else -%}
+                    {%- assign _cta_variant = 'primary' -%}
+                    {%- assign _cta2_variant = 'text-link' -%}
+                  {%- endif -%}
+                  {%- render 'apple-button', variant: _cta_variant, href: block.settings.cta1_url, label: block.settings.cta1_label -%}
+                  {%- if block.settings.cta2_label != blank and block.settings.cta2_url != blank -%}
+                    {%- render 'apple-button', variant: _cta2_variant, href: block.settings.cta2_url, label: block.settings.cta2_label -%}
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+            </div>
+            {%- if _image != blank -%}
+              <div class="ad-home__tile-media {% if block.settings.media_shadow %}ad-product-shadow{% endif %}">
+                <img src="{{ _image | img_url: '1400x' }}" alt="{{ _image.alt | default: _headline | escape }}" loading="lazy" width="{{ _image.width }}" height="{{ _image.height }}">
+              </div>
+            {%- endif -%}
+          </div>
+        </section>
+
+      {%- when 'collection_grid' -%}
+        {%- assign _collection = collections[block.settings.collection] -%}
+        {%- assign _variant = block.settings.variant | default: 'parchment' -%}
+        <section class="ad-tile ad-tile--{{ _variant }} ad-home__grid" {{ block.shopify_attributes }}>
+          <div class="ad-home__grid-inner">
+            {%- if block.settings.headline != blank -%}
+              <h2 class="ad-home__grid-headline ad-display-lg">{{ block.settings.headline }}</h2>
+            {%- endif -%}
+            {%- if _collection.products.size > 0 -%}
+              <div class="ad-home__cards" style="--ad-grid-cols: {{ block.settings.columns | default: 4 }}">
+                {%- assign _limit = block.settings.product_limit | default: 8 -%}
+                {%- for product in _collection.products limit: _limit -%}
+                  {%- render 'apple-card',
+                      image: product.featured_image,
+                      title: product.title,
+                      price: product.price | money,
+                      href: product.url -%}
+                {%- endfor -%}
+              </div>
+              {%- if block.settings.view_all_label != blank -%}
+                <div class="ad-home__grid-foot">
+                  {%- render 'apple-button',
+                      variant: 'text-link',
+                      href: _collection.url,
+                      label: block.settings.view_all_label -%}
+                </div>
+              {%- endif -%}
+            {%- else -%}
+              <p class="ad-body" style="opacity:.6">Selecione uma coleção no customizer pra ver os produtos aqui.</p>
+            {%- endif -%}
+          </div>
+        </section>
+
+      {%- when 'brand_strip' -%}
+        {%- assign _variant = block.settings.variant | default: 'light' -%}
+        <section class="ad-tile ad-tile--{{ _variant }} ad-home__brands" {{ block.shopify_attributes }}>
+          <div class="ad-home__brands-inner">
+            {%- if block.settings.headline != blank -%}
+              <p class="ad-home__brands-headline ad-caption-strong">{{ block.settings.headline }}</p>
+            {%- endif -%}
+            <div class="ad-home__brands-row">
+              {%- for i in (1..8) -%}
+                {%- assign _logo = block.settings['logo_' | append: i] -%}
+                {%- assign _link = block.settings['link_' | append: i] -%}
+                {%- if _logo != blank -%}
+                  {%- if _link != blank -%}<a href="{{ _link }}" class="ad-home__brand-link">{%- endif -%}
+                    <img class="ad-home__brand-logo" src="{{ _logo | img_url: '320x' }}" alt="" loading="lazy">
+                  {%- if _link != blank -%}</a>{%- endif -%}
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+          </div>
+        </section>
+
+    {%- endcase -%}
+  {%- endfor -%}
+
+  {%- if section.blocks.size == 0 -%}
+    <section class="ad-tile ad-tile--parchment ad-section-pad">
+      <div class="ad-center" style="max-width: 720px; margin: 0 auto; padding: 0 var(--ad-space-lg);">
+        <h2 class="ad-display-lg" style="margin-bottom: var(--ad-space-md)">Home Apple pronto pra configurar</h2>
+        <p class="ad-lead" style="margin-bottom: var(--ad-space-xl); color: var(--ad-color-ink-muted-80)">
+          Abra <strong>Personalizar tema</strong> no Shopify Admin e adicione blocos
+          (Tile, Collection grid, Brand strip) nesta seção pra montar a home Apple-puro.
+        </p>
+        {%- render 'apple-button', variant: 'primary', href: '/collections/all', label: 'Ver produtos' -%}
+      </div>
+    </section>
+  {%- endif -%}
+</div>
+
+<style>
+  /* ─── Tile content layout ────────────────────────────────────── */
+  .ad-home__tile-inner {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 var(--ad-space-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--ad-space-xl);
+    text-align: center;
+  }
+  .ad-home__tile--above .ad-home__tile-inner { flex-direction: column-reverse; }
+  .ad-home__tile--side .ad-home__tile-inner {
+    flex-direction: row;
+    text-align: left;
+    align-items: center;
+  }
+  .ad-home__tile--side .ad-home__tile-text { flex: 1; }
+  .ad-home__tile--side .ad-home__tile-media { flex: 1; }
+
+  .ad-home__tile-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--ad-space-md);
+    max-width: 720px;
+  }
+  .ad-home__tile--side .ad-home__tile-text { align-items: flex-start; }
+
+  .ad-home__eyebrow {
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--ad-color-primary);
+  }
+  .ad-tile--dark-1 .ad-home__eyebrow,
+  .ad-tile--dark-2 .ad-home__eyebrow,
+  .ad-tile--dark-3 .ad-home__eyebrow { color: var(--ad-color-primary-on-dark); }
+
+  .ad-home__headline { margin: 0; }
+  .ad-home__tagline { margin: 0; opacity: 0.85; }
+  .ad-home__ctas {
+    display: flex;
+    gap: var(--ad-space-md);
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: var(--ad-space-md);
+  }
+  .ad-home__tile--side .ad-home__ctas { justify-content: flex-start; }
+
+  .ad-home__tile-media img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--ad-radius-none);
+  }
+
+  /* ─── Collection grid ────────────────────────────────────────── */
+  .ad-home__grid-inner {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 var(--ad-space-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--ad-space-xl);
+  }
+  .ad-home__grid-headline { margin: 0; text-align: center; }
+  .ad-home__cards {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(var(--ad-grid-cols, 4), minmax(0, 1fr));
+    gap: var(--ad-space-lg);
+  }
+  .ad-home__grid-foot { margin-top: var(--ad-space-md); }
+
+  /* ─── Brand strip ────────────────────────────────────────────── */
+  .ad-home__brands-inner {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 var(--ad-space-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--ad-space-lg);
+  }
+  .ad-home__brands-headline {
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--ad-color-ink-muted-48);
+  }
+  .ad-home__brands-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--ad-space-xxl);
+  }
+  .ad-home__brand-logo {
+    display: block;
+    max-height: 32px;
+    width: auto;
+    opacity: 0.7;
+    transition: opacity 120ms ease-out;
+  }
+  .ad-home__brand-link:hover .ad-home__brand-logo { opacity: 1; }
+
+  /* ─── Responsive ─────────────────────────────────────────────── */
+  @media (max-width: 833px) {
+    .ad-home__cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ad-home__tile--side .ad-home__tile-inner { flex-direction: column; text-align: center; }
+    .ad-home__tile--side .ad-home__tile-text { align-items: center; }
+    .ad-home__tile--side .ad-home__ctas { justify-content: center; }
+  }
+  @media (max-width: 640px) {
+    .ad-home__cards { grid-template-columns: 1fr; }
+    .ad-home__brands-row { gap: var(--ad-space-xl); }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Home Apple",
+  "blocks": [
+    {
+      "type": "tile",
+      "name": "Tile (hero/produto)",
+      "settings": [
+        { "type": "select", "id": "variant", "label": "Cor da superfície", "default": "light",
+          "options": [
+            { "value": "light", "label": "Branco" },
+            { "value": "parchment", "label": "Parchment" },
+            { "value": "dark-1", "label": "Tile escuro 1" },
+            { "value": "dark-2", "label": "Tile escuro 2" },
+            { "value": "dark-3", "label": "Tile escuro 3" }
+          ]
+        },
+        { "type": "select", "id": "image_align", "label": "Posição da imagem", "default": "below",
+          "options": [
+            { "value": "below", "label": "Abaixo do texto" },
+            { "value": "above", "label": "Acima do texto" },
+            { "value": "side", "label": "Ao lado do texto" }
+          ]
+        },
+        { "type": "checkbox", "id": "media_shadow", "label": "Aplicar product-shadow na imagem", "default": true },
+        { "type": "text", "id": "eyebrow", "label": "Eyebrow (caption acima do título)" },
+        { "type": "text", "id": "headline", "label": "Título" },
+        { "type": "select", "id": "headline_size", "label": "Tamanho do título", "default": "display",
+          "options": [
+            { "value": "display", "label": "Display LG (40px)" },
+            { "value": "hero", "label": "Hero (56px)" }
+          ]
+        },
+        { "type": "textarea", "id": "tagline", "label": "Subtítulo (lead)" },
+        { "type": "image_picker", "id": "image", "label": "Imagem do produto/cena" },
+        { "type": "text", "id": "cta1_label", "label": "CTA primário — texto", "default": "Comprar" },
+        { "type": "url", "id": "cta1_url", "label": "CTA primário — URL" },
+        { "type": "text", "id": "cta2_label", "label": "CTA secundário — texto", "default": "Saiba mais" },
+        { "type": "url", "id": "cta2_url", "label": "CTA secundário — URL" }
+      ]
+    },
+    {
+      "type": "collection_grid",
+      "name": "Grade de coleção (Apple cards)",
+      "settings": [
+        { "type": "select", "id": "variant", "label": "Cor da superfície", "default": "parchment",
+          "options": [
+            { "value": "light", "label": "Branco" },
+            { "value": "parchment", "label": "Parchment" }
+          ]
+        },
+        { "type": "text", "id": "headline", "label": "Título da grade" },
+        { "type": "collection", "id": "collection", "label": "Coleção" },
+        { "type": "range", "id": "product_limit", "label": "Quantidade de produtos", "min": 2, "max": 12, "step": 1, "default": 8 },
+        { "type": "range", "id": "columns", "label": "Colunas desktop", "min": 2, "max": 5, "step": 1, "default": 4 },
+        { "type": "text", "id": "view_all_label", "label": "Texto do link \"ver tudo\"", "default": "Ver todos" }
+      ]
+    },
+    {
+      "type": "brand_strip",
+      "name": "Faixa de marcas",
+      "settings": [
+        { "type": "select", "id": "variant", "label": "Cor da superfície", "default": "light",
+          "options": [
+            { "value": "light", "label": "Branco" },
+            { "value": "parchment", "label": "Parchment" }
+          ]
+        },
+        { "type": "text", "id": "headline", "label": "Título (eyebrow)", "default": "MARCAS PARCEIRAS" },
+        { "type": "image_picker", "id": "logo_1", "label": "Logo 1" }, { "type": "url", "id": "link_1", "label": "Link 1" },
+        { "type": "image_picker", "id": "logo_2", "label": "Logo 2" }, { "type": "url", "id": "link_2", "label": "Link 2" },
+        { "type": "image_picker", "id": "logo_3", "label": "Logo 3" }, { "type": "url", "id": "link_3", "label": "Link 3" },
+        { "type": "image_picker", "id": "logo_4", "label": "Logo 4" }, { "type": "url", "id": "link_4", "label": "Link 4" },
+        { "type": "image_picker", "id": "logo_5", "label": "Logo 5" }, { "type": "url", "id": "link_5", "label": "Link 5" },
+        { "type": "image_picker", "id": "logo_6", "label": "Logo 6" }, { "type": "url", "id": "link_6", "label": "Link 6" },
+        { "type": "image_picker", "id": "logo_7", "label": "Logo 7" }, { "type": "url", "id": "link_7", "label": "Link 7" },
+        { "type": "image_picker", "id": "logo_8", "label": "Logo 8" }, { "type": "url", "id": "link_8", "label": "Link 8" }
+      ]
+    }
+  ],
+  "max_blocks": 15,
+  "presets": [
+    {
+      "name": "Home Apple",
+      "blocks": [
+        { "type": "tile", "settings": {
+          "variant": "light",
+          "image_align": "below",
+          "media_shadow": true,
+          "eyebrow": "NOVO",
+          "headline": "Royal Atacado",
+          "headline_size": "hero",
+          "tagline": "Marcas premium em atacado, dropshipping e varejo. Direto da fábrica.",
+          "cta1_label": "Comprar",
+          "cta1_url": "/collections/all",
+          "cta2_label": "Falar no WhatsApp",
+          "cta2_url": "https://wa.me/5562991902661"
+        } },
+        { "type": "collection_grid", "settings": {
+          "variant": "parchment",
+          "headline": "Mais Vendidos",
+          "product_limit": 8,
+          "columns": 4,
+          "view_all_label": "Ver todos os produtos"
+        } },
+        { "type": "tile", "settings": {
+          "variant": "dark-1",
+          "image_align": "side",
+          "eyebrow": "ATACADO",
+          "headline": "A partir de 10 pares.",
+          "headline_size": "display",
+          "tagline": "Preço de revendedor, mix de marcas premium, envio em até 48h.",
+          "cta1_label": "Ver catálogo",
+          "cta1_url": "/collections/all",
+          "cta2_label": "Falar com a equipe",
+          "cta2_url": "https://wa.me/5562991902661"
+        } },
+        { "type": "brand_strip", "settings": {
+          "variant": "light",
+          "headline": "MARCAS PARCEIRAS"
+        } }
+      ]
+    }
+  ]
+}
+{% endschema %}
