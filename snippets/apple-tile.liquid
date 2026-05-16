@@ -1,0 +1,24 @@
+{%- comment -%}
+  apple-tile — Apple Design full-bleed section tile.
+  Required:
+    variant: one of light | parchment | dark-1 | dark-2 | dark-3
+    body:    Liquid string (pre-rendered HTML) to place inside the tile
+  Optional:
+    tag:     wrapper element (default "section")
+    id:      element id
+    class:   extra classes
+    aria_label: aria-label for the section
+{%- endcomment -%}
+
+{%- assign _variant = variant | default: 'light' -%}
+{%- assign _tag = tag | default: 'section' -%}
+{%- assign _class = 'ad-tile ad-tile--' | append: _variant -%}
+{%- if class -%}{%- assign _class = _class | append: ' ' | append: class -%}{%- endif -%}
+
+<{{ _tag }}
+  class="{{ _class }}"
+  {%- if id %} id="{{ id }}"{%- endif -%}
+  {%- if aria_label %} aria-label="{{ aria_label | escape }}"{%- endif -%}
+>
+  {{ body }}
+</{{ _tag }}>
