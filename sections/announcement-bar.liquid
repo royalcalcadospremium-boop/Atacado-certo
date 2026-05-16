@@ -1,174 +1,71 @@
+{%- comment -%}
+  Apple-pure announcement bar (Subsistema 1).
+  A single thin parchment strip — minimum chrome, single optional CTA.
+{%- endcomment -%}
+
 {%- if section.settings.show_announcement -%}
-  {%- capture section_settings -%}
-  {
-    "showNewsletter": {{ section.settings.show_newsletter | json }}
-  }
-  {%- endcapture -%}
-
-  <section data-section-id="{{ section.id }}" data-section-type="announcement-bar" data-section-settings='{{ section_settings }}'>
-    {% render 'royal-overlap', id: section.id %}
-
-    {%- if section.settings.show_newsletter -%}
-      <div id="announcement-bar-newsletter" class="announcement-bar__newsletter hidden-phone" aria-hidden="true">
-        <div class="container">
-          <div class="announcement-bar__close-container">
-            <button class="announcement-bar__close" data-action="toggle-newsletter">{% render 'icon', icon: 'close' %}</button>
-          </div>
-        </div>
-
-        <div class="container container--extra-narrow">
-          <div class="announcement-bar__newsletter-inner">
-            {%- if section.settings.newsletter_title != blank -%}
-              <h2 class="heading h1">{{ section.settings.newsletter_title | escape }}</h2>
-            {%- endif -%}
-
-            {%- if section.settings.newsletter_content != blank -%}
-              <div class="rte">
-                {{ section.settings.newsletter_content }}
-              </div>
-            {%- endif -%}
-
-            {%- assign newsletter_id = 'newsletter-' | append: section.id -%}
-
-            <div class="newsletter">
-              {%- form 'customer', id: newsletter_id, class: 'form newsletter__form' -%}
-                {%- if form.posted_successfully? -%}
-                  <p class="alert alert--success alert--center">{{ 'home_page.newsletter.success' | t }}</p>
-                  {%- if form.context == 'announcement-bar' -%}
-                    {%- assign open_announcement = true -%}
-                  {%- endif -%}
-                {%- else -%}
-                  {%- if form.errors -%}
-                    <p class="alert alert--error">{{ form.errors.messages['email'] }}</p>
-                  {%- endif -%}
-
-                  <input type="hidden" name="contact[tags]" value="newsletter">
-                  <input type="hidden" name="contact[context]" value="announcement-bar">
-
-                  <div class="form__input-row">
-                    <div class="form__input-wrapper form__input-wrapper--labelled">
-                      <input type="email" id="announcement[contact][email]" name="contact[email]" class="form__field form__field--text" autofocus required>
-                      <label for="announcement[contact][email]" class="form__floating-label">{{ 'home_page.newsletter.input' | t }}</label>
-                    </div>
-
-                    <button type="submit" class="form__submit button button--primary">{{ 'home_page.newsletter.submit' | t }}</button>
-                  </div>
-                {%- endif -%}
-              {%- endform -%}
-            </div>
-          </div>
-        </div>
-      </div>
+<section class="ad-announcement" data-section-id="{{ section.id }}" data-section-type="announcement-bar" role="region" aria-label="Aviso da loja">
+  <div class="ad-announcement__inner">
+    {%- if section.settings.text != blank -%}
+      <p class="ad-announcement__text ad-caption">{{ section.settings.text }}</p>
     {%- endif -%}
+    {%- if section.settings.cta_text != blank and section.settings.cta_url != blank -%}
+      <a class="ad-announcement__cta ad-caption-strong" href="{{ section.settings.cta_url }}">
+        {{ section.settings.cta_text }}
+        <span aria-hidden="true">&rsaquo;</span>
+      </a>
+    {%- endif -%}
+  </div>
+</section>
 
-    <div class="announcement-bar announcement-bar--modalities">
-      <div class="container">
-        <div class="announcement-bar__inner announcement-bar__modalities-row">
-          <a href="/collections/all" class="announcement-bar__modality-badge" aria-label="Ver produtos no atacado">
-            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            <strong>ATACADO</strong><span class="announcement-bar__modality-detail">10+ pares &mdash; melhor preço</span>
-          </a>
-          <span class="announcement-bar__modality-sep" aria-hidden="true">|</span>
-          <a href="/collections/all" class="announcement-bar__modality-badge" aria-label="Ver produtos no dropshipping">
-            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-            <strong>DROPSHIPPING</strong><span class="announcement-bar__modality-detail">qualquer quantidade</span>
-          </a>
-          <span class="announcement-bar__modality-sep" aria-hidden="true">|</span>
-          <a href="/collections/all" class="announcement-bar__modality-badge" aria-label="Ver produtos no varejo">
-            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-            <strong>VAREJO</strong><span class="announcement-bar__modality-detail">frete grátis acima de R$150</span>
-          </a>
-
-          {%- if section.settings.show_newsletter -%}
-            <button type="button" class="announcement-bar__button hidden-phone" data-action="toggle-newsletter" aria-expanded="false" aria-controls="announcement-bar-newsletter">
-              {%- render 'icon', icon: 'newsletter' -%}
-              {{- section.settings.newsletter_button | escape -}}
-            </button>
-          {%- endif -%}
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <style>
-    {%- assign _dir = section.settings.gradient_direction | default: 'horizontal' -%}
-    {%- capture _css_direction -%}
-      {%- if _dir == 'vertical' -%}to bottom{%- else -%}to right{%- endif -%}
-    {%- endcapture -%}
-
-    .announcement-bar {
-      background-image: linear-gradient({{ _css_direction | strip }}, {{ section.settings.background1 }}, {{ section.settings.background2 }});
-      color: {{ section.settings.text_color }};
+<style>
+  #shopify-section-{{ section.id }} .ad-announcement {
+    background-color: var(--ad-color-canvas-parchment);
+    color: var(--ad-color-ink);
+    border-bottom: var(--ad-border-soft);
+  }
+  #shopify-section-{{ section.id }} .ad-announcement__inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--ad-space-md);
+    padding: 8px var(--ad-space-lg);
+    min-height: 32px;
+    max-width: 1440px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  #shopify-section-{{ section.id }} .ad-announcement__text {
+    margin: 0;
+    color: var(--ad-color-ink-muted-80);
+  }
+  #shopify-section-{{ section.id }} .ad-announcement__cta {
+    color: var(--ad-color-primary);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  #shopify-section-{{ section.id }} .ad-announcement__cta:hover {
+    text-decoration: underline;
+  }
+  @media (max-width: 640px) {
+    #shopify-section-{{ section.id }} .ad-announcement__inner {
+      padding: 6px var(--ad-space-md);
+      gap: var(--ad-space-xs);
+      flex-wrap: wrap;
     }
-  </style>
-
-  {%- assign _asz_d = section.settings.announcement_size_desktop | default: 100 -%}
-  {%- assign _asz_m = section.settings.announcement_size_mobile  | default: 100 -%}
-  <style id="announcement-size-{{ section.id }}">
-    #shopify-section-{{ section.id }}{ --ann-scale-d: {{ _asz_d | times: 1.0 | divided_by: 100.0 }}; --ann-scale-m: {{ _asz_m | times: 1.0 | divided_by: 100.0 }}; }
-    @media (min-width:641px){ #shopify-section-{{ section.id }} .announcement-bar{ --ann-scale: var(--ann-scale-d); } }
-    @media (max-width:640px){ #shopify-section-{{ section.id }} .announcement-bar{ --ann-scale: var(--ann-scale-m); } }
-
-    #shopify-section-{{ section.id }} .announcement-bar{
-      padding-top: calc(10px * var(--ann-scale));
-      padding-bottom: calc(10px * var(--ann-scale));
-    }
-  </style>
-
-  <script>
-    (function(){
-      {% if section.settings.show_newsletter %}
-        var btn = document.querySelector('#shopify-section-{{ section.id }} .announcement-bar__button');
-        if (btn) document.documentElement.style.setProperty('--announcement-bar-button-width', btn.clientWidth + 'px');
-      {% else %}
-        document.documentElement.style.removeProperty('--announcement-bar-button-width');
-      {% endif %}
-
-      var root = document.getElementById('shopify-section-{{ section.id }}');
-      if(!root) return;
-      function setH(){ document.documentElement.style.setProperty('--announcement-bar-height', root.clientHeight + 'px'); }
-      setH();
-      window.addEventListener('resize', setH, {passive:true});
-    })();
-  </script>
+  }
+</style>
 {%- endif -%}
 
 {% schema %}
 {
-  "name": "Barra de anúncio",
+  "name": "Barra de anúncio (Apple)",
   "settings": [
-    { "type": "range", "id": "overlap_px", "label": "Tamanho da sobreposição (px)", "min": 0, "max": 80, "step": 2, "default": 0 },
-    { "type": "range", "id": "overlap_px_mobile", "label": "Tamanho da sobreposição (px) — mobile", "min": 0, "max": 80, "step": 2, "default": 0 },
-
-    { "type": "checkbox", "id": "show_announcement", "label": "Mostrar barra de anúncio", "default": true },
-
-    { "type": "header", "content": "Tamanho (apenas espaçamentos)" },
-    { "type": "range", "id": "announcement_size_desktop", "min": 20, "max": 150, "step": 5, "unit": "%", "label": "Tamanho da barra (Desktop)", "default": 100 },
-    { "type": "range", "id": "announcement_size_mobile", "min": 20, "max": 150, "step": 5, "unit": "%", "label": "Tamanho da barra (Mobile)", "default": 100 },
-
-    { "type": "color", "id": "background1", "label": "Cor 1", "default": "#1e2d7d" },
-    { "type": "color", "id": "background2", "label": "Cor 2", "default": "#1e2d7d" },
-    {
-      "type": "select",
-      "id": "gradient_direction",
-      "label": "Direção do gradiente",
-      "default": "horizontal",
-      "options": [
-        { "value": "horizontal", "label": "Horizontal (esquerda → direita)" },
-        { "value": "vertical", "label": "Vertical (topo → baixo)" }
-      ]
-    },
-    { "type": "color", "id": "text_color", "label": "Texto", "default": "#ffffff" },
-    { "type": "checkbox", "id": "mostraricone", "label": "Mostrar ícone", "default": true },
-    { "type": "html", "id": "text", "label": "Texto", "default": "Announce something here" },
-
-    { "type": "header", "content": "Newsletter" },
-    { "type": "paragraph", "content": "Clientes que se inscreverem terão o e-mail adicionado à lista 'aceita marketing'." },
-    { "type": "paragraph", "content": "Visível apenas no desktop." },
-    { "type": "checkbox", "id": "show_newsletter", "label": "Mostrar formulário", "default": true },
-    { "type": "text", "id": "newsletter_button", "label": "Botão abrir", "default": "Subscribe & Save" },
-    { "type": "text", "id": "newsletter_title", "label": "Título", "default": "Newsletter" },
-    { "type": "richtext", "id": "newsletter_content", "label": "Texto", "default": "<p>Descreva o benefício de se inscrever</p>" }
+    { "type": "checkbox", "id": "show_announcement", "label": "Mostrar barra", "default": true },
+    { "type": "text", "id": "text", "label": "Texto", "default": "Atacado · Dropshipping · Varejo — direto da fábrica" },
+    { "type": "header", "content": "Link opcional" },
+    { "type": "text", "id": "cta_text", "label": "Texto do link", "default": "" },
+    { "type": "url", "id": "cta_url", "label": "URL do link" }
   ]
 }
 {% endschema %}
