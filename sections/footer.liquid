@@ -10,6 +10,43 @@
   {%- endif -%}
 
   <div class="ad-footer__columns">
+    {%- if section.blocks.size == 0 -%}
+      {%- comment -%} Fallback when customizer is empty (post-migration first paint) {%- endcomment -%}
+      <div class="ad-footer__column">
+        <h3 class="ad-footer__heading ad-caption-strong">Comprar</h3>
+        <ul class="ad-footer__links">
+          <li><a class="ad-footer__link ad-dense-link" href="/collections/all">Todos os produtos</a></li>
+          <li><a class="ad-footer__link ad-dense-link" href="/collections/tenis">Tênis</a></li>
+          <li><a class="ad-footer__link ad-dense-link" href="/collections/camisetas">Camisetas</a></li>
+          <li><a class="ad-footer__link ad-dense-link" href="/collections/bermudas">Bermudas</a></li>
+        </ul>
+      </div>
+      <div class="ad-footer__column">
+        <h3 class="ad-footer__heading ad-caption-strong">Conta</h3>
+        <ul class="ad-footer__links">
+          <li><a class="ad-footer__link ad-dense-link" href="{{ routes.account_login_url }}">Entrar</a></li>
+          <li><a class="ad-footer__link ad-dense-link" href="{{ routes.account_register_url }}">Criar conta</a></li>
+          <li><a class="ad-footer__link ad-dense-link" href="{{ routes.cart_url }}">Carrinho</a></li>
+        </ul>
+      </div>
+      <div class="ad-footer__column">
+        <h3 class="ad-footer__heading ad-caption-strong">Royal</h3>
+        <ul class="ad-footer__links">
+          <li><a class="ad-footer__link ad-dense-link" href="/pages/sobre">Sobre nós</a></li>
+          <li><a class="ad-footer__link ad-dense-link" href="/pages/atacado">Atacado</a></li>
+          <li><a class="ad-footer__link ad-dense-link" href="/pages/dropshipping">Dropshipping</a></li>
+        </ul>
+      </div>
+      <div class="ad-footer__column">
+        <h3 class="ad-footer__heading ad-caption-strong">Suporte</h3>
+        <ul class="ad-footer__links">
+          <li><a class="ad-footer__link ad-dense-link" href="https://wa.me/5562991902661" target="_blank" rel="noopener">WhatsApp: (62) 99190-2661</a></li>
+          <li><a class="ad-footer__link ad-dense-link" href="mailto:Royalcalcadospremium@gmail.com">Royalcalcadospremium@gmail.com</a></li>
+          <li><a class="ad-footer__link ad-dense-link" href="/pages/faq">Perguntas frequentes</a></li>
+          <li><a class="ad-footer__link ad-dense-link" href="/pages/contato">Contato</a></li>
+        </ul>
+      </div>
+    {%- endif -%}
     {%- for block in section.blocks -%}
       {%- case block.type -%}
         {%- when 'link_list' -%}
