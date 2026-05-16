@@ -1,0 +1,58 @@
+{%- comment -%}
+  apple-card — Apple Design store utility card.
+  Optional:
+    image:      Shopify image object OR a URL string
+    image_alt:  alt text (defaults to title)
+    title:      string
+    subtitle:   string (shown below title in caption type)
+    price:      already-formatted price string (use {{ money }} upstream)
+    price_was:  optional crossed-out original price
+    href:       if present, the whole card wraps in an <a>
+    action_label: text for the inline text-link CTA (default: "Comprar")
+    aria_label: aria-label for the wrapping link (defaults to title)
+    class:      extra classes
+{%- endcomment -%}
+
+{%- assign _class = 'ad-card' -%}
+{%- if class -%}{%- assign _class = _class | append: ' ' | append: class -%}{%- endif -%}
+
+{%- capture _inner -%}
+  {%- if image -%}
+    {%- if image.src -%}
+      <div class="ad-card__media">
+        <img src="{{ image | image_url: width: 600 }}" alt="{{ image_alt | default: title | escape }}" loading="lazy" width="{{ image.width }}" height="{{ image.height }}">
+      </div>
+    {%- else -%}
+      <div class="ad-card__media">
+        <img src="{{ image }}" alt="{{ image_alt | default: title | escape }}" loading="lazy">
+      </div>
+    {%- endif -%}
+  {%- endif -%}
+
+  {%- if title -%}
+    <h3 class="ad-card__title ad-body-strong">{{ title }}</h3>
+  {%- endif -%}
+  {%- if subtitle -%}
+    <p class="ad-card__subtitle ad-caption">{{ subtitle }}</p>
+  {%- endif -%}
+  {%- if price -%}
+    <p class="ad-card__price ad-body">
+      {{ price }}
+      {%- if price_was -%}<span class="ad-card__price-was ad-caption"> <s>{{ price_was }}</s></span>{%- endif -%}
+    </p>
+  {%- endif -%}
+
+  {%- if action_label or href -%}
+    <span class="ad-card__action ad-btn ad-btn--text-link">{{ action_label | default: 'Comprar' }}</span>
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- if href -%}
+  <a class="{{ _class }}" href="{{ href }}" aria-label="{{ aria_label | default: title | escape }}">
+    {{ _inner }}
+  </a>
+{%- else -%}
+  <div class="{{ _class }}">
+    {{ _inner }}
+  </div>
+{%- endif -%}
