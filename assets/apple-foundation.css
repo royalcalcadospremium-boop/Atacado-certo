@@ -1,0 +1,173 @@
+/*
+ * apple-foundation.css — Subsistema 0
+ * Apple Design chassis: opt-in utility classes consumed by Liquid snippets.
+ * All rules are scoped to the .ad-* namespace. No global selectors.
+ */
+
+/* ── Typography utilities ────────────────────────────────────────── */
+.ad-hero-display    { font-family: var(--ad-font-display); font-size: var(--ad-type-hero-display-size);    font-weight: var(--ad-type-hero-display-weight);    line-height: var(--ad-type-hero-display-lh);    letter-spacing: var(--ad-type-hero-display-track); }
+.ad-display-lg      { font-family: var(--ad-font-display); font-size: var(--ad-type-display-lg-size);      font-weight: var(--ad-type-display-lg-weight);      line-height: var(--ad-type-display-lg-lh);      letter-spacing: var(--ad-type-display-lg-track); }
+.ad-display-md      { font-family: var(--ad-font-text);    font-size: var(--ad-type-display-md-size);      font-weight: var(--ad-type-display-md-weight);      line-height: var(--ad-type-display-md-lh);      letter-spacing: var(--ad-type-display-md-track); }
+.ad-lead            { font-family: var(--ad-font-display); font-size: var(--ad-type-lead-size);            font-weight: var(--ad-type-lead-weight);            line-height: var(--ad-type-lead-lh);            letter-spacing: var(--ad-type-lead-track); }
+.ad-lead-airy       { font-family: var(--ad-font-text);    font-size: var(--ad-type-lead-airy-size);       font-weight: var(--ad-type-lead-airy-weight);       line-height: var(--ad-type-lead-airy-lh);       letter-spacing: var(--ad-type-lead-airy-track); }
+.ad-tagline         { font-family: var(--ad-font-display); font-size: var(--ad-type-tagline-size);         font-weight: var(--ad-type-tagline-weight);         line-height: var(--ad-type-tagline-lh);         letter-spacing: var(--ad-type-tagline-track); }
+.ad-body-strong     { font-family: var(--ad-font-text);    font-size: var(--ad-type-body-strong-size);     font-weight: var(--ad-type-body-strong-weight);     line-height: var(--ad-type-body-strong-lh);     letter-spacing: var(--ad-type-body-strong-track); }
+.ad-body            { font-family: var(--ad-font-text);    font-size: var(--ad-type-body-size);            font-weight: var(--ad-type-body-weight);            line-height: var(--ad-type-body-lh);            letter-spacing: var(--ad-type-body-track); }
+.ad-dense-link      { font-family: var(--ad-font-text);    font-size: var(--ad-type-dense-link-size);      font-weight: var(--ad-type-dense-link-weight);      line-height: var(--ad-type-dense-link-lh);      letter-spacing: var(--ad-type-dense-link-track); }
+.ad-caption         { font-family: var(--ad-font-text);    font-size: var(--ad-type-caption-size);         font-weight: var(--ad-type-caption-weight);         line-height: var(--ad-type-caption-lh);         letter-spacing: var(--ad-type-caption-track); }
+.ad-caption-strong  { font-family: var(--ad-font-text);    font-size: var(--ad-type-caption-strong-size);  font-weight: var(--ad-type-caption-strong-weight);  line-height: var(--ad-type-caption-strong-lh);  letter-spacing: var(--ad-type-caption-strong-track); }
+.ad-button-large    { font-family: var(--ad-font-text);    font-size: var(--ad-type-button-large-size);    font-weight: var(--ad-type-button-large-weight);    line-height: var(--ad-type-button-large-lh);    letter-spacing: var(--ad-type-button-large-track); }
+.ad-button-utility  { font-family: var(--ad-font-text);    font-size: var(--ad-type-button-utility-size);  font-weight: var(--ad-type-button-utility-weight);  line-height: var(--ad-type-button-utility-lh);  letter-spacing: var(--ad-type-button-utility-track); }
+.ad-fine-print      { font-family: var(--ad-font-text);    font-size: var(--ad-type-fine-print-size);      font-weight: var(--ad-type-fine-print-weight);      line-height: var(--ad-type-fine-print-lh);      letter-spacing: var(--ad-type-fine-print-track); }
+.ad-micro-legal     { font-family: var(--ad-font-text);    font-size: var(--ad-type-micro-legal-size);     font-weight: var(--ad-type-micro-legal-weight);     line-height: var(--ad-type-micro-legal-lh);     letter-spacing: var(--ad-type-micro-legal-track); }
+.ad-nav-link        { font-family: var(--ad-font-text);    font-size: var(--ad-type-nav-link-size);        font-weight: var(--ad-type-nav-link-weight);        line-height: var(--ad-type-nav-link-lh);        letter-spacing: var(--ad-type-nav-link-track); }
+
+/* ── Layout helpers ──────────────────────────────────────────────── */
+.ad-stack { display: flex; flex-direction: column; }
+.ad-stack > * + * { margin-top: var(--ad-space-md); }
+.ad-stack--xs > * + * { margin-top: var(--ad-space-xs); }
+.ad-stack--sm > * + * { margin-top: var(--ad-space-sm); }
+.ad-stack--lg > * + * { margin-top: var(--ad-space-lg); }
+.ad-stack--xl > * + * { margin-top: var(--ad-space-xl); }
+
+.ad-center { display: flex; flex-direction: column; align-items: center; text-align: center; }
+
+.ad-section-pad { padding-top: var(--ad-space-section); padding-bottom: var(--ad-space-section); }
+
+/* ── Product shadow (the ONLY drop-shadow in the system) ────────── */
+.ad-product-shadow { box-shadow: var(--ad-shadow-product); }
+
+/* ── Press / active state mixin (system-wide) ───────────────────── */
+.ad-press { transition: transform 120ms ease-out; }
+.ad-press:active { transform: scale(0.95); }
+
+/* ── Focus ring ──────────────────────────────────────────────────── */
+.ad-focus:focus-visible { outline: 2px solid var(--ad-color-primary-focus); outline-offset: 2px; }
+
+/* ── Frosted background (sub-nav, sticky bar) ───────────────────── */
+.ad-frosted {
+  background-color: rgba(245, 245, 247, 0.8);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+          backdrop-filter: saturate(180%) blur(20px);
+}
+
+/* ── Pill helper ─────────────────────────────────────────────────── */
+.ad-pill { border-radius: var(--ad-radius-pill); }
+
+/* ── Button chassis (apple-button.liquid renders these) ─────────── */
+.ad-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  cursor: pointer;
+  text-decoration: none;
+  background: none;
+  font-family: var(--ad-font-text);
+  transition: transform 120ms ease-out, background-color 120ms ease-out, color 120ms ease-out;
+}
+.ad-btn:active { transform: scale(0.95); }
+.ad-btn:focus-visible { outline: 2px solid var(--ad-color-primary-focus); outline-offset: 2px; }
+.ad-btn[disabled],
+.ad-btn[aria-disabled="true"] { color: var(--ad-color-ink-muted-48); cursor: not-allowed; }
+
+.ad-btn--primary {
+  background-color: var(--ad-color-primary);
+  color: var(--ad-color-on-primary);
+  font-size: var(--ad-type-body-size); font-weight: var(--ad-type-body-weight); line-height: 1; letter-spacing: var(--ad-type-body-track);
+  border-radius: var(--ad-radius-pill);
+  padding: 11px 22px;
+}
+
+.ad-btn--secondary-pill {
+  background-color: transparent;
+  color: var(--ad-color-primary);
+  border: 1px solid var(--ad-color-primary);
+  font-size: var(--ad-type-body-size); font-weight: var(--ad-type-body-weight); line-height: 1; letter-spacing: var(--ad-type-body-track);
+  border-radius: var(--ad-radius-pill);
+  padding: 10px 21px; /* -1px to compensate the 1px border */
+}
+
+.ad-btn--dark-utility {
+  background-color: var(--ad-color-ink);
+  color: var(--ad-color-on-dark);
+  font-size: var(--ad-type-button-utility-size); font-weight: var(--ad-type-button-utility-weight); line-height: var(--ad-type-button-utility-lh); letter-spacing: var(--ad-type-button-utility-track);
+  border-radius: var(--ad-radius-sm);
+  padding: 8px 15px;
+}
+
+.ad-btn--pearl-capsule {
+  background-color: var(--ad-color-surface-pearl);
+  color: var(--ad-color-ink-muted-80);
+  border: 3px solid var(--ad-color-divider-soft);
+  font-size: var(--ad-type-caption-size); font-weight: var(--ad-type-caption-weight); line-height: 1; letter-spacing: var(--ad-type-caption-track);
+  border-radius: var(--ad-radius-md);
+  padding: 5px 11px; /* -3px to compensate the 3px border */
+}
+
+.ad-btn--store-hero {
+  background-color: var(--ad-color-primary);
+  color: var(--ad-color-on-primary);
+  font-size: var(--ad-type-button-large-size); font-weight: var(--ad-type-button-large-weight); line-height: var(--ad-type-button-large-lh); letter-spacing: var(--ad-type-button-large-track);
+  border-radius: var(--ad-radius-pill);
+  padding: 14px 28px;
+}
+
+.ad-btn--icon-circular {
+  background-color: var(--ad-color-surface-chip-translucent);
+  color: var(--ad-color-ink);
+  border-radius: var(--ad-radius-full);
+  width: 44px; height: 44px;
+  padding: 0;
+}
+
+.ad-btn--text-link {
+  background: none;
+  color: var(--ad-color-primary);
+  font-size: var(--ad-type-body-size); font-weight: var(--ad-type-body-weight); line-height: var(--ad-type-body-lh); letter-spacing: var(--ad-type-body-track);
+  padding: 0;
+}
+.ad-btn--text-link:hover { text-decoration: underline; }
+
+.ad-btn--text-link-on-dark {
+  background: none;
+  color: var(--ad-color-primary-on-dark);
+  font-size: var(--ad-type-body-size); font-weight: var(--ad-type-body-weight); line-height: var(--ad-type-body-lh); letter-spacing: var(--ad-type-body-track);
+  padding: 0;
+}
+.ad-btn--text-link-on-dark:hover { text-decoration: underline; }
+
+/* ── Tile chassis (apple-tile.liquid renders these) ─────────────── */
+.ad-tile {
+  width: 100%;
+  padding: var(--ad-space-section) 24px;
+  border-radius: var(--ad-radius-none);
+  text-align: center;
+}
+.ad-tile--light      { background-color: var(--ad-color-canvas);           color: var(--ad-color-ink); }
+.ad-tile--parchment  { background-color: var(--ad-color-canvas-parchment); color: var(--ad-color-ink); }
+.ad-tile--dark-1     { background-color: var(--ad-color-surface-tile-1);   color: var(--ad-color-on-dark); }
+.ad-tile--dark-2     { background-color: var(--ad-color-surface-tile-2);   color: var(--ad-color-on-dark); }
+.ad-tile--dark-3     { background-color: var(--ad-color-surface-tile-3);   color: var(--ad-color-on-dark); }
+
+/* ── Card chassis (apple-card.liquid renders these) ─────────────── */
+.ad-card {
+  background-color: var(--ad-color-canvas);
+  border: var(--ad-border-hairline);
+  border-radius: var(--ad-radius-lg);
+  padding: var(--ad-space-lg);
+  color: var(--ad-color-ink);
+}
+.ad-card__media { border-radius: var(--ad-radius-sm); overflow: hidden; }
+.ad-card__media img { display: block; width: 100%; height: auto; }
+.ad-card__title { margin: var(--ad-space-md) 0 var(--ad-space-xxs); }
+.ad-card__price { margin: 0 0 var(--ad-space-sm); }
+
+/* ── Responsive: tile padding tightens on small screens ─────────── */
+@media (max-width: 734px) {
+  .ad-tile { padding: 48px 20px; }
+}
+@media (max-width: 419px) {
+  .ad-hero-display { font-size: 28px; }
+  .ad-display-lg   { font-size: 34px; }
+}
