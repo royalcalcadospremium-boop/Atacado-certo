@@ -200,6 +200,75 @@
           "accept_button": "ENTENDI E FECHAR"
         }
       },
+      "apple-home-main": {
+        "type": "apple-home",
+        "blocks": {
+          "ap-hero-001": {
+            "type": "tile",
+            "settings": {
+              "variant": "light",
+              "image_align": "below",
+              "media_shadow": true,
+              "eyebrow": "ROYAL ATACADO",
+              "headline": "O jogo virou.",
+              "headline_size": "hero",
+              "tagline": "Marcas premium em atacado, dropshipping e varejo. Direto da fábrica.",
+              "cta1_label": "Comprar",
+              "cta1_url": "/collections/all",
+              "cta2_label": "Falar no WhatsApp",
+              "cta2_url": "https://wa.me/5562991902661"
+            }
+          },
+          "ap-grid-001": {
+            "type": "collection_grid",
+            "settings": {
+              "variant": "parchment",
+              "headline": "Mais Vendidos",
+              "collection": "all",
+              "product_limit": 8,
+              "columns": 4,
+              "view_all_label": "Ver todos os produtos"
+            }
+          },
+          "ap-tile-atacado": {
+            "type": "tile",
+            "settings": {
+              "variant": "dark-1",
+              "image_align": "side",
+              "eyebrow": "ATACADO",
+              "headline": "A partir de 10 pares.",
+              "headline_size": "display",
+              "tagline": "Preço de revendedor, mix de marcas premium, envio em até 48h.",
+              "cta1_label": "Ver catálogo",
+              "cta1_url": "/collections/all",
+              "cta2_label": "Falar com a equipe",
+              "cta2_url": "https://wa.me/5562991902661"
+            }
+          },
+          "ap-tile-drop": {
+            "type": "tile",
+            "settings": {
+              "variant": "parchment",
+              "image_align": "side",
+              "eyebrow": "DROPSHIPPING",
+              "headline": "Sem estoque mínimo.",
+              "headline_size": "display",
+              "tagline": "Qualquer quantidade. Você vende, a Royal despacha pro seu cliente final.",
+              "cta1_label": "Como funciona",
+              "cta1_url": "/pages/dropshipping",
+              "cta2_label": "Começar agora",
+              "cta2_url": "https://wa.me/5562991902661"
+            }
+          }
+        },
+        "block_order": [
+          "ap-hero-001",
+          "ap-grid-001",
+          "ap-tile-atacado",
+          "ap-tile-drop"
+        ],
+        "settings": {}
+      },
       "slideshow": {
         "type": "slideshow",
         "blocks": {
@@ -1611,13 +1680,7 @@
       }
     },
     "content_for_index": [
-      "slideshow",
-      "royal_category_cards_WkCwHp",
-      "royal_mais_ofertas_duo_ygncqp",
-      "royal_mais_ofertas_duo_Ye3WL3",
-      "royal_mais_ofertas_duo_8TJMpE",
-      "1649913261818592e3",
-      "royal-whatsapp-cta"
+      "apple-home-main"
     ],
     "blocks": {
       "286197278318599166": {
