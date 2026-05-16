@@ -1,0 +1,175 @@
+{%- comment -%}
+  Apple Design tokens — single source of truth for the --ad-* namespace.
+  Token values are taken verbatim from Apple Design/DESIGN.md.
+  This snippet is additive and does NOT override legacy theme tokens.
+{%- endcomment -%}
+
+<link rel="preload" href="{{ 'inter-var.woff2' | asset_url }}" as="font" type="font/woff2" crossorigin>
+
+<style>
+  @font-face {
+    font-family: "Inter Variable";
+    src: url("{{ 'inter-var.woff2' | asset_url }}") format("woff2-variations"),
+         url("{{ 'inter-var.woff2' | asset_url }}") format("woff2");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Inter Variable";
+    src: url("{{ 'inter-var-italic.woff2' | asset_url }}") format("woff2-variations"),
+         url("{{ 'inter-var-italic.woff2' | asset_url }}") format("woff2");
+    font-weight: 100 900;
+    font-style: italic;
+    font-display: swap;
+  }
+
+  :root {
+    /* ── Colors ─────────────────────────────────────── */
+    --ad-color-primary:               #0066cc;
+    --ad-color-primary-focus:         #0071e3;
+    --ad-color-primary-on-dark:       #2997ff;
+    --ad-color-ink:                   #1d1d1f;
+    --ad-color-body:                  #1d1d1f;
+    --ad-color-body-on-dark:          #ffffff;
+    --ad-color-body-muted:            #cccccc;
+    --ad-color-ink-muted-80:          #333333;
+    --ad-color-ink-muted-48:          #7a7a7a;
+    --ad-color-divider-soft:          #f0f0f0;
+    --ad-color-hairline:              #e0e0e0;
+    --ad-color-canvas:                #ffffff;
+    --ad-color-canvas-parchment:      #f5f5f7;
+    --ad-color-surface-pearl:         #fafafc;
+    --ad-color-surface-tile-1:        #272729;
+    --ad-color-surface-tile-2:        #2a2a2c;
+    --ad-color-surface-tile-3:        #252527;
+    --ad-color-surface-black:         #000000;
+    --ad-color-surface-chip-translucent: rgba(210, 210, 215, 0.64);
+    --ad-color-on-primary:            #ffffff;
+    --ad-color-on-dark:               #ffffff;
+
+    /* ── Elevation primitives ──────────────────────── */
+    --ad-shadow-product:              0 3px 30px 5px rgba(0, 0, 0, 0.22);
+    --ad-border-soft:                 1px solid rgba(0, 0, 0, 0.04);
+    --ad-border-hairline:             1px solid #e0e0e0;
+
+    /* ── Spacing ───────────────────────────────────── */
+    --ad-space-xxs:                   4px;
+    --ad-space-xs:                    8px;
+    --ad-space-sm:                    12px;
+    --ad-space-md:                    17px;
+    --ad-space-lg:                    24px;
+    --ad-space-xl:                    32px;
+    --ad-space-xxl:                   48px;
+    --ad-space-section:               80px;
+
+    /* ── Radii ─────────────────────────────────────── */
+    --ad-radius-none:                 0;
+    --ad-radius-xs:                   5px;
+    --ad-radius-sm:                   8px;
+    --ad-radius-md:                   11px;
+    --ad-radius-lg:                   18px;
+    --ad-radius-pill:                 9999px;
+    --ad-radius-full:                 9999px;
+
+    /* ── Font stacks ───────────────────────────────── */
+    --ad-font-display: system-ui, -apple-system, BlinkMacSystemFont, "Inter Variable", "Inter", "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    --ad-font-text:    system-ui, -apple-system, BlinkMacSystemFont, "Inter Variable", "Inter", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+
+    /* ── Typography: hero-display ──────────────────── */
+    --ad-type-hero-display-size:      56px;
+    --ad-type-hero-display-weight:    600;
+    --ad-type-hero-display-lh:        1.07;
+    --ad-type-hero-display-track:     -0.28px;
+
+    /* ── Typography: display-lg ────────────────────── */
+    --ad-type-display-lg-size:        40px;
+    --ad-type-display-lg-weight:      600;
+    --ad-type-display-lg-lh:          1.10;
+    --ad-type-display-lg-track:       0;
+
+    /* ── Typography: display-md ────────────────────── */
+    --ad-type-display-md-size:        34px;
+    --ad-type-display-md-weight:      600;
+    --ad-type-display-md-lh:          1.47;
+    --ad-type-display-md-track:       -0.374px;
+
+    /* ── Typography: lead ──────────────────────────── */
+    --ad-type-lead-size:              28px;
+    --ad-type-lead-weight:            400;
+    --ad-type-lead-lh:                1.14;
+    --ad-type-lead-track:             0.196px;
+
+    /* ── Typography: lead-airy ─────────────────────── */
+    --ad-type-lead-airy-size:         24px;
+    --ad-type-lead-airy-weight:       300;
+    --ad-type-lead-airy-lh:           1.5;
+    --ad-type-lead-airy-track:        0;
+
+    /* ── Typography: tagline ───────────────────────── */
+    --ad-type-tagline-size:           21px;
+    --ad-type-tagline-weight:         600;
+    --ad-type-tagline-lh:             1.19;
+    --ad-type-tagline-track:          0.231px;
+
+    /* ── Typography: body-strong ───────────────────── */
+    --ad-type-body-strong-size:       17px;
+    --ad-type-body-strong-weight:     600;
+    --ad-type-body-strong-lh:         1.24;
+    --ad-type-body-strong-track:      -0.374px;
+
+    /* ── Typography: body ──────────────────────────── */
+    --ad-type-body-size:              17px;
+    --ad-type-body-weight:            400;
+    --ad-type-body-lh:                1.47;
+    --ad-type-body-track:             -0.374px;
+
+    /* ── Typography: dense-link ────────────────────── */
+    --ad-type-dense-link-size:        17px;
+    --ad-type-dense-link-weight:      400;
+    --ad-type-dense-link-lh:          2.41;
+    --ad-type-dense-link-track:       0;
+
+    /* ── Typography: caption ───────────────────────── */
+    --ad-type-caption-size:           14px;
+    --ad-type-caption-weight:         400;
+    --ad-type-caption-lh:             1.43;
+    --ad-type-caption-track:          -0.224px;
+
+    /* ── Typography: caption-strong ────────────────── */
+    --ad-type-caption-strong-size:    14px;
+    --ad-type-caption-strong-weight:  600;
+    --ad-type-caption-strong-lh:      1.29;
+    --ad-type-caption-strong-track:   -0.224px;
+
+    /* ── Typography: button-large ──────────────────── */
+    --ad-type-button-large-size:      18px;
+    --ad-type-button-large-weight:    300;
+    --ad-type-button-large-lh:        1.0;
+    --ad-type-button-large-track:     0;
+
+    /* ── Typography: button-utility ────────────────── */
+    --ad-type-button-utility-size:    14px;
+    --ad-type-button-utility-weight:  400;
+    --ad-type-button-utility-lh:      1.29;
+    --ad-type-button-utility-track:   -0.224px;
+
+    /* ── Typography: fine-print ────────────────────── */
+    --ad-type-fine-print-size:        12px;
+    --ad-type-fine-print-weight:      400;
+    --ad-type-fine-print-lh:          1.0;
+    --ad-type-fine-print-track:       -0.12px;
+
+    /* ── Typography: micro-legal ───────────────────── */
+    --ad-type-micro-legal-size:       10px;
+    --ad-type-micro-legal-weight:     400;
+    --ad-type-micro-legal-lh:         1.3;
+    --ad-type-micro-legal-track:      -0.08px;
+
+    /* ── Typography: nav-link ──────────────────────── */
+    --ad-type-nav-link-size:          12px;
+    --ad-type-nav-link-weight:        400;
+    --ad-type-nav-link-lh:            1.0;
+    --ad-type-nav-link-track:         -0.12px;
+  }
+</style>
