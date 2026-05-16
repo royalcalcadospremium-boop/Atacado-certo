@@ -1,0 +1,41 @@
+{%- comment -%}
+  apple-button — Apple Design universal button.
+  Required:
+    variant: one of primary | secondary-pill | dark-utility | pearl-capsule
+             | store-hero | icon-circular | text-link | text-link-on-dark
+    label:   visible text (omit for icon-circular if aria_label provided)
+  Optional:
+    href:        if present, renders as <a>; else as <button type="button">
+    type:        button type (default "button")
+    aria_label:  required when label is empty (icon-circular)
+    class:       extra classes
+    id:          element id
+    data:        a hash of data-* attributes, e.g. data: { product_id: 123 }
+    target:      <a target>; ignored on <button>
+    rel:         <a rel>; ignored on <button>
+    icon:        inline SVG markup placed before the label
+{%- endcomment -%}
+
+{%- assign _variant = variant | default: 'primary' -%}
+{%- assign _class = 'ad-btn ad-btn--' | append: _variant -%}
+{%- if class -%}{%- assign _class = _class | append: ' ' | append: class -%}{%- endif -%}
+
+{%- capture _attrs -%}
+  {%- if id %} id="{{ id }}"{%- endif -%}
+  {%- if aria_label %} aria-label="{{ aria_label | escape }}"{%- endif -%}
+  {%- if data -%}
+    {%- for kv in data -%} data-{{ kv[0] | replace: '_', '-' }}="{{ kv[1] | escape }}"{%- endfor -%}
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- if href -%}
+  <a class="{{ _class }}" href="{{ href }}"{% if target %} target="{{ target }}"{% endif %}{% if rel %} rel="{{ rel }}"{% endif %}{{ _attrs }}>
+    {%- if icon %}<span class="ad-btn__icon" aria-hidden="true">{{ icon }}</span>{%- endif -%}
+    {%- if label %}{{ label }}{%- endif -%}
+  </a>
+{%- else -%}
+  <button class="{{ _class }}" type="{{ type | default: 'button' }}"{{ _attrs }}>
+    {%- if icon %}<span class="ad-btn__icon" aria-hidden="true">{{ icon }}</span>{%- endif -%}
+    {%- if label %}{{ label }}{%- endif -%}
+  </button>
+{%- endif -%}
