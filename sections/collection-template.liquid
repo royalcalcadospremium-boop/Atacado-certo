@@ -1,1147 +1,193 @@
-{% comment %}
-Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
-- ✅ GRID MOBILE: Fix de transbordamento e cards alinhados.
-- ✅ DOWNLOAD PRO: Gera fotos com overlay (Título + Ref + Numeração).
-- ✅ QUICK BUY: Modal Premium integrado ao ícone de sacola.
-- ✅ PAGINAÇÃO: Fixo em 10 produtos para performance de download.
-{% endcomment %}
-
-{%- assign items_per_page = 50 -%}
-
-{%- render 'rc-tier-card-assets' -%}
-
-{%- assign has_visible_tags = false -%}
-{%- if section.settings.show_filters -%}
-  {%- if section.settings.filter_type == 'tag' -%}
-    {%- for tag in collection.all_tags -%}
-      {%- unless tag contains '__' -%}
-        {%- assign has_visible_tags = true -%}
-        {%- break -%}
-      {%- endunless -%}
-    {%- endfor -%}
-  {%- endif -%}
-{%- endif -%}
-
-{%- assign quick_links_menu = linklists[section.settings.quick_links] -%}
-{%- assign has_filters = false -%}
-{%- if quick_links_menu.links.size > 0 or has_visible_tags -%}{%- assign has_filters = true -%}{%- endif -%}
-
 {%- comment -%}
-  Detecta o tipo de produto pelo sufixo do template (collection.chinelos → sufixo = chinelos)
-  e monta os handles dos menus de marcas/modelos automaticamente.
-  Convenção de nomes: marcas-de-{sufixo} e modelos-de-{sufixo}
-  Fallback por blocos configurados manualmente no editor para casos especiais.
+  Apple-pure collection template (Subsistema 3).
+  Renders the collection as a clean Apple utility-card grid:
+  - Sub-nav-style header (title + product count + sort)
+  - 4-col card grid (2 on tablet, 1 on phone)
+  - Native Shopify pagination
 {%- endcomment -%}
 
-{%- assign _suffix = template.suffix | downcase | strip -%}
+{%- assign _per_page = section.settings.products_per_page | default: 24 -%}
+{%- paginate collection.products by _per_page -%}
 
-{%- comment -%} Mapa de sufixo → handles de menus {%- endcomment -%}
-{%- assign _marcas_handle     = '' -%}
-{%- assign _modelos_handle    = '' -%}
-{%- assign _marcas_imgs       = false -%}
-{%- assign _modelos_imgs      = false -%}
+<section class="ad-collection ad-tile ad-tile--{{ section.settings.variant | default: 'light' }}" data-section-id="{{ section.id }}" data-section-type="collection-template">
 
-{%- if _suffix == 'chinelos' -%}
-  {%- assign _marcas_handle  = 'marcas-de-chinelo' -%}
-  {%- assign _modelos_handle = 'modelos-de-chinelo' -%}
-  {%- assign _marcas_imgs    = true -%}
-  {%- assign _modelos_imgs   = true -%}
-{%- elsif _suffix == 'tenis' -%}
-  {%- assign _marcas_handle  = 'marcas-de-tenis' -%}
-  {%- assign _modelos_handle = 'modelos-de-tenis' -%}
-  {%- assign _marcas_imgs    = true -%}
-  {%- assign _modelos_imgs   = true -%}
-{%- elsif _suffix == 'bones' -%}
-  {%- assign _marcas_handle  = 'marcas-de-bones' -%}
-  {%- assign _modelos_handle = 'modelos-de-bones' -%}
-  {%- assign _marcas_imgs    = true -%}
-  {%- assign _modelos_imgs   = true -%}
-{%- elsif _suffix == 'bermudas' -%}
-  {%- assign _marcas_handle  = 'marcas-de-bermudas' -%}
-  {%- assign _modelos_handle = 'modelos-de-bermudas' -%}
-  {%- assign _marcas_imgs    = false -%}
-  {%- assign _modelos_imgs   = false -%}
-{%- elsif _suffix == 'calcas' -%}
-  {%- assign _marcas_handle  = 'marcas-de-calcas' -%}
-  {%- assign _modelos_handle = 'modelos-de-calcas' -%}
-  {%- assign _marcas_imgs    = false -%}
-  {%- assign _modelos_imgs   = false -%}
-{%- elsif _suffix == 'camisetas' -%}
-  {%- assign _marcas_handle  = 'marcas-de-camisetas' -%}
-  {%- assign _modelos_handle = 'modelos-de-camisetas' -%}
-  {%- assign _marcas_imgs    = false -%}
-  {%- assign _modelos_imgs   = false -%}
-{%- else -%}
-  {%- comment -%} Fallback: tenta usar blocos configurados manualmente {%- endcomment -%}
-  {%- for block in section.blocks -%}
-    {%- assign _bh = block.settings.collection_handle | downcase | strip -%}
-    {%- if _bh != blank and collection.handle contains _bh -%}
-      {%- assign _marcas_handle  = block.settings.marcas_menu  | default: '' -%}
-      {%- assign _modelos_handle = block.settings.modelos_menu | default: '' -%}
-      {%- assign _marcas_imgs    = block.settings.marcas_show_images -%}
-      {%- assign _modelos_imgs   = block.settings.modelos_show_images -%}
-      {%- break -%}
+  <div class="ad-collection__head">
+    {%- if collection.image -%}
+      <div class="ad-collection__hero">
+        <img src="{{ collection.image | img_url: '1600x' }}" alt="{{ collection.title | escape }}" loading="eager">
+      </div>
     {%- endif -%}
-  {%- endfor -%}
-{%- endif -%}
-
-<section id="royal-collection-gummy-{{ section.id }}" class="royal-section-fix" data-section-id="{{ section.id }}" data-section-type="collection">
-
-  <style>
-    #royal-collection-gummy-{{ section.id }}, #royal-collection-gummy-{{ section.id }} * { box-sizing: border-box; }
-
-    #royal-collection-gummy-{{ section.id }}{
-      --bg: {{ section.settings.bg | default: '#FFFFFF' }};
-      --card: {{ section.settings.card_bg | default: '#ffffff' }};
-      --primary: {{ section.settings.primary | default: '#111111' }};
-      --green: {{ section.settings.green | default: '#B6E35C' }};
-      --text: {{ section.settings.text | default: '#333333' }};
-      --radius: {{ section.settings.card_radius | default: 6 }}px;
-      --badge-bg: {{ section.settings.badge_bg | default: '#1a1a1a' }};
-      --badge-opacity: {{ section.settings.badge_opacity | default: 100 | times: 0.01 }};
-      background: var(--bg);
-      padding: 18px 0 34px;
-      overflow-x: hidden;
-    }
-
-    #royal-collection-gummy-{{ section.id }} .rc-container{ max-width: 1320px; margin: 0 auto; padding: 0 16px; width: 100%; }
-    #royal-collection-gummy-{{ section.id }} .rc-title{ color: var(--primary); font-weight: 700; font-size: clamp(22px, 3vw, 36px); margin: 10px 0; }
-
-    #royal-collection-gummy-{{ section.id }} .rc-layout{
-      display: grid;
-      grid-template-columns: {% if has_filters %}260px 1fr{% else %}1fr{% endif %};
-      gap: 24px;
-      align-items: start;
-    }
-
-    /* GRID CORE */
-    #royal-collection-gummy-{{ section.id }} .rc-grid{
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
-      width: 100%;
-    }
-
-    @media (max-width: 1100px){ #royal-collection-gummy-{{ section.id }} .rc-grid{ grid-template-columns: repeat(3, 1fr); } }
-
-    @media (max-width: 767px){
-      #royal-collection-gummy-{{ section.id }} .rc-layout{ grid-template-columns: 1fr; }
-      #royal-collection-gummy-{{ section.id }} .rc-sidebar{ display:none; }
-      #royal-collection-gummy-{{ section.id }} .rc-grid{ grid-template-columns: repeat(2, 1fr); gap: 10px; }
-      #royal-collection-gummy-{{ section.id }} .rc-container{ padding: 0 10px; }
-    }
-
-    /* FILTRO + PAGINAÇÃO MOBILE */
-    #royal-collection-gummy-{{ section.id }} .rc-card.rc-filtered-out { display: none !important; }
-    @media (max-width: 767px) {
-      #royal-collection-gummy-{{ section.id }} .rc-card.rc-mobile-hidden { display: none !important; }
-      #royal-collection-gummy-{{ section.id }} .rc-mobile-pages { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 16px 0 8px; }
-      #royal-collection-gummy-{{ section.id }} .rc-shopify-pages { display: none !important; }
-    }
-    @media (min-width: 768px) {
-      #royal-collection-gummy-{{ section.id }} .rc-mobile-pages { display: none; }
-    }
-
-    /* CARDS */
-    #royal-collection-gummy-{{ section.id }} .rc-card{
-      background: var(--card);
-      border-radius: var(--radius);
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      border: 1px solid #f0f0f0;
-      transition: transform 0.2s ease;
-    }
-
-    #royal-collection-gummy-{{ section.id }} .rc-media{
-      display: block; width: 100%; aspect-ratio: 1/1; position: relative; background: #f9f9f9;
-    }
-    #royal-collection-gummy-{{ section.id }} .rc-media img{
-      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
-    }
-
-    #royal-collection-gummy-{{ section.id }} .rc-name{
-      font-size: 13px; font-weight: 600; color: var(--text); text-decoration: none;
-      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-      height: 34px; margin: 8px 0 4px; line-height: 1.3;
-    }
-
-    #royal-collection-gummy-{{ section.id }} .rc-price-value{ font-size: 15px; font-weight: 800; color: #111; }
-    /* Estilos dos tier-boxes (VAREJO + ATACADO seletor) ficam no snippet rc-tier-card-assets.liquid */
-
-    #royal-collection-gummy-{{ section.id }} .rc-badge{
-      position: absolute; top: 8px; left: 8px; background: var(--badge-bg); opacity: var(--badge-opacity); color: #fff;
-      border-radius: 2px; font-size: 10px; font-weight: 700; padding: 3px 6px; z-index: 2;
-    }
-
-    .nb-bag {
-      position: absolute; bottom: 8px; right: 8px; background: #fff; border: none;
-      border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; z-index: 3;
-    }
-
-    /* DOWNLOAD AREA */
-    .rc-pagination-wrapper { margin-top: 40px; text-align: center; border-top: 1px solid #eee; padding-top: 20px; }
-    .rc-zip-btn {
-      background: #111; color: #fff; border: none; padding: 14px 28px; border-radius: 4px;
-      font-weight: 700; font-size: 13px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px;
-    }
-    .rc-zip-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    #zip-status { font-size: 12px; font-weight: 600; color: #555; margin-top: 10px; }
-
-    /* PAGINAÇÃO */
-    .rc-pagination { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
-    .rc-page { 
-      min-width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; 
-      border: 1px solid #ddd; border-radius: 4px; text-decoration: none; color: #111; font-weight: 600; font-size: 13px;
-    }
-    .rc-page[aria-current="page"] { background: #111; color: #fff; border-color: #111; }
-
-    /* MODAL QUICK BUY */
-    .nb-qb-wrap { position: fixed; inset: 0; z-index: 999999; display: none; align-items: flex-end; justify-content: center; background: rgba(0,0,0,0.5); }
-    .nb-qb-wrap.nb-open { display: flex; }
-    .nb-qb-modal { background: #fff; width: 100%; max-width: 500px; border-radius: 16px 16px 0 0; padding: 20px; position: relative; }
-    .qb-close { position: absolute; top: 15px; right: 15px; border: none; background: none; font-size: 24px; cursor: pointer; line-height: 1; }
-    .qb-header { display: flex; gap: 15px; align-items: center; margin-bottom: 20px; }
-    .qb-thumb { width: 70px; height: 70px; object-fit: cover; border-radius: 8px; }
-    .qb-title { margin: 0; font-size: 14px; }
-    .qb-price { font-weight: 800; font-size: 16px; }
-    .qb-label { font-size: 12px; font-weight: 800; margin-bottom: 10px; }
-    .qb-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
-    .sz-btn { padding: 12px; border: 1px solid #ddd; border-radius: 4px; background: #fff; cursor: pointer; font-weight: 700; transition: border-color 0.15s ease; }
-    .sz-btn.is-selected { border-color: #111; }
-    .sz-btn.is-unavailable, .sz-btn[disabled] { background: #f5f5f5; opacity: 0.4; cursor: not-allowed; }
-    .qb-add { width: 100%; padding: 16px; background: #111; color: #fff; border: none; border-radius: 4px; font-weight: 800; cursor: pointer; opacity: 0.5; transition: opacity 0.15s ease; }
-    .qb-add.is-ready, .qb-add:not([disabled]) { opacity: 1; }
-
-    /* FILTER DRAWER */
-    .rc-filter-icon {
-      position: absolute; top: 0; right: 0; width: 48px; height: 48px;
-      background: #111; color: #fff; border: none; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center; cursor: pointer;
-      z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-      transition: background 0.2s ease;
-    }
-    .rc-filter-icon.is-floating { position: fixed; top: 20px; right: 20px; }
-    .rc-filter-icon:hover { background: #333; }
-    /* Badge com número de filtros ativos */
-    .rc-filter-icon .rc-filter-badge {
-      display: none; position: absolute; top: -4px; right: -4px;
-      background: #111; color: #fff; border: 2px solid #fff;
-      border-radius: 50%; width: 18px; height: 18px;
-      font-size: 10px; font-weight: 800; line-height: 1;
-      align-items: center; justify-content: center;
-    }
-    .rc-filter-icon.has-filters .rc-filter-badge { display: flex; }
-
-    .rc-filter-drawer {
-      position: fixed; left: 0; top: 0; width: 100%; max-width: 360px; height: 100vh;
-      background: #fff; z-index: 9999; overflow-y: auto; transform: translateX(-100%);
-      transition: transform 0.3s ease; box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-    }
-    .rc-filter-drawer.is-open { transform: translateX(0); }
-    .rc-filter-drawer-overlay {
-      position: fixed; inset: 0; z-index: 9998; background: rgba(0,0,0,0.5);
-      display: none;
-    }
-    .rc-filter-drawer.is-open ~ .rc-filter-drawer-overlay { display: block; }
-
-    .rc-filter-header {
-      padding: 16px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;
-    }
-    .rc-filter-title { font-weight: 800; font-size: 16px; }
-    .rc-filter-close { background: none; border: none; font-size: 24px; cursor: pointer; }
-
-    /* Seções do filtro — sempre abertas */
-    .rc-filter-section { border-bottom: 1px solid #f0f0f0; padding: 14px 16px 16px; }
-    .rc-filter-section-title {
-      font-weight: 800; font-size: 11px; letter-spacing: 0.8px;
-      color: #777; text-transform: uppercase; margin-bottom: 12px;
-    }
-
-    /* Chips de seleção */
-    .rc-filter-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-    .rc-filter-chips--circle { gap: 10px; }
-
-    .rc-filter-chip {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 7px 14px; border: 1.5px solid #ddd; border-radius: 20px;
-      cursor: pointer; font-size: 13px; font-weight: 600; color: #333;
-      background: #fff; transition: background 0.15s, border-color 0.15s, color 0.15s;
-      user-select: none;
-    }
-    .rc-filter-chip input[type="checkbox"] { display: none; }
-    .rc-filter-chip:has(input:checked) { background: #111; border-color: #111; color: #fff; }
-
-    /* Chip com imagem circular — sem borda, sem texto */
-    .rc-filter-chip--circle {
-      flex-direction: column; align-items: center; padding: 0;
-      border: none !important; background: transparent !important;
-      border-radius: 0; min-width: unset; gap: 0;
-    }
-    .rc-filter-chip--circle:has(input:checked) { background: transparent !important; color: inherit; }
-    .rc-filter-circle-img {
-      width: 58px; height: 58px; border-radius: 50%; object-fit: cover;
-      border: 3px solid transparent; transition: border-color 0.15s, box-shadow 0.15s;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.10);
-    }
-    .rc-filter-chip--circle:has(input:checked) .rc-filter-circle-img {
-      border-color: #111; box-shadow: 0 0 0 2px #111;
-    }
-    .rc-filter-circle-placeholder {
-      width: 58px; height: 58px; border-radius: 50%; background: #f0f0f0;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px; font-weight: 800; color: #666;
-      border: 3px solid transparent; transition: border-color 0.15s;
-    }
-    .rc-filter-chip--circle:has(input:checked) .rc-filter-circle-placeholder { border-color: #111; }
-    .rc-filter-chip--circle span { display: none; }
-    .rc-filter-empty { font-size: 12px; color: #aaa; font-style: italic; margin: 0; }
-    /* Chips de navegação (Coleção/Modelo) */
-    a.rc-filter-chip { text-decoration: none; }
-    a.rc-filter-chip.rc-col-active { background: #111; border-color: #111; color: #fff; }
-    a.rc-filter-chip--circle.rc-col-active { background: transparent !important; }
-    a.rc-filter-chip--circle.rc-col-active .rc-filter-circle-img { border-color: #111; box-shadow: 0 0 0 2px #111; }
-
-    .rc-filter-actions {
-      padding: 16px; display: flex; gap: 8px; border-top: 1px solid #eee;
-      position: sticky; bottom: 0; background: #fff;
-    }
-    .rc-filter-reset, .rc-filter-apply {
-      flex: 1; padding: 12px; border-radius: 4px; border: none; font-weight: 700; font-size: 13px; cursor: pointer;
-    }
-    .rc-filter-reset { background: #f0f0f0; color: #111; }
-    .rc-filter-apply { background: #111; color: #fff; }
-  </style>
-
-  <div class="rc-container">
-    <div style="position: relative; display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
-      <div>
-        <h1 class="rc-title" style="margin: 10px 0;">{{ collection.title }}</h1>
-        {%- if collection.description != blank -%}
-          <p class="rc-collection-desc">{{ collection.description | strip_html | truncatewords: 20 }}</p>
-        {%- else -%}
-          <p class="rc-collection-desc">Calçados e tênis das melhores marcas — Atacado, Dropshipping e Varejo.</p>
-        {%- endif -%}
-      </div>
-      <!-- FILTER ICON -->
-      <button class="rc-filter-icon" id="btn-filter-toggle" title="Filtros">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-        </svg>
-        <span class="rc-filter-badge" id="rc-filter-badge">0</span>
-      </button>
-    </div>
-    </button>
-
-    <!-- FILTER DRAWER -->
-    <div class="rc-filter-drawer" id="filter-drawer">
-      <div class="rc-filter-header">
-        <div class="rc-filter-title">Filtros</div>
-        <button class="rc-filter-close" onclick="document.getElementById('filter-drawer').classList.remove('is-open');">✕</button>
-      </div>
-
-      <!-- TAMANHO -->
-      <div class="rc-filter-section">
-        <div class="rc-filter-section-title">Tamanho</div>
-        <div class="rc-filter-chips" id="sizes-filter"></div>
-      </div>
-
-      <!-- MARCAS -->
-      {%- assign _m_list = linklists[_marcas_handle] -%}
-      {%- assign _m_ok   = false -%}
-      {%- if _marcas_handle != blank and _marcas_handle != 'main-menu' and _marcas_handle != 'footer' and _m_list.links.size > 0 -%}
-        {%- assign _m_ok = true -%}
+    <div class="ad-collection__head-text">
+      <h1 class="ad-collection__title ad-display-lg">{{ collection.title }}</h1>
+      {%- if collection.description != blank -%}
+        <div class="ad-collection__desc ad-lead-airy">{{ collection.description }}</div>
       {%- endif -%}
-      <div class="rc-filter-section">
-        <div class="rc-filter-section-title">Marcas</div>
-        <div class="rc-filter-chips{% if _marcas_imgs %} rc-filter-chips--circle{% endif %}" id="marcas-filter"{% if _m_ok %} data-liquid="1"{% endif %}>
-          {%- if _m_ok -%}
-            {%- for link in _m_list.links -%}
-              <label class="rc-filter-chip{% if _marcas_imgs %} rc-filter-chip--circle{% endif %}">
-                <input type="checkbox" class="marca-filter" value="{{ link.title | escape }}">
-                {%- if _marcas_imgs -%}
-                  {%- if link.object.image -%}
-                    <img src="{{ link.object.image | img_url: '80x80', crop: 'center' }}" class="rc-filter-circle-img" alt="{{ link.title | escape }}">
-                  {%- else -%}
-                    <div class="rc-filter-circle-placeholder">{{ link.title | slice: 0, 2 | upcase }}</div>
-                  {%- endif -%}
-                {%- endif -%}
-                <span>{{ link.title }}</span>
-              </label>
-            {%- endfor -%}
-          {%- endif -%}
-        </div>
-      </div>
-
-      <!-- COLEÇÃO / MODELO -->
-      {%- assign _c_list = linklists[_modelos_handle] -%}
-      {%- assign _c_ok   = false -%}
-      {%- if _modelos_handle != blank and _modelos_handle != 'main-menu' and _modelos_handle != 'footer' and _c_list.links.size > 0 -%}
-        {%- assign _c_ok = true -%}
-      {%- endif -%}
-      <div class="rc-filter-section">
-        <div class="rc-filter-section-title">Coleção / Modelo</div>
-        <div class="rc-filter-chips{% if _modelos_imgs %} rc-filter-chips--circle{% endif %}" id="models-filter"{% if _c_ok %} data-liquid="1"{% endif %}>
-          {%- if _c_ok -%}
-            {%- for link in _c_list.links -%}
-              <label class="rc-filter-chip{% if _modelos_imgs %} rc-filter-chip--circle{% endif %}">
-                <input type="checkbox" class="model-filter" value="{{ link.url | escape }}">
-                {%- if _modelos_imgs -%}
-                  {%- if link.object.image -%}
-                    <img src="{{ link.object.image | img_url: '80x80', crop: 'center' }}" class="rc-filter-circle-img" alt="{{ link.title | escape }}">
-                  {%- else -%}
-                    <div class="rc-filter-circle-placeholder">{{ link.title | slice: 0, 2 | upcase }}</div>
-                  {%- endif -%}
-                {%- endif -%}
-                <span>{{ link.title }}</span>
-              </label>
-            {%- endfor -%}
-          {%- endif -%}
-        </div>
-      </div>
-
-      <div class="rc-filter-actions">
-        <button class="rc-filter-reset" onclick="resetFilters();">Limpar</button>
-        <button class="rc-filter-apply" onclick="applyFilters();">Aplicar</button>
-      </div>
     </div>
-    <div class="rc-filter-drawer-overlay" onclick="document.getElementById('filter-drawer').classList.remove('is-open');"></div>
+  </div>
 
-    <div class="rc-layout">
-      {%- if has_filters -%}
-      <aside class="rc-sidebar">
-        <div style="font-weight: 800; font-size: 12px; margin-bottom: 15px; border-bottom: 2px solid #111; padding-bottom: 5px;">CATEGORIAS</div>
-        {%- for link in quick_links_menu.links -%}
-          <a href="{{ link.url }}" style="display: block; padding: 10px 0; color: #333; text-decoration: none; font-size: 14px; border-bottom: 1px solid #f5f5f5;">{{ link.title }}</a>
+  <div class="ad-collection__bar">
+    <p class="ad-collection__count ad-caption">
+      {%- if collection.products_count == 1 -%}
+        1 produto
+      {%- else -%}
+        {{ collection.products_count }} produtos
+      {%- endif -%}
+    </p>
+    <form class="ad-collection__sort">
+      <label class="ad-caption-strong" for="ad-sort-{{ section.id }}">Ordenar por</label>
+      <select id="ad-sort-{{ section.id }}" class="ad-collection__sort-select ad-caption" onchange="window.location.href=this.value">
+        {%- assign sort_options = 'manual,best-selling,title-ascending,title-descending,price-ascending,price-descending,created-ascending,created-descending' | split: ',' -%}
+        {%- assign sort_labels = 'Em destaque,Mais vendidos,A → Z,Z → A,Preço: menor → maior,Preço: maior → menor,Novo: mais antigo,Novo: mais recente' | split: ',' -%}
+        {%- for opt in sort_options -%}
+          {%- assign label = sort_labels[forloop.index0] -%}
+          <option value="{{ collection.url }}?sort_by={{ opt }}" {% if collection.sort_by == opt or collection.default_sort_by == opt and collection.sort_by == blank %}selected{% endif %}>{{ label }}</option>
         {%- endfor -%}
-      </aside>
-      {%- endif -%}
+      </select>
+    </form>
+  </div>
 
-      <main>
-        {%- paginate collection.products by items_per_page -%}
-
-          {%- comment -%}
-            Ordenação server-side (Liquid):
-            ✕  product.available = false  → estoque zero rastreado → NÃO renderiza
-            1º total_inventory alto       → mais estoque primeiro (produtos Olist/Tiny)
-            2º total_inventory baixo      → menos estoque
-            3º total_inventory = 0        → sem vinculação (Tiny/Olist) → por último
-            O Shopify define available=false automaticamente para produtos rastreados com 0 estoque.
-            Produtos sem vinculação sempre têm available=true, mesmo com inventory=0.
-          {%- endcomment -%}
-          {%- assign _sorted = collection.products | sort: 'total_inventory' | reverse -%}
-
-          <div class="rc-grid">
-            {%- for product in _sorted -%}
-              {%- unless product.available -%}{%- continue -%}{%- endunless -%}
-              {%- render 'rc-product-card', product: product, product_index: forloop.index -%}
-            {%- endfor -%}
-          </div>
-
-          <div class="rc-pagination-wrapper">
-            {%- comment -%} Paginação mobile (sub-grupos de 10) — JS preenche {%- endcomment -%}
-            <nav class="rc-pagination rc-mobile-pages" id="rc-mobile-pages" aria-label="Páginas mobile"></nav>
-
-            {%- comment -%} Paginação Shopify (desktop + navegação entre blocos de 40) {%- endcomment -%}
-            {%- if paginate.pages > 1 -%}
-              <nav class="rc-pagination rc-shopify-pages">
-                {%- for part in paginate.parts -%}
-                  {%- if part.is_link -%}<a href="{{ part.url }}" class="rc-page">{{ part.title }}</a>
-                  {%- else -%}<span class="rc-page" {% if part.title == paginate.current_page %}aria-current="page"{% endif %}>{{ part.title }}</span>
-                  {%- endif -%}
-                {%- endfor -%}
-              </nav>
-            {%- endif -%}
-
-            <button type="button" class="rc-zip-btn" id="btn-download-all">Baixar fotos + numerações</button>
-            <p id="zip-status"></p>
-          </div>
-        {%- endpaginate -%}
-      </main>
+  {%- if collection.products.size > 0 -%}
+    <div class="ad-collection__grid" style="--ad-grid-cols: {{ section.settings.columns_desktop | default: 4 }}">
+      {%- for product in collection.products -%}
+        {%- assign _price_str = product.price | money -%}
+        {%- if product.compare_at_price > product.price -%}
+          {%- assign _was = product.compare_at_price | money -%}
+        {%- else -%}
+          {%- assign _was = blank -%}
+        {%- endif -%}
+        {%- render 'apple-card',
+            image: product.featured_image,
+            image_alt: product.title,
+            title: product.title,
+            price: _price_str,
+            price_was: _was,
+            href: product.url,
+            action_label: 'Comprar' -%}
+      {%- endfor -%}
     </div>
-  </div>
 
-  {% comment %} Modal Quick Buy Estrutura {% endcomment %}
-  <div class="nb-qb-wrap" id="modal-quick-buy" onclick="if(event.target==this) closeQuickBuy()">
-    <div class="nb-qb-modal" id="modal-content"></div>
-  </div>
+    {%- if paginate.pages > 1 -%}
+      <nav class="ad-collection__pagination" role="navigation" aria-label="Paginação">
+        {%- if paginate.previous -%}
+          <a class="ad-btn ad-btn--text-link" href="{{ paginate.previous.url }}" rel="prev">‹ Anterior</a>
+        {%- endif -%}
+        <span class="ad-caption" style="opacity:.7">
+          Página {{ paginate.current_page }} de {{ paginate.pages }}
+        </span>
+        {%- if paginate.next -%}
+          <a class="ad-btn ad-btn--text-link" href="{{ paginate.next.url }}" rel="next">Próxima ›</a>
+        {%- endif -%}
+      </nav>
+    {%- endif -%}
+
+  {%- else -%}
+    <div class="ad-collection__empty">
+      <p class="ad-lead">Esta coleção está vazia.</p>
+      <a class="ad-btn ad-btn--primary" href="/collections/all">Ver todos os produtos</a>
+    </div>
+  {%- endif -%}
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
-  <script>
-    // DADOS DOS PRODUTOS (para filtros)
-    const allProducts = [];
-    document.querySelectorAll('[id^="data-"]').forEach(el => {
-      try {
-        const data = JSON.parse(el.textContent);
-        allProducts.push(data);
-      } catch (e) { console.error(e); }
-    });
-
-
-    // COLETAR TAMANHOS, MARCAS E MODELOS ÚNICOS
-    const allSizes = new Set();
-    const allVendors = new Set();
-    const allModels = new Set();
-
-    // Verifica se o valor parece um tamanho (número, faixa numérica ou letra de tamanho)
-    function isSizeValue(val) {
-      if (!val) return false;
-      var v = val.trim();
-      // Número puro: 33, 38, 42, etc.
-      if (/^\d+$/.test(v)) return true;
-      // Faixa numérica: 35/36, 41/42, etc.
-      if (/^\d+\/\d+$/.test(v)) return true;
-      // Tamanho de roupa: P, M, G, GG, PP, EG, XG, XGG, EGG, 2GG, etc.
-      if (/^(PP|P|M|G{1,3}|EG{1,3}|XG{1,3}|\d+GG?)$/i.test(v)) return true;
-      return false;
-    }
-
-    allProducts.forEach(product => {
-      // Tamanhos das variantes — pega só a primeira opção (antes do " / ")
-      // Ignora valores que não parecem tamanho (ex: nomes de cores)
-      product.variants.forEach(v => {
-        if (v.available && v.title && v.title !== 'Default Title') {
-          var sizeOnly = v.title.split(' / ')[0].trim();
-          if (isSizeValue(sizeOnly)) allSizes.add(sizeOnly);
-        }
-      });
-      // Marca (vendor)
-      if (product.vendor) allVendors.add(product.vendor.trim());
-      // Tags para modelos/coleções
-      if (product.tags) {
-        product.tags.forEach(tag => {
-          if (!tag.includes('_') && tag.trim()) allModels.add(tag.trim());
-        });
-      }
-    });
-
-    // PREENCHER FILTROS
-    function chip(value, cls) {
-      return `<label class="rc-filter-chip"><input type="checkbox" class="${cls}" value="${value}"><span>${value}</span></label>`;
-    }
-
-    function renderFilters() {
-      // Tamanhos — ordena numericamente quando possível
-      const sortedSizes = Array.from(allSizes).sort((a, b) => {
-        const na = parseFloat(a), nb = parseFloat(b);
-        return (!isNaN(na) && !isNaN(nb)) ? na - nb : a.localeCompare(b);
-      });
-      document.getElementById('sizes-filter').innerHTML =
-        sortedSizes.map(s => chip(s, 'size-filter')).join('') ||
-        '<p class="rc-filter-empty">Nenhum tamanho disponível</p>';
-
-      // Marcas — fallback por vendor se Liquid não preencheu (sem data-liquid)
-      const marcasContainer = document.getElementById('marcas-filter');
-      if (marcasContainer && !marcasContainer.dataset.liquid) {
-        const sortedVendors = Array.from(allVendors).sort();
-        marcasContainer.innerHTML =
-          sortedVendors.map(v => chip(v, 'marca-filter')).join('') ||
-          '<p class="rc-filter-empty">Nenhuma marca disponível</p>';
-      }
-
-      // Coleção/Modelo — fallback por tags se Liquid não preencheu (sem data-liquid)
-      const modelsContainer = document.getElementById('models-filter');
-      if (modelsContainer && !modelsContainer.dataset.liquid) {
-        const sortedModels = Array.from(allModels).sort();
-        modelsContainer.innerHTML =
-          sortedModels.map(m => chip(m, 'model-filter')).join('') ||
-          '<p class="rc-filter-empty">Nenhuma coleção disponível</p>';
-      }
-    }
-
-    // PERSISTÊNCIA: chave única por coleção
-    var RC_KEY = 'rcf_{{ collection.handle }}';
-
-    function saveFilterState() {
-      var state = {
-        sizes:  Array.from(document.querySelectorAll('.size-filter:checked')).map(function(el){ return el.value; }),
-        brands: Array.from(document.querySelectorAll('.marca-filter:checked')).map(function(el){ return el.value; })
-      };
-      try { sessionStorage.setItem(RC_KEY, JSON.stringify(state)); } catch(e){}
-    }
-
-    function restoreFilterState() {
-      // Marca o chip de modelo que corresponde à URL atual
-      var currentPath = window.location.pathname.replace(/\/$/, '');
-      document.querySelectorAll('.model-filter').forEach(function(el){
-        var chipPath = el.value.split('?')[0].replace(/\/$/, '');
-        if (chipPath && currentPath.endsWith(chipPath)) el.checked = true;
-      });
-
-      try {
-        var raw = sessionStorage.getItem(RC_KEY);
-        if (!raw) return;
-        var state = JSON.parse(raw);
-        (state.sizes  || []).forEach(function(v){
-          var el = document.querySelector('.size-filter[value="' + v + '"]');
-          if (el) el.checked = true;
-        });
-        (state.brands || []).forEach(function(v){
-          var el = document.querySelector('.marca-filter[value="' + v + '"]');
-          if (el) el.checked = true;
-        });
-        if ((state.sizes && state.sizes.length) || (state.brands && state.brands.length)) {
-          doFilterCards();
-        }
-        updateFilterBadge();
-      } catch(e){}
-    }
-
-    // Filtra os cards sem fechar o drawer nem salvar estado
-    function doFilterCards() {
-      var selectedSizes  = Array.from(document.querySelectorAll('.size-filter:checked')).map(function(el){ return el.value; });
-      var selectedMarcas = Array.from(document.querySelectorAll('.marca-filter:checked')).map(function(el){ return el.value.toLowerCase(); });
-
-      document.querySelectorAll('.rc-card').forEach(function(card) {
-        var dataEl = card.querySelector('script[type="application/json"]');
-        if (!dataEl) return;
-        try {
-          var data   = JSON.parse(dataEl.textContent);
-          var tags   = (data.tags   || []).map(function(t){ return t.toLowerCase(); });
-          var vendor = (data.vendor || '').toLowerCase();
-
-          var hasSizeMatch = selectedSizes.length === 0 ||
-            data.variants.some(function(v){
-              var sizeOnly = String(v.title || '').split(' / ')[0].trim();
-              return v.available && selectedSizes.includes(sizeOnly);
-            });
-
-          var hasMarcaMatch = selectedMarcas.length === 0 ||
-            selectedMarcas.some(function(m){ return vendor === m || tags.some(function(t){ return t.includes(m); }); });
-
-          if (hasSizeMatch && hasMarcaMatch) {
-            card.classList.remove('rc-filtered-out');
-          } else {
-            card.classList.add('rc-filtered-out');
-          }
-        } catch(e){ console.error(e); }
-      });
-      rcMobilePage = 1;
-      renderMobilePages();
-    }
-
-    // APLICAR FILTROS
-    window.applyFilters = function() {
-      var selectedModel = document.querySelector('.model-filter:checked');
-
-      // Coleção/Modelo selecionada → navega para a URL da coleção
-      if (selectedModel) {
-        saveFilterState();
-        window.location.href = selectedModel.value;
-        return;
-      }
-
-      doFilterCards();
-      saveFilterState();
-      document.getElementById('filter-drawer').classList.remove('is-open');
-      updateFilterBadge();
-    };
-
-    // LIMPAR FILTROS
-    window.resetFilters = function() {
-      document.querySelectorAll('.size-filter, .marca-filter, .model-filter').forEach(function(el){ el.checked = false; });
-      document.querySelectorAll('.rc-card').forEach(function(card){ card.classList.remove('rc-filtered-out'); });
-      rcMobilePage = 1;
-      renderMobilePages();
-      try { sessionStorage.removeItem(RC_KEY); } catch(e){}
-      document.getElementById('filter-drawer').classList.remove('is-open');
-      updateFilterBadge();
-    };
-
-    // BADGE: atualiza ícone com contagem e cor
-    function updateFilterBadge() {
-      var active = document.querySelectorAll('.size-filter:checked, .marca-filter:checked').length;
-      var btn   = document.getElementById('btn-filter-toggle');
-      var badge = document.getElementById('rc-filter-badge');
-      btn.classList.toggle('has-filters', active > 0);
-      if (badge) badge.textContent = active;
-    }
-
-    // Atualiza badge ao mudar qualquer checkbox
-    document.getElementById('filter-drawer').addEventListener('change', function(){
-      updateFilterBadge();
-      saveFilterState();
-    });
-
-    // ABRIR/FECHAR DRAWER
-    document.getElementById('btn-filter-toggle').addEventListener('click', () => {
-      document.getElementById('filter-drawer').classList.toggle('is-open');
-    });
-
-    // Renderizar filtros ao carregar e restaurar estado salvo
-    renderFilters();
-    restoreFilterState();
-
-    // ORDENAÇÃO: produtos integrados (Olist/Tiny) sempre primeiro
-    // Tier 1: rastreado + tem estoque > 0 (integração ativa com estoque real)
-    // Tier 2: rastreado + estoque = 0 (integração ativa sem estoque)
-    // Tier 3: não rastreado (produto manual sem gestão de estoque)
-    // Dentro de cada tier: maior estoque primeiro.
-    (function() {
-      var grid = document.querySelector('.rc-grid');
-      if (!grid || allProducts.length === 0) return;
-      function totalInv(p) {
-        return (p.variants || []).reduce(function(s, v) { return s + (v.inventory || 0); }, 0);
-      }
-      function isTracked(p) {
-        return (p.variants || []).some(function(v) { return v.tracked; });
-      }
-      function sortScore(p) {
-        var inv = totalInv(p);
-        var tracked = isTracked(p);
-        var tier = tracked ? (inv > 0 ? 2 : 1) : 0;
-        return tier * 10000000 + inv;
-      }
-      var sorted = allProducts.slice().sort(function(a, b) { return sortScore(b) - sortScore(a); });
-      sorted.forEach(function(p) {
-        var card = document.querySelector('[data-product-id="' + p.id + '"]');
-        if (card) grid.appendChild(card);
-      });
-    })();
-
-    // SUB-PAGINAÇÃO MOBILE: 10 cards visíveis (não filtrados) por grupo
-    var rcMobilePage = 1;
-    var RC_MOBILE_PER = 10;
-    var RC_MOBILE_BREAKPOINT = 768;
-
-    function renderMobilePages() {
-      if (window.innerWidth > RC_MOBILE_BREAKPOINT) return;
-      var cards = Array.from(document.querySelectorAll('.rc-card:not(.rc-filtered-out)'));
-      var totalPages = Math.max(1, Math.ceil(cards.length / RC_MOBILE_PER));
-      if (rcMobilePage > totalPages || rcMobilePage < 1) rcMobilePage = 1;
-
-      cards.forEach(function(card, i) {
-        var page = Math.floor(i / RC_MOBILE_PER) + 1;
-        if (page === rcMobilePage) card.classList.remove('rc-mobile-hidden');
-        else card.classList.add('rc-mobile-hidden');
-      });
-
-      var nav = document.getElementById('rc-mobile-pages');
-      if (!nav) return;
-      var frag = document.createDocumentFragment();
-      for (var p = 1; p <= totalPages; p++) {
-        var span = document.createElement('span');
-        span.className = 'rc-page';
-        span.textContent = String(p);
-        if (p === rcMobilePage) {
-          span.setAttribute('aria-current', 'page');
-        } else {
-          span.setAttribute('role', 'button');
-          span.setAttribute('tabindex', '0');
-          span.dataset.mp = String(p);
-        }
-        frag.appendChild(span);
-      }
-      nav.replaceChildren(frag);
-    }
-
-    // Event delegation: um único listener no nav, sem acúmulo entre renders
-    (function bindMobilePagesNav() {
-      var nav = document.getElementById('rc-mobile-pages');
-      if (!nav || nav.dataset.rcBound === '1') return;
-      nav.dataset.rcBound = '1';
-      function gotoPage(target) {
-        var btn = target && target.closest && target.closest('[data-mp]');
-        if (!btn) return false;
-        rcMobilePage = parseInt(btn.dataset.mp, 10) || 1;
-        renderMobilePages();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        return true;
-      }
-      nav.addEventListener('click', function(e) { gotoPage(e.target); });
-      nav.addEventListener('keydown', function(e) {
-        if ((e.key === 'Enter' || e.key === ' ') && gotoPage(e.target)) e.preventDefault();
-      });
-    })();
-
-    renderMobilePages();
-
-    // Resize com debounce — evita disparar a cada pixel
-    (function () {
-      var resizeTimer = null;
-      window.addEventListener('resize', function () {
-        if (resizeTimer) clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(renderMobilePages, 150);
-      });
-    })();
-
-    // MONITORAR SCROLL PARA TORNAR ÍCONE FLUTUANTE
-    const filterIcon = document.getElementById('btn-filter-toggle');
-    let titlePassedScroll = false;
-
-    window.addEventListener('scroll', () => {
-      const titleEl = document.querySelector('.rc-title');
-      if (!titleEl) return;
-
-      const titleRect = titleEl.getBoundingClientRect();
-      const isAboveViewport = titleRect.bottom < 0;
-
-      if (isAboveViewport && !titlePassedScroll) {
-        filterIcon.classList.add('is-floating');
-        titlePassedScroll = true;
-      } else if (!isAboveViewport && titlePassedScroll) {
-        filterIcon.classList.remove('is-floating');
-        titlePassedScroll = false;
-      }
-    });
-
-    // SESSÃO: LÓGICA DE DOWNLOAD E QUICK BUY (resto do código)
-  </script>
-
-  <script>
-    (function() {
-      // 1. LÓGICA DE DOWNLOAD COM ZIP (DESKTOP) OU SHARE (MOBILE)
-      const btnDownload = document.getElementById('btn-download-all');
-      const statusText = document.getElementById('zip-status');
-
-      // Detectar device
-      function isDesktop() {
-        const ua = navigator.userAgent;
-        return !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
-      }
-
-      async function loadImage(url) {
-        return new Promise((resolve, reject) => {
-          const img = new Image();
-          img.crossOrigin = "Anonymous";
-          img.onload = () => resolve(img);
-          img.onerror = reject;
-          img.src = url;
-        });
-      }
-
-      function getRef(priceRaw) {
-        return String(Math.floor(priceRaw / 100)).padStart(4, '0');
-      }
-
-      /* Usa o preco de ATACADO (10 pares, ja vem do metafield) como referencia
-         no overlay e no nome do arquivo. Fallback para varejo se nao tiver atacado. */
-      function getRefPrice(data) {
-        return (data.wholesale_price_raw && data.wholesale_price_raw > 0)
-          ? data.wholesale_price_raw
-          : data.price_raw;
-      }
-
-      function getSizes(variants) {
-        return variants.filter(v => v.available).map(v => v.title.replace(/[^0-9]/g, '')).filter(Boolean).join(' - ');
-      }
-
-      async function generatePhoto(data) {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const baseImg = await loadImage(data.image);
-
-        // Usa as dimensões originais da imagem, sem redimensionar
-        const w = baseImg.naturalWidth;
-        const h = baseImg.naturalHeight;
-        canvas.width = w;
-        canvas.height = h;
-        ctx.drawImage(baseImg, 0, 0, w, h);
-
-        // Faixa preta na base: 12% da altura original
-        const barH = Math.round(h * 0.12);
-        ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
-        ctx.fillRect(0, h - barH, w, barH);
-
-        // Fontes e posições proporcionais à largura original
-        const pad = Math.round(w * 0.03);
-        const fs1 = Math.round(w * 0.032);
-        const fs2 = Math.round(w * 0.026);
-        const y1  = h - barH + Math.round(barH * 0.42);
-        const y2  = h - barH + Math.round(barH * 0.78);
-
-        ctx.fillStyle = "#ffffff";
-        ctx.textAlign = "left";
-        ctx.font = `bold ${fs1}px sans-serif`;
-        const shortTitle = data.title.split(' ').slice(0, 3).join(' ');
-        ctx.fillText(shortTitle.toUpperCase(), pad, y1);
-
-        const sizes = getSizes(data.variants);
-        ctx.font = `600 ${fs2}px sans-serif`;
-        ctx.fillText("TAMANHOS: " + (sizes || "Consultar"), pad, y2);
-
-        ctx.font = `bold ${fs2}px sans-serif`;
-        ctx.textAlign = "right";
-        ctx.fillText("REF: " + getRef(getRefPrice(data)), w - pad, y2);
-
-        return canvas.toDataURL("image/jpeg", 0.92);
-      }
-
-      // Converter dataURL para blob
-      function dataURLtoBlob(dataURL) {
-        const arr = dataURL.split(',');
-        const mime = arr[0].match(/:(.*?);/)[1];
-        const bstr = atob(arr[1]);
-        const n = bstr.length;
-        const u8arr = new Uint8Array(n);
-        for (let i = 0; i < n; i++) {
-          u8arr[i] = bstr.charCodeAt(i);
-        }
-        return new Blob([u8arr], { type: mime });
-      }
-
-      // Baixar ZIP (Desktop)
-      async function downloadZIP(images) {
-        const JSZip = window.JSZip;
-        const zip = new JSZip();
-        const folder = zip.folder("fotos-produtos");
-
-        images.forEach((img, idx) => {
-          const blob = dataURLtoBlob(img.dataUrl);
-          folder.file(img.filename, blob);
-        });
-
-        folder.generateAsync({ type: "blob" }).then((blob) => {
-          const link = document.createElement('a');
-          link.href = URL.createObjectURL(blob);
-          link.download = `fotos-produtos-${new Date().getTime()}.zip`;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          statusText.innerText = "✅ Concluído! ZIP baixado com sucesso.";
-          btnDownload.disabled = false;
-        });
-      }
-
-      // Pré-carrega imagens com CORS para que o cache esteja pronto no 1º clique
-      (function preloadImages() {
-        document.querySelectorAll('.rc-card').forEach(function(card) {
-          try {
-            const id = card.getAttribute('data-product-id');
-            const data = JSON.parse(document.getElementById('data-' + id).textContent);
-            if (data.image) {
-              const img = new Image();
-              img.crossOrigin = "Anonymous";
-              img.src = data.image;
-            }
-          } catch(e) {}
-        });
-      })();
-
-      // Share API (Mobile)
-      async function shareImages(files, count) {
-        try {
-          if (!navigator.share) {
-            statusText.innerText = "❌ Compartilhamento não suportado neste navegador.";
-            btnDownload.disabled = false;
-            return;
-          }
-
-          await navigator.share({
-            title: 'Fotos de Produtos',
-            text: `Salvar ${count} imagens na galeria`,
-            files: files
-          });
-
-          statusText.innerText = "✅ Imagens compartilhadas com sucesso!";
-          btnDownload.disabled = false;
-        } catch (err) {
-          // AbortError = usuário cancelou; outros erros reativam o botão silenciosamente
-          btnDownload.disabled = false;
-          statusText.innerText = "";
-        }
-      }
-
-      btnDownload.addEventListener('click', async () => {
-        btnDownload.disabled = true;
-        const device = isDesktop() ? 'desktop' : 'mobile';
-
-        // Desktop: todos os produtos filtrados da página Shopify atual
-        // Mobile: apenas os 10 visíveis na sub-página atual
-        const cards = device === 'mobile'
-          ? document.querySelectorAll('.rc-card:not(.rc-filtered-out):not(.rc-mobile-hidden)')
-          : document.querySelectorAll('.rc-card:not(.rc-filtered-out)');
-
-        statusText.innerText = `Processando ${cards.length} imagens...`;
-
-        const images = [];
-        const files = [];
-
-        for (let i = 0; i < cards.length; i++) {
-          try {
-            const id = cards[i].getAttribute('data-product-id');
-            const data = JSON.parse(document.getElementById('data-' + id).textContent);
-
-            statusText.innerText = `Gerando ${i + 1} de ${cards.length}...`;
-            const dataUrl = await generatePhoto(data);
-            const filename = `${String(i + 1).padStart(2, '0')}-${getRef(getRefPrice(data))}.jpg`;
-
-            images.push({ dataUrl, filename });
-
-            if (device === 'mobile') {
-              const blob = dataURLtoBlob(dataUrl);
-              files.push(new File([blob], filename, { type: 'image/jpeg' }));
-            }
-          } catch (e) {
-            console.error(e);
-          }
-        }
-
-        if (device === 'desktop') {
-          statusText.innerText = `Criando ZIP com ${images.length} imagens...`;
-          await new Promise(r => setTimeout(r, 500));
-          downloadZIP(images);
-        } else {
-          statusText.innerText = `Abrindo opção de salvar ${images.length} imagens...`;
-          await shareImages(files, images.length);
-        }
-      });
-
-      // 2. LÓGICA QUICK BUY (montagem via DOM API — sem innerHTML para evitar XSS)
-      window.openQuickBuy = function(id) {
-        const dataEl = document.getElementById('data-' + id);
-        if (!dataEl) return;
-        const data = JSON.parse(dataEl.textContent);
-        const modal = document.getElementById('modal-quick-buy');
-        const content = document.getElementById('modal-content');
-        content.replaceChildren();
-
-        const closeBtn = document.createElement('button');
-        closeBtn.type = 'button';
-        closeBtn.className = 'qb-close';
-        closeBtn.setAttribute('aria-label', 'Fechar');
-        closeBtn.textContent = '×';
-        closeBtn.addEventListener('click', window.closeQuickBuy);
-
-        const header = document.createElement('div');
-        header.className = 'qb-header';
-        const img = document.createElement('img');
-        img.src = data.image;
-        img.alt = data.title || '';
-        img.className = 'qb-thumb';
-        img.width = 70;
-        img.height = 70;
-        const headerText = document.createElement('div');
-        const title = document.createElement('h4');
-        title.className = 'qb-title';
-        title.textContent = data.title;
-        const price = document.createElement('div');
-        price.className = 'qb-price';
-        price.textContent = data.price;
-        headerText.append(title, price);
-        header.append(img, headerText);
-
-        const label = document.createElement('div');
-        label.className = 'qb-label';
-        label.textContent = 'ESCOLHA O TAMANHO:';
-
-        const grid = document.createElement('div');
-        grid.className = 'qb-grid';
-        data.variants.forEach(v => {
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'sz-btn';
-          btn.textContent = v.title;
-          btn.dataset.variantId = String(v.id);
-          if (!v.available) {
-            btn.disabled = true;
-            btn.classList.add('is-unavailable');
-          }
-          btn.addEventListener('click', () => window.selectVariant(btn, v.id));
-          grid.appendChild(btn);
-        });
-
-        const addBtn = document.createElement('button');
-        addBtn.type = 'button';
-        addBtn.id = 'btn-add-final';
-        addBtn.className = 'qb-add';
-        addBtn.disabled = true;
-        addBtn.textContent = 'ADICIONAR À SACOLA';
-        addBtn.addEventListener('click', () => window.finalizeAdd(addBtn));
-
-        content.append(closeBtn, header, label, grid, addBtn);
-        modal.classList.add('nb-open');
-      };
-
-      window.selectedId = null;
-      window.selectVariant = function(btn, id) {
-        const prev = btn.parentElement && btn.parentElement.querySelector('.sz-btn.is-selected');
-        if (prev) prev.classList.remove('is-selected');
-        btn.classList.add('is-selected');
-        window.selectedId = id;
-        const finalBtn = document.getElementById('btn-add-final');
-        if (finalBtn) {
-          finalBtn.disabled = false;
-          finalBtn.classList.add('is-ready');
-        }
-      };
-
-      window.finalizeAdd = function(btn) {
-        btn.innerText = "ADICIONANDO...";
-        fetch('/cart/add.js', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ items: [{ id: window.selectedId, quantity: 1 }] })
-        }).then(() => {
-          btn.innerText = "ADICIONAR À SACOLA";
-          // Fechar o modal do Quick Buy
-          document.getElementById('modal-quick-buy').classList.remove('nb-open');
-          // Tentar abrir o drawer de carrinho
-          setTimeout(() => {
-            // Método 1: Procurar por drawer do carrinho
-            const cartDrawer = document.querySelector('[id*="CartDrawer"], [class*="cart-drawer"], [class*="Cart-drawer"]');
-            if (cartDrawer) {
-              cartDrawer.classList.add('is-open') || cartDrawer.classList.add('active');
-              return;
-            }
-            // Método 2: Procurar por botão de carrinho e clicar
-            const cartBtn = document.querySelector('[data-cart-drawer], [class*="cart-toggle"], button[aria-label*="Cart"]');
-            if (cartBtn) {
-              cartBtn.click();
-              return;
-            }
-            // Método 3: Disparar evento customizado
-            document.dispatchEvent(new CustomEvent('cart:open'));
-            window.dispatchEvent(new CustomEvent('cart:open'));
-            // Fallback: mostrar sucesso
-            alert("✅ Produto adicionado à sacola com sucesso!");
-          }, 300);
-        }).catch((err) => {
-          btn.innerText = "ADICIONAR À SACOLA";
-          console.error(err);
-          alert("❌ Erro ao adicionar. Tente novamente.");
-        });
-      };
-
-      window.closeQuickBuy = function() {
-        document.getElementById('modal-quick-buy').classList.remove('nb-open');
-      };
-    })();
-  </script>
 </section>
+
+<style>
+  .ad-collection {
+    padding-top: var(--ad-space-xxl);
+    padding-bottom: var(--ad-space-section);
+  }
+  .ad-collection > * {
+    max-width: 1440px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--ad-space-lg);
+    padding-right: var(--ad-space-lg);
+  }
+  .ad-collection__head { text-align: center; margin-bottom: var(--ad-space-xl); }
+  .ad-collection__hero {
+    max-width: 1440px;
+    margin: 0 auto var(--ad-space-xl);
+    padding: 0;
+    border-radius: var(--ad-radius-lg);
+    overflow: hidden;
+  }
+  .ad-collection__hero img { display: block; width: 100%; height: auto; }
+  .ad-collection__title { margin: 0 0 var(--ad-space-sm); }
+  .ad-collection__desc { margin: 0 auto; max-width: 720px; color: var(--ad-color-ink-muted-80); }
+
+  .ad-collection__bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--ad-space-md);
+    padding-top: var(--ad-space-lg);
+    padding-bottom: var(--ad-space-md);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    margin-bottom: var(--ad-space-xl);
+  }
+  .ad-collection__count { margin: 0; color: var(--ad-color-ink-muted-48); }
+  .ad-collection__sort { display: inline-flex; align-items: center; gap: var(--ad-space-sm); }
+  .ad-collection__sort label { color: var(--ad-color-ink-muted-80); }
+  .ad-collection__sort-select {
+    appearance: none; -webkit-appearance: none;
+    background: var(--ad-color-canvas);
+    border: 1px solid var(--ad-color-hairline);
+    border-radius: var(--ad-radius-sm);
+    padding: 6px 28px 6px 12px;
+    color: var(--ad-color-ink);
+    cursor: pointer;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%231d1d1f' stroke-width='1.5'><path d='M3 4l3 3 3-3'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+  }
+
+  .ad-collection__grid {
+    display: grid;
+    grid-template-columns: repeat(var(--ad-grid-cols, 4), minmax(0, 1fr));
+    gap: var(--ad-space-lg);
+  }
+
+  .ad-collection__pagination {
+    margin-top: var(--ad-space-xxl);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--ad-space-lg);
+  }
+
+  .ad-collection__empty {
+    text-align: center;
+    padding: var(--ad-space-section) 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--ad-space-md);
+  }
+
+  @media (max-width: 1068px) {
+    .ad-collection__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @media (max-width: 833px) {
+    .ad-collection__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 480px) {
+    .ad-collection__grid { grid-template-columns: 1fr; gap: var(--ad-space-md); }
+    .ad-collection__bar { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+
+{%- endpaginate -%}
 
 {% schema %}
 {
-  "name": "Collection Royal Gummy",
+  "name": "Coleção (Apple)",
   "settings": [
-    { "type": "color", "id": "bg", "label": "Fundo da Página", "default": "#FFFFFF" },
-    { "type": "color", "id": "card_bg", "label": "Fundo do Card", "default": "#FFFFFF" },
-    { "type": "color", "id": "primary", "label": "Cor de Texto", "default": "#111111" },
-    { "type": "link_list", "id": "quick_links", "label": "Menu de Filtros Lateral" },
-    { "type": "checkbox", "id": "show_filters", "label": "Habilitar Filtros", "default": true },
-    { "type": "color", "id": "badge_bg", "label": "Cor do Badge de Desconto", "default": "#1a1a1a" },
-    { "type": "range", "id": "badge_opacity", "min": 0, "max": 100, "step": 10, "unit": "%", "label": "Opacidade do Badge", "default": 100 },
-    { "type": "header", "content": "Ordenação por Estoque" },
-    { "type": "checkbox", "id": "stock_sort", "label": "Ordenar por quantidade em estoque", "info": "Produtos com mais estoque aparecem primeiro. Produtos sem estoque ficam ocultos. Produtos sem rastreamento ficam por último. Desative para usar a ordem manual definida no admin do Shopify.", "default": true }
-  ],
-  "blocks": [
-    {
-      "type": "tipo",
-      "name": "Tipo de produto",
-      "settings": [
-        { "type": "text", "id": "collection_handle", "label": "Handle da coleção", "info": "Ex: chinelos — corresponde a coleções cujo handle contém este valor (chinelos, chinelos-eva, etc.)" },
-        { "type": "header", "content": "Filtro de Marcas" },
-        { "type": "link_list", "id": "marcas_menu", "label": "Menu de Marcas" },
-        { "type": "checkbox", "id": "marcas_show_images", "label": "Exibir imagens circulares", "default": false },
-        { "type": "header", "content": "Filtro de Modelos / Coleções" },
-        { "type": "link_list", "id": "modelos_menu", "label": "Menu de Modelos" },
-        { "type": "checkbox", "id": "modelos_show_images", "label": "Exibir imagens circulares", "default": false }
+    { "type": "select", "id": "variant", "label": "Cor da superfície", "default": "light",
+      "options": [
+        { "value": "light", "label": "Branco" },
+        { "value": "parchment", "label": "Parchment" }
       ]
-    }
-  ],
-  "max_blocks": 20
+    },
+    { "type": "range", "id": "products_per_page", "label": "Produtos por página", "min": 8, "max": 48, "step": 4, "default": 24 },
+    { "type": "range", "id": "columns_desktop", "label": "Colunas desktop", "min": 2, "max": 5, "step": 1, "default": 4 }
+  ]
 }
 {% endschema %}
