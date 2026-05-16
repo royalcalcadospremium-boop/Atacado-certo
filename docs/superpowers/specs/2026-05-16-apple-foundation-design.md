@@ -81,7 +81,7 @@ All Apple Design tokens are prefixed `--ad-` (Apple Design). This:
 | `assets/inter-var-italic.woff2` | Inter Variable italic |
 | `snippets/apple-design-tokens.liquid` | `:root { --ad-* }` for every color, typography, spacing, radius value in `DESIGN.md` + `@font-face` declarations for Inter |
 | `assets/apple-foundation.css` | Utility classes: typography utilities (`.ad-hero-display`, `.ad-display-lg`, …), pill helper (`.ad-pill`), `.ad-tile`, `.ad-card`, button class chassis, the single product-shadow rule, and the system-wide `transform: scale(0.95)` active-state mixin |
-| `snippets/apple-button.liquid` | Universal button component (9 variants) |
+| `snippets/apple-button.liquid` | Universal button component (8 variants) |
 | `snippets/apple-tile.liquid` | Universal full-bleed tile component (5 variants) |
 | `snippets/apple-card.liquid` | Store-utility-card component |
 
