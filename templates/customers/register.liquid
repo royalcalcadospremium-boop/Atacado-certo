@@ -1,62 +1,208 @@
-<section>
-  <div class="container">
-    {%- form 'create_customer', name: 'create', class: 'form form--main', id: 'create_customer' -%}
-      <header class="form__header">
-        <h1 class="form__title heading h1">{{ 'customer.register.create_account' | t }}</h1>
-        <p class="form__legend">{{ 'customer.register.description' | t }}</p>
-      </header>
+<section class="ad-register">
+  <div class="ad-register__inner">
+    <header class="ad-register__header">
+      <h1 class="ad-display-lg ad-register__title">Criar conta</h1>
+      <p class="ad-lead ad-register__lead">Crie sua conta para fazer pedidos e acompanhar entregas.</p>
+    </header>
 
+    {%- form 'create_customer', name: 'create', id: 'create_customer', class: 'ad-register__form' -%}
       {%- if form.errors -%}
-        <div class="alert alert--error">
-          <ul class="alert__error-list">
-            {%- for field in form.errors -%}
+        <ul class="ad-register__errors" role="alert">
+          {%- for field in form.errors -%}
+            <li class="ad-caption ad-register__error">
               {%- if field == 'form' -%}
-                <li class="alert__error-item">{{ form.errors.messages[field] }}</li>
+                {{ form.errors.messages[field] }}
               {%- else -%}
-                <li class="alert__error-item"><strong>{{ form.errors.translated_fields[field] }}</strong> {{ form.errors.messages[field] }}</li>
+                <strong>{{ form.errors.translated_fields[field] }}</strong> {{ form.errors.messages[field] }}
               {%- endif -%}
-            {%- endfor -%}
-          </ul>
-        </div>
+            </li>
+          {%- endfor -%}
+        </ul>
       {%- endif -%}
 
-      {%- if request.locale.iso_code == 'ja' -%}
-        <div class="form__input-wrapper form__input-wrapper--labelled">
-          <input type="text" id="customer[last_name]" class="form__field form__field--text" name="customer[last_name]" required="required">
-          <label for="customer[last_name]" class="form__floating-label">{{ 'customer.register.last_name' | t }}</label>
-        </div>
-
-        <div class="form__input-wrapper form__input-wrapper--labelled">
-          <input type="text" id="customer[first_name]" class="form__field form__field--text" name="customer[first_name]" required="required">
-          <label for="customer[first_name]" class="form__floating-label">{{ 'customer.register.first_name' | t }}</label>
-        </div>
-      {%- else -%}
-        <div class="form__input-wrapper form__input-wrapper--labelled">
-          <input type="text" id="customer[first_name]" class="form__field form__field--text" name="customer[first_name]" required="required">
-          <label for="customer[first_name]" class="form__floating-label">{{ 'customer.register.first_name' | t }}</label>
-        </div>
-
-        <div class="form__input-wrapper form__input-wrapper--labelled">
-          <input type="text" id="customer[last_name]" class="form__field form__field--text" name="customer[last_name]" required="required">
-          <label for="customer[last_name]" class="form__floating-label">{{ 'customer.register.last_name' | t }}</label>
-        </div>
-      {%- endif -%}
-
-      <div class="form__input-wrapper form__input-wrapper--labelled">
-        <input type="email" id="customer[email]" class="form__field form__field--text" name="customer[email]" required="required">
-        <label for="customer[email]" class="form__floating-label">{{ 'customer.register.email' | t }}</label>
+      <div class="ad-register__field">
+        <label for="customer_first_name" class="ad-caption-strong ad-register__label">Nome</label>
+        <input
+          type="text"
+          id="customer_first_name"
+          name="customer[first_name]"
+          class="ad-register__input"
+          autocomplete="given-name"
+          required>
       </div>
 
-      <div class="form__input-wrapper form__input-wrapper--labelled">
-        <input type="password" id="customer[password]" class="form__field form__field--text" name="customer[password]" required="required" autocomplete="new-password">
-        <label for="customer[password]" class="form__floating-label">{{ 'customer.register.password' | t }}</label>
+      <div class="ad-register__field">
+        <label for="customer_last_name" class="ad-caption-strong ad-register__label">Sobrenome</label>
+        <input
+          type="text"
+          id="customer_last_name"
+          name="customer[last_name]"
+          class="ad-register__input"
+          autocomplete="family-name"
+          required>
       </div>
 
-      <button type="submit" class="form__submit button button--primary button--full">{{ 'customer.register.submit' | t }}</button>
-
-      <div class="form__secondary-action">
-        <p>{{ 'customer.register.already_have_account' | t }} <a href="{{ routes.account_login_url }}" class="link link--accented">{{ 'customer.register.login' | t }}</a></p>
+      <div class="ad-register__field">
+        <label for="customer_email" class="ad-caption-strong ad-register__label">E-mail</label>
+        <input
+          type="email"
+          id="customer_email"
+          name="customer[email]"
+          class="ad-register__input"
+          autocomplete="email"
+          required>
       </div>
+
+      <div class="ad-register__field">
+        <label for="customer_password" class="ad-caption-strong ad-register__label">Senha</label>
+        <input
+          type="password"
+          id="customer_password"
+          name="customer[password]"
+          class="ad-register__input"
+          autocomplete="new-password"
+          required>
+      </div>
+
+      <button type="submit" class="ad-btn ad-btn--primary ad-btn--store-hero" style="width:100%">Criar conta</button>
+
+      <p class="ad-register__fineprint">
+        Ao criar uma conta, voce concorda com nossos Termos de Uso e Politica de Privacidade.
+      </p>
     {%- endform -%}
+
+    <div class="ad-register__divider" role="presentation"></div>
+
+    <p class="ad-register__alt ad-body">
+      Ja tem conta?
+      {% render 'apple-button', variant: 'text-link', href: routes.account_login_url, label: 'Entrar' %}
+    </p>
   </div>
 </section>
+
+<style>
+  .ad-register {
+    background: var(--ad-canvas);
+    padding: var(--ad-space-xxl) var(--ad-space-lg);
+    display: flex;
+    justify-content: center;
+  }
+
+  .ad-register__inner {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--ad-space-xl);
+  }
+
+  .ad-register__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ad-space-sm);
+    text-align: left;
+  }
+
+  .ad-register__title {
+    margin: 0;
+    color: var(--ad-ink);
+  }
+
+  .ad-register__lead {
+    margin: 0;
+    color: var(--ad-ink-muted-80);
+  }
+
+  .ad-register__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ad-space-md);
+    margin: 0;
+  }
+
+  .ad-register__errors {
+    list-style: none;
+    margin: 0 0 var(--ad-space-xs);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--ad-space-xxs);
+  }
+
+  .ad-register__error {
+    color: var(--ad-primary);
+  }
+
+  .ad-register__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ad-space-xxs);
+  }
+
+  .ad-register__label {
+    color: var(--ad-ink);
+  }
+
+  .ad-register__input {
+    width: 100%;
+    height: 44px;
+    padding: 12px 16px;
+    border: 1px solid var(--ad-hairline);
+    border-radius: var(--ad-radius-sm, 8px);
+    background: var(--ad-canvas);
+    color: var(--ad-ink);
+    font-family: "SF Pro Text", system-ui, -apple-system, sans-serif;
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.47;
+    letter-spacing: -0.374px;
+    transition: border-color 120ms ease, outline-color 120ms ease;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .ad-register__input:focus,
+  .ad-register__input:focus-visible {
+    outline: 2px solid var(--ad-primary-focus);
+    outline-offset: 2px;
+    border-color: var(--ad-primary-focus);
+  }
+
+  .ad-register__fineprint {
+    margin: 0;
+    font-family: "SF Pro Text", system-ui, -apple-system, sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.4;
+    letter-spacing: -0.12px;
+    color: var(--ad-ink-muted-48);
+    text-align: center;
+  }
+
+  .ad-register__divider {
+    height: 1px;
+    background: var(--ad-hairline);
+    width: 100%;
+  }
+
+  .ad-register__alt {
+    margin: 0;
+    color: var(--ad-ink);
+    text-align: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: baseline;
+    gap: var(--ad-space-xxs);
+  }
+
+  @media (max-width: 480px) {
+    .ad-register {
+      padding: var(--ad-space-xl) var(--ad-space-md);
+    }
+
+    .ad-register__inner {
+      max-width: 100%;
+    }
+  }
+</style>

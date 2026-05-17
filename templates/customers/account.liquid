@@ -1,114 +1,247 @@
-<section data-section-id="account" data-section-type="account">
-  <div class="container container--flush">
-    <div class="page__sub-header">
-      <nav aria-label="{{ 'general.breadcrumb.title' | t }}" class="breadcrumb">
-        <ol class="breadcrumb__list">
-          <li class="breadcrumb__item">
-            <a class="breadcrumb__link link" href="{{ routes.root_url }}">{{ 'general.breadcrumb.home' | t }}</a> {%- render 'icon', icon: 'arrow-right' -%}
-          </li>
-
-          <li class="breadcrumb__item">
-            <a class="breadcrumb__link link" href="{{ routes.account_url }}">{{ 'general.breadcrumb.account' | t }}</a> {%- render 'icon', icon: 'arrow-right' -%}
-          </li>
-
-          <li class="breadcrumb__item">
-            <span class="breadcrumb__link" aria-current="page">{{ 'customer.general.orders' | t }}</span>
-          </li>
-        </ol>
-      </nav>
-    </div>
-
-    <div class="layout">
-      <div class="layout__section layout__section--secondary">
-        <div class="card card--sticky hidden-pocket">
-          <div class="card__section card__section--tight">
-            <div class="card__linklist">
-              <a href="{{ routes.account_url }}" class="card__linklist-item link text--strong">{{ 'customer.general.orders' | t }}</a>
-              <a href="{{ routes.account_addresses_url }}" class="card__linklist-item link">{{ 'customer.general.addresses' | t }}</a>
-              <a href="{{ routes.account_logout_url }}" class="card__linklist-item link" data-no-instant>{{ 'customer.general.logout' | t }}</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="value-picker-wrapper hidden-tablet-and-up">
-          <button class="value-picker-button value-picker-button--pill" aria-haspopup="true" aria-expanded="false" aria-controls="account-selector" data-action="open-value-picker">
-            {{- 'customer.general.orders' | t -}} {%- render 'icon', icon: 'arrow-bottom' -%}
-          </button>
-
-          <div id="account-selector" class="value-picker" aria-hidden="true">
-            <div class="value-picker__inner">
-              <header class="value-picker__header">
-                <span class="value-picker__title text--strong">{{ 'customer.general.my_account' | t }}</span>
-                <button class="value-picker__close" data-action="close-value-picker" aria-controls="account-selector" aria-label="{{ 'general.accessibility.close' | t }}">{% render 'icon', icon: 'close' %}</button>
-              </header>
-
-              <div class="value-picker__choice-list">
-                <a href="{{ routes.account_url }}" class="value-picker__choice-item is-selected">{{ 'customer.general.orders' | t }} {% render 'icon', icon: 'check-2' %}</a>
-                <a href="{{ routes.account_addresses_url }}" class="value-picker__choice-item">{{ 'customer.general.addresses' | t }} {% render 'icon', icon: 'check-2' %}</a>
-                <a href="{{ routes.account_logout_url }}" class="value-picker__choice-item" data-no-instant>{{ 'customer.general.logout' | t }} {% render 'icon', icon: 'check-2' %}</a>
-              </div>
-            </div>
-          </div>
-        </div>
+<section data-section-id="account" data-section-type="account" class="ad-account">
+  <div class="ad-account__shell">
+    <header class="ad-account__header">
+      <h1 class="ad-display-lg">Olá, {{ customer.first_name | default: customer.email }}</h1>
+      <p class="ad-lead ad-account__lead">Bem-vinda(o) à sua conta.</p>
+      <div class="ad-account__header-actions">
+        {% render 'apple-button', variant: 'text-link', href: routes.account_logout_url, label: 'Sair' %}
       </div>
+    </header>
 
-      <div class="layout__section">
-        <div class="card">
-          <div class="{% if customer.orders.size == 0 %}card__section card__section--tight{% else %}card__header card__header--tight{% endif %}">
-            <h1 class="heading h1">{{ 'customer.general.orders' | t }} {% if customer.orders.size > 0 %}({{ customer.orders.size }}){% endif %}</h1>
-          </div>
+    <div class="ad-account__grid">
+      <main class="ad-account__main">
+        <section class="ad-account__block">
+          <h2 class="ad-tagline">Seus pedidos</h2>
 
-          {%- if customer.orders.size == 0 -%}
-            <div class="card__section">
-              <div class="empty-state empty-state--extra-tight">
-                <div class="empty-state__icon">
-                  {%- render 'icon', icon: 'package' -%}
-                  <span class="empty-state__count">0</span>
-                </div>
-
-                <p class="empty-state__icon-description">{{ 'customer.general.no_orders' | t }}</p>
-
-                <div class="empty-state__button-container">
-                  <a href="{{ routes.all_products_collection_url }}" class="empty-state__button button button--primary">{{ 'customer.general.no_orders_button' | t }}</a>
-                </div>
-              </div>
-            </div>
-          {%- else -%}
+          {%- if customer.orders.size > 0 -%}
             {%- paginate customer.orders by 8 -%}
-              <div class="table-wrapper">
-                <table class="table table--loose">
-                  <thead>
-                    <tr>
-                      <th>{{ 'customer.order.order' | t }}</th>
-                      <th>{{ 'customer.order.date' | t }}</th>
-                      <th>{{ 'customer.order.payment_status' | t }}</th>
-                      <th>{{ 'customer.order.fulfillment_status' | t }}</th>
-                      <th class="table__cell--right">{{ 'customer.order.total' | t }}</th>
-                    </tr>
-                  </thead>
+              <ul class="ad-account__orders" role="list">
+                {%- for order in customer.orders -%}
+                  <li class="ad-account__order-card">
+                    <div class="ad-account__order-head">
+                      <span class="ad-body-strong">{{ order.name }}</span>
+                      <span class="ad-caption ad-account__muted">{{ order.created_at | date: '%d/%m/%Y' }}</span>
+                    </div>
 
-                  <tbody>
-                    {%- for order in customer.orders -%}
-                      <tr>
-                        <td><a href="{{ order.customer_url }}" class="link link--accented">{{ order.name }}</a></td>
-                        <td>{{ order.created_at | date: format: 'month_day_year' }}</td>
-                        <td>{{ order.financial_status_label }}</td>
-                        <td>{{ order.fulfillment_status_label }}</td>
-                        <td class="table__cell--right">{{ order.total_price | money }}</td>
-                      </tr>
-                    {%- endfor -%}
-                  </tbody>
-                </table>
-              </div>
+                    <div class="ad-account__order-pills">
+                      {%- if order.financial_status_label -%}
+                        <span class="ad-account__pill ad-fine-print">{{ order.financial_status_label }}</span>
+                      {%- endif -%}
+                      {%- if order.fulfillment_status_label -%}
+                        <span class="ad-account__pill ad-fine-print">{{ order.fulfillment_status_label }}</span>
+                      {%- endif -%}
+                    </div>
+
+                    <div class="ad-account__order-foot">
+                      <span class="ad-body">{{ order.total_price | money }}</span>
+                      {% render 'apple-button', variant: 'text-link', href: order.customer_url, label: 'Ver pedido' %}
+                    </div>
+                  </li>
+                {%- endfor -%}
+              </ul>
 
               {%- render 'pagination', paginate: paginate -%}
             {%- endpaginate -%}
+          {%- else -%}
+            <div class="ad-account__empty">
+              <p class="ad-body ad-account__muted">Você ainda não fez pedidos.</p>
+              {% render 'apple-button', variant: 'primary', href: '/collections/all', label: 'Começar a comprar' %}
+            </div>
           {%- endif -%}
-        </div>
-      </div>
+        </section>
+      </main>
+
+      <aside class="ad-account__aside">
+        <section class="ad-account__block">
+          <h2 class="ad-tagline">Endereço principal</h2>
+
+          {%- if customer.default_address -%}
+            <address class="ad-account__address ad-body">
+              {%- if customer.default_address.name != blank -%}
+                <span>{{ customer.default_address.name }}</span>
+              {%- endif -%}
+              {%- if customer.default_address.address1 != blank -%}
+                <span>{{ customer.default_address.address1 }}</span>
+              {%- endif -%}
+              {%- if customer.default_address.address2 != blank -%}
+                <span>{{ customer.default_address.address2 }}</span>
+              {%- endif -%}
+              <span>{{ customer.default_address.city }}{% if customer.default_address.province != blank %}, {{ customer.default_address.province }}{% endif %}</span>
+              <span>{{ customer.default_address.zip }}</span>
+              <span>{{ customer.default_address.country }}</span>
+            </address>
+          {%- else -%}
+            <p class="ad-body ad-account__muted">Nenhum endereço cadastrado.</p>
+          {%- endif -%}
+
+          <div class="ad-account__block-action">
+            {% render 'apple-button', variant: 'text-link', href: routes.account_addresses_url, label: 'Gerenciar endereços' %}
+          </div>
+        </section>
+
+        <div class="ad-account__divider" role="presentation"></div>
+
+        <section class="ad-account__block">
+          <h2 class="ad-tagline">Conta</h2>
+
+          <dl class="ad-account__dl">
+            <dt class="ad-caption-strong">Email</dt>
+            <dd class="ad-body">{{ customer.email }}</dd>
+
+            <dt class="ad-caption-strong">Nome</dt>
+            <dd class="ad-body">{{ customer.name | default: '—' }}</dd>
+          </dl>
+
+          <div class="ad-account__block-action">
+            {% render 'apple-button', variant: 'text-link', href: routes.account_url, label: 'Editar dados' %}
+          </div>
+        </section>
+      </aside>
     </div>
   </div>
 </section>
 
-{% section 'static-promotion-list' %}
-{% section 'static-recently-viewed-products' %}
+<style>
+  .ad-account {
+    background: var(--ad-canvas);
+    color: var(--ad-ink);
+  }
+
+  .ad-account__shell {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: var(--ad-space-xxl) var(--ad-space-lg);
+  }
+
+  .ad-account__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ad-space-sm);
+    margin-bottom: var(--ad-space-xxl);
+  }
+
+  .ad-account__lead {
+    color: var(--ad-ink-muted-80);
+    margin: 0;
+  }
+
+  .ad-account__header-actions {
+    margin-top: var(--ad-space-xs);
+  }
+
+  .ad-account__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--ad-space-xxl);
+  }
+
+  @media (min-width: 833px) {
+    .ad-account__grid {
+      grid-template-columns: 2fr 1fr;
+    }
+  }
+
+  .ad-account__main,
+  .ad-account__aside {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ad-space-xl);
+  }
+
+  .ad-account__block {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ad-space-md);
+  }
+
+  .ad-account__block-action {
+    margin-top: var(--ad-space-xs);
+  }
+
+  .ad-account__muted {
+    color: var(--ad-ink-muted-80);
+  }
+
+  .ad-account__orders {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--ad-space-md);
+  }
+
+  .ad-account__order-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ad-space-sm);
+    border: 1px solid var(--ad-hairline);
+    border-radius: var(--ad-radius-lg);
+    padding: var(--ad-space-lg);
+    background: var(--ad-canvas);
+  }
+
+  .ad-account__order-head,
+  .ad-account__order-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ad-space-md);
+  }
+
+  .ad-account__order-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ad-space-xs);
+  }
+
+  .ad-account__pill {
+    display: inline-flex;
+    align-items: center;
+    background: var(--ad-hairline);
+    color: var(--ad-ink);
+    border-radius: var(--ad-radius-pill);
+    padding: 4px 10px;
+  }
+
+  .ad-account__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--ad-space-md);
+    padding: var(--ad-space-lg);
+    border: 1px solid var(--ad-hairline);
+    border-radius: var(--ad-radius-lg);
+  }
+
+  .ad-account__address {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-style: normal;
+    margin: 0;
+  }
+
+  .ad-account__divider {
+    height: 1px;
+    width: 100%;
+    background: var(--ad-divider-soft);
+    margin: var(--ad-space-lg) 0;
+  }
+
+  .ad-account__dl {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--ad-space-sm);
+    margin: 0;
+  }
+
+  .ad-account__dl dt {
+    color: var(--ad-ink-muted-80);
+    margin: 0;
+  }
+
+  .ad-account__dl dd {
+    margin: 0 0 var(--ad-space-xs) 0;
+  }
+</style>

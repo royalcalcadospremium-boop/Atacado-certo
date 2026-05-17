@@ -1,89 +1,157 @@
-<section data-section-id="login" data-section-type="login">
-  {%- assign is_recover_active = false -%}
+<section data-section-id="login" data-section-type="login" class="ad-login-section">
+  <div class="ad-login-wrap">
+    <header class="ad-login-header">
+      <h1 class="ad-display-lg">Entrar</h1>
+      <p class="ad-lead ad-login-sub">Acesse sua conta para acompanhar seus pedidos.</p>
+    </header>
 
-  {%- form 'recover_customer_password' -%}
-    {%- if form.errors or form.posted_successfully? -%}
-      {%- assign is_recover_active = true -%}
-    {%- endif -%}
-  {%- endform -%}
-
-  <div class="container">
-    {%- comment -%}
-    --------------------------------------------------------------------------------------------------------------------
-    CUSTOMER LOGIN FORM
-    --------------------------------------------------------------------------------------------------------------------
-    {%- endcomment -%}
-
-    {%- if is_recover_active -%}
-      {%- assign login_default_visibility = 'display: none' -%}
-    {%- else -%}
-      {%- assign login_default_visibility = 'display: block' -%}
-    {%- endif -%}
-
-    {%- form 'customer_login', name: 'login', class: 'form form--main', id: 'customer_login', style: login_default_visibility -%}
-      <header class="form__header">
-        <h1 class="form__title heading h1">{{ 'customer.login.login' | t }}</h1>
-        <p class="form__legend">{{ 'customer.login.description' | t }}</p>
-      </header>
-
+    {%- comment -%} LOGIN FORM {%- endcomment -%}
+    {%- form 'customer_login', novalidate: 'novalidate' -%}
       {%- if form.errors -%}
-        <p class="alert alert--error">{{ form.errors.messages['form'] }}</p>
+        <ul class="ad-login-errors">
+          {%- for field in form.errors -%}
+            <li class="ad-caption">{{ form.errors.messages[field] }}</li>
+          {%- endfor -%}
+        </ul>
       {%- endif -%}
 
-      <div class="form__input-wrapper form__input-wrapper--labelled">
-        <input type="email" id="customer[email]" class="form__field form__field--text" name="customer[email]" required="required">
-        <label for="customer[email]" class="form__floating-label">{{ 'customer.login.email' | t }}</label>
+      <div class="ad-field">
+        <label for="customer_email" class="ad-caption-strong">E-mail</label>
+        <input type="email" id="customer_email" name="customer[email]" required autocomplete="email" class="ad-input">
       </div>
 
-      <div class="form__input-wrapper form__input-wrapper--labelled">
-        <input type="password" id="customer[password]" class="form__field form__field--text" name="customer[password]" required="required" autocomplete="current-password">
-        <label for="customer[password]" class="form__floating-label">{{ 'customer.login.password' | t }}</label>
+      <div class="ad-field">
+        <label for="customer_password" class="ad-caption-strong">Senha</label>
+        <input type="password" id="customer_password" name="customer[password]" required autocomplete="current-password" class="ad-input">
       </div>
 
-      <button type="submit" class="form__submit button button--primary button--full">{{ 'customer.login.submit' | t }}</button>
-
-      <div class="form__secondary-action">
-        <p>{{ 'customer.login.new_customer' | t }} <a href="{{ routes.account_register_url }}" class="link link--accented">{{ 'customer.login.create_your_account' | t }}</a></p>
-        <p>{{ 'customer.login.lost_password' | t }} <button type="button" data-action="toggle-login-form" class="link link--accented">{{ 'customer.login.recover_password' | t }}</button></p>
-      </div>
+      <button type="submit" class="ad-btn ad-btn--primary ad-btn--store-hero" style="width:100%">Entrar</button>
     {%- endform -%}
 
-    {%- comment -%}
-    --------------------------------------------------------------------------------------------------------------------
-    CUSTOMER RECOVERY FORM
-    --------------------------------------------------------------------------------------------------------------------
-    {%- endcomment -%}
-
-    {%- if is_recover_active -%}
-      {%- assign recover_default_visibility = 'display: block' -%}
-    {%- else -%}
-      {%- assign recover_default_visibility = 'display: none' -%}
-    {%- endif -%}
-
-    {%- form 'recover_customer_password', name: 'recover', class: 'form form--main', id: 'recover_customer_password', style: recover_default_visibility -%}
-      <header class="form__header">
-        <h1 class="form__title heading h1">{{ 'customer.recover_password.recover_password' | t }}</h1>
-        <p class="form__legend">{{ 'customer.recover_password.description' | t }}</p>
-      </header>
-
-      {%- if form.errors -%}
-        <p class="alert alert--error">{{ form.errors.messages['form'] }}</p>
-      {%- endif -%}
-
-      {%- if form.posted_successfully? -%}
-        <p class="alert alert--center alert--success">{{ 'customer.recover_password.success' | t }}</p>
-      {%- else -%}
-        <div class="form__input-wrapper form__input-wrapper--labelled">
-          <input type="email" id="customer[recover_email]" class="form__field form__field--text" name="email" required="required">
-          <label for="customer[recover_email]" class="form__floating-label">{{ 'customer.recover_password.email' | t }}</label>
-        </div>
-
-        <button type="submit" class="form__submit button button--primary button--full">{{ 'customer.recover_password.submit' | t }}</button>
-      {%- endif -%}
-
-      <div class="form__secondary-action">
-        <p>{{ 'customer.recover_password.remembered_your_password' | t }} <button type="button" data-action="toggle-login-form" class="link link--accented">{{ 'customer.recover_password.back_to_login' | t }}</button></p>
+    {%- comment -%} RECOVER FORM {%- endcomment -%}
+    <details class="ad-recover">
+      <summary class="ad-body-strong ad-recover-summary">Esqueci minha senha</summary>
+      <div class="ad-recover-body">
+        {%- form 'recover_customer_password', novalidate: 'novalidate' -%}
+          {%- if form.posted_successfully? -%}
+            <p class="ad-body ad-recover-success">Verifique seu e-mail.</p>
+          {%- else -%}
+            {%- if form.errors -%}
+              <ul class="ad-login-errors">
+                {%- for field in form.errors -%}
+                  <li class="ad-caption">{{ form.errors.messages[field] }}</li>
+                {%- endfor -%}
+              </ul>
+            {%- endif -%}
+            <div class="ad-field">
+              <label for="recover_email" class="ad-caption-strong">E-mail</label>
+              <input type="email" id="recover_email" name="email" required autocomplete="email" class="ad-input">
+            </div>
+            {% render 'apple-button', variant: 'secondary-pill', label: 'Enviar instruções', type: 'submit' %}
+          {%- endif -%}
+        {%- endform -%}
       </div>
-    {%- endform -%}
+    </details>
+
+    <div class="ad-login-foot">
+      <p class="ad-caption-strong ad-login-foot-text">
+        Não tem conta? <a href="{{ routes.account_register_url }}" class="ad-text-link">Criar uma</a>
+      </p>
+    </div>
   </div>
 </section>
+
+<style>
+  .ad-login-section {
+    padding: var(--ad-space-xxl) var(--ad-space-lg);
+    background: var(--ad-canvas);
+  }
+  .ad-login-wrap {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .ad-login-header {
+    text-align: left;
+    margin-bottom: var(--ad-space-xl);
+  }
+  .ad-login-sub {
+    color: var(--ad-ink-muted-80);
+    margin-top: 4px;
+  }
+  .ad-login-errors {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--ad-space-md) 0;
+  }
+  .ad-login-errors li {
+    color: var(--ad-primary);
+    margin-bottom: 4px;
+  }
+  .ad-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: var(--ad-space-md);
+  }
+  .ad-input {
+    height: 44px;
+    border: 1px solid var(--ad-hairline);
+    border-radius: var(--ad-radius-sm);
+    padding: 12px 14px;
+    font: inherit;
+    color: var(--ad-ink);
+    background: var(--ad-canvas);
+    transition: border-color 120ms ease, outline-color 120ms ease;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .ad-input:focus {
+    outline: 2px solid var(--ad-primary-focus);
+    outline-offset: 2px;
+    border-color: var(--ad-primary-focus);
+  }
+  .ad-recover {
+    margin-top: var(--ad-space-lg);
+    border-top: 1px solid var(--ad-hairline);
+    padding-top: var(--ad-space-lg);
+  }
+  .ad-recover-summary {
+    cursor: pointer;
+    list-style: none;
+    color: var(--ad-ink);
+    user-select: none;
+  }
+  .ad-recover-summary::-webkit-details-marker { display: none; }
+  .ad-recover-summary::marker { content: ''; }
+  .ad-recover-body {
+    margin-top: var(--ad-space-md);
+  }
+  .ad-recover-success {
+    color: var(--ad-primary);
+  }
+  .ad-login-foot {
+    margin-top: var(--ad-space-lg);
+    padding-top: var(--ad-space-lg);
+    border-top: 1px solid var(--ad-hairline);
+    text-align: center;
+  }
+  .ad-login-foot-text {
+    color: var(--ad-ink-muted-80);
+  }
+  .ad-text-link {
+    color: var(--ad-primary);
+    text-decoration: none;
+    border-bottom: 1px solid currentColor;
+  }
+  .ad-text-link:hover { color: var(--ad-primary-focus); }
+  @media (max-width: 600px) {
+    .ad-login-wrap { max-width: 100%; }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Login",
+  "settings": []
+}
+{% endschema %}
