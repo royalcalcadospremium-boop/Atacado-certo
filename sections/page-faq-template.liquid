@@ -1,485 +1,309 @@
-<div class="container container--narrow" id="section-{{ section.id }}">
-  {% render 'royal-overlap', id: section.id %}
+{%- liquid
+  assign variant = section.settings.variant | default: 'light'
+  assign bg = '#ffffff'
+  if variant == 'parchment'
+    assign bg = 'var(--ad-canvas-parchment, #f5f5f7)'
+  endif
+-%}
 
-  <header class="page__header page__header--stack page__header--centered">
-    <h1 class="page__title heading h1">{{ page.title }}</h1>
+<section
+  class="ad-faq ad-faq--{{ variant }}"
+  id="section-{{ section.id }}"
+  style="background:{{ bg }};"
+>
+  <div class="ad-faq__inner">
+    <header class="ad-faq__header">
+      <h1 class="ad-display-lg ad-faq__title">{{ page.title }}</h1>
+      {%- if page.content != blank -%}
+        <div class="ad-lead-airy ad-faq__intro">{{ page.content }}</div>
+      {%- endif -%}
+    </header>
 
-    {%- if page.content != blank -%}
-      <div class="page__description rte">
-        {{ page.content }}
+    {%- if section.settings.show_search -%}
+      <div class="ad-faq__search">
+        <input
+          type="search"
+          class="ad-faq__search-input"
+          id="ad-faq-search-{{ section.id }}"
+          placeholder="Buscar perguntas..."
+          autocomplete="off"
+        >
       </div>
     {%- endif -%}
-  </header>
-</div>
 
-<div class="container container--flush container--narrow">
-  <div class="faq">
-    <div class="faq__group-list">
-      {%- for block in section.blocks -%}
-        {%- if forloop.first or block.type == 'separator' -%}
-          <div class="faq__group">
-        {%- endif -%}
-
-        {%- case block.type -%}
-          {%- when 'separator' -%}
-            <h1 class="faq__group-title heading h2" {{ block.shopify_attributes }}>
-              <span class="anchor" id="block-{{ block.id }}"></span>
-              {{- block.settings.title | escape -}}
-            </h1>
-          {%- when 'question' -%}
-            <div class="faq__item" {{ block.shopify_attributes }}>
-              <div class="faq__item-wrapper">
-                <button class="faq__question heading h4" data-action="toggle-collapsible" aria-expanded="false" aria-controls="block-{{ block.id }}">{{ block.settings.title | escape }} <span class="plus-button plus-button--large"></span></button>
-
-                <div id="block-{{ block.id }}" class="faq__answer-wrapper">
-                  <div class="faq__answer rte">
-                    {{ block.settings.answer }}
-                  </div>
-                </div>
-              </div>
-            </div>
-        {%- endcase -%}
-
-        {%- if forloop.last or block.type == 'question' and section.blocks[forloop.index].type == 'separator' -%}
-          </div>
-        {%- endif -%}
-      {%- endfor -%}
-    </div>
-
-    {%- if section.settings.show_contact_info -%}
-      <div class="container--unflush">
-        <div class="faq__contact-info">
-          <header class="page__header page__header--stack page__header--centered">
-            {%- if section.settings.contact_info_heading != blank -%}
-              <h2 class="page__title heading h2">{{ section.settings.contact_info_heading | escape }}</h2>
-            {%- endif -%}
-
-            {%- if section.settings.contact_info_text != blank -%}
-              <div class="page__description rte">
-                {{ section.settings.contact_info_text }}
-              </div>
-            {%- endif -%}
-          </header>
-
-          <div class="text-with-icons text-with-icons--boxed">
-            {%- if section.settings.contact_1_heading != blank or section.settings.contact_1_text != blank -%}
-              <div class="text-with-icons__item">
-                <div class="text-with-icons__icon-wrapper">
-                  {%- render 'icon', icon: section.settings.contact_1_icon, stroke_width: 1.5 -%}
-                </div>
-
-                <div class="text-with-icons__content-wrapper">
-                  {%- if section.settings.contact_1_heading != blank -%}
-                    <p class="text-with-icons__title text--strong">{{ section.settings.contact_1_heading | escape }}</p>
-                  {%- endif -%}
-
-                  {%- if section.settings.contact_1_text != blank -%}
-                    <div class="text-with-icons__content rte">
-                      {{ section.settings.contact_1_text }}
-                    </div>
-                  {%- endif -%}
-                </div>
-              </div>
-            {%- endif -%}
-
-            {%- if section.settings.contact_2_heading != blank or section.settings.contact_2_text != blank -%}
-              <div class="text-with-icons__item">
-                <div class="text-with-icons__icon-wrapper">
-                  {%- render 'icon', icon: section.settings.contact_2_icon, stroke_width: 1.5 -%}
-                </div>
-
-                <div class="text-with-icons__content-wrapper">
-                  {%- if section.settings.contact_2_heading != blank -%}
-                    <p class="text-with-icons__title text--strong">{{ section.settings.contact_2_heading | escape }}</p>
-                  {%- endif -%}
-
-                  {%- if section.settings.contact_2_text != blank -%}
-                    <div class="text-with-icons__content rte">
-                      {{ section.settings.contact_2_text }}
-                    </div>
-                  {%- endif -%}
-                </div>
-              </div>
-            {%- endif -%}
-          </div>
-        </div>
+    {%- if section.blocks.size == 0 -%}
+      <div class="ad-faq__empty">
+        <p class="ad-display-md">Em breve, perguntas frequentes.</p>
       </div>
+    {%- else -%}
+      <div class="ad-faq__body" id="ad-faq-body-{{ section.id }}">
+        {%- assign open_group = false -%}
+        {%- for block in section.blocks -%}
+          {%- case block.type -%}
+            {%- when 'category' -%}
+              {%- if open_group -%}
+                </div>
+              {%- endif -%}
+              <div class="ad-faq__category" {{ block.shopify_attributes }}>
+                <h2 class="ad-display-md ad-faq__category-title">{{ block.settings.title | escape }}</h2>
+                <div class="ad-faq__items">
+              {%- assign open_group = true -%}
+            {%- when 'item' -%}
+              {%- unless open_group -%}
+                <div class="ad-faq__category">
+                  <div class="ad-faq__items">
+                {%- assign open_group = true -%}
+              {%- endunless -%}
+              <details class="ad-faq__item" {{ block.shopify_attributes }}>
+                <summary class="ad-faq__question ad-body-strong">
+                  <span class="ad-faq__question-text">{{ block.settings.question | escape }}</span>
+                  <svg class="ad-faq__chevron" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                    <path d="M3 5L7 9L11 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </summary>
+                <div class="ad-faq__answer ad-body">{{ block.settings.answer }}</div>
+              </details>
+          {%- endcase -%}
+        {%- endfor -%}
+        {%- if open_group -%}
+          </div></div>
+        {%- endif -%}
+      </div>
+
+      <p class="ad-faq__no-results ad-body" id="ad-faq-empty-{{ section.id }}" style="display:none;">
+        Nenhum resultado encontrado.
+      </p>
     {%- endif -%}
   </div>
-</div>
+</section>
+
+<style>
+  #section-{{ section.id }}.ad-faq {
+    padding: var(--ad-space-xxl, 96px) var(--ad-space-lg, 24px);
+  }
+
+  #section-{{ section.id }} .ad-faq__inner {
+    max-width: 880px;
+    margin: 0 auto;
+  }
+
+  #section-{{ section.id }} .ad-faq__header {
+    text-align: center;
+    margin-bottom: var(--ad-space-xl, 64px);
+  }
+
+  #section-{{ section.id }} .ad-faq__title {
+    color: var(--ad-ink, #1d1d1f);
+    margin: 0 0 var(--ad-space-md, 16px);
+  }
+
+  #section-{{ section.id }} .ad-faq__intro {
+    color: var(--ad-ink-muted-80, rgba(29,29,31,0.8));
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  #section-{{ section.id }} .ad-faq__search {
+    margin: 0 auto var(--ad-space-xl, 64px);
+    max-width: 480px;
+  }
+
+  #section-{{ section.id }} .ad-faq__search-input {
+    width: 100%;
+    padding: 14px 20px;
+    border: 1px solid var(--ad-hairline, rgba(0,0,0,0.12));
+    border-radius: 999px;
+    background: #fff;
+    font: inherit;
+    font-size: 15px;
+    color: var(--ad-ink, #1d1d1f);
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+    outline: none;
+  }
+
+  #section-{{ section.id }} .ad-faq__search-input::placeholder {
+    color: var(--ad-ink-muted-48, rgba(29,29,31,0.48));
+  }
+
+  #section-{{ section.id }} .ad-faq__search-input:focus {
+    border-color: var(--ad-primary, #0066cc);
+    box-shadow: 0 0 0 4px rgba(0,102,204,0.12);
+  }
+
+  #section-{{ section.id }} .ad-faq__category {
+    margin-bottom: var(--ad-space-xl, 64px);
+  }
+
+  #section-{{ section.id }} .ad-faq__category:last-child {
+    margin-bottom: 0;
+  }
+
+  #section-{{ section.id }} .ad-faq__category-title {
+    color: var(--ad-ink, #1d1d1f);
+    margin: 0 0 var(--ad-space-md, 16px);
+  }
+
+  #section-{{ section.id }} .ad-faq__items {
+    border-top: 1px solid var(--ad-divider-soft, rgba(0,0,0,0.08));
+  }
+
+  #section-{{ section.id }} .ad-faq__item {
+    border-bottom: 1px solid var(--ad-divider-soft, rgba(0,0,0,0.08));
+    padding: 24px 0;
+  }
+
+  #section-{{ section.id }} .ad-faq__question {
+    color: var(--ad-ink, #1d1d1f);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    list-style: none;
+    user-select: none;
+  }
+
+  #section-{{ section.id }} .ad-faq__question::-webkit-details-marker {
+    display: none;
+  }
+
+  #section-{{ section.id }} .ad-faq__question-text {
+    flex: 1;
+  }
+
+  #section-{{ section.id }} .ad-faq__chevron {
+    flex-shrink: 0;
+    color: var(--ad-ink-muted-80, rgba(29,29,31,0.8));
+    transition: transform 200ms ease;
+  }
+
+  #section-{{ section.id }} .ad-faq__item[open] .ad-faq__chevron {
+    transform: rotate(180deg);
+  }
+
+  #section-{{ section.id }} .ad-faq__answer {
+    color: var(--ad-ink-muted-80, rgba(29,29,31,0.8));
+    padding-top: 12px;
+  }
+
+  #section-{{ section.id }} .ad-faq__answer p:first-child {
+    margin-top: 0;
+  }
+
+  #section-{{ section.id }} .ad-faq__answer p:last-child {
+    margin-bottom: 0;
+  }
+
+  #section-{{ section.id }} .ad-faq__answer a {
+    color: var(--ad-primary, #0066cc);
+    text-decoration: none;
+  }
+
+  #section-{{ section.id }} .ad-faq__answer a:hover {
+    text-decoration: underline;
+  }
+
+  #section-{{ section.id }} .ad-faq__empty {
+    text-align: center;
+    padding: var(--ad-space-xxl, 96px) 0;
+    color: var(--ad-ink-muted-48, rgba(29,29,31,0.48));
+  }
+
+  #section-{{ section.id }} .ad-faq__no-results {
+    text-align: center;
+    color: var(--ad-ink-muted-48, rgba(29,29,31,0.48));
+    padding: var(--ad-space-xl, 64px) 0;
+  }
+
+  @media (max-width: 640px) {
+    #section-{{ section.id }}.ad-faq {
+      padding: var(--ad-space-xl, 64px) var(--ad-space-md, 16px);
+    }
+    #section-{{ section.id }} .ad-faq__header {
+      margin-bottom: var(--ad-space-lg, 32px);
+    }
+  }
+</style>
+
+{%- if section.settings.show_search -%}
+  <script>
+    (function() {
+      var input = document.getElementById('ad-faq-search-{{ section.id }}');
+      var body = document.getElementById('ad-faq-body-{{ section.id }}');
+      var emptyMsg = document.getElementById('ad-faq-empty-{{ section.id }}');
+      if (!input || !body) return;
+
+      input.addEventListener('input', function() {
+        var query = input.value.toLowerCase().trim();
+        var items = body.querySelectorAll('.ad-faq__item');
+        var categories = body.querySelectorAll('.ad-faq__category');
+        var visibleCount = 0;
+
+        items.forEach(function(item) {
+          var text = item.textContent.toLowerCase();
+          var match = query === '' || text.indexOf(query) !== -1;
+          item.style.display = match ? '' : 'none';
+          if (match) visibleCount++;
+        });
+
+        categories.forEach(function(cat) {
+          var visibleItems = cat.querySelectorAll('.ad-faq__item');
+          var hasVisible = false;
+          visibleItems.forEach(function(i) {
+            if (i.style.display !== 'none') hasVisible = true;
+          });
+          cat.style.display = hasVisible ? '' : 'none';
+        });
+
+        if (emptyMsg) {
+          emptyMsg.style.display = (visibleCount === 0 && query !== '') ? '' : 'none';
+        }
+      });
+    })();
+  </script>
+{%- endif -%}
 
 {% schema %}
 {
   "name": "FAQ",
   "settings": [
-
-  {
-    "type": "range",
-    "id": "overlap_px",
-    "label": "Tamanho da sobreposição (px)",
-    "min": 0,
-    "max": 80,
-    "step": 2,
-    "default": 0
-  },
-  {
-    "type": "range",
-    "id": "overlap_px_mobile",
-    "label": "Tamanho da sobreposição (px) — mobile",
-    "min": 0,
-    "max": 80,
-    "step": 2,
-    "default": 0
-  }
-,
+    {
+      "type": "select",
+      "id": "variant",
+      "label": "Background variant",
+      "options": [
+        { "value": "light", "label": "Light" },
+        { "value": "parchment", "label": "Parchment" }
+      ],
+      "default": "light"
+    },
     {
       "type": "checkbox",
-      "id": "show_contact_info",
-      "label": "Show additional info",
-      "info": "Additional info is displayed below all questions.",
-      "default": true
-    },
-    {
-      "type": "text",
-      "id": "contact_info_heading",
-      "label": "Heading",
-      "default": "Any question?"
-    },
-    {
-      "type": "richtext",
-      "id": "contact_info_text",
-      "label": "Text",
-      "default": "<p>If we still haven't answered your question, you can contact us below and we will get back to you as soon as possible.</p>"
-    },
-    {
-      "type": "header",
-      "content": "Block 1"
-    },
-    {
-      "type": "select",
-      "id": "contact_1_icon",
-      "label": "Icon",
-      "options": [
-        {
-          "value": "bi-add-to-cart",
-          "label": "Add to cart",
-          "group": "Shop"
-        },
-        {
-          "value": "bi-gift-wrap",
-          "label": "Gift wrap",
-          "group": "Shop"
-        },
-        {
-          "value": "bi-gift-box",
-          "label": "Gift box",
-          "group": "Shop"
-        },
-        {
-          "value": "bi-heart",
-          "label": "Heart",
-          "group": "Shop"
-        },
-        {
-          "value": "bi-ecology",
-          "label": "Ecology",
-          "group": "Shop"
-        },
-        {
-          "value": "bi-plant",
-          "label": "Plant",
-          "group": "Shop"
-        },
-        {
-          "value": "bi-shop",
-          "label": "Shop",
-          "group": "Shop"
-        },
-        {
-          "value": "bi-shop-pin",
-          "label": "Shop with pin",
-          "group": "Shop"
-        },
-        {
-          "value": "bi-alert",
-          "label": "Alert",
-          "group": "Communication"
-        },
-        {
-          "value": "bi-chat",
-          "label": "Chat",
-          "group": "Communication"
-        },
-        {
-          "value": "bi-comment",
-          "label": "Comment",
-          "group": "Communication"
-        },
-        {
-          "value": "bi-customer-support",
-          "label": "Customer support",
-          "group": "Communication"
-        },
-        {
-          "value": "bi-email",
-          "label": "Email",
-          "group": "Communication"
-        },
-        {
-          "value": "bi-network",
-          "label": "Network",
-          "group": "Communication"
-        },
-        {
-          "value": "bi-newsletter",
-          "label": "Newsletter",
-          "group": "Communication"
-        },
-        {
-          "value": "bi-love",
-          "label": "Love",
-          "group": "Communication"
-        },
-        {
-          "value": "bi-phone",
-          "label": "Phone",
-          "group": "Communication"
-        },
-        {
-          "value": "bi-share",
-          "label": "Share",
-          "group": "Communication"
-        },
-        {
-          "value": "bi-delivery",
-          "label": "Delivery",
-          "group": "Delivery"
-        },
-        {
-          "value": "bi-fast-delivery",
-          "label": "Fast delivery",
-          "group": "Delivery"
-        },
-        {
-          "value": "bi-returns",
-          "label": "Returns",
-          "group": "Delivery"
-        },
-        {
-          "value": "bi-time",
-          "label": "Time",
-          "group": "Delivery"
-        },
-        {
-          "value": "bi-secure-payment",
-          "label": "Secure payment",
-          "group": "Security"
-        },
-        {
-          "value": "bi-mobile-payment",
-          "label": "Mobile payment",
-          "group": "Security"
-        },
-        {
-          "value": "bi-credit-card",
-          "label": "Credit card",
-          "group": "Security"
-        },
-        {
-          "value": "bi-shield",
-          "label": "Shield",
-          "group": "Security"
-        }
-      ],
-      "default": "bi-phone"
-    },
-    {
-      "type": "text",
-      "id": "contact_1_heading",
-      "label": "Heading",
-      "default": "Customer support"
-    },
-    {
-      "type": "richtext",
-      "id": "contact_1_text",
-      "label": "Text",
-      "default": "<p>Enter your text here</p>"
-    },
-    {
-      "type": "header",
-      "content": "Block 2"
-    },
-    {
-      "type": "select",
-      "id": "contact_2_icon",
-      "label": "Icon",
-      "options": [
-        {
-          "value": "bi-add-to-cart",
-          "label": "Add to cart",
-          "group": "Shop"
-        },
-        {
-          "value": "bi-gift-wrap",
-          "label": "Gift wrap",
-          "group": "Shop"
-        },
-        {
-          "value": "bi-gift-box",
-          "label": "Gift box",
-          "group": "Shop"
-        },
-        {
-          "value": "bi-heart",
-          "label": "Heart",
-          "group": "Shop"
-        },
-        {
-          "value": "bi-ecology",
-          "label": "Ecology",
-          "group": "Shop"
-        },
-        {
-          "value": "bi-plant",
-          "label": "Plant",
-          "group": "Shop"
-        },
-        {
-          "value": "bi-shop",
-          "label": "Shop",
-          "group": "Shop"
-        },
-        {
-          "value": "bi-shop-pin",
-          "label": "Shop with pin",
-          "group": "Shop"
-        },
-        {
-          "value": "bi-alert",
-          "label": "Alert",
-          "group": "Communication"
-        },
-        {
-          "value": "bi-chat",
-          "label": "Chat",
-          "group": "Communication"
-        },
-        {
-          "value": "bi-comment",
-          "label": "Comment",
-          "group": "Communication"
-        },
-        {
-          "value": "bi-customer-support",
-          "label": "Customer support",
-          "group": "Communication"
-        },
-        {
-          "value": "bi-email",
-          "label": "Email",
-          "group": "Communication"
-        },
-        {
-          "value": "bi-network",
-          "label": "Network",
-          "group": "Communication"
-        },
-        {
-          "value": "bi-newsletter",
-          "label": "Newsletter",
-          "group": "Communication"
-        },
-        {
-          "value": "bi-love",
-          "label": "Love",
-          "group": "Communication"
-        },
-        {
-          "value": "bi-phone",
-          "label": "Phone",
-          "group": "Communication"
-        },
-        {
-          "value": "bi-share",
-          "label": "Share",
-          "group": "Communication"
-        },
-        {
-          "value": "bi-delivery",
-          "label": "Delivery",
-          "group": "Delivery"
-        },
-        {
-          "value": "bi-fast-delivery",
-          "label": "Fast delivery",
-          "group": "Delivery"
-        },
-        {
-          "value": "bi-returns",
-          "label": "Returns",
-          "group": "Delivery"
-        },
-        {
-          "value": "bi-time",
-          "label": "Time",
-          "group": "Delivery"
-        },
-        {
-          "value": "bi-secure-payment",
-          "label": "Secure payment",
-          "group": "Security"
-        },
-        {
-          "value": "bi-mobile-payment",
-          "label": "Mobile payment",
-          "group": "Security"
-        },
-        {
-          "value": "bi-credit-card",
-          "label": "Credit card",
-          "group": "Security"
-        },
-        {
-          "value": "bi-shield",
-          "label": "Shield",
-          "group": "Security"
-        }
-      ],
-      "default": "bi-email"
-    },
-    {
-      "type": "text",
-      "id": "contact_2_heading",
-      "label": "Heading",
-      "default": "Send a message"
-    },
-    {
-      "type": "richtext",
-      "id": "contact_2_text",
-      "label": "Text",
-      "default": "<p>Enter your text here</p>"
+      "id": "show_search",
+      "label": "Show search bar",
+      "default": false
     }
   ],
   "blocks": [
     {
-      "type": "separator",
-      "name": "Section separator",
+      "type": "category",
+      "name": "Category",
       "settings": [
         {
           "type": "text",
           "id": "title",
-          "label": "Heading",
-          "default": "Default"
+          "label": "Category title",
+          "default": "Category"
         }
       ]
     },
     {
-      "type": "question",
+      "type": "item",
       "name": "Question",
       "settings": [
         {
           "type": "text",
-          "id": "title",
+          "id": "question",
           "label": "Question"
         },
         {
@@ -493,63 +317,43 @@
   "default": {
     "blocks": [
       {
-        "type": "separator",
+        "type": "category",
+        "settings": { "title": "Pedidos e envio" }
+      },
+      {
+        "type": "item",
         "settings": {
-          "title": "Shipping"
+          "question": "Vocês fazem entregas para todo o Brasil?",
+          "answer": "<p>Sim, entregamos em todo o território nacional. O frete e prazo são calculados no checkout.</p>"
         }
       },
       {
-        "type": "question",
+        "type": "item",
         "settings": {
-          "title": "Do you ship overseas?",
-          "answer": "<p>Yes, we ship all over the world. Shipping costs will apply, and will be added at checkout. We run discounts and promotions all year, so stay tuned for exclusive deals.</p>"
+          "question": "Qual o prazo de envio do meu pedido?",
+          "answer": "<p>Pedidos são processados em até 2 dias úteis. O prazo de entrega depende da sua região.</p>"
         }
       },
       {
-        "type": "question",
+        "type": "category",
+        "settings": { "title": "Produtos" }
+      },
+      {
+        "type": "item",
         "settings": {
-          "title": "How long will it take to get my order?",
-          "answer": "<p>It depends on where you are. Orders processed here will take 5-7 business days to arrive. Overseas deliveries can take anywhere from 7-16 days. Delivery details will be provided in your confirmation email.</p>"
+          "question": "Posso trocar um produto?",
+          "answer": "<p>Sim. Entre em contato com nosso atendimento e iremos te ajudar com a troca.</p>"
         }
       },
       {
-        "type": "question",
-        "settings": {
-          "title": "What shipping carriers do you use?",
-          "answer": "<p>We use all major carriers, and local courier partners. You’ll be asked to select a delivery method during checkout.</p>"
-        }
+        "type": "category",
+        "settings": { "title": "Outros" }
       },
       {
-        "type": "separator",
+        "type": "item",
         "settings": {
-          "title": "Product"
-        }
-      },
-      {
-        "type": "question",
-        "settings": {
-          "title": "Can I return my product?",
-          "answer": "<p>We always aim for make sure our customers love our products, but if you do need to return an order, we’re happy to help. Just email us directly and we’ll take you through the process.</p>"
-        }
-      },
-      {
-        "type": "question",
-        "settings": {
-          "title": "Can I get my product personalized?",
-          "answer": "<p>It depends on the creator and the product. All options are outlined on the product page, so look out for customization options there.</p>"
-        }
-      },
-      {
-        "type": "separator",
-        "settings": {
-          "title": "Other"
-        }
-      },
-      {
-        "type": "question",
-        "settings": {
-          "title": "Any question?",
-          "answer": "<p>You can contact us through our contact page! We will be happy to assist you.</p>"
+          "question": "Tem mais alguma dúvida?",
+          "answer": "<p>Fale com a gente pela página de contato. Estamos prontos para ajudar.</p>"
         }
       }
     ]

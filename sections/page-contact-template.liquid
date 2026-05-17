@@ -1,242 +1,334 @@
-<div class="container container--narrow" id="section-{{ section.id }}">
-  {% render 'royal-overlap', id: section.id %}
+{%- liquid
+  assign variant = section.settings.variant | default: 'light'
+  assign phone = section.settings.phone
+  assign whatsapp = section.settings.whatsapp
+  assign email = section.settings.email
+  assign address = section.settings.address
+  assign hours = section.settings.business_hours
 
-  <header class="page__header page__header--stack page__header--centered">
-    <h1 class="page__title heading h1">{{ page.title }}</h1>
+  assign wa_digits = whatsapp | remove: '+' | remove: ' ' | remove: '-' | remove: '(' | remove: ')'
+-%}
 
-    {%- if page.content != blank -%}
-      <div class="page__description rte">
-        {{ page.content }}
-      </div>
-    {%- endif -%}
-  </header>
-</div>
+<section
+  class="ad-contact ad-contact--{{ variant }}"
+  id="section-{{ section.id }}"
+  data-section-id="{{ section.id }}"
+>
+  <div class="ad-contact__shell">
+    <header class="ad-contact__header">
+      <h1 class="ad-display-lg ad-contact__title">{{ page.title }}</h1>
 
-<div class="container container--medium">
-  <div class="layout">
-    <div class="layout__section">
-      {%- form 'contact', class: 'form' -%}
-        {%- if section.settings.show_store_info -%}
-          <div class="form__header">
-            <h2 class="heading h3">{{ section.settings.form_heading | escape }}</h2>
-          </div>
-        {%- endif -%}
-
-        {%- if form.posted_successfully? -%}
-          <p class="alert alert--success">{{ 'contact.form.successfully_sent' | t }}</p>
-        {%- endif -%}
-
-        {%- if form.errors -%}
-          <div class="alert alert--error">
-            <ul class="alert__error-list">
-              {%- for field in form.errors -%}
-                {%- if field == 'form' -%}
-                  <li class="alert__error-item">{{ form.errors.messages[field] }}</li>
-                {%- else -%}
-                  <li class="alert__error-item">{{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.messages[field] }}</li>
-                {%- endif -%}
-              {%- endfor -%}
-            </ul>
-          </div>
-        {%- endif -%}
-
-        <div class="form__input-row">
-          <div class="form__input-wrapper form__input-wrapper--labelled">
-            <input id="contact-form-name" type="text" class="form__field form__field--text {% if customer.name != blank %}is-filled{% endif %}" name="contact[name]" aria-label="{{ 'contact.form.name' | t }}" required {% if customer %}value="{{ customer.name }}"{% endif %}>
-            <label for="contact-form-name" class="form__floating-label">{{ 'contact.form.name' | t }}</label>
-          </div>
-
-          <div class="form__input-wrapper form__input-wrapper--labelled">
-            <input id="contact-form-email" type="email" class="form__field form__field--text {% if customer.email != blank %}is-filled{% endif %}" name="contact[email]" aria-label="{{ 'contact.form.email' | t }}" required {% if customer %}value="{{ customer.email }}"{% endif %}>
-            <label for="contact-form-email" class="form__floating-label">{{ 'contact.form.email' | t }}</label>
-          </div>
+      {%- if page.content != blank -%}
+        <div class="ad-lead-airy ad-contact__intro rte">
+          {{ page.content }}
         </div>
+      {%- endif -%}
+    </header>
 
-        {%- for block in section.blocks -%}
-          {%- assign field_title = block.settings.title -%}
+    <div class="ad-contact__grid">
+      <aside class="ad-contact__aside" aria-label="Informações de contato">
+        <h2 class="ad-tagline ad-contact__aside-title">Fale conosco</h2>
 
-          {%- if field_title == blank -%}
-            {%- capture field_title -%}Custom field {% increment custom_field %}{%- endcapture -%}
+        <dl class="ad-contact__info">
+          {%- if phone != blank -%}
+            <div class="ad-contact__row">
+              <dt class="ad-caption-strong ad-contact__label">Telefone</dt>
+              <dd class="ad-body ad-contact__value">
+                <a href="tel:{{ phone | remove: ' ' | remove: '-' | remove: '(' | remove: ')' }}" class="ad-contact__link">{{ phone }}</a>
+              </dd>
+            </div>
           {%- endif -%}
 
-          {%- if block.type == 'text' -%}
-            <div class="form__input-wrapper form__input-wrapper--labelled">
-              {%- if block.settings.use_long_text -%}
-                <textarea id="contact-form-{{ field_title | handle }}" name="contact[{{ field_title | escape }}]" rows="7" class="form__field form__field--textarea" aria-label="{{ block.settings.title | escape }}" {% if block.settings.is_required %}required{% endif %}></textarea>
-                <label for="contact-form-{{ field_title | handle }}" class="form__floating-label">{{ block.settings.title | escape }}</label>
-              {%- else -%}
-                <input id="contact-form-{{ field_title | handle }}" type="text" class="form__field form__field--text" name="contact[{{ field_title | escape }}]" aria-label="{{ block.settings.title | escape }}" {% if block.settings.is_required %}required{% endif %}>
-                <label for="contact-form-{{ field_title | handle }}" class="form__floating-label">{{ block.settings.title | escape }}</label>
-              {%- endif -%}
+          {%- if whatsapp != blank -%}
+            <div class="ad-contact__row">
+              <dt class="ad-caption-strong ad-contact__label">WhatsApp</dt>
+              <dd class="ad-body ad-contact__value">
+                <a href="https://wa.me/{{ wa_digits }}" target="_blank" rel="noopener" class="ad-contact__link ad-contact__link--accent">{{ whatsapp }}</a>
+              </dd>
             </div>
-          {%- elsif block.type == 'dropdown' -%}
-            {%- assign values = block.settings.values | split: ',' -%}
+          {%- endif -%}
 
-            {%- if values == empty -%}
-              {%- continue -%}
+          {%- if email != blank -%}
+            <div class="ad-contact__row">
+              <dt class="ad-caption-strong ad-contact__label">E-mail</dt>
+              <dd class="ad-body ad-contact__value">
+                <a href="mailto:{{ email }}" class="ad-contact__link">{{ email }}</a>
+              </dd>
+            </div>
+          {%- endif -%}
+
+          {%- if address != blank -%}
+            <div class="ad-contact__row">
+              <dt class="ad-caption-strong ad-contact__label">Endereço</dt>
+              <dd class="ad-body ad-contact__value ad-contact__value--multiline">{{ address | newline_to_br }}</dd>
+            </div>
+          {%- endif -%}
+
+          {%- if hours != blank -%}
+            <div class="ad-contact__row">
+              <dt class="ad-caption-strong ad-contact__label">Horário</dt>
+              <dd class="ad-body ad-contact__value ad-contact__value--multiline">{{ hours | newline_to_br }}</dd>
+            </div>
+          {%- endif -%}
+        </dl>
+      </aside>
+
+      <div class="ad-contact__form-wrap">
+        {%- form 'contact', class: 'ad-contact__form', id: 'ad-contact-form' -%}
+          {%- if form.posted_successfully? -%}
+            <div class="ad-contact__success" role="status">
+              <p class="ad-display-md ad-contact__success-title">Mensagem enviada.</p>
+              <p class="ad-lead ad-contact__success-lead">Retornamos em até 24h.</p>
+            </div>
+          {%- else -%}
+            {%- if form.errors -%}
+              <ul class="ad-contact__errors" role="alert">
+                {%- for field in form.errors -%}
+                  <li class="ad-caption ad-contact__error">
+                    {%- if field == 'form' -%}
+                      {{ form.errors.messages[field] }}
+                    {%- else -%}
+                      {{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.messages[field] }}
+                    {%- endif -%}
+                  </li>
+                {%- endfor -%}
+              </ul>
             {%- endif -%}
 
-            <div class="form__input-wrapper form__input-wrapper--labelled">
-              <div id="contact-form-{{ field_title | handle }}" class="select-wrapper select-wrapper--primary">
-                {%- render 'icon', icon: 'arrow-bottom' -%}
+            <div class="ad-contact__field">
+              <label for="ad-contact-name" class="ad-caption-strong ad-contact__field-label">Nome</label>
+              <input
+                id="ad-contact-name"
+                type="text"
+                name="contact[name]"
+                class="ad-contact__input"
+                required
+                autocomplete="name"
+                {% if customer %}value="{{ customer.name }}"{% endif %}
+              >
+            </div>
 
-                <select name="contact[{{ field_title | escape }}]" title="{{ block.settings.title | escape }}" required>
-                  <option value="" disabled selected></option>
+            <div class="ad-contact__field">
+              <label for="ad-contact-email" class="ad-caption-strong ad-contact__field-label">E-mail</label>
+              <input
+                id="ad-contact-email"
+                type="email"
+                name="contact[email]"
+                class="ad-contact__input"
+                required
+                autocomplete="email"
+                {% if customer %}value="{{ customer.email }}"{% endif %}
+              >
+            </div>
 
-                  {%- for value in values -%}
-                    {%- assign trim_value = value | strip -%}
+            <div class="ad-contact__field">
+              <label for="ad-contact-phone" class="ad-caption-strong ad-contact__field-label">Telefone <span class="ad-contact__optional">(opcional)</span></label>
+              <input
+                id="ad-contact-phone"
+                type="tel"
+                name="contact[phone]"
+                class="ad-contact__input"
+                autocomplete="tel"
+              >
+            </div>
 
-                    <option value="{{ trim_value | escape }}">{{ trim_value | escape }}</option>
-                  {%- endfor -%}
-                </select>
-              </div>
+            <div class="ad-contact__field">
+              <label for="ad-contact-body" class="ad-caption-strong ad-contact__field-label">Mensagem</label>
+              <textarea
+                id="ad-contact-body"
+                name="contact[body]"
+                rows="5"
+                class="ad-contact__input ad-contact__textarea"
+                required
+              ></textarea>
+            </div>
 
-              <label for="contact-form-{{ field_title | handle }}" class="form__floating-label">{{ block.settings.title | escape }}</label>
+            <div class="ad-contact__actions">
+              <button type="submit" class="ad-btn ad-btn--store-hero ad-contact__submit">Enviar mensagem</button>
             </div>
           {%- endif -%}
-        {%- endfor -%}
-
-        <div class="form__input-wrapper form__input-wrapper--labelled">
-          <textarea id="contact-form-message" name="contact[body]" rows="8" class="form__field form__field--textarea" aria-label="{{ 'contact.form.message' | t }}" required></textarea>
-          <label for="contact-form-message" class="form__floating-label">{{ 'contact.form.message' | t }}</label>
-        </div>
-
-        <button type="submit" class="form__submit {% unless section.settings.show_store_info %}form__submit--centered{% endunless %} button button--primary button--min-width">{{ 'contact.form.submit' | t }}</button>
-      {%- endform -%}
-    </div>
-
-    {%- if section.settings.show_store_info -%}
-      <div class="layout__section layout__section--large-secondary">
-        <div class="contact__store-info">
-          {%- if section.settings.store_heading != blank -%}
-            <h2 class="contact__store-heading heading h3">{{ section.settings.store_heading | escape }}</h2>
-          {%- endif -%}
-
-          {%- if section.settings.store_image -%}
-            <div class="contact__store-image">
-              <div class="aspect-ratio" style="padding-bottom: {{ 100.0 | divided_by: section.settings.store_image.aspect_ratio }}%">
-                <img src="{{ section.settings.store_image | img_url: '700x' }}" alt="{{ section.settings.store_image.alt | escape }}">
-              </div>
-            </div>
-          {%- endif -%}
-
-          {%- if section.settings.store_info != blank -%}
-            <div class="contact__store-text rte">
-              {{ section.settings.store_info }}
-            </div>
-          {%- endif -%}
-        </div>
+        {%- endform -%}
       </div>
-    {%- endif -%}
+    </div>
   </div>
-</div>
+</section>
+
+{%- style -%}
+  .ad-contact {
+    background: var(--ad-canvas);
+    color: var(--ad-ink);
+  }
+  .ad-contact--parchment {
+    background: var(--ad-parchment, var(--ad-canvas));
+  }
+  .ad-contact__shell {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--ad-space-xxl, 96px) var(--ad-space-lg, 24px);
+  }
+  .ad-contact__header {
+    text-align: center;
+    margin-bottom: var(--ad-space-xxl, 96px);
+  }
+  .ad-contact__title {
+    margin: 0 0 var(--ad-space-md, 16px);
+  }
+  .ad-contact__intro {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .ad-contact__intro p { margin: 0; }
+  .ad-contact__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    gap: var(--ad-space-xxl, 96px);
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .ad-contact__grid { grid-template-columns: 1fr; gap: var(--ad-space-xl, 64px); }
+  }
+  .ad-contact__aside-title {
+    margin: 0 0 var(--ad-space-lg, 24px);
+  }
+  .ad-contact__info {
+    margin: 0;
+    display: grid;
+    gap: var(--ad-space-lg, 24px);
+  }
+  .ad-contact__row { margin: 0; }
+  .ad-contact__label {
+    display: block;
+    color: var(--ad-ink-muted, var(--ad-ink));
+    margin: 0 0 4px;
+  }
+  .ad-contact__value { margin: 0; }
+  .ad-contact__value--multiline { white-space: normal; line-height: 1.55; }
+  .ad-contact__link {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color .2s ease, color .2s ease;
+  }
+  .ad-contact__link:hover { border-bottom-color: currentColor; }
+  .ad-contact__link--accent {
+    color: var(--ad-action-blue, #0066cc);
+  }
+  .ad-contact__link--accent:hover { border-bottom-color: var(--ad-action-blue, #0066cc); }
+
+  .ad-contact__form-wrap {
+    background: var(--ad-surface, #fff);
+    border-radius: var(--ad-radius-lg, 18px);
+    padding: var(--ad-space-xl, 40px);
+    border: 1px solid var(--ad-hairline, rgba(0,0,0,0.08));
+  }
+  @media (max-width: 900px) {
+    .ad-contact__form-wrap { padding: var(--ad-space-lg, 24px); }
+  }
+  .ad-contact__form { display: grid; gap: var(--ad-space-md, 18px); }
+  .ad-contact__field { display: grid; gap: 6px; }
+  .ad-contact__field-label { color: var(--ad-ink-muted, var(--ad-ink)); }
+  .ad-contact__optional {
+    font-weight: 400;
+    color: var(--ad-ink-soft, rgba(0,0,0,0.5));
+    margin-left: 4px;
+  }
+  .ad-contact__input {
+    width: 100%;
+    height: 44px;
+    background: #fff;
+    border: 1px solid var(--ad-hairline, rgba(0,0,0,0.12));
+    border-radius: var(--ad-radius-sm, 8px);
+    padding: 12px 16px;
+    font: inherit;
+    color: var(--ad-ink);
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .ad-contact__textarea {
+    height: auto;
+    min-height: 132px;
+    resize: vertical;
+    line-height: 1.5;
+  }
+  .ad-contact__input:focus {
+    outline: none;
+    border-color: var(--ad-primary-focus, var(--ad-action-blue, #0066cc));
+    border-width: 2px;
+    padding: 11px 15px;
+  }
+  .ad-contact__actions {
+    margin-top: var(--ad-space-sm, 8px);
+  }
+  .ad-contact__submit { width: 100%; }
+  @media (min-width: 600px) {
+    .ad-contact__submit { width: auto; min-width: 220px; }
+  }
+  .ad-contact__errors {
+    list-style: none;
+    margin: 0 0 var(--ad-space-md, 16px);
+    padding: var(--ad-space-md, 16px);
+    background: var(--ad-error-soft, rgba(220,38,38,0.06));
+    border: 1px solid var(--ad-error, #dc2626);
+    border-radius: var(--ad-radius-sm, 8px);
+    display: grid;
+    gap: 4px;
+  }
+  .ad-contact__error { color: var(--ad-error, #dc2626); }
+  .ad-contact__success {
+    background: var(--ad-parchment, #f5f1ea);
+    border-radius: var(--ad-radius-md, 11px);
+    padding: var(--ad-space-xl, 40px);
+    text-align: center;
+  }
+  .ad-contact__success-title { margin: 0 0 var(--ad-space-sm, 8px); }
+  .ad-contact__success-lead { margin: 0; color: var(--ad-ink-muted, var(--ad-ink)); }
+{%- endstyle -%}
 
 {% schema %}
 {
   "name": "Contact page",
   "settings": [
-
-  {
-    "type": "range",
-    "id": "overlap_px",
-    "label": "Tamanho da sobreposição (px)",
-    "min": 0,
-    "max": 80,
-    "step": 2,
-    "default": 0
-  },
-  {
-    "type": "range",
-    "id": "overlap_px_mobile",
-    "label": "Tamanho da sobreposição (px) — mobile",
-    "min": 0,
-    "max": 80,
-    "step": 2,
-    "default": 0
-  }
-,
     {
-      "type": "header",
-      "content": "Form"
-    },
-    {
-      "type": "text",
-      "id": "form_heading",
-      "label": "Heading",
-      "default": "Leave your message"
+      "type": "select",
+      "id": "variant",
+      "label": "Variant",
+      "options": [
+        { "value": "light", "label": "Light" },
+        { "value": "parchment", "label": "Parchment" }
+      ],
+      "default": "light"
     },
     {
       "type": "header",
-      "content": "Store info"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_store_info",
-      "label": "Show store info",
-      "default": false
+      "content": "Contact info"
     },
     {
       "type": "text",
-      "id": "store_heading",
-      "label": "Heading",
-      "default": "Find us"
+      "id": "phone",
+      "label": "Phone",
+      "info": "e.g. (11) 99999-9999"
     },
     {
-      "type": "image_picker",
-      "id": "store_image",
-      "label": "Store image",
-      "info": "700 x 500px .jpg recommended"
+      "type": "text",
+      "id": "whatsapp",
+      "label": "WhatsApp",
+      "info": "Include country code, e.g. 5511999999999"
     },
     {
-      "type": "richtext",
-      "id": "store_info",
-      "label": "Text"
+      "type": "text",
+      "id": "email",
+      "label": "Email"
+    },
+    {
+      "type": "textarea",
+      "id": "address",
+      "label": "Address"
+    },
+    {
+      "type": "textarea",
+      "id": "business_hours",
+      "label": "Business hours"
     }
   ],
-  "blocks": [
-    {
-      "type": "text",
-      "name": "Text field",
-      "settings": [
-        {
-          "type": "text",
-          "id": "title",
-          "label": "Name",
-          "default": "Custom field"
-        },
-        {
-          "type": "checkbox",
-          "id": "use_long_text",
-          "label": "Use long text",
-          "default": false
-        },
-        {
-          "type": "checkbox",
-          "id": "is_required",
-          "label": "Field is required",
-          "default": false
-        }
-      ]
-    },
-    {
-      "type": "dropdown",
-      "name": "Dropdown",
-      "settings": [
-        {
-          "type": "text",
-          "id": "title",
-          "label": "Name",
-          "default": "Custom field"
-        },
-        {
-          "type": "text",
-          "id": "values",
-          "label": "Values",
-          "info": "Separate each value by a comma.",
-          "default": "value 1, value 2, value 3"
-        }
-      ]
-    }
-  ]
+  "blocks": []
 }
 {% endschema %}

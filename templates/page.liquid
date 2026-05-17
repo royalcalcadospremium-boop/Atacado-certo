@@ -1,9 +1,33 @@
-<div class="container container--narrow">
-  <header class="page__header page__header--centered">
-    <h1 class="page__title heading h1">{{ page.title }}</h1>
-  </header>
+{%- comment -%}
+  Apple-pure generic page template (Subsistema 6).
+  Narrow article-width content, centered, Apple typography.
+{%- endcomment -%}
 
-  <div class="page__content rte">
+<article class="ad-page">
+  <header class="ad-page__head">
+    <h1 class="ad-page__title ad-display-lg">{{ page.title }}</h1>
+  </header>
+  <div class="ad-page__content ad-body">
     {{ page.content }}
   </div>
-</div>
+</article>
+
+<style>
+  .ad-page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: var(--ad-space-xxl) var(--ad-space-lg) var(--ad-space-section);
+  }
+  .ad-page__head { text-align: center; margin-bottom: var(--ad-space-xl); }
+  .ad-page__title { margin: 0; }
+  .ad-page__content { color: var(--ad-color-ink-muted-80); line-height: 1.6; }
+  .ad-page__content h2 { font: 600 var(--ad-type-display-md-size)/var(--ad-type-display-md-lh) var(--ad-font-text); letter-spacing: var(--ad-type-display-md-track); color: var(--ad-color-ink); margin: var(--ad-space-xxl) 0 var(--ad-space-md); }
+  .ad-page__content h3 { font: 600 var(--ad-type-tagline-size)/var(--ad-type-tagline-lh) var(--ad-font-display); letter-spacing: var(--ad-type-tagline-track); color: var(--ad-color-ink); margin: var(--ad-space-xl) 0 var(--ad-space-sm); }
+  .ad-page__content p { margin: 0 0 var(--ad-space-md); }
+  .ad-page__content a { color: var(--ad-color-primary); text-decoration: none; }
+  .ad-page__content a:hover { text-decoration: underline; }
+  .ad-page__content ul, .ad-page__content ol { padding-left: var(--ad-space-lg); margin: 0 0 var(--ad-space-md); }
+  .ad-page__content li { margin: 0 0 var(--ad-space-xs); }
+  .ad-page__content img { display: block; max-width: 100%; height: auto; border-radius: var(--ad-radius-lg); margin: var(--ad-space-lg) 0; }
+  .ad-page__content blockquote { border-left: 4px solid var(--ad-color-primary); padding-left: var(--ad-space-md); margin: var(--ad-space-lg) 0; color: var(--ad-color-ink); font-style: italic; }
+</style>

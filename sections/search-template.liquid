@@ -1,670 +1,272 @@
-{% comment %}
-Royal • Search Template — idêntico ao Collection Gummy Style (v1.0)
-{% endcomment %}
+{%- comment -%}
+  Apple-pure search template.
+  - Pill-shaped search input (submits on Enter)
+  - Apple-card grid for product results (4 / 2 / 1 responsive)
+  - Separate small list for non-product results (pages, articles)
+  - Native Shopify pagination
+  - Empty state tile + initial state form
+{%- endcomment -%}
 
-{%- assign items_per_page = 48 -%}
+{%- assign _per_page = section.settings.products_per_page | default: 24 -%}
 
-{%- render 'rc-tier-card-assets' -%}
+<section class="ad-search" data-section-id="{{ section.id }}" data-section-type="search-template">
 
-{%- assign quick_links_menu = linklists[section.settings.quick_links] -%}
-{%- assign has_filters = false -%}
-{%- if quick_links_menu.links.size > 0 -%}{%- assign has_filters = true -%}{%- endif -%}
+  <header class="ad-search__head">
+    <h1 class="ad-search__title ad-display-lg">
+      {%- if search.performed and search.terms != blank -%}
+        {{ search.terms }}
+      {%- else -%}
+        Busca
+      {%- endif -%}
+    </h1>
+    {%- if search.performed -%}
+      <p class="ad-search__count ad-caption">
+        {%- if search.results_count == 1 -%}
+          1 resultado
+        {%- else -%}
+          {{ search.results_count }} resultados
+        {%- endif -%}
+      </p>
+    {%- endif -%}
+  </header>
 
-<section id="royal-search-gummy-{{ section.id }}" class="royal-section-fix" data-section-id="{{ section.id }}" data-section-type="search">
-
-  <style>
-    #royal-search-gummy-{{ section.id }}, #royal-search-gummy-{{ section.id }} * { box-sizing: border-box; }
-
-    #royal-search-gummy-{{ section.id }}{
-      --bg: {{ section.settings.bg | default: '#FFFFFF' }};
-      --card: {{ section.settings.card_bg | default: '#ffffff' }};
-      --primary: {{ section.settings.primary | default: '#111111' }};
-      --green: {{ section.settings.green | default: '#B6E35C' }};
-      --text: {{ section.settings.text | default: '#333333' }};
-      --radius: {{ section.settings.card_radius | default: 6 }}px;
-      --badge-bg: {{ section.settings.badge_bg | default: '#1a1a1a' }};
-      --badge-opacity: {{ section.settings.badge_opacity | default: 100 | times: 0.01 }};
-      background: var(--bg);
-      padding: 18px 0 34px;
-      overflow-x: hidden;
-    }
-
-    #royal-search-gummy-{{ section.id }} .rc-container{ max-width: 1320px; margin: 0 auto; padding: 0 16px; width: 100%; }
-    #royal-search-gummy-{{ section.id }} .rc-title{ color: var(--primary); font-weight: 700; font-size: clamp(22px, 3vw, 36px); margin: 10px 0; }
-
-    #royal-search-gummy-{{ section.id }} .rc-layout{
-      display: grid;
-      grid-template-columns: {% if has_filters %}260px 1fr{% else %}1fr{% endif %};
-      gap: 24px;
-      align-items: start;
-    }
-
-    /* GRID CORE */
-    #royal-search-gummy-{{ section.id }} .rc-grid{
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
-      width: 100%;
-    }
-
-    @media (max-width: 1100px){ #royal-search-gummy-{{ section.id }} .rc-grid{ grid-template-columns: repeat(3, 1fr); } }
-
-    @media (max-width: 800px){
-      #royal-search-gummy-{{ section.id }} .rc-layout{ grid-template-columns: 1fr; }
-      #royal-search-gummy-{{ section.id }} .rc-sidebar{ display:none; }
-      #royal-search-gummy-{{ section.id }} .rc-grid{ grid-template-columns: repeat(2, 1fr); gap: 10px; }
-      #royal-search-gummy-{{ section.id }} .rc-container{ padding: 0 10px; }
-    }
-
-    /* CARDS */
-    #royal-search-gummy-{{ section.id }} .rc-card{
-      background: var(--card);
-      border-radius: var(--radius);
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      border: 1px solid #f0f0f0;
-      transition: transform 0.2s ease;
-    }
-
-    #royal-search-gummy-{{ section.id }} .rc-media{
-      display: block; width: 100%; aspect-ratio: 1/1; position: relative; background: #f9f9f9;
-    }
-    #royal-search-gummy-{{ section.id }} .rc-media img{
-      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
-    }
-
-    #royal-search-gummy-{{ section.id }} .rc-name{
-      font-size: 13px; font-weight: 600; color: var(--text); text-decoration: none;
-      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-      height: 34px; margin: 8px 0 4px; line-height: 1.3;
-    }
-
-    #royal-search-gummy-{{ section.id }} .rc-price-value{ font-size: 15px; font-weight: 800; color: #111; }
-
-    #royal-search-gummy-{{ section.id }} .rc-badge{
-      position: absolute; top: 8px; left: 8px; background: var(--badge-bg); opacity: var(--badge-opacity); color: #fff;
-      border-radius: 2px; font-size: 10px; font-weight: 700; padding: 3px 6px; z-index: 2;
-    }
-
-    .nb-bag {
-      position: absolute; bottom: 8px; right: 8px; background: #fff; border: none;
-      border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; z-index: 3;
-    }
-
-    /* DOWNLOAD AREA */
-    .rc-pagination-wrapper { margin-top: 40px; text-align: center; border-top: 1px solid #eee; padding-top: 20px; }
-    .rc-zip-btn {
-      background: #111; color: #fff; border: none; padding: 14px 28px; border-radius: 4px;
-      font-weight: 700; font-size: 13px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px;
-    }
-    .rc-zip-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    #zip-status { font-size: 12px; font-weight: 600; color: #555; margin-top: 10px; }
-
-    /* PAGINAÇÃO */
-    .rc-pagination { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
-    .rc-page {
-      min-width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;
-      border: 1px solid #ddd; border-radius: 4px; text-decoration: none; color: #111; font-weight: 600; font-size: 13px;
-    }
-    .rc-page[aria-current="page"] { background: #111; color: #fff; border-color: #111; }
-
-    /* MODAL QUICK BUY */
-    .nb-qb-wrap { position: fixed; inset: 0; z-index: 999999; display: none; align-items: flex-end; justify-content: center; background: rgba(0,0,0,0.5); }
-    .nb-qb-wrap.nb-open { display: flex; }
-    .nb-qb-modal { background: #fff; width: 100%; max-width: 500px; border-radius: 16px 16px 0 0; padding: 20px; position: relative; }
-
-    /* FILTER DRAWER */
-    .rc-filter-icon {
-      position: absolute; top: 0; right: 0; width: 48px; height: 48px;
-      background: #111; color: #fff; border: none; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center; cursor: pointer;
-      z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-      transition: background 0.2s ease;
-    }
-    .rc-filter-icon.is-floating { position: fixed; top: 20px; right: 20px; }
-    .rc-filter-icon:hover { background: #333; }
-    .rc-filter-icon .rc-filter-badge {
-      display: none; position: absolute; top: -4px; right: -4px;
-      background: #111; color: #fff; border: 2px solid #fff;
-      border-radius: 50%; width: 18px; height: 18px;
-      font-size: 10px; font-weight: 800; line-height: 1;
-      align-items: center; justify-content: center;
-    }
-    .rc-filter-icon.has-filters .rc-filter-badge { display: flex; }
-
-    .rc-filter-drawer {
-      position: fixed; left: 0; top: 0; width: 100%; max-width: 360px; height: 100vh;
-      background: #fff; z-index: 9999; overflow-y: auto; transform: translateX(-100%);
-      transition: transform 0.3s ease; box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-    }
-    .rc-filter-drawer.is-open { transform: translateX(0); }
-    .rc-filter-drawer-overlay {
-      position: fixed; inset: 0; z-index: 9998; background: rgba(0,0,0,0.5);
-      display: none;
-    }
-    .rc-filter-drawer.is-open ~ .rc-filter-drawer-overlay { display: block; }
-
-    .rc-filter-header {
-      padding: 16px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;
-    }
-    .rc-filter-title { font-weight: 800; font-size: 16px; }
-    .rc-filter-close { background: none; border: none; font-size: 24px; cursor: pointer; }
-
-    .rc-filter-section { border-bottom: 1px solid #f0f0f0; padding: 14px 16px 16px; }
-    .rc-filter-section-title {
-      font-weight: 800; font-size: 11px; letter-spacing: 0.8px;
-      color: #777; text-transform: uppercase; margin-bottom: 12px;
-    }
-
-    .rc-filter-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-
-    .rc-filter-chip {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 7px 14px; border: 1.5px solid #ddd; border-radius: 20px;
-      cursor: pointer; font-size: 13px; font-weight: 600; color: #333;
-      background: #fff; transition: background 0.15s, border-color 0.15s, color 0.15s;
-      user-select: none;
-    }
-    .rc-filter-chip input[type="checkbox"] { display: none; }
-    .rc-filter-chip:has(input:checked) { background: #111; border-color: #111; color: #fff; }
-    .rc-filter-empty { font-size: 12px; color: #aaa; font-style: italic; margin: 0; }
-
-    .rc-filter-actions {
-      padding: 16px; display: flex; gap: 8px; border-top: 1px solid #eee;
-      position: sticky; bottom: 0; background: #fff;
-    }
-    .rc-filter-reset, .rc-filter-apply {
-      flex: 1; padding: 12px; border-radius: 4px; border: none; font-weight: 700; font-size: 13px; cursor: pointer;
-    }
-    .rc-filter-reset { background: #f0f0f0; color: #111; }
-    .rc-filter-apply { background: #111; color: #fff; }
-
-    /* ESTADO VAZIO */
-    #royal-search-gummy-{{ section.id }} .rc-empty {
-      text-align: center; padding: 60px 20px;
-    }
-    #royal-search-gummy-{{ section.id }} .rc-empty h1 {
-      font-size: clamp(22px, 3vw, 32px); font-weight: 800; color: #111; margin-bottom: 12px;
-    }
-    #royal-search-gummy-{{ section.id }} .rc-empty p {
-      color: #666; font-size: 15px; margin-bottom: 28px;
-    }
-    #royal-search-gummy-{{ section.id }} .rc-search-form {
-      display: flex; max-width: 480px; margin: 0 auto; border: 2px solid #111; border-radius: 4px; overflow: hidden;
-    }
-    #royal-search-gummy-{{ section.id }} .rc-search-form input {
-      flex: 1; padding: 14px 16px; border: none; outline: none; font-size: 15px;
-    }
-    #royal-search-gummy-{{ section.id }} .rc-search-form button {
-      padding: 14px 20px; background: #111; color: #fff; border: none; cursor: pointer; font-weight: 700;
-    }
-  </style>
+  <form class="ad-search__form" action="{{ routes.search_url }}" method="get" role="search">
+    <input type="hidden" name="type" value="product">
+    <label class="ad-search__field">
+      <span class="ad-search__icon" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="8" cy="8" r="5.5"></circle>
+          <path d="m12.5 12.5 3 3"></path>
+        </svg>
+      </span>
+      <input
+        type="search"
+        name="q"
+        value="{{ search.terms | escape }}"
+        placeholder="Buscar produtos…"
+        autocomplete="off"
+        aria-label="Buscar produtos"
+        class="ad-search__input">
+      <button type="submit" class="ad-search__submit" aria-label="Buscar">Buscar</button>
+    </label>
+  </form>
 
   {%- if search.performed -%}
-    {%- if search.results_count == 0 -%}
+    {%- if search.results.size == 0 -%}
 
-      <div class="rc-container">
-        <div class="rc-empty">
-          <h1>Nenhum resultado para &ldquo;{{ search.terms }}&rdquo;</h1>
-          <p>Tente outro termo de busca.</p>
-          <form class="rc-search-form" action="{{ routes.search_url }}" method="get">
-            <input type="hidden" name="type" value="product">
-            <input type="text" name="q" placeholder="Buscar produtos..." autocomplete="off">
-            <button type="submit">Buscar</button>
-          </form>
-        </div>
+      <div class="ad-search__empty ad-tile ad-tile--parchment">
+        <h2 class="ad-display-lg">Nenhum resultado para &ldquo;{{ search.terms }}&rdquo;</h2>
+        <p class="ad-lead">Tente outro termo, ou navegue por nossas coleções.</p>
+        {%- render 'apple-button', variant: 'primary', href: '/collections/all', label: 'Ver todos os produtos' -%}
       </div>
 
     {%- else -%}
-      {%- paginate search.results by items_per_page -%}
+      {%- paginate search.results by _per_page -%}
 
-        <div class="rc-container">
+        {%- assign _has_products = false -%}
+        {%- for item in search.results -%}
+          {%- if item.object_type == 'product' -%}{%- assign _has_products = true -%}{%- break -%}{%- endif -%}
+        {%- endfor -%}
 
-          <div style="position: relative; display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
-            <h1 class="rc-title" style="margin: 10px 0; margin-right: 60px;">
-              Resultados para: &ldquo;{{ search.terms }}&rdquo;
-            </h1>
-            <button class="rc-filter-icon" id="btn-filter-toggle-{{ section.id }}" title="Filtros">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-              </svg>
-              <span class="rc-filter-badge" id="rc-filter-badge-{{ section.id }}">0</span>
-            </button>
-          </div>
-
-          <!-- FILTER DRAWER -->
-          <div class="rc-filter-drawer" id="filter-drawer-{{ section.id }}">
-            <div class="rc-filter-header">
-              <div class="rc-filter-title">Filtros</div>
-              <button class="rc-filter-close" onclick="document.getElementById('filter-drawer-{{ section.id }}').classList.remove('is-open');">✕</button>
-            </div>
-
-            <div class="rc-filter-section">
-              <div class="rc-filter-section-title">Tamanho</div>
-              <div class="rc-filter-chips" id="sizes-filter-{{ section.id }}"></div>
-            </div>
-
-            <div class="rc-filter-section">
-              <div class="rc-filter-section-title">Marca</div>
-              <div class="rc-filter-chips" id="marcas-filter-{{ section.id }}"></div>
-            </div>
-
-            <div class="rc-filter-actions">
-              <button class="rc-filter-reset" onclick="resetFilters_{{ section.id }}();">Limpar</button>
-              <button class="rc-filter-apply" onclick="applyFilters_{{ section.id }}();">Aplicar</button>
-            </div>
-          </div>
-          <div class="rc-filter-drawer-overlay" onclick="document.getElementById('filter-drawer-{{ section.id }}').classList.remove('is-open');"></div>
-
-          <div class="rc-layout">
-            {%- if has_filters -%}
-            <aside class="rc-sidebar">
-              <div style="font-weight: 800; font-size: 12px; margin-bottom: 15px; border-bottom: 2px solid #111; padding-bottom: 5px;">CATEGORIAS</div>
-              {%- for link in quick_links_menu.links -%}
-                <a href="{{ link.url }}" style="display: block; padding: 10px 0; color: #333; text-decoration: none; font-size: 14px; border-bottom: 1px solid #f5f5f5;">{{ link.title }}</a>
-              {%- endfor -%}
-            </aside>
-            {%- endif -%}
-
-            <main>
-              <div class="rc-grid">
-                {%- for item in search.results -%}
-                  {%- if item.object_type == 'product' -%}
-                    {%- assign product = item -%}
-                    {%- unless product.available -%}{%- continue -%}{%- endunless -%}
-                    {%- render 'rc-product-card', product: product -%}
-                  {%- endif -%}
-                {%- endfor -%}
-              </div>
-
-              <div class="rc-pagination-wrapper">
-                {%- if paginate.pages > 1 -%}
-                  <nav class="rc-pagination">
-                    {%- for part in paginate.parts -%}
-                      {%- if part.is_link -%}<a href="{{ part.url }}" class="rc-page">{{ part.title }}</a>
-                      {%- else -%}<span class="rc-page" {% if part.title == paginate.current_page %}aria-current="page"{% endif %}>{{ part.title }}</span>
-                      {%- endif -%}
-                    {%- endfor -%}
-                  </nav>
+        {%- if _has_products -%}
+          <div class="ad-search__grid" style="--ad-grid-cols: 4">
+            {%- for item in search.results -%}
+              {%- if item.object_type == 'product' -%}
+                {%- assign _price_str = item.price | money -%}
+                {%- if item.compare_at_price > item.price -%}
+                  {%- assign _was = item.compare_at_price | money -%}
+                {%- else -%}
+                  {%- assign _was = blank -%}
                 {%- endif -%}
-
-                <button type="button" class="rc-zip-btn" id="btn-download-all-{{ section.id }}">Baixar fotos + numerações</button>
-                <p id="zip-status-{{ section.id }}"></p>
-              </div>
-            </main>
+                {%- render 'apple-card',
+                    image: item.featured_image,
+                    image_alt: item.title,
+                    title: item.title,
+                    price: _price_str,
+                    price_was: _was,
+                    href: item.url,
+                    action_label: 'Comprar' -%}
+              {%- endif -%}
+            {%- endfor -%}
           </div>
+        {%- endif -%}
 
-        </div>
+        {%- assign _has_other = false -%}
+        {%- for item in search.results -%}
+          {%- if item.object_type != 'product' -%}{%- assign _has_other = true -%}{%- break -%}{%- endif -%}
+        {%- endfor -%}
+
+        {%- if _has_other -%}
+          <section class="ad-search__other">
+            <h2 class="ad-search__other-title ad-body-strong">Outras páginas e artigos</h2>
+            <ul class="ad-search__other-list">
+              {%- for item in search.results -%}
+                {%- if item.object_type != 'product' -%}
+                  <li class="ad-search__other-item">
+                    <a class="ad-search__other-link" href="{{ item.url }}">
+                      <span class="ad-body-strong">{{ item.title }}</span>
+                      <span class="ad-caption ad-search__other-type">{{ item.object_type }}</span>
+                    </a>
+                  </li>
+                {%- endif -%}
+              {%- endfor -%}
+            </ul>
+          </section>
+        {%- endif -%}
+
+        {%- if paginate.pages > 1 -%}
+          <nav class="ad-search__pagination" role="navigation" aria-label="Paginação">
+            {%- if paginate.previous -%}
+              <a class="ad-btn ad-btn--text-link" href="{{ paginate.previous.url }}" rel="prev">‹ Anterior</a>
+            {%- endif -%}
+            <span class="ad-caption" style="opacity:.7">
+              Página {{ paginate.current_page }} de {{ paginate.pages }}
+            </span>
+            {%- if paginate.next -%}
+              <a class="ad-btn ad-btn--text-link" href="{{ paginate.next.url }}" rel="next">Próxima ›</a>
+            {%- endif -%}
+          </nav>
+        {%- endif -%}
 
       {%- endpaginate -%}
     {%- endif -%}
 
   {%- else -%}
 
-    <div class="rc-container">
-      <div class="rc-empty">
-        <h1>Buscar produtos</h1>
-        <p>Digite o nome do produto que procura.</p>
-        <form class="rc-search-form" action="{{ routes.search_url }}" method="get">
-          <input type="hidden" name="type" value="product">
-          <input type="text" name="q" placeholder="Buscar produtos..." autocomplete="off">
-          <button type="submit">Buscar</button>
-        </form>
-      </div>
+    <div class="ad-search__initial">
+      <p class="ad-lead-airy">Digite o nome de um produto para começar — ou explore nossas coleções.</p>
+      {%- render 'apple-button', variant: 'secondary-pill', href: '/collections/all', label: 'Navegar por coleções' -%}
     </div>
 
   {%- endif -%}
 
-  <!-- Modal Quick Buy -->
-  <div class="nb-qb-wrap" id="modal-quick-buy-{{ section.id }}" onclick="if(event.target==this) closeQuickBuy_{{ section.id }}()">
-    <div class="nb-qb-modal" id="modal-content-{{ section.id }}"></div>
-  </div>
-
-  <script>
-    (function() {
-      var SID = '{{ section.id }}';
-      var root = document.getElementById('royal-search-gummy-' + SID);
-      if (!root) return;
-
-      // ── DADOS DOS PRODUTOS ────────────────────────────────────────────
-      var allProducts = [];
-      root.querySelectorAll('script[type="application/json"][id^="data-"]').forEach(function(el) {
-        try { allProducts.push(JSON.parse(el.textContent)); } catch(e) {}
-      });
-
-      // ── COLETAR TAMANHOS E MARCAS ─────────────────────────────────────
-      var allSizes   = new Set();
-      var allVendors = new Set();
-
-      allProducts.forEach(function(product) {
-        (product.variants || []).forEach(function(v) {
-          if (v.available && v.title && v.title !== 'Default Title') {
-            var sizeOnly = v.title.split(' / ')[0].trim();
-            if (sizeOnly) allSizes.add(sizeOnly);
-          }
-        });
-        if (product.vendor) allVendors.add(product.vendor.trim());
-      });
-
-      // ── RENDER FILTROS ────────────────────────────────────────────────
-      function chip(value, cls) {
-        return '<label class="rc-filter-chip"><input type="checkbox" class="' + cls + '" value="' + value.replace(/"/g,'&quot;') + '"><span>' + value + '</span></label>';
-      }
-
-      function renderFilters() {
-        var sortedSizes = Array.from(allSizes).sort(function(a, b) {
-          var na = parseFloat(a), nb = parseFloat(b);
-          return (!isNaN(na) && !isNaN(nb)) ? na - nb : a.localeCompare(b);
-        });
-        var sizesEl = document.getElementById('sizes-filter-' + SID);
-        if (sizesEl) sizesEl.innerHTML = sortedSizes.map(function(s){ return chip(s, 'size-filter'); }).join('') || '<p class="rc-filter-empty">Nenhum tamanho disponível</p>';
-
-        var marcasEl = document.getElementById('marcas-filter-' + SID);
-        if (marcasEl) {
-          var sortedVendors = Array.from(allVendors).sort();
-          marcasEl.innerHTML = sortedVendors.map(function(v){ return chip(v, 'marca-filter'); }).join('') || '<p class="rc-filter-empty">Nenhuma marca disponível</p>';
-        }
-      }
-
-      // ── FILTRAR CARDS ─────────────────────────────────────────────────
-      function doFilterCards() {
-        var selectedSizes  = Array.from(root.querySelectorAll('.size-filter:checked')).map(function(el){ return el.value; });
-        var selectedMarcas = Array.from(root.querySelectorAll('.marca-filter:checked')).map(function(el){ return el.value.toLowerCase(); });
-
-        root.querySelectorAll('.rc-card').forEach(function(card) {
-          var dataEl = card.querySelector('script[type="application/json"]');
-          if (!dataEl) return;
-          try {
-            var data   = JSON.parse(dataEl.textContent);
-            var vendor = (data.vendor || '').toLowerCase();
-            var hasSizeMatch  = selectedSizes.length === 0 ||
-              (data.variants || []).some(function(v){
-                var sizeOnly = String(v.title || '').split(' / ')[0].trim();
-                return v.available && selectedSizes.includes(sizeOnly);
-              });
-            var hasMarcaMatch = selectedMarcas.length === 0 ||
-              selectedMarcas.some(function(m){ return vendor === m; });
-            card.style.display = (hasSizeMatch && hasMarcaMatch) ? 'flex' : 'none';
-          } catch(e) {}
-        });
-      }
-
-      function updateFilterBadge() {
-        var active = root.querySelectorAll('.size-filter:checked, .marca-filter:checked').length;
-        var btn   = document.getElementById('btn-filter-toggle-' + SID);
-        var badge = document.getElementById('rc-filter-badge-' + SID);
-        if (btn) btn.classList.toggle('has-filters', active > 0);
-        if (badge) badge.textContent = active;
-      }
-
-      window['applyFilters_' + SID] = function() {
-        doFilterCards();
-        document.getElementById('filter-drawer-' + SID).classList.remove('is-open');
-        updateFilterBadge();
-      };
-
-      window['resetFilters_' + SID] = function() {
-        root.querySelectorAll('.size-filter, .marca-filter').forEach(function(el){ el.checked = false; });
-        root.querySelectorAll('.rc-card').forEach(function(card){ card.style.display = 'flex'; });
-        document.getElementById('filter-drawer-' + SID).classList.remove('is-open');
-        updateFilterBadge();
-      };
-
-      var drawer = document.getElementById('filter-drawer-' + SID);
-      if (drawer) {
-        drawer.addEventListener('change', function() { updateFilterBadge(); });
-      }
-
-      var btnFilter = document.getElementById('btn-filter-toggle-' + SID);
-      if (btnFilter) {
-        btnFilter.addEventListener('click', function() {
-          document.getElementById('filter-drawer-' + SID).classList.toggle('is-open');
-        });
-
-        // Tornar ícone flutuante ao rolar
-        window.addEventListener('scroll', function() {
-          var titleEl = root.querySelector('.rc-title');
-          if (!titleEl) return;
-          btnFilter.classList.toggle('is-floating', titleEl.getBoundingClientRect().bottom < 0);
-        });
-      }
-
-      // ── ORDENAÇÃO POR ESTOQUE (JS) ────────────────────────────────────
-      (function() {
-        var grid = root.querySelector('.rc-grid');
-        if (!grid || !allProducts.length) return;
-        function totalInv(p) {
-          return (p.variants || []).reduce(function(s, v) { return s + (v.inventory || 0); }, 0);
-        }
-        allProducts.slice().sort(function(a, b) { return totalInv(b) - totalInv(a); }).forEach(function(p) {
-          var card = root.querySelector('[data-product-id="' + p.id + '"]');
-          if (card) grid.appendChild(card);
-        });
-      })();
-
-      // ── DOWNLOAD FOTOS ────────────────────────────────────────────────
-      function safeFileName(name) {
-        return (name || 'produto').toLowerCase()
-          .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-          .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 70) || 'produto';
-      }
-
-      function refFromPriceCents(n) {
-        n = parseInt(n, 10);
-        return isNaN(n) || n <= 0 ? '' : String(Math.floor(n / 100)).padStart(4, '0');
-      }
-
-      function variantsText(data) {
-        var variants = (data.variants || []).filter(function(v){ return !!v.available; });
-        if (!variants.length) return 'SEM ESTOQUE';
-        var labels = [];
-        var seen = {};
-        variants.forEach(function(v) {
-          var lbl = String((v.opt1 && v.opt1 !== 'Default Title') ? v.opt1 : (v.title || '')).trim();
-          if (lbl && !seen[lbl]) { seen[lbl] = 1; labels.push(lbl); }
-        });
-        labels.sort(function(a, b) { return a.localeCompare(b, 'pt-BR', {numeric:true}); });
-        return labels.join(' - ');
-      }
-
-      function loadImage(url) {
-        return new Promise(function(resolve, reject) {
-          var img = new Image();
-          img.crossOrigin = 'anonymous';
-          img.onload = function() { resolve(img); };
-          img.onerror = reject;
-          img.src = url;
-        });
-      }
-
-      function drawOverlay(baseImg, title, variantsTextStr, refNumber) {
-        var w = baseImg.naturalWidth || 1200;
-        var h = baseImg.naturalHeight || 1200;
-        var canvas = document.createElement('canvas');
-        canvas.width = w; canvas.height = h;
-        var ctx = canvas.getContext('2d');
-        ctx.drawImage(baseImg, 0, 0, w, h);
-
-        var pad     = Math.round(w * 0.028);
-        var titleSz = Math.max(26, Math.round(w * 0.032));
-        var varSz   = Math.max(20, Math.round(w * 0.026));
-        var gapY    = Math.round(varSz * 0.22);
-        var boxH    = Math.max(Math.round(h * 0.095), Math.round(pad*0.75) + titleSz + gapY + varSz + Math.round(pad*0.75));
-        var yBox    = h - boxH;
-
-        ctx.save(); ctx.globalAlpha = 0.72; ctx.fillStyle = '#000'; ctx.fillRect(0, yBox, w, boxH); ctx.restore();
-        ctx.fillStyle = '#fff'; ctx.textBaseline = 'top';
-
-        ctx.font = '800 ' + titleSz + 'px system-ui,Arial';
-        var words = (title || '').trim().split(' ').slice(0, 4).join(' ');
-        ctx.fillText(words, pad, yBox + Math.round(pad * 0.75));
-
-        var vY = yBox + Math.round(pad * 0.75) + titleSz + gapY;
-        var refText = refNumber ? 'ref.: ' + refNumber : '';
-        if (refText) {
-          var refSz = Math.max(14, Math.round(varSz * 0.78));
-          ctx.font = '700 ' + refSz + 'px system-ui,Arial';
-          ctx.fillText(refText, w - pad - ctx.measureText(refText).width, vY + Math.max(0, Math.round((varSz - refSz) * 0.5)));
-        }
-        ctx.font = '700 ' + varSz + 'px system-ui,Arial';
-        ctx.fillText('Disponível: ' + variantsTextStr, pad, vY);
-
-        return canvas;
-      }
-
-      function canvasToBlob(canvas) {
-        return new Promise(function(resolve) { canvas.toBlob(function(b){ resolve(b); }, 'image/jpeg', 0.92); });
-      }
-
-      function downloadBlob(blob, filename) {
-        var url = URL.createObjectURL(blob);
-        var a   = document.createElement('a');
-        a.href  = url; a.download = filename;
-        document.body.appendChild(a);
-        try { a.click(); } catch(e) {}
-        a.remove();
-        setTimeout(function(){ try{ URL.revokeObjectURL(url); }catch(e){} }, 3500);
-      }
-
-      function sleep(ms) { return new Promise(function(r){ setTimeout(r, ms); }); }
-
-      var btnDl  = document.getElementById('btn-download-all-' + SID);
-      var statusEl = document.getElementById('zip-status-' + SID);
-
-      function zipStatus(msg) { if (statusEl) statusEl.textContent = msg || ''; }
-
-      if (btnDl) {
-        btnDl.addEventListener('click', async function() {
-          btnDl.disabled = true;
-          zipStatus('Preparando downloads...');
-          try {
-            var cards = Array.from(root.querySelectorAll('.rc-card[data-product-id]'));
-            var ok = 0;
-            for (var i = 0; i < cards.length; i++) {
-              var pid = cards[i].getAttribute('data-product-id');
-              var dataEl = document.getElementById('data-' + pid);
-              if (!dataEl) continue;
-              var data;
-              try { data = JSON.parse(dataEl.textContent); } catch(e) { continue; }
-              zipStatus('Gerando ' + (i+1) + '/' + cards.length + '...');
-              var imgEl = cards[i].querySelector('.rc-media img');
-              var imgUrl = (imgEl && (imgEl.currentSrc || imgEl.src)) || data.image || '';
-              if (!imgUrl) continue;
-              var baseImg;
-              try { baseImg = await loadImage(imgUrl); } catch(e) {
-                try { if (data.image) baseImg = await loadImage(data.image); else continue; } catch(e2) { continue; }
-              }
-              var vText  = variantsText(data);
-              var refNum = refFromPriceCents(data.price_raw);
-              var canvas = drawOverlay(baseImg, data.title || '', vText, refNum);
-              var blob   = await canvasToBlob(canvas);
-              if (!blob) continue;
-              var name   = safeFileName(data.title || ('produto-' + pid));
-              var refPart = refNum ? ('-ref-' + refNum) : '';
-              downloadBlob(blob, String(i+1).padStart(2,'0') + '-' + name + refPart + '.jpg');
-              ok++;
-              await sleep(250);
-            }
-            zipStatus(ok ? 'Downloads iniciados ✅ (' + ok + ' arquivos)' : 'Nenhum produto encontrado.');
-          } catch(e) {
-            zipStatus('Erro ao baixar imagens');
-          } finally {
-            btnDl.disabled = false;
-          }
-        });
-      }
-
-      // ── QUICK BUY ─────────────────────────────────────────────────────
-      var modalWrap    = document.getElementById('modal-quick-buy-' + SID);
-      var modalContent = document.getElementById('modal-content-' + SID);
-
-      window['openQuickBuy'] = function(id) {
-        var dataEl = document.getElementById('data-' + id);
-        if (!dataEl) return;
-        var data;
-        try { data = JSON.parse(dataEl.textContent); } catch(e) { return; }
-
-        var variantsHtml = (data.variants || []).map(function(v) {
-          return '<button onclick="selectVariant_' + SID + '(this, \'' + v.id + '\')" class="sz-btn" ' + (!v.available ? 'disabled' : '') +
-            ' style="padding:12px; border:1px solid #ddd; border-radius:4px; background:' + (v.available ? '#fff' : '#f5f5f5') + '; cursor:pointer; font-weight:700; opacity:' + (v.available ? '1' : '0.4') + '">' +
-            v.title + '</button>';
-        }).join('');
-
-        modalContent.innerHTML =
-          '<button onclick="closeQuickBuy_' + SID + '()" style="position:absolute;top:15px;right:15px;border:none;background:none;font-size:24px;cursor:pointer;">&times;</button>' +
-          '<div style="display:flex;gap:15px;align-items:center;margin-bottom:20px;">' +
-            '<img src="' + (data.image || '') + '" style="width:70px;height:70px;object-fit:cover;border-radius:8px;">' +
-            '<div><h4 style="margin:0;font-size:14px;">' + (data.title || '') + '</h4>' +
-            '<div style="font-weight:800;font-size:16px;">' + (data.price || '') + '</div></div>' +
-          '</div>' +
-          '<div style="font-size:12px;font-weight:800;margin-bottom:10px;">ESCOLHA O TAMANHO:</div>' +
-          '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px;">' + variantsHtml + '</div>' +
-          '<button id="btn-add-final-' + SID + '" disabled onclick="finalizeAdd_' + SID + '(this)" style="width:100%;padding:16px;background:#111;color:#fff;border:none;border-radius:4px;font-weight:800;cursor:pointer;opacity:0.5;">ADICIONAR À SACOLA</button>';
-
-        window['_selectedVariant_' + SID] = null;
-        modalWrap.classList.add('nb-open');
-      };
-
-      window['selectVariant_' + SID] = function(btn, id) {
-        root.querySelectorAll('.sz-btn').forEach(function(b){ b.style.borderColor = '#ddd'; });
-        btn.style.borderColor = '#111';
-        window['_selectedVariant_' + SID] = id;
-        var finalBtn = document.getElementById('btn-add-final-' + SID);
-        if (finalBtn) { finalBtn.disabled = false; finalBtn.style.opacity = '1'; }
-      };
-
-      window['finalizeAdd_' + SID] = function(btn) {
-        var vid = window['_selectedVariant_' + SID];
-        if (!vid) return;
-        btn.innerText = 'ADICIONANDO...';
-        fetch('/cart/add.js', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ items: [{ id: vid, quantity: 1 }] })
-        }).then(function() {
-          btn.innerText = 'ADICIONAR À SACOLA';
-          closeQuickBuy_{{ section.id }}();
-          // Tentar abrir o drawer de carrinho
-          ['cart:open','cart:refresh','cart:updated','product:added'].forEach(function(ev) {
-            try { document.dispatchEvent(new CustomEvent(ev, {bubbles:true})); } catch(e){}
-          });
-          setTimeout(function() {
-            var cartBtn = document.querySelector('[data-cart-drawer],[class*="cart-toggle"],button[aria-label*="Cart"]');
-            if (cartBtn) cartBtn.click();
-          }, 300);
-        }).catch(function() {
-          btn.innerText = 'ADICIONAR À SACOLA';
-          alert('Erro ao adicionar. Tente novamente.');
-        });
-      };
-
-      window['closeQuickBuy_' + SID] = function() {
-        if (modalWrap) modalWrap.classList.remove('nb-open');
-      };
-
-      // Inicializar
-      renderFilters();
-
-    })();
-  </script>
-
 </section>
+
+<style>
+  .ad-search {
+    padding-top: var(--ad-space-xxl);
+    padding-bottom: var(--ad-space-section);
+  }
+  .ad-search > * {
+    max-width: 1440px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--ad-space-lg);
+    padding-right: var(--ad-space-lg);
+  }
+  .ad-search__head { text-align: center; margin-bottom: var(--ad-space-lg); }
+  .ad-search__title { margin: 0 0 var(--ad-space-xs); }
+  .ad-search__count { margin: 0; color: var(--ad-color-ink-muted-48); }
+
+  .ad-search__form { max-width: 640px; margin: 0 auto var(--ad-space-xl); }
+  .ad-search__field {
+    display: flex;
+    align-items: center;
+    gap: var(--ad-space-xs);
+    border: 1px solid var(--ad-color-hairline);
+    border-radius: var(--ad-radius-pill);
+    background: var(--ad-color-canvas);
+    padding: 0 20px;
+    height: 44px;
+    transition: border-color .2s ease, box-shadow .2s ease;
+  }
+  .ad-search__field:focus-within {
+    border-color: var(--ad-color-ink);
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, .12);
+  }
+  .ad-search__icon {
+    display: inline-flex;
+    color: var(--ad-color-ink-muted-48);
+    flex-shrink: 0;
+  }
+  .ad-search__input {
+    flex: 1;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font: inherit;
+    font-family: var(--ad-font-text);
+    color: var(--ad-color-ink);
+    padding: 12px 4px;
+    min-width: 0;
+  }
+  .ad-search__input::placeholder { color: var(--ad-color-ink-muted-48); }
+  .ad-search__submit {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0; overflow: hidden;
+    clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+
+  .ad-search__grid {
+    display: grid;
+    grid-template-columns: repeat(var(--ad-grid-cols, 4), minmax(0, 1fr));
+    gap: var(--ad-space-lg);
+  }
+
+  .ad-search__other { margin-top: var(--ad-space-xxl); }
+  .ad-search__other-title { margin: 0 0 var(--ad-space-md); }
+  .ad-search__other-list { list-style: none; margin: 0; padding: 0; }
+  .ad-search__other-item { border-top: 1px solid var(--ad-color-hairline); }
+  .ad-search__other-item:last-child { border-bottom: 1px solid var(--ad-color-hairline); }
+  .ad-search__other-link {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--ad-space-md);
+    padding: var(--ad-space-md) 0;
+    color: var(--ad-color-ink);
+    text-decoration: none;
+  }
+  .ad-search__other-link:hover { color: var(--ad-color-primary); }
+  .ad-search__other-type { color: var(--ad-color-ink-muted-48); text-transform: capitalize; }
+
+  .ad-search__pagination {
+    margin-top: var(--ad-space-xxl);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--ad-space-lg);
+  }
+
+  .ad-search__empty {
+    text-align: center;
+    padding: var(--ad-space-section) var(--ad-space-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--ad-space-md);
+    border-radius: var(--ad-radius-lg);
+  }
+  .ad-search__empty > h2 { margin: 0; }
+  .ad-search__empty > p { margin: 0; max-width: 520px; color: var(--ad-color-ink-muted-80); }
+
+  .ad-search__initial {
+    text-align: center;
+    padding: var(--ad-space-xl) 0 var(--ad-space-section);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--ad-space-md);
+  }
+  .ad-search__initial > p { margin: 0; max-width: 560px; }
+
+  @media (max-width: 1068px) {
+    .ad-search__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @media (max-width: 833px) {
+    .ad-search__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 480px) {
+    .ad-search__grid { grid-template-columns: 1fr; gap: var(--ad-space-md); }
+  }
+</style>
 
 {% schema %}
 {
-  "name": "Search page",
+  "name": "Busca (Apple)",
   "settings": [
-    { "type": "color", "id": "bg",       "label": "Fundo da Página",   "default": "#FFFFFF" },
-    { "type": "color", "id": "card_bg",  "label": "Fundo do Card",     "default": "#FFFFFF" },
-    { "type": "color", "id": "primary",  "label": "Cor de Texto",      "default": "#111111" },
-    { "type": "color", "id": "green",    "label": "Cor do Botão",      "default": "#B6E35C" },
-    { "type": "color", "id": "badge_bg", "label": "Cor do Badge",      "default": "#1a1a1a" },
-    { "type": "range", "id": "badge_opacity", "min": 0, "max": 100, "step": 10, "unit": "%", "label": "Opacidade do Badge", "default": 100 },
-    { "type": "range", "id": "card_radius", "min": 0, "max": 30, "step": 1, "unit": "px", "label": "Arredondamento dos Cards", "default": 6 },
-    { "type": "link_list", "id": "quick_links", "label": "Menu de Categorias (sidebar)" }
+    { "type": "range", "id": "products_per_page", "label": "Produtos por página", "min": 8, "max": 48, "step": 4, "default": 24 }
   ]
 }
 {% endschema %}
