@@ -1,272 +1,419 @@
-{%- comment -%}
-  Apple-pure search template.
-  - Pill-shaped search input (submits on Enter)
-  - Apple-card grid for product results (4 / 2 / 1 responsive)
-  - Separate small list for non-product results (pages, articles)
-  - Native Shopify pagination
-  - Empty state tile + initial state form
-{%- endcomment -%}
+{% comment %}
+Royal • Search Gummy Style (v1.0.0)
+- Espelha collection-template.liquid: mesma rc-grid, mesmo rc-product-card,
+  mesmo seletor de tier, mesmo Quick Buy modal.
+- Sem filtros de marca/modelo/tamanho (resultados de busca são heterogêneos).
+- Sem botão "Baixar fotos" (download é por coleção, não por busca).
+- Resultados não-produto (pages, articles) aparecem em lista compacta no fim.
+{% endcomment %}
 
-{%- assign _per_page = section.settings.products_per_page | default: 24 -%}
+{%- assign items_per_page = section.settings.products_per_page | default: 24 -%}
+{%- render 'rc-tier-card-assets' -%}
 
-<section class="ad-search" data-section-id="{{ section.id }}" data-section-type="search-template">
+<section id="royal-search-gummy-{{ section.id }}" class="royal-section-fix" data-section-id="{{ section.id }}" data-section-type="search">
 
-  <header class="ad-search__head">
-    <h1 class="ad-search__title ad-display-lg">
-      {%- if search.performed and search.terms != blank -%}
-        {{ search.terms }}
-      {%- else -%}
-        Busca
-      {%- endif -%}
-    </h1>
+  <style>
+    #royal-search-gummy-{{ section.id }}, #royal-search-gummy-{{ section.id }} * { box-sizing: border-box; }
+
+    #royal-search-gummy-{{ section.id }}{
+      --bg: {{ section.settings.bg | default: '#FFFFFF' }};
+      --card: {{ section.settings.card_bg | default: '#ffffff' }};
+      --primary: {{ section.settings.primary | default: '#111111' }};
+      --green: {{ section.settings.green | default: '#B6E35C' }};
+      --text: {{ section.settings.text | default: '#333333' }};
+      --radius: {{ section.settings.card_radius | default: 6 }}px;
+      --badge-bg: {{ section.settings.badge_bg | default: '#1a1a1a' }};
+      --badge-opacity: {{ section.settings.badge_opacity | default: 100 | times: 0.01 }};
+      background: var(--bg);
+      padding: 18px 0 34px;
+      overflow-x: hidden;
+    }
+
+    #royal-search-gummy-{{ section.id }} .rc-container{ max-width: 1320px; margin: 0 auto; padding: 0 16px; width: 100%; }
+    #royal-search-gummy-{{ section.id }} .rc-title{ color: var(--primary); font-weight: 700; font-size: clamp(22px, 3vw, 36px); margin: 10px 0; }
+    #royal-search-gummy-{{ section.id }} .rc-subtitle{ color: #666; font-size: 14px; margin: 0 0 16px; }
+
+    /* SEARCH FORM */
+    #royal-search-gummy-{{ section.id }} .rc-search-form{
+      display: flex; gap: 8px; max-width: 560px; margin: 0 0 24px;
+    }
+    #royal-search-gummy-{{ section.id }} .rc-search-input{
+      flex: 1; height: 44px; padding: 10px 18px;
+      border: 1px solid #e0e0e0; border-radius: 9999px;
+      font-size: 15px; font-family: inherit; color: var(--text); background: #fff;
+    }
+    #royal-search-gummy-{{ section.id }} .rc-search-input:focus{
+      outline: 2px solid #0066cc; outline-offset: 1px; border-color: #0066cc;
+    }
+    #royal-search-gummy-{{ section.id }} .rc-search-btn{
+      height: 44px; padding: 0 24px; background: #111; color: #fff;
+      border: 0; border-radius: 9999px; font-weight: 700; cursor: pointer;
+      font-size: 14px;
+    }
+    #royal-search-gummy-{{ section.id }} .rc-search-btn:hover{ opacity: 0.9; }
+
+    /* GRID CORE (idêntico à collection) */
+    #royal-search-gummy-{{ section.id }} .rc-grid{
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      width: 100%;
+    }
+    @media (max-width: 1100px){ #royal-search-gummy-{{ section.id }} .rc-grid{ grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 767px){
+      #royal-search-gummy-{{ section.id }} .rc-grid{ grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      #royal-search-gummy-{{ section.id }} .rc-container{ padding: 0 10px; }
+    }
+
+    /* CARDS (idêntico à collection) */
+    #royal-search-gummy-{{ section.id }} .rc-card{
+      background: var(--card);
+      border-radius: var(--radius);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #f0f0f0;
+      transition: transform 0.2s ease;
+    }
+    #royal-search-gummy-{{ section.id }} .rc-media{
+      display: block; width: 100%; aspect-ratio: 1/1; position: relative; background: #f9f9f9;
+    }
+    #royal-search-gummy-{{ section.id }} .rc-media img{
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
+    }
+    #royal-search-gummy-{{ section.id }} .rc-name{
+      font-size: 13px; font-weight: 600; color: var(--text); text-decoration: none;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+      height: 34px; margin: 8px 0 4px; line-height: 1.3;
+    }
+    #royal-search-gummy-{{ section.id }} .rc-price-value{ font-size: 15px; font-weight: 800; color: #111; }
+
+    #royal-search-gummy-{{ section.id }} .rc-badge{
+      position: absolute; top: 8px; left: 8px; background: var(--badge-bg); opacity: var(--badge-opacity); color: #fff;
+      border-radius: 2px; font-size: 10px; font-weight: 700; padding: 3px 6px; z-index: 2;
+    }
+    .nb-bag {
+      position: absolute; bottom: 8px; right: 8px; background: #fff; border: none;
+      border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; z-index: 3;
+    }
+
+    /* OUTROS RESULTADOS (pages, articles) */
+    #royal-search-gummy-{{ section.id }} .rc-other-results{
+      margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee;
+    }
+    #royal-search-gummy-{{ section.id }} .rc-other-results h2{
+      font-size: 18px; font-weight: 700; margin: 0 0 16px; color: var(--primary);
+    }
+    #royal-search-gummy-{{ section.id }} .rc-other-list{
+      list-style: none; margin: 0; padding: 0;
+    }
+    #royal-search-gummy-{{ section.id }} .rc-other-list li{
+      padding: 12px 0; border-bottom: 1px solid #f5f5f5;
+    }
+    #royal-search-gummy-{{ section.id }} .rc-other-list a{
+      color: #0066cc; text-decoration: none; font-size: 15px; font-weight: 600;
+    }
+    #royal-search-gummy-{{ section.id }} .rc-other-list a:hover{ text-decoration: underline; }
+    #royal-search-gummy-{{ section.id }} .rc-other-list .rc-other-snippet{
+      color: #666; font-size: 13px; margin-top: 4px; line-height: 1.4;
+    }
+
+    /* PAGINAÇÃO (idêntico à collection) */
+    #royal-search-gummy-{{ section.id }} .rc-pagination-wrapper { margin-top: 40px; text-align: center; border-top: 1px solid #eee; padding-top: 20px; }
+    #royal-search-gummy-{{ section.id }} .rc-pagination { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    #royal-search-gummy-{{ section.id }} .rc-page {
+      min-width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;
+      border: 1px solid #ddd; border-radius: 4px; text-decoration: none; color: #111; font-weight: 600; font-size: 13px;
+    }
+    #royal-search-gummy-{{ section.id }} .rc-page[aria-current="page"] { background: #111; color: #fff; border-color: #111; }
+
+    /* EMPTY / INITIAL STATES */
+    #royal-search-gummy-{{ section.id }} .rc-empty{
+      text-align: center; padding: 60px 20px; background: #fafafa; border-radius: 12px; margin-top: 24px;
+    }
+    #royal-search-gummy-{{ section.id }} .rc-empty h2{ font-size: 22px; font-weight: 700; margin: 0 0 8px; color: var(--primary); }
+    #royal-search-gummy-{{ section.id }} .rc-empty p{ color: #666; margin: 0 0 20px; }
+    #royal-search-gummy-{{ section.id }} .rc-empty-cta{
+      display: inline-block; padding: 12px 24px; background: #111; color: #fff;
+      text-decoration: none; border-radius: 9999px; font-weight: 700; font-size: 14px;
+    }
+
+    /* MODAL QUICK BUY (idêntico à collection) */
+    .nb-qb-wrap { position: fixed; inset: 0; z-index: 999999; display: none; align-items: flex-end; justify-content: center; background: rgba(0,0,0,0.5); }
+    .nb-qb-wrap.nb-open { display: flex; }
+    .nb-qb-modal { background: #fff; width: 100%; max-width: 500px; border-radius: 16px 16px 0 0; padding: 20px; position: relative; }
+    .qb-close { position: absolute; top: 15px; right: 15px; border: none; background: none; font-size: 24px; cursor: pointer; line-height: 1; }
+    .qb-header { display: flex; gap: 15px; align-items: center; margin-bottom: 20px; }
+    .qb-thumb { width: 70px; height: 70px; object-fit: cover; border-radius: 8px; }
+    .qb-title { margin: 0; font-size: 14px; }
+    .qb-price { font-weight: 800; font-size: 16px; }
+    .qb-label { font-size: 12px; font-weight: 800; margin-bottom: 10px; }
+    .qb-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
+    .sz-btn { padding: 12px; border: 1px solid #ddd; border-radius: 4px; background: #fff; cursor: pointer; font-weight: 700; transition: border-color 0.15s ease; }
+    .sz-btn.is-selected { border-color: #111; }
+    .sz-btn.is-unavailable, .sz-btn[disabled] { background: #f5f5f5; opacity: 0.4; cursor: not-allowed; }
+    .qb-add { width: 100%; padding: 16px; background: #111; color: #fff; border: none; border-radius: 4px; font-weight: 800; cursor: pointer; opacity: 0.5; transition: opacity 0.15s ease; }
+    .qb-add.is-ready, .qb-add:not([disabled]) { opacity: 1; }
+  </style>
+
+  <div class="rc-container">
     {%- if search.performed -%}
-      <p class="ad-search__count ad-caption">
-        {%- if search.results_count == 1 -%}
-          1 resultado
-        {%- else -%}
-          {{ search.results_count }} resultados
-        {%- endif -%}
-      </p>
-    {%- endif -%}
-  </header>
+      {%- assign product_count = 0 -%}
+      {%- assign other_count = 0 -%}
+      {%- for r in search.results -%}
+        {%- if r.object_type == 'product' -%}{%- assign product_count = product_count | plus: 1 -%}
+        {%- else -%}{%- assign other_count = other_count | plus: 1 -%}{%- endif -%}
+      {%- endfor -%}
 
-  <form class="ad-search__form" action="{{ routes.search_url }}" method="get" role="search">
-    <input type="hidden" name="type" value="product">
-    <label class="ad-search__field">
-      <span class="ad-search__icon" aria-hidden="true">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="8" cy="8" r="5.5"></circle>
-          <path d="m12.5 12.5 3 3"></path>
-        </svg>
-      </span>
-      <input
-        type="search"
-        name="q"
-        value="{{ search.terms | escape }}"
-        placeholder="Buscar produtos…"
-        autocomplete="off"
-        aria-label="Buscar produtos"
-        class="ad-search__input">
-      <button type="submit" class="ad-search__submit" aria-label="Buscar">Buscar</button>
-    </label>
-  </form>
+      <h1 class="rc-title">{{ search.terms | escape }}</h1>
+      <p class="rc-subtitle">{{ search.results_count }} {% if search.results_count == 1 %}resultado{% else %}resultados{% endif %}</p>
 
-  {%- if search.performed -%}
-    {%- if search.results.size == 0 -%}
+      <form class="rc-search-form" action="{{ routes.search_url }}" method="get" role="search">
+        <input type="hidden" name="type" value="product">
+        <input type="search" name="q" class="rc-search-input" value="{{ search.terms | escape }}" placeholder="Buscar produtos…" autocomplete="off" aria-label="Buscar">
+        <button type="submit" class="rc-search-btn">Buscar</button>
+      </form>
 
-      <div class="ad-search__empty ad-tile ad-tile--parchment">
-        <h2 class="ad-display-lg">Nenhum resultado para &ldquo;{{ search.terms }}&rdquo;</h2>
-        <p class="ad-lead">Tente outro termo, ou navegue por nossas coleções.</p>
-        {%- render 'apple-button', variant: 'primary', href: '/collections/all', label: 'Ver todos os produtos' -%}
-      </div>
+      {%- if search.results_count == 0 -%}
+        <div class="rc-empty">
+          <h2>Nenhum resultado para "{{ search.terms | escape }}"</h2>
+          <p>Tente outros termos ou navegue por todas as marcas.</p>
+          <a href="{{ routes.all_products_collection_url }}" class="rc-empty-cta">Ver todos os produtos</a>
+        </div>
+      {%- else -%}
 
-    {%- else -%}
-      {%- paginate search.results by _per_page -%}
+        {%- paginate search.results by items_per_page -%}
 
-        {%- assign _has_products = false -%}
-        {%- for item in search.results -%}
-          {%- if item.object_type == 'product' -%}{%- assign _has_products = true -%}{%- break -%}{%- endif -%}
-        {%- endfor -%}
-
-        {%- if _has_products -%}
-          <div class="ad-search__grid" style="--ad-grid-cols: 4">
-            {%- for item in search.results -%}
-              {%- if item.object_type == 'product' -%}
-                {%- assign _price_str = item.price | money -%}
-                {%- if item.compare_at_price > item.price -%}
-                  {%- assign _was = item.compare_at_price | money -%}
-                {%- else -%}
-                  {%- assign _was = blank -%}
-                {%- endif -%}
-                {%- render 'apple-card',
-                    image: item.featured_image,
-                    image_alt: item.title,
-                    title: item.title,
-                    price: _price_str,
-                    price_was: _was,
-                    href: item.url,
-                    action_label: 'Comprar' -%}
-              {%- endif -%}
-            {%- endfor -%}
-          </div>
-        {%- endif -%}
-
-        {%- assign _has_other = false -%}
-        {%- for item in search.results -%}
-          {%- if item.object_type != 'product' -%}{%- assign _has_other = true -%}{%- break -%}{%- endif -%}
-        {%- endfor -%}
-
-        {%- if _has_other -%}
-          <section class="ad-search__other">
-            <h2 class="ad-search__other-title ad-body-strong">Outras páginas e artigos</h2>
-            <ul class="ad-search__other-list">
-              {%- for item in search.results -%}
-                {%- if item.object_type != 'product' -%}
-                  <li class="ad-search__other-item">
-                    <a class="ad-search__other-link" href="{{ item.url }}">
-                      <span class="ad-body-strong">{{ item.title }}</span>
-                      <span class="ad-caption ad-search__other-type">{{ item.object_type }}</span>
-                    </a>
-                  </li>
+          {%- if product_count > 0 -%}
+            <div class="rc-grid">
+              {%- for r in search.results -%}
+                {%- if r.object_type == 'product' -%}
+                  {%- unless r.available -%}{%- continue -%}{%- endunless -%}
+                  {%- assign product = r -%}
+                  {%- render 'rc-product-card', product: product, product_index: forloop.index -%}
                 {%- endif -%}
               {%- endfor -%}
-            </ul>
-          </section>
-        {%- endif -%}
+            </div>
+          {%- endif -%}
 
-        {%- if paginate.pages > 1 -%}
-          <nav class="ad-search__pagination" role="navigation" aria-label="Paginação">
-            {%- if paginate.previous -%}
-              <a class="ad-btn ad-btn--text-link" href="{{ paginate.previous.url }}" rel="prev">‹ Anterior</a>
-            {%- endif -%}
-            <span class="ad-caption" style="opacity:.7">
-              Página {{ paginate.current_page }} de {{ paginate.pages }}
-            </span>
-            {%- if paginate.next -%}
-              <a class="ad-btn ad-btn--text-link" href="{{ paginate.next.url }}" rel="next">Próxima ›</a>
-            {%- endif -%}
-          </nav>
-        {%- endif -%}
+          {%- if other_count > 0 -%}
+            <section class="rc-other-results">
+              <h2>Outras páginas ({{ other_count }})</h2>
+              <ul class="rc-other-list">
+                {%- for r in search.results -%}
+                  {%- if r.object_type != 'product' -%}
+                    <li>
+                      <a href="{{ r.url }}">{{ r.title | escape }}</a>
+                      {%- if r.content != blank -%}
+                        <div class="rc-other-snippet">{{ r.content | strip_html | truncate: 160 }}</div>
+                      {%- endif -%}
+                    </li>
+                  {%- endif -%}
+                {%- endfor -%}
+              </ul>
+            </section>
+          {%- endif -%}
 
-      {%- endpaginate -%}
+          {%- if paginate.pages > 1 -%}
+            <div class="rc-pagination-wrapper">
+              <nav class="rc-pagination" aria-label="Paginação">
+                {%- for part in paginate.parts -%}
+                  {%- if part.is_link -%}<a href="{{ part.url }}" class="rc-page">{{ part.title }}</a>
+                  {%- else -%}<span class="rc-page" {% if part.title == paginate.current_page %}aria-current="page"{% endif %}>{{ part.title }}</span>
+                  {%- endif -%}
+                {%- endfor -%}
+              </nav>
+            </div>
+          {%- endif -%}
+
+        {%- endpaginate -%}
+
+      {%- endif -%}
+
+    {%- else -%}
+      {%- comment -%} INITIAL STATE — busca não foi feita ainda {%- endcomment -%}
+      <h1 class="rc-title">Buscar</h1>
+      <p class="rc-subtitle">Encontre produtos por marca, modelo ou referência.</p>
+
+      <form class="rc-search-form" action="{{ routes.search_url }}" method="get" role="search">
+        <input type="hidden" name="type" value="product">
+        <input type="search" name="q" class="rc-search-input" placeholder="Buscar produtos…" autocomplete="off" autofocus aria-label="Buscar">
+        <button type="submit" class="rc-search-btn">Buscar</button>
+      </form>
+
+      <div class="rc-empty">
+        <h2>Digite o que você procura acima</h2>
+        <p>Você pode buscar por marca (Nike, Adidas, Puma), modelo (Air Max, Mizuno) ou referência.</p>
+        <a href="{{ routes.all_products_collection_url }}" class="rc-empty-cta">Ver todos os produtos</a>
+      </div>
     {%- endif -%}
+  </div>
 
-  {%- else -%}
+  {% comment %} Modal Quick Buy {% endcomment %}
+  <div class="nb-qb-wrap" id="modal-quick-buy" onclick="if(event.target==this) closeQuickBuy()">
+    <div class="nb-qb-modal" id="modal-content"></div>
+  </div>
 
-    <div class="ad-search__initial">
-      <p class="ad-lead-airy">Digite o nome de um produto para começar — ou explore nossas coleções.</p>
-      {%- render 'apple-button', variant: 'secondary-pill', href: '/collections/all', label: 'Navegar por coleções' -%}
-    </div>
+  <script>
+    (function() {
+      // Quick Buy só é definido se ainda não existir (evita conflito com collection-template)
+      if (window.openQuickBuy) return;
 
-  {%- endif -%}
+      window.openQuickBuy = function(id) {
+        const dataEl = document.getElementById('data-' + id);
+        if (!dataEl) return;
+        const data = JSON.parse(dataEl.textContent);
+        const modal = document.getElementById('modal-quick-buy');
+        const content = document.getElementById('modal-content');
+        if (!modal || !content) return;
+        content.replaceChildren();
+
+        const closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.className = 'qb-close';
+        closeBtn.setAttribute('aria-label', 'Fechar');
+        closeBtn.textContent = '×';
+        closeBtn.addEventListener('click', window.closeQuickBuy);
+
+        const header = document.createElement('div');
+        header.className = 'qb-header';
+        const img = document.createElement('img');
+        img.src = data.image;
+        img.alt = data.title || '';
+        img.className = 'qb-thumb';
+        img.width = 70;
+        img.height = 70;
+        const headerText = document.createElement('div');
+        const title = document.createElement('h4');
+        title.className = 'qb-title';
+        title.textContent = data.title;
+        const price = document.createElement('div');
+        price.className = 'qb-price';
+        price.textContent = data.price;
+        headerText.append(title, price);
+        header.append(img, headerText);
+
+        const label = document.createElement('div');
+        label.className = 'qb-label';
+        label.textContent = 'ESCOLHA O TAMANHO:';
+
+        const grid = document.createElement('div');
+        grid.className = 'qb-grid';
+        data.variants.forEach(v => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'sz-btn';
+          btn.textContent = v.title;
+          btn.dataset.variantId = String(v.id);
+          if (!v.available) {
+            btn.disabled = true;
+            btn.classList.add('is-unavailable');
+          }
+          btn.addEventListener('click', () => window.selectVariant(btn, v.id));
+          grid.appendChild(btn);
+        });
+
+        const addBtn = document.createElement('button');
+        addBtn.type = 'button';
+        addBtn.id = 'btn-add-final';
+        addBtn.className = 'qb-add';
+        addBtn.disabled = true;
+        addBtn.textContent = 'ADICIONAR À SACOLA';
+        addBtn.addEventListener('click', () => window.finalizeAdd(addBtn));
+
+        content.append(closeBtn, header, label, grid, addBtn);
+        modal.classList.add('nb-open');
+      };
+
+      window.selectedId = null;
+      window.selectVariant = function(btn, id) {
+        const prev = btn.parentElement && btn.parentElement.querySelector('.sz-btn.is-selected');
+        if (prev) prev.classList.remove('is-selected');
+        btn.classList.add('is-selected');
+        window.selectedId = id;
+        const finalBtn = document.getElementById('btn-add-final');
+        if (finalBtn) {
+          finalBtn.disabled = false;
+          finalBtn.classList.add('is-ready');
+        }
+      };
+
+      window.finalizeAdd = function(btn) {
+        btn.innerText = "ADICIONANDO...";
+        fetch('/cart/add.js', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ items: [{ id: window.selectedId, quantity: 1 }] })
+        }).then(() => {
+          btn.innerText = "ADICIONAR À SACOLA";
+          document.getElementById('modal-quick-buy').classList.remove('nb-open');
+          setTimeout(() => {
+            const cartDrawer = document.querySelector('[id*="CartDrawer"], [class*="cart-drawer"], [class*="Cart-drawer"]');
+            if (cartDrawer) {
+              cartDrawer.classList.add('is-open');
+              return;
+            }
+            const cartBtn = document.querySelector('[data-cart-drawer], [class*="cart-toggle"], button[aria-label*="Cart"]');
+            if (cartBtn) { cartBtn.click(); return; }
+            document.dispatchEvent(new CustomEvent('cart:open'));
+            window.dispatchEvent(new CustomEvent('cart:open'));
+            alert("✅ Produto adicionado à sacola com sucesso!");
+          }, 300);
+        }).catch((err) => {
+          btn.innerText = "ADICIONAR À SACOLA";
+          console.error(err);
+          alert("❌ Erro ao adicionar. Tente novamente.");
+        });
+      };
+
+      window.closeQuickBuy = function() {
+        document.getElementById('modal-quick-buy').classList.remove('nb-open');
+      };
+    })();
+  </script>
 
 </section>
 
-<style>
-  .ad-search {
-    padding-top: var(--ad-space-xxl);
-    padding-bottom: var(--ad-space-section);
-  }
-  .ad-search > * {
-    max-width: 1440px;
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: var(--ad-space-lg);
-    padding-right: var(--ad-space-lg);
-  }
-  .ad-search__head { text-align: center; margin-bottom: var(--ad-space-lg); }
-  .ad-search__title { margin: 0 0 var(--ad-space-xs); }
-  .ad-search__count { margin: 0; color: var(--ad-color-ink-muted-48); }
-
-  .ad-search__form { max-width: 640px; margin: 0 auto var(--ad-space-xl); }
-  .ad-search__field {
-    display: flex;
-    align-items: center;
-    gap: var(--ad-space-xs);
-    border: 1px solid var(--ad-color-hairline);
-    border-radius: var(--ad-radius-pill);
-    background: var(--ad-color-canvas);
-    padding: 0 20px;
-    height: 44px;
-    transition: border-color .2s ease, box-shadow .2s ease;
-  }
-  .ad-search__field:focus-within {
-    border-color: var(--ad-color-ink);
-    box-shadow: 0 0 0 3px rgba(0, 102, 204, .12);
-  }
-  .ad-search__icon {
-    display: inline-flex;
-    color: var(--ad-color-ink-muted-48);
-    flex-shrink: 0;
-  }
-  .ad-search__input {
-    flex: 1;
-    border: 0;
-    outline: 0;
-    background: transparent;
-    font: inherit;
-    font-family: var(--ad-font-text);
-    color: var(--ad-color-ink);
-    padding: 12px 4px;
-    min-width: 0;
-  }
-  .ad-search__input::placeholder { color: var(--ad-color-ink-muted-48); }
-  .ad-search__submit {
-    position: absolute;
-    width: 1px; height: 1px;
-    margin: -1px; padding: 0; overflow: hidden;
-    clip: rect(0,0,0,0); white-space: nowrap; border: 0;
-  }
-
-  .ad-search__grid {
-    display: grid;
-    grid-template-columns: repeat(var(--ad-grid-cols, 4), minmax(0, 1fr));
-    gap: var(--ad-space-lg);
-  }
-
-  .ad-search__other { margin-top: var(--ad-space-xxl); }
-  .ad-search__other-title { margin: 0 0 var(--ad-space-md); }
-  .ad-search__other-list { list-style: none; margin: 0; padding: 0; }
-  .ad-search__other-item { border-top: 1px solid var(--ad-color-hairline); }
-  .ad-search__other-item:last-child { border-bottom: 1px solid var(--ad-color-hairline); }
-  .ad-search__other-link {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: var(--ad-space-md);
-    padding: var(--ad-space-md) 0;
-    color: var(--ad-color-ink);
-    text-decoration: none;
-  }
-  .ad-search__other-link:hover { color: var(--ad-color-primary); }
-  .ad-search__other-type { color: var(--ad-color-ink-muted-48); text-transform: capitalize; }
-
-  .ad-search__pagination {
-    margin-top: var(--ad-space-xxl);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: var(--ad-space-lg);
-  }
-
-  .ad-search__empty {
-    text-align: center;
-    padding: var(--ad-space-section) var(--ad-space-lg);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--ad-space-md);
-    border-radius: var(--ad-radius-lg);
-  }
-  .ad-search__empty > h2 { margin: 0; }
-  .ad-search__empty > p { margin: 0; max-width: 520px; color: var(--ad-color-ink-muted-80); }
-
-  .ad-search__initial {
-    text-align: center;
-    padding: var(--ad-space-xl) 0 var(--ad-space-section);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--ad-space-md);
-  }
-  .ad-search__initial > p { margin: 0; max-width: 560px; }
-
-  @media (max-width: 1068px) {
-    .ad-search__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  }
-  @media (max-width: 833px) {
-    .ad-search__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  }
-  @media (max-width: 480px) {
-    .ad-search__grid { grid-template-columns: 1fr; gap: var(--ad-space-md); }
-  }
-</style>
-
 {% schema %}
 {
-  "name": "Busca (Apple)",
+  "name": "Search Royal Gummy",
   "settings": [
-    { "type": "range", "id": "products_per_page", "label": "Produtos por página", "min": 8, "max": 48, "step": 4, "default": 24 }
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "label": "Produtos por página",
+      "min": 12,
+      "max": 60,
+      "step": 4,
+      "default": 24
+    },
+    { "type": "header", "content": "Cores (espelha collection-template)" },
+    { "type": "color", "id": "bg",         "label": "Fundo da seção",       "default": "#FFFFFF" },
+    { "type": "color", "id": "card_bg",    "label": "Fundo do card",        "default": "#ffffff" },
+    { "type": "color", "id": "primary",    "label": "Texto principal",      "default": "#111111" },
+    { "type": "color", "id": "text",       "label": "Texto secundário",     "default": "#333333" },
+    { "type": "color", "id": "green",      "label": "Verde (preço atacado)","default": "#B6E35C" },
+    { "type": "color", "id": "badge_bg",   "label": "Fundo do badge",       "default": "#1a1a1a" },
+    {
+      "type": "range",
+      "id": "badge_opacity",
+      "label": "Opacidade do badge",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Raio dos cards (px)",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 6
+    }
   ]
 }
 {% endschema %}
