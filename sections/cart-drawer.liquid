@@ -205,6 +205,22 @@ AJUSTE (pedido do Fellipe):
     #RoyalCartDrawer .rcd__totals-label{ color: var(--rcd-muted); font-weight: 800; }
     #RoyalCartDrawer .rcd__totals-value{ font-weight: 950; }
 
+    /* Bloco discreto de peso total */
+    #RoyalCartDrawer .rcd__weight{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 6px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--rcd-border);
+      font-size: 12px;
+      color: var(--rcd-muted);
+    }
+    #RoyalCartDrawer .rcd__weight[hidden]{ display: none; }
+    #RoyalCartDrawer .rcd__weight-label{ font-weight: 600; }
+    #RoyalCartDrawer .rcd__weight-value{ font-weight: 700; color: var(--rcd-text); }
+
     /* =========================
        ITENS — 2 LINHAS
        ========================= */
@@ -733,6 +749,12 @@ AJUSTE (pedido do Fellipe):
       <div class="rcd__totals">
         <span class="rcd__totals-label">{{ section.settings.total_label | escape }}</span>
         <strong class="rcd__totals-value" data-rcd-subtotal>{{ cart.total_price | money }}</strong>
+      </div>
+
+      {%- comment -%} Peso total — bloco discreto, minimalista {%- endcomment -%}
+      <div class="rcd__weight" data-rcd-weight-row hidden>
+        <span class="rcd__weight-label">Peso total estimado</span>
+        <span class="rcd__weight-value" data-rcd-weight>—</span>
       </div>
 
       <div class="rcd__actions">
@@ -1331,9 +1353,29 @@ AJUSTE (pedido do Fellipe):
         itemsWrap.innerHTML = html;
       };
 
+      const weightRowEl = root.querySelector('[data-rcd-weight-row]');
+      const weightValEl = root.querySelector('[data-rcd-weight]');
+      const formatWeight = (grams) => {
+        const g = Number(grams) || 0;
+        if (g <= 0) return '';
+        if (g < 1000) return g + ' g';
+        return (g / 1000).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' kg';
+      };
+      const updateWeightUI = (totalGrams) => {
+        const txt = formatWeight(totalGrams);
+        if (!weightRowEl || !weightValEl) return;
+        if (txt) {
+          weightValEl.textContent = txt;
+          weightRowEl.hidden = false;
+        } else {
+          weightRowEl.hidden = true;
+        }
+      };
+
       const refreshUIFromCart = (cart) => {
         updateMinUI(sumQty(cart.items || []));
         if(subtotalEl) subtotalEl.textContent = formatMoneyBRL(cart.total_price || 0);
+        updateWeightUI(cart.total_weight || 0);
         renderItems(cart);
       };
 
