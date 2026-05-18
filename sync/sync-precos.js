@@ -249,6 +249,22 @@ async function setMetafieldsBatch(metafields) {
   return data.metafieldsSet.metafields.length;
 }
 
+async function tagSyncedOlist(productGid) {
+  // Adiciona tag 'synced-olist' no produto. Idempotente — Shopify dedupe tags.
+  // Marca o produto como "vinculado ao ERP Tiny/Olist" pra o carrinho saber se
+  // pode mandar pro checkout direto (Yampi) ou se precisa ir pra vendedora.
+  const data = await shopifyGraphQL(
+    `mutation tagsAdd($id: ID!, $tags: [String!]!) {
+       tagsAdd(id: $id, tags: $tags) {
+         userErrors { field message }
+       }
+     }`,
+    { id: productGid, tags: ['synced-olist'] }
+  );
+  const errs = data.tagsAdd.userErrors;
+  if (errs && errs.length) throw new Error('tagsAdd: ' + JSON.stringify(errs));
+}
+
 // ---------- main ----------
 function pickVarejoPrice(item) {
   const sku = (item.sku || item.codigo || '').trim();
@@ -382,10 +398,31 @@ async function run() {
     await new Promise(r => setTimeout(r, 100));
   }
 
+  // Fase 3C: tag 'synced-olist' em cada produto atualizado
+  // (carrinho usa essa tag pra decidir: checkout direto vs modal vendedora)
+  console.log(`\nAdicionando tag 'synced-olist' em ${productsArr.length} produtos...`);
+  let tagsWritten = 0, tagsFailed = 0;
+  for (let i = 0; i < productsArr.length; i++) {
+    const [productGid] = productsArr[i];
+    try {
+      await tagSyncedOlist(productGid);
+      tagsWritten++;
+    } catch (err) {
+      tagsFailed++;
+      if (tagsFailed < 5) console.error(`  ✗ tag ${productGid}: ${err.message}`);
+    }
+    if (i % 20 === 19) {
+      console.log(`  ${i + 1}/${productsArr.length} produtos taggeados`);
+      await new Promise(r => setTimeout(r, 200));
+    }
+  }
+  console.log(`Tags 'synced-olist': ${tagsWritten} sucesso (${tagsFailed} falhas)\n`);
+
   console.log(`\nResumo final:`);
   console.log(`  Produtos lidos no Olist:       ${total}`);
   console.log(`  variant.price atualizados:     ${pricesWritten}`);
   console.log(`  metafield preço atacado:       ${mfWritten}`);
+  console.log(`  Tag 'synced-olist' aplicada:   ${tagsWritten}`);
   console.log(`  Falhas (prices):               ${pricesFailed}`);
   console.log(`  Falhas (metafields):           ${mfFailed}`);
 }

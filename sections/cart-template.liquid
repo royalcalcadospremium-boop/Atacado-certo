@@ -8,19 +8,33 @@
 {%- endcomment -%}
 
 {%- comment -%}
-  Detecta se algum item precisa de vendedor.
-  Critérios (qualquer um dispara needs_vendedor=true):
-    1. Variante NÃO rastreada pelo Shopify (inventory_management != 'shopify')
-       → não está sincronizada com Tiny/Olist
-    2. Produto tem tag 'consultar-vendedor' (marcação manual)
-  Se TODOS os items passam ambos os testes → checkout direto (Yampi).
+  Detecta se algum item precisa de vendedor (= NÃO sincronizado com Tiny/Olist).
+
+  Critério "produto está sincronizado" — basta UM destes sinais:
+    A. product.tags contains 'synced-olist'        ← gravado pelo sync-precos.js
+                                                     em cada produto que ele atualiza
+                                                     (autoridade primária — 100% preciso)
+    B. variant.inventory_management == 'shopify'   ← inventário rastreado
+                                                     (fallback durante transição,
+                                                     antes do sync rodar novamente)
+
+  Critério "este produto exige vendedor" — needs_vendedor=true se QUALQUER:
+    1. NÃO está sincronizado (nem A nem B acima)
+    2. Tem tag 'consultar-vendedor' (override manual no admin)
 {%- endcomment -%}
 {%- assign needs_vendedor = false -%}
 {%- for item in cart.items -%}
-  {%- if item.variant.inventory_management != 'shopify' -%}
+  {%- assign is_synced = false -%}
+  {%- if item.product.tags contains 'synced-olist' -%}
+    {%- assign is_synced = true -%}
+  {%- endif -%}
+  {%- if item.variant.inventory_management == 'shopify' -%}
+    {%- assign is_synced = true -%}
+  {%- endif -%}
+  {%- unless is_synced -%}
     {%- assign needs_vendedor = true -%}
     {%- break -%}
-  {%- endif -%}
+  {%- endunless -%}
   {%- if item.product.tags contains 'consultar-vendedor' -%}
     {%- assign needs_vendedor = true -%}
     {%- break -%}
