@@ -102,172 +102,22 @@
     "sections": {
       "header": {
         "type": "header",
-        "blocks": {
-          "7000eb54-1dfe-42a3-9fb7-577d915b94cb": {
-            "type": "mega_menu",
-            "disabled": true,
-            "settings": {
-              "menu_item": "",
-              "image_1_heading": "Your image",
-              "image_1_text": "Tell your story",
-              "image_1_link": "",
-              "image_2_heading": "Your image",
-              "image_2_text": "Tell your story",
-              "image_2_link": ""
-            }
-          }
-        },
-        "block_order": [
-          "7000eb54-1dfe-42a3-9fb7-577d915b94cb"
-        ],
         "settings": {
-          "enable_sticky_header": false,
-          "rastreiopage": "rastrear-pedido",
-          "logo": "shopify://shop_images/Copia_de_logomarca_certa_1080_x_500_px.jpg",
-          "logo_max_width": 145,
-          "mobile_logo_max_width": 135,
-          "barraimg_top": false,
-          "barraimg_bottom": false,
-          "bgimg": "#702dfa",
-          "imgpc_max_width": 65,
-          "imgmob_max_width": 90,
-          "linkimg": "",
-          "mostrar_barra": false,
-          "background1": "#fcd000",
-          "background2": "#ff5f5f",
-          "background3": "#9100ff",
-          "background4": "#0086ff",
-          "show_locale_selector": false,
-          "show_currency_selector": false,
+          "logo": "shopify://shop_images/C2172E71-0F80-4F19-B8CA-A329829377E8.png",
           "navigation_menu": "main-menu",
-          "desktop_navigation_layout": "inline",
-          "desktop_navigation_open_trigger": "hover",
-          "show_navigation_social_media": true,
-          "navigation_phone_number": "+55 (62) 9919-02661",
-          "navigation_email": "Royalcalcadospremium@gmail.com",
-          "show_condensed_search": true,
-          "show_search_filter": false,
-          "search_menu": "",
-          "show_search_menu_title": true
+          "brand_tagline": "Royal Atacado",
+          "cta_text": "Falar no WhatsApp",
+          "cta_url": ""
         }
       },
       "footer": {
         "type": "footer",
-        "blocks": {
-          "c9a6c378-573f-4c54-9fc6-5ca6e279f3f2": {
-            "type": "text",
-            "settings": {
-              "title": "ATENDIMENTO AO CLIENTE",
-              "content": "<p><strong>SAC (Serviço de Atendimento ao Consumidor)</strong></p><p><strong>Email: </strong>Royalcalcadospremium@gmail.com<br/><strong>WhatsApp:</strong> +55 (62) 9919-02661</p>"
-            }
-          },
-          "footer-1": {
-            "type": "links",
-            "settings": {
-              "menu": "main-menu"
-            }
-          }
-        },
-        "block_order": [
-          "c9a6c378-573f-4c54-9fc6-5ca6e279f3f2",
-          "footer-1"
-        ],
         "settings": {
-          "overlap_px": 0,
-          "overlap_px_mobile": 0,
-          "mostrar_mensagemdeaviso": true,
-          "textdordp": "<p>Preços e condições de pagamento exclusivos para compras neste site oficial, podendo variar com o tempo da oferta. Evite comprar produtos mais baratos ou de outras lojas, pois você pode estar sendo enganado(a) por um golpista. Caso você compre os mesmos produtos em outras lojas,<strong> não nos responsabilizamos por quaisquer problemas.</strong></p>",
-          "mostrar_logotipo": true,
-          "mostrar_selospretos": false,
-          "mostrar_selosbrancos": true,
-          "mostrar_selo1": true,
-          "selo1": "",
-          "mostrar_selo2": true,
-          "selo2": "",
-          "mostrar_selo3": true,
-          "selo3": "",
-          "mostrar_barra": true,
-          "background1": "#040404",
-          "background2": "#3498db",
-          "background3": "#3498db",
-          "background4": "#040404",
-          "show_social_media": false,
-          "show_payment_icons": true,
-          "show_locale_selector": false,
-          "show_currency_selector": false,
-          "show_cookie_bar": true,
-          "text": "<p>Utilizamos cookies para melhorar nosso site e sua experiência de compra. Ao continuar navegando em nosso site,<strong>você está de acordo conforme nossa política quando a utilização de cookies.</strong></p>",
-          "accept_button": "ENTENDI E FECHAR"
+          "global_footnote": "",
+          "cnpj": "",
+          "legal_text": "",
+          "show_payment_icons": true
         }
-      },
-      "apple-home-main": {
-        "type": "apple-home",
-        "blocks": {
-          "ap-hero-001": {
-            "type": "tile",
-            "settings": {
-              "variant": "light",
-              "image_align": "below",
-              "media_shadow": true,
-              "eyebrow": "ROYAL ATACADO",
-              "headline": "O jogo virou.",
-              "headline_size": "hero",
-              "tagline": "Marcas premium em atacado, dropshipping e varejo. Direto da fábrica.",
-              "cta1_label": "Comprar",
-              "cta1_url": "/collections/all",
-              "cta2_label": "Falar no WhatsApp",
-              "cta2_url": "https://wa.me/5562991902661"
-            }
-          },
-          "ap-grid-001": {
-            "type": "collection_grid",
-            "settings": {
-              "variant": "parchment",
-              "headline": "Mais Vendidos",
-              "collection": "all",
-              "product_limit": 8,
-              "columns": 4,
-              "view_all_label": "Ver todos os produtos"
-            }
-          },
-          "ap-tile-atacado": {
-            "type": "tile",
-            "settings": {
-              "variant": "dark-1",
-              "image_align": "side",
-              "eyebrow": "ATACADO",
-              "headline": "A partir de 10 pares.",
-              "headline_size": "display",
-              "tagline": "Preço de revendedor, mix de marcas premium, envio em até 48h.",
-              "cta1_label": "Ver catálogo",
-              "cta1_url": "/collections/all",
-              "cta2_label": "Falar com a equipe",
-              "cta2_url": "https://wa.me/5562991902661"
-            }
-          },
-          "ap-tile-drop": {
-            "type": "tile",
-            "settings": {
-              "variant": "parchment",
-              "image_align": "side",
-              "eyebrow": "DROPSHIPPING",
-              "headline": "Sem estoque mínimo.",
-              "headline_size": "display",
-              "tagline": "Qualquer quantidade. Você vende, a Royal despacha pro seu cliente final.",
-              "cta1_label": "Como funciona",
-              "cta1_url": "/pages/dropshipping",
-              "cta2_label": "Começar agora",
-              "cta2_url": "https://wa.me/5562991902661"
-            }
-          }
-        },
-        "block_order": [
-          "ap-hero-001",
-          "ap-grid-001",
-          "ap-tile-atacado",
-          "ap-tile-drop"
-        ],
-        "settings": {}
       },
       "slideshow": {
         "type": "slideshow",
@@ -675,12 +525,7 @@
       },
       "page-contact-template": {
         "type": "page-contact-template",
-        "settings": {
-          "form_heading": "Preenche o formulário abaixo.",
-          "show_store_info": true,
-          "store_heading": "",
-          "store_info": ""
-        }
+        "settings": {}
       },
       "1649913261818592e3": {
         "type": "promotion-list",
@@ -703,11 +548,7 @@
       "password-template": {
         "type": "password-template",
         "settings": {
-          "show_social_media": true,
-          "heading": "Loja milionária em construção!",
-          "text": "<p>Para acessar e sentir o gostinho do sucesso, coloque a senha \"4321\".</p>",
-          "show_newsletter_signup": false,
-          "newsletter_text": "<p>A short sentence describing what someone will receive by subscribing.</p>"
+          "heading": "Loja milionária em construção!"
         }
       },
       "list-collections-template": {
@@ -721,9 +562,7 @@
       },
       "search-template": {
         "type": "search-template",
-        "settings": {
-          "quick_links": ""
-        }
+        "settings": {}
       },
       "exit-popup": {
         "type": "exit-popup",
@@ -1418,9 +1257,9 @@
           "title": "Seu carrinho",
           "subtitle": "Finalize seu pedido com segurança",
           "min_items": 10,
-          "min_empty_text": "Adicione produtos para atingir o pedido mínimo do atacado.",
+          "min_empty_text": "Adicione produtos para atingir o mínimo de 10 itens.",
           "min_missing_prefix": "Faltam",
-          "min_missing_suffix": "itens para atingir o pedido mínimo do atacado.",
+          "min_missing_suffix": "itens para atingir o pedido mínimo.",
           "min_ok_text": "Pedido mínimo atingido ✅ Escolha uma vendedora para enviar o orçamento.",
           "empty_title": "Seu carrinho está vazio",
           "empty_text": "Adicione produtos para ver o resumo aqui.",
@@ -1680,7 +1519,13 @@
       }
     },
     "content_for_index": [
-      "apple-home-main"
+      "slideshow",
+      "royal_category_cards_WkCwHp",
+      "royal_mais_ofertas_duo_ygncqp",
+      "royal_mais_ofertas_duo_Ye3WL3",
+      "royal_mais_ofertas_duo_8TJMpE",
+      "1649913261818592e3",
+      "royal-whatsapp-cta"
     ],
     "blocks": {
       "286197278318599166": {
