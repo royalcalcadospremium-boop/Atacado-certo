@@ -950,18 +950,65 @@ AJUSTE (pedido do Fellipe):
       const vmodalSub = root.querySelector('[data-rcd-vmodal-sub]');
 
       if (finalizeBtn) {
-        finalizeBtn.addEventListener('click', () => {
-          // Yampi (YampiSnippet.liquid) SÓ RODA quando template.name == 'cart'
-          // (linha 52 do snippet). Portanto pra invocar o checkout Yampi,
-          // o caminho correto é navegar pra /cart — não pra /checkout direto
-          // e não submeter form-POST (que vai pro checkout nativo Shopify).
-          // Quando /cart carrega, YampiSnippet:
-          //   1. Faz POST pra api.dooki.com.br/v2/public/shopify/cart
-          //   2. Se resp.skip_cart=true: limpa /cart.js + window.location ←
-          //      ymp_getUrlWithUtms(resp.checkout_direct_url) → checkout Yampi
-          //   3. Se skip_cart=false: insere um botão Yampi extra no /cart;
-          //      cliente clica e cai no checkout Yampi.
-          window.location.href = '/cart';
+        // Salva o HTML original do botão (com SVG + texto) pra restaurar caso falhe
+        const finalizeOriginalHTML = finalizeBtn.firstElementChild
+          ? finalizeBtn.firstElementChild.cloneNode(true)
+          : null;
+        const finalizeOriginalText = (finalizeBtn.textContent || '').trim();
+
+        const setBtnLoading = () => {
+          finalizeBtn.disabled = true;
+          finalizeBtn.style.opacity = '0.7';
+          // Limpa filhos + define texto seguro
+          while (finalizeBtn.firstChild) finalizeBtn.removeChild(finalizeBtn.firstChild);
+          finalizeBtn.textContent = 'Redirecionando…';
+        };
+        const restoreBtn = () => {
+          finalizeBtn.disabled = false;
+          finalizeBtn.style.opacity = '';
+          while (finalizeBtn.firstChild) finalizeBtn.removeChild(finalizeBtn.firstChild);
+          if (finalizeOriginalHTML) finalizeBtn.appendChild(finalizeOriginalHTML.cloneNode(true));
+          finalizeBtn.appendChild(document.createTextNode(' ' + finalizeOriginalText));
+        };
+
+        finalizeBtn.addEventListener('click', async () => {
+          // Estratégia: replicar o mesmo POST que YampiSnippet.liquid faz
+          // no /cart, mas direto daqui pra pular a página intermediária.
+          // Isso vale pra qualquer config do Yampi (skip_cart true ou false).
+          setBtnLoading();
+          try {
+            const cartPayload = await fetch('/cart.json', {
+              headers: { 'Accept': 'application/json' },
+              credentials: 'same-origin'
+            }).then(r => r.json());
+            const body = JSON.stringify({
+              shop: window.location.host,
+              shopify_internal_domain: {{ shop.permanent_domain | json }},
+              cart_payload: cartPayload
+            });
+            const r = await fetch('https://api.dooki.com.br/v2/public/shopify/cart', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body
+            });
+            const resp = await r.json();
+            if (resp && resp.checkout_direct_url) {
+              // limpa o carrinho do Shopify antes (mesma sequência do YampiSnippet linha 88-90)
+              try { await fetch('/cart/clear.js', { method: 'POST' }); } catch(e) {}
+              const url = (typeof ymp_getUrlWithUtms === 'function')
+                ? ymp_getUrlWithUtms(resp.checkout_direct_url)
+                : resp.checkout_direct_url;
+              window.location.href = url;
+              return;
+            }
+            // Fallback: navega pra /cart e deixa o YampiSnippet completar lá
+            window.location.href = '/cart';
+          } catch (e) {
+            window.location.href = '/cart';
+          } finally {
+            // Se ainda estiver na página depois de 4s (não redirecionou), restaura botão
+            setTimeout(restoreBtn, 4000);
+          }
         });
       }
 
