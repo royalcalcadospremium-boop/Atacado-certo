@@ -1078,7 +1078,7 @@ AJUSTE (pedido do Fellipe):
         if(qtyTotal <= 0){
           minTextEl.textContent = emptyText;
         } else if(missing > 0){
-          minTextEl.textContent = (prefix || 'Faltam') + ' ' + missing + ' ' + (suffix || 'itens para atingir o pedido mínimo do atacado.');
+          minTextEl.textContent = (prefix || 'Faltam') + ' ' + missing + ' ' + (suffix || 'itens para Completar o atacado.');
         } else {
           minTextEl.textContent = okText;
         }
@@ -1480,9 +1480,9 @@ AJUSTE (pedido do Fellipe):
 
     { "type": "header", "content": "Pedido mínimo por quantidade" },
     { "type": "range", "id": "min_items", "label": "Mínimo de itens no carrinho", "min": 1, "max": 50, "step": 1, "default": 10 },
-    { "type": "text", "id": "min_empty_text", "label": "Texto quando carrinho vazio", "default": "Adicione produtos para atingir o pedido mínimo do atacado." },
+    { "type": "text", "id": "min_empty_text", "label": "Texto quando carrinho vazio", "default": "Adicione produtos para Completar o atacado." },
     { "type": "text", "id": "min_missing_prefix", "label": "Texto (prefixo) faltando itens", "default": "Faltam" },
-    { "type": "text", "id": "min_missing_suffix", "label": "Texto (sufixo) faltando itens", "default": "itens para atingir o pedido mínimo do atacado." },
+    { "type": "text", "id": "min_missing_suffix", "label": "Texto (sufixo) faltando itens", "default": "itens para Completar o atacado." },
     { "type": "text", "id": "min_ok_text", "label": "Texto quando mínimo atingido", "default": "Pedido mínimo atingido ✅ Escolha uma vendedora para enviar o orçamento." },
 
     { "type": "header", "content": "Carrinho vazio" },
