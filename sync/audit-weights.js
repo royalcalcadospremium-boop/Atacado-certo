@@ -101,9 +101,9 @@ async function fetchAllProducts() {
                     sku
                     title
                     inventoryQuantity
-                    inventoryManagement
                     inventoryItem {
                       id
+                      tracked
                       measurement {
                         weight { value unit }
                       }
