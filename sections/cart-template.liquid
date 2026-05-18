@@ -559,22 +559,62 @@
   });
 
   // 3b) Botão "Finalizar compra aqui no site" — só existe no DOM quando
-  //     needs_vendedor=false. Quando clicado, submete o form direto (Yampi intercepta).
-  if (finalizeBtn && form) {
-    finalizeBtn.addEventListener('click', function(){
-      closeModal();
-      // Remove listener de intercepção para deixar o submit nativo passar
-      var native = form.cloneNode(false);
-      // Reanexa todos os filhos do form
-      while (form.firstChild) native.appendChild(form.firstChild);
-      // Adiciona input hidden de checkout (substitui o button[name=checkout])
-      var hidden = document.createElement('input');
-      hidden.type = 'hidden';
-      hidden.name = 'checkout';
-      hidden.value = '';
-      native.appendChild(hidden);
-      form.parentNode.replaceChild(native, form);
-      native.submit();
+  //     needs_vendedor=false. Chama a API do Yampi DIRETO pra pular a página
+  //     intermediária /cart e o checkout nativo Shopify. Mesma estratégia
+  //     usada no cart-drawer.liquid.
+  if (finalizeBtn) {
+    // Backup: salva filhos originais pra restaurar caso falhe (sem innerHTML)
+    var finalizeOriginalChildren = Array.from(finalizeBtn.childNodes).map(function(n){ return n.cloneNode(true); });
+
+    function setBtnLoading(){
+      finalizeBtn.disabled = true;
+      finalizeBtn.style.opacity = '0.7';
+      while (finalizeBtn.firstChild) finalizeBtn.removeChild(finalizeBtn.firstChild);
+      finalizeBtn.textContent = 'Redirecionando…';
+    }
+    function restoreBtn(){
+      finalizeBtn.disabled = false;
+      finalizeBtn.style.opacity = '';
+      while (finalizeBtn.firstChild) finalizeBtn.removeChild(finalizeBtn.firstChild);
+      finalizeOriginalChildren.forEach(function(n){ finalizeBtn.appendChild(n.cloneNode(true)); });
+    }
+
+    finalizeBtn.addEventListener('click', async function(){
+      setBtnLoading();
+      try {
+        var cartPayload = await fetch('/cart.json', {
+          headers: { 'Accept': 'application/json' },
+          credentials: 'same-origin'
+        }).then(function(r){ return r.json(); });
+
+        var body = JSON.stringify({
+          shop: window.location.host,
+          shopify_internal_domain: {{ shop.permanent_domain | json }},
+          cart_payload: cartPayload
+        });
+
+        var r = await fetch('https://api.dooki.com.br/v2/public/shopify/cart', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: body
+        });
+        var resp = await r.json();
+
+        if (resp && resp.checkout_direct_url) {
+          try { await fetch('/cart/clear.js', { method: 'POST' }); } catch(e) {}
+          var url = (typeof ymp_getUrlWithUtms === 'function')
+            ? ymp_getUrlWithUtms(resp.checkout_direct_url)
+            : resp.checkout_direct_url;
+          window.location.href = url;
+          return;
+        }
+        // Fallback: navega pra /cart e deixa o YampiSnippet completar lá
+        window.location.href = '/cart';
+      } catch (e) {
+        window.location.href = '/cart';
+      } finally {
+        setTimeout(restoreBtn, 4000);
+      }
     });
   }
 
