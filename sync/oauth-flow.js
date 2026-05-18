@@ -99,10 +99,10 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(3000, () => {
   console.log('Servidor OAuth em http://localhost:3000/oauth/callback');
-  console.log('Aguardando callback... (timeout 5min)');
+  console.log('Aguardando callback... (timeout 30min)');
 });
 
 setTimeout(() => {
   console.log('Timeout - encerrando');
   process.exit(2);
-}, 300_000);
+}, 1_800_000);
