@@ -951,8 +951,22 @@ AJUSTE (pedido do Fellipe):
 
       if (finalizeBtn) {
         finalizeBtn.addEventListener('click', () => {
-          // Redireciona pra Shopify checkout — Yampi intercepta via YampiSnippet
-          window.location.href = '/checkout';
+          // Submete form POST /cart com name=checkout — esse é o trigger que
+          // o Yampi (YampiSnippet.liquid linha 110+) intercepta. Apenas usar
+          // window.location.href='/checkout' NÃO funciona, porque o Yampi
+          // redireciona navegações diretas pra /checkout de volta pra /cart
+          // (vide YampiSnippet linha 196: onclick='/checkout' → '/cart').
+          const f = document.createElement('form');
+          f.method = 'POST';
+          f.action = '/cart';
+          f.style.display = 'none';
+          const inp = document.createElement('input');
+          inp.type = 'hidden';
+          inp.name = 'checkout';
+          inp.value = '';
+          f.appendChild(inp);
+          document.body.appendChild(f);
+          f.submit();
         });
       }
 
