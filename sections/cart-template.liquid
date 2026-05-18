@@ -7,9 +7,20 @@
     • Se PELO MENOS UM tem tag 'consultar-vendedor' → abre modal das vendedoras.
 {%- endcomment -%}
 
-{%- comment -%} Detecta se algum item exige vendedor {%- endcomment -%}
+{%- comment -%}
+  Detecta se algum item precisa de vendedor.
+  Critérios (qualquer um dispara needs_vendedor=true):
+    1. Variante NÃO rastreada pelo Shopify (inventory_management != 'shopify')
+       → não está sincronizada com Tiny/Olist
+    2. Produto tem tag 'consultar-vendedor' (marcação manual)
+  Se TODOS os items passam ambos os testes → checkout direto (Yampi).
+{%- endcomment -%}
 {%- assign needs_vendedor = false -%}
 {%- for item in cart.items -%}
+  {%- if item.variant.inventory_management != 'shopify' -%}
+    {%- assign needs_vendedor = true -%}
+    {%- break -%}
+  {%- endif -%}
   {%- if item.product.tags contains 'consultar-vendedor' -%}
     {%- assign needs_vendedor = true -%}
     {%- break -%}
