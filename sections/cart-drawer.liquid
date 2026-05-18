@@ -951,22 +951,17 @@ AJUSTE (pedido do Fellipe):
 
       if (finalizeBtn) {
         finalizeBtn.addEventListener('click', () => {
-          // Submete form POST /cart com name=checkout — esse é o trigger que
-          // o Yampi (YampiSnippet.liquid linha 110+) intercepta. Apenas usar
-          // window.location.href='/checkout' NÃO funciona, porque o Yampi
-          // redireciona navegações diretas pra /checkout de volta pra /cart
-          // (vide YampiSnippet linha 196: onclick='/checkout' → '/cart').
-          const f = document.createElement('form');
-          f.method = 'POST';
-          f.action = '/cart';
-          f.style.display = 'none';
-          const inp = document.createElement('input');
-          inp.type = 'hidden';
-          inp.name = 'checkout';
-          inp.value = '';
-          f.appendChild(inp);
-          document.body.appendChild(f);
-          f.submit();
+          // Yampi (YampiSnippet.liquid) SÓ RODA quando template.name == 'cart'
+          // (linha 52 do snippet). Portanto pra invocar o checkout Yampi,
+          // o caminho correto é navegar pra /cart — não pra /checkout direto
+          // e não submeter form-POST (que vai pro checkout nativo Shopify).
+          // Quando /cart carrega, YampiSnippet:
+          //   1. Faz POST pra api.dooki.com.br/v2/public/shopify/cart
+          //   2. Se resp.skip_cart=true: limpa /cart.js + window.location ←
+          //      ymp_getUrlWithUtms(resp.checkout_direct_url) → checkout Yampi
+          //   3. Se skip_cart=false: insere um botão Yampi extra no /cart;
+          //      cliente clica e cai no checkout Yampi.
+          window.location.href = '/cart';
         });
       }
 
