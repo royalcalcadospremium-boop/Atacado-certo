@@ -57,28 +57,6 @@
     </div>
   </nav>
 
-  {%- comment -%} ────────── SUB-NAV (52px frosted parchment) ────────── {%- endcomment -%}
-  <nav class="ad-sub-nav ad-frosted" aria-label="Sub-navegação">
-    <div class="ad-sub-nav__inner">
-      <a class="ad-sub-nav__category ad-tagline" href="{{ routes.root_url }}">
-        {{- section.settings.brand_tagline | default: 'Royal Atacado' -}}
-      </a>
-      <ul class="ad-sub-nav__links">
-        {%- for block in section.blocks -%}
-          {%- if block.type == 'sub_link' -%}
-            <li><a class="ad-button-utility" href="{{ block.settings.url }}">{{ block.settings.label }}</a></li>
-          {%- endif -%}
-        {%- endfor -%}
-      </ul>
-      {%- if section.settings.cta_text != blank and section.settings.cta_url != blank -%}
-        {%- render 'apple-button',
-            variant: 'primary',
-            href: section.settings.cta_url,
-            label: section.settings.cta_text -%}
-      {%- endif -%}
-    </div>
-  </nav>
-
   {%- comment -%} ────────── MOBILE DRAWER ────────── {%- endcomment -%}
   <aside id="ad-mobile-drawer" class="ad-mobile-drawer" hidden aria-modal="true" role="dialog" aria-label="Menu de navegação">
     <div class="ad-mobile-drawer__head">
