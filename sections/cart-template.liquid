@@ -1,10 +1,15 @@
 {%- comment -%}
-  Apple-pure cart page (Subsistema 5 — v2).
-  - Sem bordas arredondadas em imagem e input qty.
-  - Divisória é apenas uma linha simples entre items.
-  - Checkout condicional:
-    • Se TODOS os items NÃO têm tag 'consultar-vendedor' → submit normal (Yampi).
-    • Se PELO MENOS UM tem tag 'consultar-vendedor' → abre modal das vendedoras.
+  Apple-pure cart page (Subsistema 5 — v3).
+  Sync nudge: 2026-05-18 11:13 — Shopify estava cacheando versão antiga.
+
+  - Sem bordas arredondadas em imagem e input qty (divisória 1px entre itens).
+  - "Finalizar Compra" SEMPRE abre o modal.
+  - Conteúdo do modal varia conforme needs_vendedor:
+    • false (todos items sincronizados Tiny/Olist): título + botão verde
+      "Finalizar compra aqui no site" + divider + 3 vendedoras.
+    • true (algum item NÃO sincronizado): só título + 3 vendedoras (sem botão verde).
+  - needs_vendedor=true se: tag 'synced-olist' AUSENTE E
+    inventory_management != 'shopify', OU tag 'consultar-vendedor' presente.
 {%- endcomment -%}
 
 {%- comment -%}
