@@ -469,6 +469,45 @@ AJUSTE (pedido do Fellipe):
     }
     #RoyalCartDrawer .rcd__vendors{ margin-top: 14px; display: grid; gap: 10px; }
 
+    /* === Botão verde "Finalizar aqui no site" — só aparece quando todos sync === */
+    .rcd__site-checkout{ margin-top: 16px; }
+    .rcd__site-checkout[hidden]{ display: none; }
+    .rcd__btn-finalize{
+      width: 100%;
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px;
+      background: #25D366; color: #fff;
+      border: 0; border-radius: 9999px;
+      padding: 16px 24px;
+      font-size: 16px; font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(37, 211, 102, 0.32);
+      transition: transform 120ms ease-out, opacity 120ms ease-out;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .rcd__btn-finalize:hover{ opacity: 0.95; }
+    .rcd__btn-finalize:active{ transform: scale(0.97); }
+    .rcd__btn-finalize svg{ flex: 0 0 auto; }
+    .rcd__finalize-divider{
+      position: relative;
+      text-align: center;
+      margin: 16px 0 6px;
+      color: #6B7280; font-size: 12px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .rcd__finalize-divider::before,
+    .rcd__finalize-divider::after{
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: calc(50% - 110px);
+      height: 1px;
+      background: var(--rcd-border, #E5E7EB);
+    }
+    .rcd__finalize-divider::before{ left: 0; }
+    .rcd__finalize-divider::after{ right: 0; }
+    .rcd__finalize-divider span{ background: var(--rcd-modal-bg, #fff); padding: 0 12px; position: relative; }
+
     #RoyalCartDrawer .rcd__vendor{
       display:flex; align-items:center; justify-content:space-between; gap: 12px;
       padding: 12px 12px;
@@ -708,13 +747,29 @@ AJUSTE (pedido do Fellipe):
     </footer>
   </aside>
 
-  <!-- MODAL: ESCOLHER VENDEDORA -->
+  <!-- MODAL: FINALIZAR COMPRA (site checkout + vendedoras) -->
   <div class="rcd__vmodal" id="rcd-vmodal" aria-hidden="true">
     <div class="rcd__vmodal-overlay" data-rcd-vclose></div>
-    <div class="rcd__vmodal-panel" role="dialog" aria-modal="true" aria-label="Escolher vendedora">
+    <div class="rcd__vmodal-panel" role="dialog" aria-modal="true" aria-label="Finalizar pedido">
       <button class="rcd__vmodal-close" type="button" data-rcd-vclose aria-label="Fechar">✕</button>
-      <div class="rcd__vmodal-title">{{ section.settings.modal_title | escape }}</div>
-      <div class="rcd__vmodal-sub">{{ section.settings.modal_subtitle | escape }}</div>
+      <div class="rcd__vmodal-title" data-rcd-vmodal-title>{{ section.settings.modal_title | escape }}</div>
+      <div class="rcd__vmodal-sub" data-rcd-vmodal-sub>{{ section.settings.modal_subtitle | escape }}</div>
+
+      {%- comment -%}
+        Botão verde "Finalizar compra aqui no site" — aparece DINAMICAMENTE via JS
+        somente quando TODOS os items do carrinho estão sincronizados (tag 'synced-olist'
+        ou variant.inventory_management='shopify'). Caso contrário (algum não sync),
+        o JS oculta este bloco e mostra só as vendedoras abaixo.
+      {%- endcomment -%}
+      <div class="rcd__site-checkout" id="rcd-site-checkout" hidden>
+        <button class="rcd__btn-finalize" type="button" id="rcd-finalize-onsite">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          Finalizar compra aqui no site
+        </button>
+        <div class="rcd__finalize-divider"><span>ou consulte uma vendedora</span></div>
+      </div>
 
       <div class="rcd__vendors">
         {% assign vendor_blocks = section.blocks | where: 'type', 'vendor' %}
@@ -802,11 +857,18 @@ AJUSTE (pedido do Fellipe):
 
       const isOpen = () => root.classList.contains('is-open') || root.hasAttribute('open');
 
-      const openDrawer = () => {
+      const openDrawer = async () => {
         root.classList.add('is-open');
         root.setAttribute('open','');
         if(panel) panel.setAttribute('aria-hidden','false');
         lockScroll();
+        // Refresh content em background — pega items recém-adicionados de outras
+        // sections (Royal Ofertas Duo, collection cards, etc.) sem precisar
+        // de reload de página. Falha silenciosa se cart.js timeout.
+        try {
+          const cart = await fetchCart();
+          refreshUIFromCart(cart);
+        } catch (e) { /* noop */ }
       };
 
       const closeDrawer = () => {
@@ -852,11 +914,65 @@ AJUSTE (pedido do Fellipe):
       const itemsWrap = root.querySelector('[data-rcd-items]');
       const subtotalEl = root.querySelector('[data-rcd-subtotal]');
 
-      const openModal = () => {
+      // ===== Detecção: todos produtos sincronizados Tiny/Olist? =====
+      // Critério: tag 'synced-olist' OU variant.inventory_management='shopify'
+      // Cache de products já consultados (evita refetch a cada open do modal)
+      const productCache = new Map();
+      async function isCartFullySynced() {
+        try {
+          const cart = await fetch('/cart.js', { headers: { 'Accept': 'application/json' } }).then(r => r.json());
+          if (!cart.items || cart.items.length === 0) return true;
+          const uniqueHandles = [...new Set(cart.items.map(i => i.handle))];
+          const products = await Promise.all(uniqueHandles.map(async handle => {
+            if (productCache.has(handle)) return productCache.get(handle);
+            const p = await fetch('/products/' + handle + '.js', { headers: { 'Accept': 'application/json' } }).then(r => r.json());
+            productCache.set(handle, p);
+            return p;
+          }));
+          for (const p of products) {
+            const tags = (p.tags || []).map(t => String(t).toLowerCase());
+            const hasConsultarVendedor = tags.includes('consultar-vendedor');
+            if (hasConsultarVendedor) return false;
+            const hasSyncedTag = tags.includes('synced-olist');
+            const hasTrackedInventory = (p.variants || []).some(v => v.inventory_management === 'shopify');
+            const isSynced = hasSyncedTag || hasTrackedInventory;
+            if (!isSynced) return false;
+          }
+          return true;
+        } catch (e) {
+          return false; // fallback seguro: oculta botão verde se algo falhar
+        }
+      }
+
+      const siteCheckoutWrap = document.getElementById('rcd-site-checkout');
+      const finalizeBtn = document.getElementById('rcd-finalize-onsite');
+      const vmodalTitle = root.querySelector('[data-rcd-vmodal-title]');
+      const vmodalSub = root.querySelector('[data-rcd-vmodal-sub]');
+
+      if (finalizeBtn) {
+        finalizeBtn.addEventListener('click', () => {
+          // Redireciona pra Shopify checkout — Yampi intercepta via YampiSnippet
+          window.location.href = '/checkout';
+        });
+      }
+
+      const openModal = async () => {
         if(!modal) return;
         modal.classList.add('is-open');
         modal.setAttribute('aria-hidden','false');
         lockScroll();
+        // Decide assincronamente se mostra o botão verde
+        if (siteCheckoutWrap) {
+          siteCheckoutWrap.hidden = true; // start hidden enquanto verifica
+          if (vmodalTitle) vmodalTitle.textContent = 'Escolha uma vendedora';
+          if (vmodalSub) vmodalSub.textContent = 'Selecione para encaminhar seu orçamento no WhatsApp.';
+          const allSynced = await isCartFullySynced();
+          if (allSynced) {
+            siteCheckoutWrap.hidden = false;
+            if (vmodalTitle) vmodalTitle.textContent = 'Como você quer finalizar?';
+            if (vmodalSub) vmodalSub.textContent = 'Você pode pagar agora pelo site ou falar com uma vendedora.';
+          }
+        }
       };
       const closeModal = () => {
         if(!modal) return;
