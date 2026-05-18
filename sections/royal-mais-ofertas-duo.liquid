@@ -207,7 +207,7 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
       /* pan-y: dedo no card so passa scroll VERTICAL pra pagina (sem sambar).
          JS controla o drag horizontal continuo (sem snap-type que cria "pulo"). */
       touch-action: pan-y;
-      overscroll-behavior: contain;
+      overscroll-behavior-x: contain; /* só horizontal — desktop wheel vertical passa pra página */
       scroll-behavior: smooth;
       /* scroll-snap-type so quando NAO esta arrastando (controlado via JS) */
       scroll-snap-type: x proximity;
