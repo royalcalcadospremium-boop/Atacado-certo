@@ -133,25 +133,38 @@
 
 </section>
 
-{%- comment -%} ───────── Vendedora Modal (carregado mesmo quando não exibido) ───────── {%- endcomment -%}
+{%- comment -%} ───────── Vendedora Modal — abre SEMPRE no Finalizar Compra ─────────
+  Conteúdo do modal varia conforme needs_vendedor:
+  - needs_vendedor=false (todos items sincronizados Tiny/Olist):
+      título "Como você quer finalizar?" + botão verde "Finalizar aqui no site"
+      + divider "ou consulte uma vendedora" + grid vendedoras
+  - needs_vendedor=true (pelo menos 1 não sincronizado):
+      título "Escolha seu vendedor" + grid vendedoras (sem botão verde, sem divider)
+{%- endcomment -%}
 <div class="cv-cart-modal-backdrop" id="cvCartBackdrop"></div>
-<div class="cv-cart-modal" id="cvCartModal" role="dialog" aria-modal="true" aria-label="Escolha seu vendedor">
+<div class="cv-cart-modal" id="cvCartModal" role="dialog" aria-modal="true" aria-label="Finalizar pedido">
   <div class="cv-cart-card">
     <button class="cv-cart-close" id="cvCartClose" type="button" aria-label="Fechar">&times;</button>
-    <h3 class="cv-cart-title">Como você quer finalizar?</h3>
-    <p class="cv-cart-sub">Você pode pagar agora pelo site ou conversar com uma vendedora para confirmar estoque antes.</p>
 
-    {%- comment -%} Primary CTA — destaque máximo, vai direto ao Yampi/checkout {%- endcomment -%}
-    <button class="cv-cart-finalize" type="button" id="cvCartFinalize">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <polyline points="20 6 9 17 4 12"/>
-      </svg>
-      Finalizar compra aqui no site
-    </button>
+    {%- if needs_vendedor -%}
+      <h3 class="cv-cart-title">Escolha seu vendedor para finalizar</h3>
+      <p class="cv-cart-sub">Há itens no seu pedido que precisam de confirmação manual de estoque. Selecione uma vendedora abaixo:</p>
+    {%- else -%}
+      <h3 class="cv-cart-title">Como você quer finalizar?</h3>
+      <p class="cv-cart-sub">Você pode pagar agora pelo site ou conversar com uma vendedora para confirmar antes.</p>
 
-    <div class="cv-cart-divider">
-      <span>ou consulte uma vendedora</span>
-    </div>
+      {%- comment -%} Primary CTA — só aparece quando TODOS items são sincronizados {%- endcomment -%}
+      <button class="cv-cart-finalize" type="button" id="cvCartFinalize">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        Finalizar compra aqui no site
+      </button>
+
+      <div class="cv-cart-divider">
+        <span>ou consulte uma vendedora</span>
+      </div>
+    {%- endif -%}
 
     <div class="cv-cart-grid">
       <div class="cv-cart-seller">
@@ -490,14 +503,16 @@
     return 'R$ ' + parts.join(',');
   }
 
-  // 2) Intercepta submit do form se carrinho precisa de vendedora
-  if (needsVendedor && form && checkoutBtn) {
+  // 2) "Finalizar Compra" SEMPRE abre o modal (independente de needs_vendedor).
+  //    O conteúdo do modal já vem renderizado pelo Liquid com a opção certa:
+  //    - needs_vendedor=false → modal tem botão verde + vendedoras
+  //    - needs_vendedor=true  → modal tem só vendedoras
+  if (form && checkoutBtn) {
     form.addEventListener('submit', function(e){
       e.preventDefault();
       e.stopPropagation();
       openModal();
     });
-    // Também intercepta o click direto no botão (caso o submit do form não dispare)
     checkoutBtn.addEventListener('click', function(e){
       e.preventDefault();
       e.stopPropagation();
@@ -524,7 +539,8 @@
     if (e.key === 'Escape') closeModal();
   });
 
-  // 3b) Botão "Finalizar compra aqui no site" → submete o form direto (Yampi intercepta)
+  // 3b) Botão "Finalizar compra aqui no site" — só existe no DOM quando
+  //     needs_vendedor=false. Quando clicado, submete o form direto (Yampi intercepta).
   if (finalizeBtn && form) {
     finalizeBtn.addEventListener('click', function(){
       closeModal();
