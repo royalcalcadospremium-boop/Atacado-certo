@@ -1,0 +1,40 @@
+name: Auditoria de Peso e Dimensões
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Montar sync/.env
+        working-directory: sync
+        env:
+          SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_STORE_DOMAIN }}
+          SHOPIFY_ADMIN_TOKEN: ${{ secrets.SHOPIFY_ADMIN_TOKEN }}
+        run: |
+          cat > .env <<EOF
+          SHOPIFY_STORE_DOMAIN=$SHOPIFY_STORE_DOMAIN
+          SHOPIFY_ADMIN_TOKEN=$SHOPIFY_ADMIN_TOKEN
+          EOF
+
+      - name: Rodar auditoria
+        working-directory: sync
+        run: node audit-weights.js
+
+      - name: Upload CSV report
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-weights-report
+          path: sync/audit-weights-report.csv
+          retention-days: 30
