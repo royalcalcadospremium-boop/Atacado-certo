@@ -155,6 +155,12 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
       flex: 1 1 auto;
       min-width: 0;
     }
+    /* Desktop: centraliza as tabs (mobile mantém flex-start pra permitir scroll horizontal) */
+    @media (min-width: 768px){
+      #royal-tabs-cards-{{ section.id }} .tabsbar{
+        justify-content: center;
+      }
+    }
     #royal-tabs-cards-{{ section.id }} .tabsbar::-webkit-scrollbar{ display:none; }
     #royal-tabs-cards-{{ section.id }} .tabbtn{
       flex:0 0 auto;
