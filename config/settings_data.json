@@ -398,6 +398,12 @@
         "settings": {
           "show_announcement": false,
           "force_legacy_text": false,
+          "background_color": "#f5f5f7",
+          "text_color": "#1d1d1f",
+          "bg_gradient_enabled": false,
+          "background_color_1": "#3498db",
+          "background_color_2": "#040404",
+          "gradient_direction": "vertical",
           "text": "Atacado min. 10 Produtos",
           "cta_text": "",
           "cta_url": "",
@@ -1347,8 +1353,8 @@
           "tab_T9RwxV": {
             "type": "tab",
             "settings": {
-              "label": "Chinelo de Dedo",
-              "collection": "chinelo-de-dedo"
+              "label": "Camisa de Time",
+              "collection": "camisetas"
             }
           },
           "tab_KigqjW": {
