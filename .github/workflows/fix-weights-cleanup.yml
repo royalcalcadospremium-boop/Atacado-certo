@@ -1,0 +1,40 @@
+name: Cleanup Pesos Absurdos (one-shot)
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Simular sem gravar (1 = dry-run, 0 = executar)'
+        required: false
+        default: '1'
+
+permissions:
+  contents: read
+
+jobs:
+  cleanup-weights:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Montar sync/.env
+        working-directory: sync
+        env:
+          SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_STORE_DOMAIN }}
+          SHOPIFY_ADMIN_TOKEN: ${{ secrets.SHOPIFY_ADMIN_TOKEN }}
+        run: |
+          cat > .env <<EOF
+          SHOPIFY_STORE_DOMAIN=$SHOPIFY_STORE_DOMAIN
+          SHOPIFY_ADMIN_TOKEN=$SHOPIFY_ADMIN_TOKEN
+          EOF
+
+      - name: Cleanup de pesos absurdos
+        working-directory: sync
+        env:
+          DRY_RUN: ${{ inputs.dry_run || '1' }}
+        run: node fix-weights-cleanup.js
