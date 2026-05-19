@@ -199,9 +199,9 @@
 </section>
 
 
-{%- if section.settings.use_custom_height -%}
+{%- if section.settings.use_custom_height and section.settings.section_size != 'preserve_ratio' -%}
   <style>
-    /* Altura do slideshow – escopo só nesta seção */
+    /* Altura do slideshow – escopo só nesta seção (não aplicar quando "Original image ratio") */
     #shopify-section-{{ section.id }} .slideshow,
     #shopify-section-{{ section.id }} .banner__media,
     #shopify-section-{{ section.id }} .media{
@@ -219,6 +219,25 @@
         height: {{ section.settings.hero_height_mobile }}px;
         max-height: {{ section.settings.hero_height_mobile }}px;
       }
+    }
+  </style>
+{%- endif -%}
+
+{%- if section.settings.section_size == 'preserve_ratio' -%}
+  <style>
+    /* Modo "Original image ratio" – garantir que a imagem apareça INTEIRA sem corte */
+    #shopify-section-{{ section.id }} .slideshow,
+    #shopify-section-{{ section.id }} .slideshow__slide,
+    #shopify-section-{{ section.id }} .slideshow__slide-inner{
+      height: auto !important;
+      max-height: none !important;
+      min-height: 0 !important;
+    }
+    #shopify-section-{{ section.id }} .slideshow__image{
+      object-fit: contain !important;
+      object-position: center !important;
+      width: 100% !important;
+      height: 100% !important;
     }
   </style>
 {%- endif -%}
@@ -314,6 +333,7 @@
       "type": "checkbox",
       "id": "use_custom_height",
       "label": "Definir altura manualmente",
+      "info": "Ignorado quando 'Image size' = 'Original image ratio' (a imagem aparece inteira na proporção original).",
       "default": true
     },
     {

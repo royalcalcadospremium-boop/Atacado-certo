@@ -1,0 +1,48 @@
+{%- comment -%}
+  Snippet: nb-rec-card.liquid
+  Card individual para a seção "Você também pode gostar".
+  Caller já garante que p é um produto válido (unless p.empty?).
+
+  Parâmetros:
+  - p (obrigatório): produto a renderizar
+{%- endcomment -%}
+
+{%- assign __p = p | default: product -%}
+
+{%- assign has_lancamento = false -%}
+{%- for tag in __p.tags -%}
+  {%- assign tag_lower = tag | downcase -%}
+  {%- if tag_lower == 'lançamento' or tag_lower == 'lancamento' or tag_lower == 'novo' or tag_lower == 'new' -%}
+    {%- assign has_lancamento = true -%}
+  {%- endif -%}
+{%- endfor -%}
+
+<div class="nb-rec-card rc-card">
+  <div class="nb-rec-card__img-wrap">
+    <a href="{{ __p.url }}">
+      {%- render 'rc-product-image', product: __p, size: '400x', alt: __p.title, img_class: 'nb-rec-card__img' -%}
+    </a>
+
+    {%- if has_lancamento -%}
+      <span class="nb-rec-badge">Lançamento</span>
+    {%- endif -%}
+  </div>
+
+  <a href="{{ __p.url }}" class="nb-rec-bag" aria-label="Ver produto">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+      <line x1="3" y1="6" x2="21" y2="6"/>
+      <path d="M16 10a4 4 0 0 1-8 0"/>
+    </svg>
+  </a>
+
+  <div class="nb-rec-card__info">
+    {%- if __p.type != blank -%}
+      <p class="nb-rec-category">{{ __p.type }}</p>
+    {%- endif -%}
+
+    <a href="{{ __p.url }}" class="nb-rec-title">{{ __p.title }}</a>
+
+    {%- render 'rc-tier-boxes', product: __p -%}
+  </div>
+</div>

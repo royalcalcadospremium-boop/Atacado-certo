@@ -297,13 +297,20 @@
   }
 
   var hero = root.querySelector('#ad-product-hero');
-  root.querySelectorAll('.ad-product__thumb').forEach(function(t){
-    t.addEventListener('click', function(){
+  var thumbsContainer = root.querySelector('.ad-product__thumbs');
+  if (thumbsContainer) {
+    thumbsContainer.addEventListener('click', function(ev){
+      var t = ev.target && ev.target.closest && ev.target.closest('.ad-product__thumb');
+      if (!t || !thumbsContainer.contains(t)) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      if (typeof ev.stopImmediatePropagation === 'function') ev.stopImmediatePropagation();
       root.querySelectorAll('.ad-product__thumb').forEach(function(x){ x.classList.remove('is-selected'); });
       t.classList.add('is-selected');
-      if (hero) hero.src = t.dataset.mediaSrc;
-    });
-  });
+      if (hero && t.dataset.mediaSrc) hero.src = t.dataset.mediaSrc;
+      return false;
+    }, true);
+  }
 
   var stickyBar = root.querySelector('[data-sticky-bar]');
   var ctas = root.querySelector('.ad-product__ctas');

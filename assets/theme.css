@@ -13989,7 +13989,7 @@ input.qtyminus {
 }
 
 /* Coleção (categorias) — subir e ficar acima do banner */
-.shopify-section:has(.collection-list, .collection-list-wrapper, .collection-list__item, .collection-list-grid){
+.shopify-section:has(.collection-list, .collection-list-wrapper, .collection-list__item, .collection-list-grid, .royal-cats){
   position: relative;
   z-index: 3;
 }
@@ -13997,7 +13997,7 @@ input.qtyminus {
 /* Mobile */
 @media (max-width: 749px){
   .shopify-section:has(.slideshow, .slideshow-component, .banner, .banner__media, .slideshow__media)
-  + .shopify-section:has(.collection-list, .collection-list-wrapper, .collection-list__item, .collection-list-grid){
+  + .shopify-section:has(.collection-list, .collection-list-wrapper, .collection-list__item, .collection-list-grid, .royal-cats){
     margin-top: calc(-1 * var(--royal-overlap-mobile)) !important;
   }
 }
@@ -14005,9 +14005,16 @@ input.qtyminus {
 /* Desktop */
 @media (min-width: 750px){
   .shopify-section:has(.slideshow, .slideshow-component, .banner, .banner__media, .slideshow__media)
-  + .shopify-section:has(.collection-list, .collection-list-wrapper, .collection-list__item, .collection-list-grid){
+  + .shopify-section:has(.collection-list, .collection-list-wrapper, .collection-list__item, .collection-list-grid, .royal-cats){
     margin-top: calc(-1 * var(--royal-overlap-desktop)) !important;
   }
+}
+
+/* Royal cats logo após slideshow: zerar padding-top próprio da seção pra não somar com o overlap */
+.shopify-section:has(.slideshow, .slideshow-component, .banner, .banner__media, .slideshow__media)
++ .shopify-section:has(.royal-cats) .royal-cats{
+  padding-top: 0 !important;
+  transform: none !important;
 }
 
 /* Salvaguarda: se o tema usar classes específicas de espaçamento nas seções, reduzimos também */
