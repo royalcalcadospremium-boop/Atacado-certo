@@ -1,0 +1,128 @@
+{%- comment -%}
+  dropshipping-como-funciona.liquid
+  4 steps numerados explicando o fluxo operacional.
+  1) Cadastre-se · 2) Escolha produtos · 3) Venda · 4) Royal envia
+{%- endcomment -%}
+
+<section class="lp-section lp-section--parchment" aria-labelledby="dropshipping-como-{{ section.id }}">
+  <div class="lp-section__inner">
+    <header class="lp-section__head lp-reveal">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="lp-section__eyebrow">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+      <h2 id="dropshipping-como-{{ section.id }}" class="lp-section__title">
+        {{ section.settings.title }}
+      </h2>
+      {%- if section.settings.lead != blank -%}
+        <p class="lp-section__lead">{{ section.settings.lead }}</p>
+      {%- endif -%}
+    </header>
+
+    <ol class="lp-steps" role="list">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'step' -%}
+          <li class="lp-step lp-reveal" {{ block.shopify_attributes }}>
+            <span class="lp-step__num" aria-hidden="true">{{ forloop.index }}</span>
+            {%- if block.settings.icon_svg != blank -%}
+              <div class="lp-step__icon" aria-hidden="true">
+                {{ block.settings.icon_svg }}
+              </div>
+            {%- endif -%}
+            <h3 class="lp-step__title">{{ block.settings.title }}</h3>
+            <p class="lp-step__text">{{ block.settings.text }}</p>
+          </li>
+        {%- endif -%}
+      {%- endfor -%}
+    </ol>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Dropshipping · Como funciona",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Em 4 passos"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Título (H2)",
+      "default": "Como funciona"
+    },
+    {
+      "type": "textarea",
+      "id": "lead",
+      "label": "Texto introdutório",
+      "default": "Do cadastro até a entrega — sem fricção, sem surpresas."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "step",
+      "name": "Step",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Título do step"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Descrição"
+        },
+        {
+          "type": "textarea",
+          "id": "icon_svg",
+          "label": "Ícone (SVG inline)"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 6,
+  "presets": [
+    {
+      "name": "Dropshipping · Como funciona",
+      "blocks": [
+        {
+          "type": "step",
+          "settings": {
+            "title": "Cadastre-se grátis",
+            "text": "Crie sua conta em 1 minuto. Aprovação imediata, sem mensalidade.",
+            "icon_svg": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><circle cx='9' cy='8' r='4'/><path d='M2 21c0-4 3-7 7-7s7 3 7 7'/><path d='M19 8v6M16 11h6'/></svg>"
+          }
+        },
+        {
+          "type": "step",
+          "settings": {
+            "title": "Escolha os produtos",
+            "text": "Acesse o catálogo completo com fotos profissionais e estoque em tempo real.",
+            "icon_svg": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M4 4h16v16H4z'/><path d='M8 8h8M8 12h8M8 16h5'/></svg>"
+          }
+        },
+        {
+          "type": "step",
+          "settings": {
+            "title": "Venda no seu canal",
+            "text": "Shopify, Instagram, Shopee, Nuvemshop — onde sua audiência estiver.",
+            "icon_svg": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><rect x='6' y='2' width='12' height='20' rx='2'/><path d='M11 18h2'/></svg>"
+          }
+        },
+        {
+          "type": "step",
+          "settings": {
+            "title": "Nós embalamos e enviamos",
+            "text": "Despachamos pelo seu nome em até 48h. Você só acompanha.",
+            "icon_svg": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M3 7l9-4 9 4-9 4-9-4z'/><path d='M3 7v10l9 4 9-4V7'/><path d='M12 11v10'/></svg>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

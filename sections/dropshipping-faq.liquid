@@ -1,0 +1,72 @@
+{%- comment -%}
+  dropshipping-faq.liquid
+  FAQ acessível usando o snippet lp-faq-accordion (details/summary + schema.org).
+{%- endcomment -%}
+
+<section class="lp-section lp-section--parchment" aria-labelledby="dropshipping-faq-{{ section.id }}">
+  <div class="lp-section__inner lp-section__inner--narrow">
+    <header class="lp-section__head lp-reveal">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="lp-section__eyebrow">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+      <h2 id="dropshipping-faq-{{ section.id }}" class="lp-section__title">
+        {{ section.settings.title }}
+      </h2>
+      {%- if section.settings.lead != blank -%}
+        <p class="lp-section__lead">{{ section.settings.lead }}</p>
+      {%- endif -%}
+    </header>
+
+    {%- render 'lp-faq-accordion', blocks: section.blocks -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Dropshipping · FAQ",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Dúvidas frequentes"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Título (H2)",
+      "default": "Perguntas frequentes"
+    },
+    {
+      "type": "textarea",
+      "id": "lead",
+      "label": "Texto introdutório",
+      "default": "As respostas mais pedidas por quem está começando."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "faq_item",
+      "name": "Pergunta",
+      "settings": [
+        { "type": "text", "id": "question", "label": "Pergunta" },
+        { "type": "richtext", "id": "answer", "label": "Resposta" }
+      ]
+    }
+  ],
+  "max_blocks": 20,
+  "presets": [
+    {
+      "name": "Dropshipping · FAQ",
+      "blocks": [
+        { "type": "faq_item", "settings": { "question": "Preciso pagar antes pra cadastrar?", "answer": "<p>Não. Cadastro é 100% grátis. Só paga quando faz pedido.</p>" } },
+        { "type": "faq_item", "settings": { "question": "Como funcionam as integrações?", "answer": "<p>Conectamos via API com Shopify, Yampi, Nuvemshop, Mercado Livre, Shopee.</p>" } },
+        { "type": "faq_item", "settings": { "question": "A embalagem leva o nome da minha loja?", "answer": "<p>Sim, embalagem neutra ou com sua marca personalizada.</p>" } },
+        { "type": "faq_item", "settings": { "question": "Qual o prazo de envio?", "answer": "<p>Em até 48h após o pedido (dias úteis).</p>" } },
+        { "type": "faq_item", "settings": { "question": "Posso usar o catálogo em fotos pra divulgar?", "answer": "<p>Sim, fornecemos pack de fotos profissionais via <a href=\"/pages/baixar-fotos\">/baixar-fotos</a>.</p>" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

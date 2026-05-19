@@ -1,0 +1,144 @@
+{%- comment -%}
+  dropshipping-hero-video.liquid
+  Hero da Landing Page de Dropshipping (/pages/dropshipping).
+  Carrega lp-shared.css + lp-shared.js (uma vez por página — esta é a 1ª section).
+  Renderiza snippet lp-hero-video com settings configuráveis no customizer.
+{%- endcomment -%}
+
+{{ 'lp-shared.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'lp-shared.js' | asset_url }}" defer></script>
+
+{%- liquid
+  assign video_url = section.settings.video_url
+  if section.settings.video_file != blank
+    assign video_url = section.settings.video_file | file_url
+  endif
+
+  assign poster_url = ''
+  if section.settings.poster != blank
+    assign poster_url = section.settings.poster | img_url: '1920x'
+  endif
+-%}
+
+{%- render 'lp-hero-video',
+    video_url: video_url,
+    poster_url: poster_url,
+    overlay: section.settings.overlay,
+    badge: section.settings.badge,
+    eyebrow: section.settings.eyebrow,
+    title: section.settings.title,
+    subtitle: section.settings.subtitle,
+    cta1_label: section.settings.cta1_label,
+    cta1_url: section.settings.cta1_url,
+    cta2_label: section.settings.cta2_label,
+    cta2_url: section.settings.cta2_url,
+    cta2_variant: section.settings.cta2_variant
+-%}
+
+{% schema %}
+{
+  "name": "Dropshipping · Hero",
+  "tag": "section",
+  "class": "lp-section-wrapper",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Mídia de fundo"
+    },
+    {
+      "type": "url",
+      "id": "video_url",
+      "label": "URL do vídeo (externo)",
+      "info": "MP4. Se preencher arquivo abaixo, este campo é ignorado."
+    },
+    {
+      "type": "video",
+      "id": "video_file",
+      "label": "Arquivo de vídeo (Shopify Files)"
+    },
+    {
+      "type": "image_picker",
+      "id": "poster",
+      "label": "Poster (fallback enquanto vídeo carrega)"
+    },
+    {
+      "type": "range",
+      "id": "overlay",
+      "label": "Intensidade do overlay escuro",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 60
+    },
+    {
+      "type": "header",
+      "content": "Conteúdo"
+    },
+    {
+      "type": "text",
+      "id": "badge",
+      "label": "Badge de prova social",
+      "default": "+200 dropshippers ativos"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow (opcional)"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Título (H1)",
+      "default": "Venda Sem Estoque. A Gente Cuida do Resto."
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtítulo",
+      "default": "Pegue qualquer quantidade. Embalamos e enviamos pelo seu nome."
+    },
+    {
+      "type": "header",
+      "content": "CTAs"
+    },
+    {
+      "type": "text",
+      "id": "cta1_label",
+      "label": "CTA primário · texto",
+      "default": "Cadastre-se Grátis"
+    },
+    {
+      "type": "url",
+      "id": "cta1_url",
+      "label": "CTA primário · link",
+      "default": "/account/register"
+    },
+    {
+      "type": "text",
+      "id": "cta2_label",
+      "label": "CTA secundário · texto",
+      "default": "Ver Catálogo Dropshipping"
+    },
+    {
+      "type": "url",
+      "id": "cta2_url",
+      "label": "CTA secundário · link",
+      "default": "/collections/all"
+    },
+    {
+      "type": "select",
+      "id": "cta2_variant",
+      "label": "CTA secundário · estilo",
+      "options": [
+        { "value": "ghost", "label": "Ghost (transparente)" },
+        { "value": "whatsapp", "label": "WhatsApp (verde)" }
+      ],
+      "default": "ghost"
+    }
+  ],
+  "presets": [
+    { "name": "Dropshipping · Hero" }
+  ]
+}
+{% endschema %}

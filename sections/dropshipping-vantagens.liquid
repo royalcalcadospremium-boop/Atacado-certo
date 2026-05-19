@@ -1,0 +1,87 @@
+{%- comment -%}
+  dropshipping-vantagens.liquid
+  Grid 3x2 de cards com benefícios do modelo dropshipping Royal.
+  Background parchment para variar visualmente entre seções.
+{%- endcomment -%}
+
+<section class="lp-section lp-section--parchment" aria-labelledby="dropshipping-vantagens-{{ section.id }}">
+  <div class="lp-section__inner">
+    <header class="lp-section__head lp-reveal">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="lp-section__eyebrow">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+      <h2 id="dropshipping-vantagens-{{ section.id }}" class="lp-section__title">
+        {{ section.settings.title }}
+      </h2>
+      {%- if section.settings.lead != blank -%}
+        <p class="lp-section__lead">{{ section.settings.lead }}</p>
+      {%- endif -%}
+    </header>
+
+    <div class="lp-cards">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'card' -%}
+          <article class="lp-card lp-reveal" {{ block.shopify_attributes }}>
+            {%- if block.settings.icon != blank -%}
+              <div class="lp-card__icon" aria-hidden="true">{{ block.settings.icon }}</div>
+            {%- endif -%}
+            <h3 class="lp-card__title">{{ block.settings.title }}</h3>
+            <p class="lp-card__text">{{ block.settings.text }}</p>
+          </article>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Dropshipping · Vantagens",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Por que escolher"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Título (H2)",
+      "default": "Vantagens do dropshipping Royal"
+    },
+    {
+      "type": "textarea",
+      "id": "lead",
+      "label": "Texto introdutório",
+      "default": "Tudo que você precisa pra começar a vender hoje — sem estoque, sem risco."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "card",
+      "name": "Card de vantagem",
+      "settings": [
+        { "type": "text", "id": "icon", "label": "Ícone (emoji ou texto curto)" },
+        { "type": "text", "id": "title", "label": "Título" },
+        { "type": "textarea", "id": "text", "label": "Descrição" }
+      ]
+    }
+  ],
+  "max_blocks": 9,
+  "presets": [
+    {
+      "name": "Dropshipping · Vantagens",
+      "blocks": [
+        { "type": "card", "settings": { "icon": "📦", "title": "Sem estoque, sem capital travado", "text": "Compre só depois de vender. Zero risco de produto parado." } },
+        { "type": "card", "settings": { "icon": "✓", "title": "Sem quantidade mínima", "text": "A partir de 1 peça por pedido. Ideal pra começar pequeno e escalar." } },
+        { "type": "card", "settings": { "icon": "📨", "title": "Embalagem neutra ou personalizada", "text": "Despache com sua marca ou em embalagem sem identificação." } },
+        { "type": "card", "settings": { "icon": "🔄", "title": "Catálogo em tempo real via API", "text": "Estoque e preços sincronizados automaticamente com sua loja." } },
+        { "type": "card", "settings": { "icon": "🔌", "title": "Integrações nativas", "text": "Shopify, Yampi, Nuvemshop, Mercado Livre e Shopee em poucos cliques." } },
+        { "type": "card", "settings": { "icon": "💳", "title": "Pague só quando vender", "text": "Sem mensalidade, sem taxa de cadastro. Só paga o produto após confirmar a venda." } }
+      ]
+    }
+  ]
+}
+{% endschema %}

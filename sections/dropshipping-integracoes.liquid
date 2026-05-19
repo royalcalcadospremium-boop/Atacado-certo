@@ -1,0 +1,101 @@
+{%- comment -%}
+  dropshipping-integracoes.liquid
+  Grid de logos das plataformas integradas (Shopify, Yampi, Nuvemshop, ML, Shopee).
+  Cada brand é configurável via block: image_picker + name (alt) + url opcional.
+{%- endcomment -%}
+
+<section class="lp-section" aria-labelledby="dropshipping-integracoes-{{ section.id }}">
+  <div class="lp-section__inner">
+    <header class="lp-section__head lp-reveal">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="lp-section__eyebrow">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+      <h2 id="dropshipping-integracoes-{{ section.id }}" class="lp-section__title">
+        {{ section.settings.title }}
+      </h2>
+      {%- if section.settings.lead != blank -%}
+        <p class="lp-section__lead">{{ section.settings.lead }}</p>
+      {%- endif -%}
+    </header>
+
+    <div class="lp-brands lp-reveal" role="list">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'brand' -%}
+          {%- assign _name = block.settings.name | default: 'Plataforma' -%}
+          {%- if block.settings.url != blank -%}
+            <a class="lp-brand" href="{{ block.settings.url }}" target="_blank" rel="noopener" role="listitem" {{ block.shopify_attributes }} aria-label="{{ _name | escape }}">
+          {%- else -%}
+            <div class="lp-brand" role="listitem" {{ block.shopify_attributes }}>
+          {%- endif -%}
+            {%- if block.settings.logo != blank -%}
+              <img
+                src="{{ block.settings.logo | img_url: '300x' }}"
+                alt="{{ _name | escape }}"
+                loading="lazy"
+                width="{{ block.settings.logo.width }}"
+                height="{{ block.settings.logo.height }}"
+              >
+            {%- else -%}
+              <span class="lp-brand__name">{{ _name }}</span>
+            {%- endif -%}
+          {%- if block.settings.url != blank -%}
+            </a>
+          {%- else -%}
+            </div>
+          {%- endif -%}
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Dropshipping · Integrações",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Plug & play"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Título (H2)",
+      "default": "Integramos com sua plataforma"
+    },
+    {
+      "type": "textarea",
+      "id": "lead",
+      "label": "Texto introdutório",
+      "default": "Sincronização automática de produtos, estoque e pedidos via API."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "brand",
+      "name": "Plataforma",
+      "settings": [
+        { "type": "text", "id": "name", "label": "Nome (alt text)" },
+        { "type": "image_picker", "id": "logo", "label": "Logo" },
+        { "type": "url", "id": "url", "label": "Link (opcional)" }
+      ]
+    }
+  ],
+  "max_blocks": 12,
+  "presets": [
+    {
+      "name": "Dropshipping · Integrações",
+      "blocks": [
+        { "type": "brand", "settings": { "name": "Shopify" } },
+        { "type": "brand", "settings": { "name": "Yampi" } },
+        { "type": "brand", "settings": { "name": "Nuvemshop" } },
+        { "type": "brand", "settings": { "name": "Mercado Livre" } },
+        { "type": "brand", "settings": { "name": "Shopee" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
