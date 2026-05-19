@@ -1,7 +1,8 @@
 {%- comment -%}
   Apple-pure header (Subsistema 1).
-  Two-tier nav: 44px black global-nav + 52px frosted-parchment sub-nav.
+  Two-tier nav: 64px black global-nav + 52px frosted-parchment sub-nav.
   Mobile collapses to hamburger + centered logo + bag.
+  Drawer mobile: layout rico (countdown, categorias, rastrear, promos, ações, menu, produto destaque).
 {%- endcomment -%}
 
 {%- assign navigation_menu_handle = section.settings.navigation_menu | default: 'main-menu' -%}
@@ -9,7 +10,7 @@
 
 <header class="ad-header" data-section-id="{{ section.id }}" data-section-type="header" role="banner">
 
-  {%- comment -%} ────────── GLOBAL NAV (44px black) ────────── {%- endcomment -%}
+  {%- comment -%} ────────── GLOBAL NAV (64px black) ────────── {%- endcomment -%}
   <nav class="ad-global-nav" aria-label="Navegação principal">
     <div class="ad-global-nav__inner">
 
@@ -21,7 +22,7 @@
 
       <a class="ad-global-nav__logo" href="{{ routes.root_url }}" aria-label="{{ shop.name }}">
         {%- if section.settings.logo != blank -%}
-          <img src="{{ section.settings.logo | img_url: '200x' }}" alt="{{ shop.name | escape }}" width="100" height="20" loading="eager" decoding="async">
+          <img src="{{ section.settings.logo | img_url: '400x' }}" alt="{{ shop.name | escape }}" width="180" height="36" loading="eager" decoding="async">
         {%- else -%}
           <span class="ad-nav-link">{{ shop.name }}</span>
         {%- endif -%}
@@ -59,10 +60,12 @@
 
   {%- comment -%} ────────── MOBILE DRAWER ────────── {%- endcomment -%}
   <aside id="ad-mobile-drawer" class="ad-mobile-drawer" hidden aria-modal="true" role="dialog" aria-label="Menu de navegação">
+
+    {%- comment -%} (1) HEAD {%- endcomment -%}
     <div class="ad-mobile-drawer__head">
       <a class="ad-mobile-drawer__logo" href="{{ routes.root_url }}">
         {%- if section.settings.logo != blank -%}
-          <img src="{{ section.settings.logo | img_url: '200x' }}" alt="{{ shop.name | escape }}" width="100" height="20">
+          <img src="{{ section.settings.logo | img_url: '400x' }}" alt="{{ shop.name | escape }}" width="160" height="32">
         {%- else -%}
           <span class="ad-tagline">{{ shop.name }}</span>
         {%- endif -%}
@@ -73,27 +76,146 @@
         </svg>
       </button>
     </div>
-    <ul class="ad-mobile-drawer__links">
-      {%- for link in navigation_menu.links -%}
-        <li><a class="ad-mobile-drawer__link ad-display-md" href="{{ link.url }}">{{ link.title }}</a></li>
+
+    <div class="ad-mobile-drawer__body">
+
+      {%- comment -%} (2) COUNTDOWN BANNER {%- endcomment -%}
+      {%- if section.settings.drawer_countdown_enabled and section.settings.drawer_countdown_text != blank -%}
+        <div class="ad-drawer-countdown">
+          <span class="ad-caption-strong">{{ section.settings.drawer_countdown_text }}</span>
+          <span class="ad-drawer-countdown__timer" data-end="{{ section.settings.drawer_countdown_end }}">--:--:--</span>
+        </div>
+      {%- endif -%}
+
+      {%- comment -%} (3) CATEGORY CARDS ROW {%- endcomment -%}
+      {%- assign has_categories = false -%}
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'category_card' -%}{%- assign has_categories = true -%}{%- break -%}{%- endif -%}
       {%- endfor -%}
-    </ul>
-    <div class="ad-mobile-drawer__foot">
-      <a class="ad-button-utility" href="{{ routes.account_url }}">Minha conta</a>
-      <a class="ad-button-utility" href="{{ routes.search_url }}">Buscar</a>
-      <a class="ad-button-utility" href="{{ routes.cart_url }}">Carrinho ({{ cart.item_count }})</a>
+      {%- if has_categories -%}
+        <nav class="ad-drawer-categories" aria-label="Categorias">
+          {%- for block in section.blocks -%}
+            {%- case block.type -%}
+              {%- when 'category_card' -%}
+                <a class="ad-drawer-cat" href="{{ block.settings.url | default: '#' }}" {{ block.shopify_attributes }}>
+                  <span class="ad-drawer-cat__image">
+                    {%- if block.settings.image != blank -%}
+                      <img src="{{ block.settings.image | img_url: '120x120', crop: 'center' }}" alt="" loading="lazy" width="64" height="64">
+                    {%- endif -%}
+                  </span>
+                  <span class="ad-drawer-cat__label ad-caption">{{ block.settings.label }}</span>
+                </a>
+            {%- endcase -%}
+          {%- endfor -%}
+        </nav>
+      {%- endif -%}
+
+      {%- comment -%} (4) TRACK ORDER CTA {%- endcomment -%}
+      {%- if section.settings.drawer_track_url != blank and section.settings.drawer_track_text != blank -%}
+        <a class="ad-button ad-button--primary ad-drawer-track" href="{{ section.settings.drawer_track_url }}">
+          <svg width="16" height="16" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M2 6h11l3 3v4h-2"/><circle cx="6" cy="14" r="2"/><circle cx="14" cy="14" r="2"/>
+          </svg>
+          {{ section.settings.drawer_track_text }}
+        </a>
+      {%- endif -%}
+
+      {%- comment -%} (5) PROMO BANNER CARDS {%- endcomment -%}
+      {%- assign has_promos = false -%}
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'promo_card' -%}{%- assign has_promos = true -%}{%- break -%}{%- endif -%}
+      {%- endfor -%}
+      {%- if has_promos -%}
+        <div class="ad-drawer-promos">
+          {%- for block in section.blocks -%}
+            {%- case block.type -%}
+              {%- when 'promo_card' -%}
+                <a class="ad-drawer-promo" href="{{ block.settings.url | default: '#' }}" {{ block.shopify_attributes }}>
+                  {%- if block.settings.image != blank -%}
+                    <img src="{{ block.settings.image | img_url: '600x' }}" alt="" loading="lazy">
+                  {%- endif -%}
+                  <div class="ad-drawer-promo__overlay">
+                    {%- if block.settings.heading != blank -%}
+                      <p class="ad-display-sm">{{ block.settings.heading }}</p>
+                    {%- endif -%}
+                    {%- if block.settings.cta_text != blank -%}
+                      <span class="ad-caption-strong">{{ block.settings.cta_text }} ›</span>
+                    {%- endif -%}
+                  </div>
+                </a>
+            {%- endcase -%}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+      {%- comment -%} (6) ACTION CTAs {%- endcomment -%}
+      {%- assign has_actions = false -%}
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'action_cta' -%}{%- assign has_actions = true -%}{%- break -%}{%- endif -%}
+      {%- endfor -%}
+      {%- if has_actions -%}
+        <div class="ad-drawer-actions">
+          {%- for block in section.blocks -%}
+            {%- case block.type -%}
+              {%- when 'action_cta' -%}
+                <a class="ad-drawer-action" href="{{ block.settings.url | default: '#' }}" {{ block.shopify_attributes }}>
+                  <span class="ad-drawer-action__emoji" aria-hidden="true">{{ block.settings.emoji }}</span>
+                  <span class="ad-drawer-action__label ad-body">{{ block.settings.label }}</span>
+                  <span class="ad-drawer-action__chevron" aria-hidden="true">›</span>
+                </a>
+            {%- endcase -%}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+      {%- comment -%} (7) MENU ITEMS LIST {%- endcomment -%}
+      {%- if navigation_menu.links.size > 0 -%}
+        <nav class="ad-drawer-menu" aria-label="Menu principal">
+          {%- for link in navigation_menu.links -%}
+            <a class="ad-drawer-menu-item" href="{{ link.url }}">
+              <span class="ad-drawer-action__label ad-body">{{ link.title }}</span>
+              <span class="ad-drawer-action__chevron" aria-hidden="true">›</span>
+            </a>
+          {%- endfor -%}
+        </nav>
+      {%- endif -%}
+
+      {%- comment -%} (8) FEATURED PRODUCT CARD {%- endcomment -%}
+      {%- if section.settings.drawer_featured_product != blank -%}
+        {%- assign featured = all_products[section.settings.drawer_featured_product] -%}
+        {%- if featured != blank and featured != empty -%}
+          <a class="ad-drawer-featured" href="{{ featured.url }}">
+            {%- if featured.featured_image != blank -%}
+              <img src="{{ featured.featured_image | img_url: '300x300', crop: 'center' }}" alt="{{ featured.title | escape }}" loading="lazy" width="80" height="80">
+            {%- endif -%}
+            <div class="ad-drawer-featured__body">
+              <p class="ad-caption">{{ section.settings.drawer_featured_eyebrow | default: 'Destaque' }}</p>
+              <p class="ad-display-sm">{{ featured.title }}</p>
+              <p class="ad-body-strong">{{ featured.price | money }}</p>
+            </div>
+          </a>
+        {%- endif -%}
+      {%- endif -%}
+
+      {%- comment -%} (9) FOOT {%- endcomment -%}
+      <div class="ad-mobile-drawer__foot">
+        <a class="ad-button-utility" href="{{ routes.account_url }}">Minha conta</a>
+        <a class="ad-button-utility" href="{{ routes.search_url }}">Buscar</a>
+        <a class="ad-button-utility" href="{{ routes.cart_url }}">Carrinho ({{ cart.item_count }})</a>
+      </div>
+
     </div>
   </aside>
 
 </header>
 
 <style>
-  /* ── Global nav (44px black bar) ─────────────────────────────── */
+  /* ── Global nav (64px black bar) ─────────────────────────────── */
   .ad-header { isolation: isolate; }
   .ad-global-nav {
     background-color: var(--ad-color-surface-black);
     color: var(--ad-color-on-dark);
-    height: 44px;
+    height: 64px;
     position: sticky; top: 0; z-index: 100;
   }
   .ad-global-nav__inner {
@@ -117,7 +239,7 @@
     display: inline-flex; align-items: center;
   }
   .ad-global-nav__logo img {
-    display: block; height: 20px; width: auto;
+    display: block; height: 36px; width: auto;
   }
   .ad-global-nav__links {
     list-style: none; margin: 0; padding: 0;
@@ -154,7 +276,7 @@
   /* ── Sub-nav (52px frosted parchment) ─────────────────────────── */
   .ad-sub-nav {
     height: 52px;
-    position: sticky; top: 44px; z-index: 99;
+    position: sticky; top: 64px; z-index: 99;
     color: var(--ad-color-ink);
   }
   .ad-sub-nav__inner {
@@ -183,44 +305,234 @@
     color: var(--ad-color-ink);
   }
 
-  /* ── Mobile drawer ───────────────────────────────────────────── */
+  /* ── Mobile drawer (parchment, rich layout) ───────────────────── */
   .ad-mobile-drawer {
     position: fixed; inset: 0; z-index: 200;
-    background-color: var(--ad-color-surface-tile-1);
-    color: var(--ad-color-on-dark);
-    padding: var(--ad-space-xl);
+    background-color: var(--ad-color-canvas-parchment);
+    color: var(--ad-color-ink);
     overflow-y: auto;
     animation: ad-fade-in 220ms ease-out;
+    display: flex; flex-direction: column;
   }
   .ad-mobile-drawer[hidden] { display: none; }
   @keyframes ad-fade-in { from { opacity: 0; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    .ad-mobile-drawer { animation: none; }
+  }
 
   .ad-mobile-drawer__head {
     display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: var(--ad-space-xxl);
+    padding: var(--ad-space-lg);
+    border-bottom: var(--ad-border-soft, 1px solid rgba(0,0,0,0.08));
+    background-color: var(--ad-color-canvas-parchment);
+    position: sticky; top: 0; z-index: 2;
   }
-  .ad-mobile-drawer__logo { color: inherit; text-decoration: none; }
-  .ad-mobile-drawer__logo img { display: block; height: 20px; }
+  .ad-mobile-drawer__logo { color: inherit; text-decoration: none; display: inline-flex; align-items: center; }
+  .ad-mobile-drawer__logo img { display: block; height: 32px; width: auto; }
   .ad-mobile-drawer__close {
     background: none; border: 0; color: inherit;
     padding: 8px; cursor: pointer;
     width: 32px; height: 32px;
     display: inline-flex; align-items: center; justify-content: center;
   }
-  .ad-mobile-drawer__links {
-    list-style: none; margin: 0; padding: 0;
-    display: flex; flex-direction: column; gap: var(--ad-space-md);
+
+  .ad-mobile-drawer__body {
+    padding: var(--ad-space-lg);
+    display: flex; flex-direction: column;
+    gap: var(--ad-space-xl);
+    flex: 1;
   }
-  .ad-mobile-drawer__link {
-    color: inherit; text-decoration: none;
-    display: block; padding: var(--ad-space-xs) 0;
+
+  /* (2) Countdown banner */
+  .ad-drawer-countdown {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: var(--ad-space-sm);
+    background-color: var(--ad-color-primary);
+    color: var(--ad-color-on-primary, #fff);
+    padding: var(--ad-space-sm) var(--ad-space-md);
+    border-radius: var(--ad-radius-sm);
   }
+  .ad-drawer-countdown__timer {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  /* (3) Category cards row */
+  .ad-drawer-categories {
+    display: flex;
+    gap: var(--ad-space-md);
+    overflow-x: auto;
+    overflow-y: hidden;
+    margin: 0 calc(var(--ad-space-lg) * -1);
+    padding: 0 var(--ad-space-lg) var(--ad-space-xs);
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .ad-drawer-categories::-webkit-scrollbar { display: none; }
+  .ad-drawer-cat {
+    display: flex; flex-direction: column; align-items: center;
+    gap: var(--ad-space-xs);
+    text-decoration: none; color: var(--ad-color-ink);
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    width: 72px;
+  }
+  .ad-drawer-cat__image {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: var(--ad-color-canvas-fog, #f0f0f3);
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .ad-drawer-cat__image img {
+    width: 100%; height: 100%; object-fit: cover;
+    display: block;
+  }
+  .ad-drawer-cat__label {
+    font-size: 12px;
+    text-align: center;
+    line-height: 1.2;
+    color: var(--ad-color-ink);
+  }
+
+  /* (4) Track order CTA */
+  .ad-drawer-track {
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: var(--ad-space-xs);
+    width: 100%;
+    padding: var(--ad-space-md);
+    background-color: var(--ad-color-primary);
+    color: var(--ad-color-on-primary, #fff);
+    border-radius: var(--ad-radius-pill);
+    text-decoration: none;
+    font-weight: 600;
+    transition: filter 120ms ease-out;
+  }
+  .ad-drawer-track:hover { filter: brightness(1.08); }
+
+  /* (5) Promo cards */
+  .ad-drawer-promos {
+    display: flex; flex-direction: column;
+    gap: var(--ad-space-md);
+  }
+  .ad-drawer-promo {
+    position: relative;
+    display: block;
+    aspect-ratio: 16 / 9;
+    background-color: var(--ad-color-surface-tile-1);
+    border-radius: var(--ad-radius-md);
+    overflow: hidden;
+    text-decoration: none;
+    color: #fff;
+  }
+  .ad-drawer-promo img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .ad-drawer-promo__overlay {
+    position: absolute; inset: 0;
+    padding: var(--ad-space-md);
+    display: flex; flex-direction: column; justify-content: flex-end;
+    gap: 4px;
+    background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.7));
+    color: #fff;
+  }
+  .ad-drawer-promo__overlay p { margin: 0; color: inherit; }
+  .ad-drawer-promo__overlay .ad-caption-strong { color: inherit; opacity: 0.9; }
+
+  /* (6) Action CTAs and (7) Menu items list */
+  .ad-drawer-actions,
+  .ad-drawer-menu {
+    display: flex; flex-direction: column;
+  }
+  .ad-drawer-action,
+  .ad-drawer-menu-item {
+    display: flex; align-items: center;
+    gap: var(--ad-space-md);
+    padding: var(--ad-space-md) 0;
+    text-decoration: none;
+    color: var(--ad-color-ink);
+    border-bottom: var(--ad-border-soft, 1px solid rgba(0,0,0,0.08));
+  }
+  .ad-drawer-action:last-child,
+  .ad-drawer-menu-item:last-child { border-bottom: 0; }
+  .ad-drawer-action__emoji {
+    font-size: 24px;
+    line-height: 1;
+    width: 24px;
+    text-align: center;
+    flex: 0 0 auto;
+  }
+  .ad-drawer-action__label {
+    flex: 1;
+    color: var(--ad-color-ink);
+  }
+  .ad-drawer-action__chevron {
+    font-size: 18px;
+    color: var(--ad-color-ink-muted-80);
+    line-height: 1;
+    flex: 0 0 auto;
+  }
+
+  /* (8) Featured product */
+  .ad-drawer-featured {
+    display: flex; align-items: center;
+    gap: var(--ad-space-md);
+    padding: var(--ad-space-md);
+    background-color: var(--ad-color-canvas-parchment);
+    border: var(--ad-border-soft, 1px solid rgba(0,0,0,0.08));
+    border-radius: var(--ad-radius-md);
+    text-decoration: none;
+    color: var(--ad-color-ink);
+  }
+  .ad-drawer-featured img {
+    width: 80px; height: 80px;
+    object-fit: cover;
+    border-radius: var(--ad-radius-sm);
+    display: block;
+    flex: 0 0 auto;
+  }
+  .ad-drawer-featured__body {
+    flex: 1;
+    display: flex; flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .ad-drawer-featured__body p { margin: 0; }
+  .ad-drawer-featured__body .ad-caption {
+    color: var(--ad-color-ink-muted-80);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .ad-drawer-featured__body .ad-display-sm {
+    color: var(--ad-color-ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  .ad-drawer-featured__body .ad-body-strong {
+    color: var(--ad-color-primary);
+    font-weight: 600;
+  }
+
+  /* (9) Foot */
   .ad-mobile-drawer__foot {
     display: flex; flex-wrap: wrap;
     gap: var(--ad-space-sm);
-    margin-top: var(--ad-space-xxl);
+    margin-top: auto;
     padding-top: var(--ad-space-lg);
-    border-top: 1px solid rgba(255,255,255,0.12);
+    border-top: var(--ad-border-soft, 1px solid rgba(0,0,0,0.08));
+  }
+  .ad-mobile-drawer__foot .ad-button-utility {
+    background-color: transparent;
+    color: var(--ad-color-ink);
+    border: 1px solid rgba(0,0,0,0.12);
   }
 
   /* ── Responsive ──────────────────────────────────────────────── */
@@ -228,6 +540,7 @@
     .ad-global-nav__hamburger { display: inline-flex; }
     .ad-global-nav__links { display: none; }
     .ad-global-nav__logo { flex: 1; justify-content: center; }
+    .ad-global-nav__logo img { height: 28px; }
     .ad-sub-nav__links { display: none; }
     .ad-sub-nav__inner { gap: var(--ad-space-md); }
   }
@@ -259,6 +572,31 @@
   drawer.addEventListener('click', function (e) {
     if (e.target.closest('a')) closeDrawer();
   });
+
+  // Countdown banner ticker
+  var cd = drawer.querySelector('.ad-drawer-countdown__timer');
+  if (cd && cd.dataset.end) {
+    var endTs = new Date(cd.dataset.end).getTime();
+    if (!isNaN(endTs)) {
+      var tick = function () {
+        var diff = endTs - Date.now();
+        if (diff <= 0) {
+          var banner = cd.closest('.ad-drawer-countdown');
+          if (banner) banner.style.display = 'none';
+          return;
+        }
+        var h = Math.floor(diff / 3.6e6);
+        var m = Math.floor((diff % 3.6e6) / 6e4);
+        var s = Math.floor((diff % 6e4) / 1000);
+        cd.textContent =
+          String(h).padStart(2, '0') + ':' +
+          String(m).padStart(2, '0') + ':' +
+          String(s).padStart(2, '0');
+      };
+      tick();
+      setInterval(tick, 1000);
+    }
+  }
 })();
 </script>
 
@@ -266,12 +604,22 @@
 {
   "name": "Cabeçalho (Apple)",
   "settings": [
-    { "type": "image_picker", "id": "logo", "label": "Logo (PNG branco, altura ~20px)" },
+    { "type": "image_picker", "id": "logo", "label": "Logo (PNG branco, altura ~32px)" },
     { "type": "link_list", "id": "navigation_menu", "label": "Menu principal (até 8 itens)", "default": "main-menu" },
     { "type": "text", "id": "brand_tagline", "label": "Tagline da sub-nav", "default": "Royal Atacado" },
     { "type": "header", "content": "Sub-nav · botão primário" },
     { "type": "text", "id": "cta_text", "label": "Texto do botão", "default": "Falar no WhatsApp" },
-    { "type": "url", "id": "cta_url", "label": "URL do botão" }
+    { "type": "url", "id": "cta_url", "label": "URL do botão" },
+    { "type": "header", "content": "Drawer mobile · countdown" },
+    { "type": "checkbox", "id": "drawer_countdown_enabled", "label": "Mostrar contador no drawer", "default": false },
+    { "type": "text", "id": "drawer_countdown_text", "label": "Texto do contador", "default": "Oferta termina em" },
+    { "type": "text", "id": "drawer_countdown_end", "label": "Termina em (ISO: 2026-12-31T23:59:59)" },
+    { "type": "header", "content": "Drawer mobile · rastrear pedido" },
+    { "type": "text", "id": "drawer_track_text", "label": "Texto do botão", "default": "Rastrear pedido" },
+    { "type": "url", "id": "drawer_track_url", "label": "URL" },
+    { "type": "header", "content": "Drawer mobile · produto destaque" },
+    { "type": "text", "id": "drawer_featured_eyebrow", "label": "Etiqueta acima do título", "default": "Destaque" },
+    { "type": "product", "id": "drawer_featured_product", "label": "Produto destacado" }
   ],
   "blocks": [
     {
@@ -281,8 +629,36 @@
         { "type": "text", "id": "label", "label": "Texto", "default": "Atacado" },
         { "type": "url", "id": "url", "label": "URL" }
       ]
+    },
+    {
+      "type": "category_card",
+      "name": "Drawer · Categoria",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Imagem (cortada em círculo)" },
+        { "type": "text", "id": "label", "label": "Nome" },
+        { "type": "url", "id": "url", "label": "URL" }
+      ]
+    },
+    {
+      "type": "promo_card",
+      "name": "Drawer · Banner promo",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Imagem de fundo" },
+        { "type": "text", "id": "heading", "label": "Título" },
+        { "type": "text", "id": "cta_text", "label": "Texto do CTA", "default": "Ver agora" },
+        { "type": "url", "id": "url", "label": "URL" }
+      ]
+    },
+    {
+      "type": "action_cta",
+      "name": "Drawer · Ação destaque",
+      "settings": [
+        { "type": "text", "id": "emoji", "label": "Emoji/ícone", "default": "✨" },
+        { "type": "text", "id": "label", "label": "Texto", "default": "Ação destaque" },
+        { "type": "url", "id": "url", "label": "URL" }
+      ]
     }
   ],
-  "max_blocks": 5
+  "max_blocks": 16
 }
 {% endschema %}
