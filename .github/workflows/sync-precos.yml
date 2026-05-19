@@ -42,8 +42,9 @@ jobs:
           SHOPIFY_STORE_DOMAIN=$SHOPIFY_STORE_DOMAIN
           SHOPIFY_ADMIN_TOKEN=$SHOPIFY_ADMIN_TOKEN
           SHOPIFY_METAFIELD_NAMESPACE=custom
-          SHOPIFY_METAFIELD_KEY=preco_varejo
+          SHOPIFY_METAFIELD_KEY=preco_atacado
           OLIST_USE_PROMO_PRICE=1
+          ATACADO_FALLBACK_DISCOUNT_PCT=30
           EOF
 
       - name: Rodar sync
