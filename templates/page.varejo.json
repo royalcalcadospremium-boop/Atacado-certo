@@ -1,5 +1,13 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
-  "name": "Varejo · Landing Page",
   "sections": {
     "hero": {
       "type": "varejo-hero-video",
@@ -31,14 +39,57 @@
         "lead": "Calçados, vestuário e acessórios das marcas que você confia."
       },
       "blocks": {
-        "cat-1": { "type": "category", "settings": { "title": "Chinelos", "collection_url": "/collections/chinelos" } },
-        "cat-2": { "type": "category", "settings": { "title": "Tênis", "collection_url": "/collections/tenis" } },
-        "cat-3": { "type": "category", "settings": { "title": "Camisetas", "collection_url": "/collections/camisetas" } },
-        "cat-4": { "type": "category", "settings": { "title": "Bermudas", "collection_url": "/collections/bermudas" } },
-        "cat-5": { "type": "category", "settings": { "title": "Bonés", "collection_url": "/collections/bones" } },
-        "cat-6": { "type": "category", "settings": { "title": "Calças", "collection_url": "/collections/calcas" } }
+        "cat-1": {
+          "type": "category",
+          "settings": {
+            "title": "Chinelos",
+            "collection_url": "/collections/chinelos"
+          }
+        },
+        "cat-2": {
+          "type": "category",
+          "settings": {
+            "title": "Tênis",
+            "collection_url": "/collections/tenis"
+          }
+        },
+        "cat-3": {
+          "type": "category",
+          "settings": {
+            "title": "Camisetas",
+            "collection_url": "/collections/camisetas"
+          }
+        },
+        "cat-4": {
+          "type": "category",
+          "settings": {
+            "title": "Bermudas",
+            "collection_url": "/collections/bermudas"
+          }
+        },
+        "cat-5": {
+          "type": "category",
+          "settings": {
+            "title": "Bonés",
+            "collection_url": "/collections/bones"
+          }
+        },
+        "cat-6": {
+          "type": "category",
+          "settings": {
+            "title": "Calças",
+            "collection_url": "/collections/calcas"
+          }
+        }
       },
-      "block_order": ["cat-1", "cat-2", "cat-3", "cat-4", "cat-5", "cat-6"]
+      "block_order": [
+        "cat-1",
+        "cat-2",
+        "cat-3",
+        "cat-4",
+        "cat-5",
+        "cat-6"
+      ]
     },
     "mais-vendidos": {
       "type": "varejo-mais-vendidos",
@@ -60,13 +111,59 @@
         "lead": "Depoimentos reais de quem já comprou e aprovou."
       },
       "blocks": {
-        "dep-1": { "type": "testimonial", "settings": { "name": "Lucas Almeida", "location": "São Paulo, SP", "text": "Comprei um Nike Air Force, chegou em 3 dias e veio com nota fiscal. Original mesmo. Recomendo!", "rating": 5 } },
-        "dep-2": { "type": "testimonial", "settings": { "name": "Mariana Costa", "location": "Belo Horizonte, MG", "text": "Atendimento no WhatsApp é gente de verdade, me ajudaram a escolher o tamanho. Já é meu site favorito.", "rating": 5 } },
-        "dep-3": { "type": "testimonial", "settings": { "name": "Rafael Souza", "location": "Curitiba, PR", "text": "Tive que trocar de tamanho e foi super tranquilo. Em 5 dias estava com o novo aqui.", "rating": 5 } },
-        "dep-4": { "type": "testimonial", "settings": { "name": "Juliana Rocha", "location": "Recife, PE", "text": "Frete grátis chegou em 4 dias úteis. Mizuno original, embalado direitinho.", "rating": 5 } },
-        "dep-5": { "type": "testimonial", "settings": { "name": "Pedro Henrique", "location": "Porto Alegre, RS", "text": "Já é minha 3ª compra. Sempre original, sempre rápido. Confiança total.", "rating": 5 } }
+        "dep-1": {
+          "type": "testimonial",
+          "settings": {
+            "name": "Lucas Almeida",
+            "location": "São Paulo, SP",
+            "text": "Comprei um Nike Air Force, chegou em 3 dias e veio com nota fiscal. Original mesmo. Recomendo!",
+            "rating": 5
+          }
+        },
+        "dep-2": {
+          "type": "testimonial",
+          "settings": {
+            "name": "Mariana Costa",
+            "location": "Belo Horizonte, MG",
+            "text": "Atendimento no WhatsApp é gente de verdade, me ajudaram a escolher o tamanho. Já é meu site favorito.",
+            "rating": 5
+          }
+        },
+        "dep-3": {
+          "type": "testimonial",
+          "settings": {
+            "name": "Rafael Souza",
+            "location": "Curitiba, PR",
+            "text": "Tive que trocar de tamanho e foi super tranquilo. Em 5 dias estava com o novo aqui.",
+            "rating": 5
+          }
+        },
+        "dep-4": {
+          "type": "testimonial",
+          "settings": {
+            "name": "Juliana Rocha",
+            "location": "Recife, PE",
+            "text": "Frete grátis chegou em 4 dias úteis. Mizuno original, embalado direitinho.",
+            "rating": 5
+          }
+        },
+        "dep-5": {
+          "type": "testimonial",
+          "settings": {
+            "name": "Pedro Henrique",
+            "location": "Porto Alegre, RS",
+            "text": "Já é minha 3ª compra. Sempre original, sempre rápido. Confiança total.",
+            "rating": 5
+          }
+        }
       },
-      "block_order": ["dep-1", "dep-2", "dep-3", "dep-4", "dep-5"]
+      "block_order": [
+        "dep-1",
+        "dep-2",
+        "dep-3",
+        "dep-4",
+        "dep-5"
+      ]
     },
     "frete-troca": {
       "type": "varejo-frete-troca",
@@ -84,13 +181,49 @@
         "lead": "Se não achar aqui, chama no WhatsApp — a gente responde rápido."
       },
       "blocks": {
-        "faq-1": { "type": "faq_item", "settings": { "question": "São produtos originais?", "answer": "<p>Sim. 100% originais, com nota fiscal e selo de garantia das marcas.</p>" } },
-        "faq-2": { "type": "faq_item", "settings": { "question": "Quanto tempo demora a entrega?", "answer": "<p>PAC: 5 a 10 dias úteis. SEDEX: 1 a 3 dias úteis pra capitais.</p>" } },
-        "faq-3": { "type": "faq_item", "settings": { "question": "Posso parcelar?", "answer": "<p>Sim, em até 12x sem juros no cartão de crédito.</p>" } },
-        "faq-4": { "type": "faq_item", "settings": { "question": "Como faço a troca?", "answer": "<p>Entre em contato pelo WhatsApp ou e-mail em até 7 dias após receber o produto. Sem custo se for defeito de fabricação.</p>" } },
-        "faq-5": { "type": "faq_item", "settings": { "question": "Que marcas vocês vendem?", "answer": "<p>Nike, Adidas, Mizuno, New Balance, Puma, Hugo Boss, Lacoste, Vans, entre outras.</p>" } }
+        "faq-1": {
+          "type": "faq_item",
+          "settings": {
+            "question": "São produtos originais?",
+            "answer": "<p>Sim. 100% originais, com nota fiscal e selo de garantia das marcas.</p>"
+          }
+        },
+        "faq-2": {
+          "type": "faq_item",
+          "settings": {
+            "question": "Quanto tempo demora a entrega?",
+            "answer": "<p>PAC: 5 a 10 dias úteis. SEDEX: 1 a 3 dias úteis pra capitais.</p>"
+          }
+        },
+        "faq-3": {
+          "type": "faq_item",
+          "settings": {
+            "question": "Posso parcelar?",
+            "answer": "<p>Sim, em até 12x sem juros no cartão de crédito.</p>"
+          }
+        },
+        "faq-4": {
+          "type": "faq_item",
+          "settings": {
+            "question": "Como faço a troca?",
+            "answer": "<p>Entre em contato pelo WhatsApp ou e-mail em até 7 dias após receber o produto. Sem custo se for defeito de fabricação.</p>"
+          }
+        },
+        "faq-5": {
+          "type": "faq_item",
+          "settings": {
+            "question": "Que marcas vocês vendem?",
+            "answer": "<p>Nike, Adidas, Mizuno, New Balance, Puma, Hugo Boss, Lacoste, Vans, entre outras.</p>"
+          }
+        }
       },
-      "block_order": ["faq-1", "faq-2", "faq-3", "faq-4", "faq-5"]
+      "block_order": [
+        "faq-1",
+        "faq-2",
+        "faq-3",
+        "faq-4",
+        "faq-5"
+      ]
     },
     "cta-final": {
       "type": "varejo-cta-final",
