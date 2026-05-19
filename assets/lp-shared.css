@@ -1,0 +1,556 @@
+/*
+ * lp-shared.css — Landing Pages (atacado/dropshipping/varejo)
+ * Estilos compartilhados que consomem os tokens --ad-* do Apple Design.
+ * Carregado uma vez por página de LP via template JSON ou render no head.
+ */
+
+/* ── Section base ─────────────────────────────────────────────── */
+.lp-section {
+  padding: var(--ad-space-section) var(--ad-space-lg);
+  background: var(--ad-color-canvas);
+}
+.lp-section--parchment { background: var(--ad-color-canvas-parchment); }
+.lp-section--dark { background: var(--ad-color-surface-tile-1); color: var(--ad-color-on-dark); }
+.lp-section__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.lp-section__inner--narrow { max-width: 880px; }
+.lp-section__inner--wide { max-width: 1440px; }
+.lp-section__head {
+  text-align: center;
+  margin-bottom: var(--ad-space-xxl);
+}
+.lp-section__eyebrow {
+  display: inline-block;
+  font-family: var(--ad-font-text);
+  font-size: var(--ad-type-caption-strong-size);
+  font-weight: var(--ad-type-caption-strong-weight);
+  line-height: var(--ad-type-caption-strong-lh);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--ad-color-primary);
+  margin: 0 0 var(--ad-space-sm);
+}
+.lp-section__title {
+  font-family: var(--ad-font-display);
+  font-size: var(--ad-type-display-lg-size);
+  font-weight: var(--ad-type-display-lg-weight);
+  line-height: var(--ad-type-display-lg-lh);
+  letter-spacing: var(--ad-type-display-lg-track);
+  margin: 0 0 var(--ad-space-md);
+  color: var(--ad-color-ink);
+}
+.lp-section--dark .lp-section__title { color: var(--ad-color-on-dark); }
+.lp-section__lead {
+  font-family: var(--ad-font-display);
+  font-size: var(--ad-type-lead-size);
+  font-weight: var(--ad-type-lead-weight);
+  line-height: var(--ad-type-lead-lh);
+  letter-spacing: var(--ad-type-lead-track);
+  margin: 0 auto;
+  max-width: 640px;
+  color: var(--ad-color-ink-muted-80);
+}
+.lp-section--dark .lp-section__lead { color: var(--ad-color-body-muted); }
+
+/* ── Hero com vídeo em background ─────────────────────────────── */
+.lp-hero {
+  position: relative;
+  width: 100%;
+  min-height: 88vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--ad-color-surface-tile-1);
+}
+.lp-hero__video,
+.lp-hero__poster {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+.lp-hero__overlay {
+  position: absolute; inset: 0;
+  background: var(--ad-color-ink);
+  z-index: 2;
+}
+.lp-hero__inner {
+  position: relative;
+  z-index: 3;
+  max-width: 900px;
+  padding: var(--ad-space-xl) var(--ad-space-lg);
+  text-align: center;
+  color: var(--ad-color-on-dark);
+}
+.lp-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: var(--ad-radius-pill);
+  font-family: var(--ad-font-text);
+  font-size: var(--ad-type-caption-size);
+  font-weight: var(--ad-type-caption-strong-weight);
+  letter-spacing: var(--ad-type-caption-track);
+  color: var(--ad-color-on-dark);
+  margin-bottom: var(--ad-space-lg);
+  backdrop-filter: blur(8px);
+}
+.lp-hero__badge::before {
+  content: '';
+  width: 8px; height: 8px;
+  background: var(--ad-color-primary-on-dark);
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(41,151,255,0.25);
+  animation: lp-pulse 2s infinite;
+}
+@keyframes lp-pulse {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(41,151,255,0.25); }
+  50% { box-shadow: 0 0 0 8px rgba(41,151,255,0.15); }
+}
+.lp-hero__title {
+  font-family: var(--ad-font-display);
+  font-size: clamp(36px, 6vw, var(--ad-type-hero-display-size));
+  font-weight: var(--ad-type-hero-display-weight);
+  line-height: var(--ad-type-hero-display-lh);
+  letter-spacing: var(--ad-type-hero-display-track);
+  margin: 0 0 var(--ad-space-md);
+}
+.lp-hero__subtitle {
+  font-family: var(--ad-font-display);
+  font-size: clamp(18px, 2.5vw, var(--ad-type-lead-size));
+  font-weight: var(--ad-type-lead-weight);
+  line-height: var(--ad-type-lead-lh);
+  margin: 0 0 var(--ad-space-xl);
+  color: rgba(255,255,255,0.88);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.lp-hero__ctas {
+  display: flex;
+  gap: var(--ad-space-md);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ── CTA buttons (variação WhatsApp + variações Apple) ─────────── */
+.lp-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border: 0;
+  border-radius: var(--ad-radius-pill);
+  font-family: var(--ad-font-text);
+  font-size: var(--ad-type-body-size);
+  font-weight: 600;
+  letter-spacing: var(--ad-type-body-track);
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 120ms ease-out, background 120ms ease-out, opacity 120ms ease-out;
+  -webkit-tap-highlight-color: transparent;
+}
+.lp-cta:active { transform: scale(0.97); }
+.lp-cta--primary {
+  background: var(--ad-color-primary);
+  color: var(--ad-color-on-primary);
+}
+.lp-cta--primary:hover { opacity: 0.9; }
+.lp-cta--secondary {
+  background: transparent;
+  color: var(--ad-color-on-dark);
+  border: 1px solid rgba(255,255,255,0.4);
+}
+.lp-cta--secondary:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.7);
+}
+.lp-cta--whatsapp {
+  background: #25D366;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(37,211,102,0.32);
+}
+.lp-cta--whatsapp:hover { opacity: 0.92; }
+.lp-cta--large {
+  padding: 18px 36px;
+  font-size: 18px;
+}
+
+/* ── Steps (Como Funciona — grid de 4) ────────────────────────── */
+.lp-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--ad-space-xl);
+}
+.lp-step {
+  text-align: center;
+  position: relative;
+}
+.lp-step__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--ad-color-primary);
+  color: var(--ad-color-on-primary);
+  font-family: var(--ad-font-display);
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: var(--ad-space-md);
+}
+.lp-step__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  margin-bottom: var(--ad-space-md);
+  color: var(--ad-color-ink);
+}
+.lp-step__icon svg { width: 100%; height: 100%; }
+.lp-step__title {
+  font-family: var(--ad-font-display);
+  font-size: var(--ad-type-tagline-size);
+  font-weight: var(--ad-type-tagline-weight);
+  letter-spacing: var(--ad-type-tagline-track);
+  margin: 0 0 var(--ad-space-xs);
+  color: var(--ad-color-ink);
+}
+.lp-step__text {
+  font-family: var(--ad-font-text);
+  font-size: var(--ad-type-body-size);
+  font-weight: var(--ad-type-body-weight);
+  line-height: var(--ad-type-body-lh);
+  letter-spacing: var(--ad-type-body-track);
+  color: var(--ad-color-ink-muted-80);
+  margin: 0;
+}
+
+/* ── Cards grid (Benefícios / Vantagens) ───────────────────────── */
+.lp-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--ad-space-lg);
+}
+.lp-cards--2col { grid-template-columns: repeat(2, 1fr); }
+.lp-card {
+  background: var(--ad-color-canvas);
+  border: 1px solid var(--ad-color-hairline);
+  border-radius: var(--ad-radius-lg);
+  padding: var(--ad-space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ad-space-sm);
+}
+.lp-card__icon {
+  width: 48px; height: 48px;
+  color: var(--ad-color-primary);
+  margin-bottom: var(--ad-space-xs);
+}
+.lp-card__icon svg { width: 100%; height: 100%; }
+.lp-card__title {
+  font-family: var(--ad-font-text);
+  font-size: var(--ad-type-body-strong-size);
+  font-weight: var(--ad-type-body-strong-weight);
+  letter-spacing: var(--ad-type-body-strong-track);
+  margin: 0;
+  color: var(--ad-color-ink);
+}
+.lp-card__text {
+  font-family: var(--ad-font-text);
+  font-size: var(--ad-type-body-size);
+  font-weight: var(--ad-type-body-weight);
+  line-height: var(--ad-type-body-lh);
+  letter-spacing: var(--ad-type-body-track);
+  margin: 0;
+  color: var(--ad-color-ink-muted-80);
+}
+
+/* ── Pricing tiers (Atacado) ──────────────────────────────────── */
+.lp-tiers {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--ad-space-lg);
+}
+.lp-tier {
+  background: var(--ad-color-canvas);
+  border: 1px solid var(--ad-color-hairline);
+  border-radius: var(--ad-radius-lg);
+  padding: var(--ad-space-xl);
+  text-align: center;
+  position: relative;
+  transition: transform 200ms ease-out, border-color 200ms ease-out;
+}
+.lp-tier:hover {
+  transform: translateY(-4px);
+  border-color: var(--ad-color-primary);
+}
+.lp-tier--featured {
+  border-color: var(--ad-color-primary);
+  border-width: 2px;
+}
+.lp-tier__badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ad-color-primary);
+  color: var(--ad-color-on-primary);
+  font-family: var(--ad-font-text);
+  font-size: var(--ad-type-caption-strong-size);
+  font-weight: var(--ad-type-caption-strong-weight);
+  padding: 4px 12px;
+  border-radius: var(--ad-radius-pill);
+}
+.lp-tier__qty {
+  font-family: var(--ad-font-display);
+  font-size: var(--ad-type-display-md-size);
+  font-weight: var(--ad-type-display-md-weight);
+  letter-spacing: var(--ad-type-display-md-track);
+  color: var(--ad-color-ink);
+  margin: 0 0 var(--ad-space-xs);
+}
+.lp-tier__discount {
+  font-family: var(--ad-font-display);
+  font-size: 48px;
+  font-weight: 600;
+  color: var(--ad-color-primary);
+  line-height: 1;
+  margin: 0 0 var(--ad-space-xs);
+}
+.lp-tier__label {
+  font-family: var(--ad-font-text);
+  font-size: var(--ad-type-caption-size);
+  color: var(--ad-color-ink-muted-48);
+  margin: 0 0 var(--ad-space-md);
+}
+.lp-tier__desc {
+  font-family: var(--ad-font-text);
+  font-size: var(--ad-type-body-size);
+  font-weight: var(--ad-type-body-weight);
+  line-height: var(--ad-type-body-lh);
+  color: var(--ad-color-ink-muted-80);
+  margin: 0;
+}
+
+/* ── Brand logos grid ─────────────────────────────────────────── */
+.lp-brands {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--ad-space-lg);
+  align-items: center;
+}
+.lp-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ad-space-md);
+  background: var(--ad-color-canvas);
+  border-radius: var(--ad-radius-lg);
+  min-height: 100px;
+  transition: transform 200ms ease-out;
+}
+.lp-brand:hover { transform: translateY(-2px); }
+.lp-brand img,
+.lp-brand svg {
+  max-width: 100%;
+  max-height: 60px;
+  filter: grayscale(1) opacity(0.7);
+  transition: filter 200ms ease-out;
+}
+.lp-brand:hover img,
+.lp-brand:hover svg {
+  filter: grayscale(0) opacity(1);
+}
+
+/* ── Diagram (Dropshipping fluxo) ──────────────────────────────── */
+.lp-diagram {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ad-space-md);
+  flex-wrap: wrap;
+}
+.lp-diagram__node {
+  text-align: center;
+  padding: var(--ad-space-lg);
+  background: var(--ad-color-canvas);
+  border-radius: var(--ad-radius-lg);
+  border: 1px solid var(--ad-color-hairline);
+  min-width: 180px;
+}
+.lp-diagram__icon {
+  width: 56px; height: 56px;
+  margin: 0 auto var(--ad-space-sm);
+  color: var(--ad-color-primary);
+}
+.lp-diagram__label {
+  font-family: var(--ad-font-text);
+  font-size: var(--ad-type-body-strong-size);
+  font-weight: var(--ad-type-body-strong-weight);
+  letter-spacing: var(--ad-type-body-strong-track);
+  margin: 0;
+  color: var(--ad-color-ink);
+}
+.lp-diagram__arrow {
+  font-size: 32px;
+  color: var(--ad-color-primary);
+  font-weight: 300;
+}
+
+/* ── Comparativo (tabela) ─────────────────────────────────────── */
+.lp-compare {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--ad-color-canvas);
+  border-radius: var(--ad-radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--ad-color-hairline);
+}
+.lp-compare th,
+.lp-compare td {
+  padding: var(--ad-space-md) var(--ad-space-lg);
+  text-align: left;
+  border-bottom: 1px solid var(--ad-color-divider-soft);
+  font-family: var(--ad-font-text);
+  font-size: var(--ad-type-body-size);
+}
+.lp-compare tr:last-child td { border-bottom: 0; }
+.lp-compare th {
+  background: var(--ad-color-canvas-parchment);
+  font-weight: var(--ad-type-body-strong-weight);
+  letter-spacing: var(--ad-type-body-strong-track);
+  color: var(--ad-color-ink);
+}
+.lp-compare td {
+  color: var(--ad-color-ink-muted-80);
+}
+.lp-compare__check {
+  color: #25D366;
+  font-weight: 700;
+}
+.lp-compare__cross {
+  color: var(--ad-color-ink-muted-48);
+  opacity: 0.5;
+}
+
+/* ── FAQ accordion (semântico via details/summary) ─────────────── */
+.lp-faq {
+  max-width: 720px;
+  margin: 0 auto;
+}
+.lp-faq__item {
+  border-bottom: 1px solid var(--ad-color-divider-soft);
+  padding: var(--ad-space-lg) 0;
+}
+.lp-faq__item[open] { padding-bottom: var(--ad-space-xl); }
+.lp-faq__item summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--ad-space-md);
+  font-family: var(--ad-font-text);
+  font-size: var(--ad-type-body-strong-size);
+  font-weight: var(--ad-type-body-strong-weight);
+  letter-spacing: var(--ad-type-body-strong-track);
+  color: var(--ad-color-ink);
+  padding: 0;
+}
+.lp-faq__item summary::-webkit-details-marker { display: none; }
+.lp-faq__chevron {
+  width: 20px; height: 20px;
+  flex-shrink: 0;
+  transition: transform 200ms ease-out;
+  color: var(--ad-color-ink-muted-48);
+}
+.lp-faq__item[open] .lp-faq__chevron { transform: rotate(180deg); }
+.lp-faq__answer {
+  padding-top: var(--ad-space-md);
+  font-family: var(--ad-font-text);
+  font-size: var(--ad-type-body-size);
+  font-weight: var(--ad-type-body-weight);
+  line-height: var(--ad-type-body-lh);
+  letter-spacing: var(--ad-type-body-track);
+  color: var(--ad-color-ink-muted-80);
+}
+.lp-faq__answer p { margin: 0 0 var(--ad-space-sm); }
+.lp-faq__answer p:last-child { margin-bottom: 0; }
+
+/* ── CTA final (banner full-width) ────────────────────────────── */
+.lp-cta-final {
+  background: var(--ad-color-surface-tile-1);
+  color: var(--ad-color-on-dark);
+  text-align: center;
+  padding: var(--ad-space-section) var(--ad-space-lg);
+}
+.lp-cta-final__title {
+  font-family: var(--ad-font-display);
+  font-size: var(--ad-type-display-lg-size);
+  font-weight: var(--ad-type-display-lg-weight);
+  letter-spacing: var(--ad-type-display-lg-track);
+  margin: 0 0 var(--ad-space-md);
+}
+.lp-cta-final__lead {
+  font-family: var(--ad-font-display);
+  font-size: var(--ad-type-lead-size);
+  font-weight: var(--ad-type-lead-weight);
+  line-height: var(--ad-type-lead-lh);
+  max-width: 600px;
+  margin: 0 auto var(--ad-space-xl);
+  color: var(--ad-color-body-muted);
+}
+
+/* ── Scroll reveal (IntersectionObserver) ─────────────────────── */
+.lp-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 600ms ease-out, transform 600ms ease-out;
+}
+.lp-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .lp-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .lp-hero__badge::before { animation: none; }
+}
+
+/* ── Responsive ───────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+  .lp-steps { grid-template-columns: repeat(2, 1fr); }
+  .lp-cards { grid-template-columns: repeat(2, 1fr); }
+  .lp-tiers { grid-template-columns: 1fr; gap: var(--ad-space-md); }
+  .lp-brands { grid-template-columns: repeat(3, 1fr); }
+  .lp-diagram { flex-direction: column; }
+  .lp-diagram__arrow { transform: rotate(90deg); }
+}
+@media (max-width: 640px) {
+  .lp-section { padding: var(--ad-space-xxl) var(--ad-space-md); }
+  .lp-hero { min-height: 76vh; }
+  .lp-hero__inner { padding: var(--ad-space-lg) var(--ad-space-md); }
+  .lp-hero__ctas { flex-direction: column; align-items: stretch; }
+  .lp-cta { width: 100%; padding: 16px 24px; }
+  .lp-steps { grid-template-columns: 1fr; }
+  .lp-cards { grid-template-columns: 1fr; }
+  .lp-brands { grid-template-columns: repeat(2, 1fr); }
+  .lp-compare { font-size: var(--ad-type-caption-size); }
+  .lp-compare th, .lp-compare td { padding: var(--ad-space-sm); }
+  .lp-cta-final { padding: var(--ad-space-xxl) var(--ad-space-md); }
+}
