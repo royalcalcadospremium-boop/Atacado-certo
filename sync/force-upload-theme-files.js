@@ -64,6 +64,10 @@ filesToCheck.push('snippets/lp-faq-accordion.liquid');
 filesToCheck.push('assets/lp-shared.css');
 filesToCheck.push('assets/lp-shared.js');
 
+// Chrome (announcement-bar com novos modality CTAs) + config global
+filesToCheck.push('sections/announcement-bar.liquid');
+filesToCheck.push('config/settings_data.json');
+
 console.log(`Verificando ${filesToCheck.length} arquivos...\n`);
 
 let uploaded = 0, skipped = 0, failed = 0;
