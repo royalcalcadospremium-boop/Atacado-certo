@@ -158,7 +158,7 @@
           "carousel_effect": "slide",
           "autoplay": true,
           "cycle_speed": 5,
-          "use_custom_height": true,
+          "use_custom_height": false,
           "hero_height_desktop": 560,
           "hero_height_mobile": 380,
           "hero_v2_enable": false,
