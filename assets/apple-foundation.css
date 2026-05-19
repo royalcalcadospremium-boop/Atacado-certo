@@ -171,3 +171,49 @@
   .ad-hero-display { font-size: 28px; }
   .ad-display-lg   { font-size: 34px; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   APPLE-WIDE FONT FAMILY ENFORCEMENT
+   Por padrão o tema usa Poppins (via settings.text_font). Esta camada
+   força system-ui→Inter Variable (stack Apple) em todos containers
+   principais que NÃO foram explicitamente reescritos com .ad-* classes.
+   Sobrescreve com especificidade alta pra ganhar de Poppins inline.
+   ═══════════════════════════════════════════════════════════════════════ */
+html, body,
+h1, h2, h3, h4, h5, h6, p, span, a, button, input, textarea, select, label, li, td, th, dd, dt, div {
+  font-family: var(--ad-font-text);
+}
+/* Override agressivo pra containers das sections legadas (royal-*, rc-*) */
+[id^="royal-tabs-cards"],
+[id^="royal-tabs-cards"] *,
+[id^="royal-category-cards"],
+[id^="royal-category-cards"] *,
+[id^="royal-collection-gummy"],
+[id^="royal-collection-gummy"] *,
+[id^="royal-search-gummy"],
+[id^="royal-search-gummy"] *,
+.rc-card, .rc-card *,
+.rc-title, .rc-name, .rc-price-value, .rc-collection-desc,
+.tabbtn, .tabsbar *,
+.section-headline, .section-title,
+.text-with-icons *,
+.headbar, .viewmore,
+.footer__heading, .footer__link, .footer__column,
+.product-template *,
+.product-info *,
+.product-recommendations *,
+.featured-product *,
+.featured-collection *,
+.mosaic *,
+.image-with-text *,
+.modelos-vendidos *,
+.areviews-section *,
+.royal-whatsapp-cta *,
+.royal-flash-deals * {
+  font-family: var(--ad-font-text);
+}
+
+/* Para títulos grandes (h1, h2 em sections legadas), usa font-display */
+h1, h2, .rc-title, .section-title, .headbar h2 {
+  font-family: var(--ad-font-display);
+}
