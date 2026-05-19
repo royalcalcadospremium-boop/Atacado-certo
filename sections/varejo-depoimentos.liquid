@@ -1,0 +1,196 @@
+{%- comment -%}
+  varejo-depoimentos.liquid
+  Carousel horizontal de depoimentos via scroll-snap.
+  Cada block 'testimonial' tem foto, nome, cidade, texto, rating (1-5).
+{%- endcomment -%}
+
+{{ 'lp-shared.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'lp-shared.js' | asset_url }}" defer></script>
+
+<section class="lp-section lp-section--parchment" aria-labelledby="varejo-dep-title-{{ section.id }}">
+  <div class="lp-section__inner lp-section__inner--wide">
+    {%- if section.settings.title != blank or section.settings.eyebrow != blank -%}
+      <header class="lp-section__head">
+        {%- if section.settings.eyebrow != blank -%}
+          <p class="lp-section__eyebrow lp-reveal">{{ section.settings.eyebrow }}</p>
+        {%- endif -%}
+        {%- if section.settings.title != blank -%}
+          <h2 id="varejo-dep-title-{{ section.id }}" class="lp-section__title lp-reveal">{{ section.settings.title }}</h2>
+        {%- endif -%}
+        {%- if section.settings.lead != blank -%}
+          <p class="lp-section__lead lp-reveal">{{ section.settings.lead }}</p>
+        {%- endif -%}
+      </header>
+    {%- endif -%}
+
+    <div class="varejo-test-rail lp-reveal" role="region" aria-label="Depoimentos de clientes" tabindex="0">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'testimonial' -%}
+          {%- assign rating = block.settings.rating | default: 5 -%}
+          <article class="varejo-test" {{ block.shopify_attributes }}>
+            <div class="varejo-test__stars" aria-label="Avaliação {{ rating }} de 5">
+              {%- for i in (1..5) -%}
+                {%- if i <= rating -%}
+                  <span class="varejo-test__star varejo-test__star--on" aria-hidden="true">★</span>
+                {%- else -%}
+                  <span class="varejo-test__star" aria-hidden="true">★</span>
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+            <p class="varejo-test__text">{{ block.settings.text | escape | newline_to_br }}</p>
+            <footer class="varejo-test__author">
+              <div class="varejo-test__avatar" aria-hidden="true">
+                {%- if block.settings.photo != blank -%}
+                  <img src="{{ block.settings.photo | image_url: width: 96 }}"
+                       alt=""
+                       loading="lazy"
+                       width="48" height="48">
+                {%- else -%}
+                  <span class="varejo-test__avatar-fallback">{{ block.settings.name | slice: 0, 1 | upcase }}</span>
+                {%- endif -%}
+              </div>
+              <div class="varejo-test__meta">
+                <p class="varejo-test__name">{{ block.settings.name }}</p>
+                {%- if block.settings.location != blank -%}
+                  <p class="varejo-test__location">{{ block.settings.location }}</p>
+                {%- endif -%}
+              </div>
+            </footer>
+          </article>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  .varejo-test-rail {
+    display: flex;
+    gap: var(--ad-space-md);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding: 4px 4px 8px;
+    margin: 0 -4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .varejo-test-rail::-webkit-scrollbar { display: none; }
+  .varejo-test-rail:focus-visible { outline: 2px solid var(--ad-color-primary-focus); outline-offset: 4px; border-radius: var(--ad-radius-lg); }
+  .varejo-test {
+    scroll-snap-align: start;
+    flex: 0 0 320px;
+    max-width: 320px;
+    background: var(--ad-color-canvas);
+    border: 1px solid var(--ad-color-hairline);
+    border-radius: var(--ad-radius-lg);
+    padding: var(--ad-space-xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--ad-space-md);
+  }
+  .varejo-test__stars {
+    display: flex;
+    gap: 2px;
+    font-size: 18px;
+    letter-spacing: 1px;
+  }
+  .varejo-test__star { color: var(--ad-color-divider-soft); }
+  .varejo-test__star--on { color: #f5a623; }
+  .varejo-test__text {
+    margin: 0;
+    font-family: var(--ad-font-text);
+    font-size: var(--ad-type-body-size);
+    font-weight: var(--ad-type-body-weight);
+    line-height: var(--ad-type-body-lh);
+    letter-spacing: var(--ad-type-body-track);
+    color: var(--ad-color-ink);
+    flex: 1;
+  }
+  .varejo-test__author {
+    display: flex;
+    align-items: center;
+    gap: var(--ad-space-sm);
+    margin-top: auto;
+  }
+  .varejo-test__avatar {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--ad-color-canvas-parchment);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .varejo-test__avatar img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+  .varejo-test__avatar-fallback {
+    font-family: var(--ad-font-display);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ad-color-ink-muted-80);
+  }
+  .varejo-test__meta { display: flex; flex-direction: column; }
+  .varejo-test__name {
+    margin: 0;
+    font-family: var(--ad-font-text);
+    font-size: var(--ad-type-body-strong-size);
+    font-weight: var(--ad-type-body-strong-weight);
+    letter-spacing: var(--ad-type-body-strong-track);
+    color: var(--ad-color-ink);
+  }
+  .varejo-test__location {
+    margin: 0;
+    font-family: var(--ad-font-text);
+    font-size: var(--ad-type-caption-size);
+    color: var(--ad-color-ink-muted-48);
+  }
+  @media (max-width: 640px) {
+    .varejo-test {
+      flex-basis: 280px;
+      max-width: 280px;
+      padding: var(--ad-space-lg);
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Varejo · Depoimentos",
+  "tag": "section",
+  "class": "lp-section-wrap lp-section-wrap--testimonials",
+  "enabled_on": { "templates": ["page"] },
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Quem comprou, voltou" },
+    { "type": "text", "id": "title", "label": "Título", "default": "O que dizem nossos clientes" },
+    { "type": "textarea", "id": "lead", "label": "Subtítulo", "default": "Depoimentos reais de quem já comprou e aprovou." }
+  ],
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "Depoimento",
+      "settings": [
+        { "type": "image_picker", "id": "photo", "label": "Foto (opcional)" },
+        { "type": "text", "id": "name", "label": "Nome", "default": "Cliente Satisfeito" },
+        { "type": "text", "id": "location", "label": "Cidade / Estado", "default": "São Paulo, SP" },
+        { "type": "textarea", "id": "text", "label": "Depoimento", "default": "Chegou rápido, original, do tamanho certo. Já comprei mais 2." },
+        { "type": "range", "id": "rating", "label": "Estrelas", "min": 1, "max": 5, "step": 1, "default": 5 }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Varejo · Depoimentos",
+      "blocks": [
+        { "type": "testimonial", "settings": { "name": "Lucas Almeida", "location": "São Paulo, SP", "text": "Comprei um Nike Air Force, chegou em 3 dias e veio com nota fiscal. Original mesmo. Recomendo!", "rating": 5 } },
+        { "type": "testimonial", "settings": { "name": "Mariana Costa", "location": "Belo Horizonte, MG", "text": "Atendimento no WhatsApp é gente de verdade, me ajudaram a escolher o tamanho. Já é meu site favorito.", "rating": 5 } },
+        { "type": "testimonial", "settings": { "name": "Rafael Souza", "location": "Curitiba, PR", "text": "Tive que trocar de tamanho e foi super tranquilo. Em 5 dias estava com o novo aqui.", "rating": 5 } },
+        { "type": "testimonial", "settings": { "name": "Juliana Rocha", "location": "Recife, PE", "text": "Frete grátis chegou em 4 dias úteis. Mizuno original, embalado direitinho.", "rating": 5 } },
+        { "type": "testimonial", "settings": { "name": "Pedro Henrique", "location": "Porto Alegre, RS", "text": "Já é minha 3ª compra. Sempre original, sempre rápido. Confiança total.", "rating": 5 } }
+      ]
+    }
+  ]
+}
+{% endschema %}

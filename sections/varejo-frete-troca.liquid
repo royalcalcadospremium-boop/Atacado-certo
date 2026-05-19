@@ -1,0 +1,127 @@
+{%- comment -%}
+  varejo-frete-troca.liquid
+  2 colunas (1 mobile): Política de Frete + Política de Troca.
+  Cada coluna é um .lp-card com lista <ul> de bullets.
+{%- endcomment -%}
+
+{{ 'lp-shared.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'lp-shared.js' | asset_url }}" defer></script>
+
+<section class="lp-section lp-section--parchment" aria-labelledby="varejo-ft-title-{{ section.id }}">
+  <div class="lp-section__inner">
+    {%- if section.settings.title != blank or section.settings.eyebrow != blank -%}
+      <header class="lp-section__head">
+        {%- if section.settings.eyebrow != blank -%}
+          <p class="lp-section__eyebrow lp-reveal">{{ section.settings.eyebrow }}</p>
+        {%- endif -%}
+        {%- if section.settings.title != blank -%}
+          <h2 id="varejo-ft-title-{{ section.id }}" class="lp-section__title lp-reveal">{{ section.settings.title }}</h2>
+        {%- endif -%}
+        {%- if section.settings.lead != blank -%}
+          <p class="lp-section__lead lp-reveal">{{ section.settings.lead }}</p>
+        {%- endif -%}
+      </header>
+    {%- endif -%}
+
+    <div class="varejo-ft-grid">
+      <div class="lp-card lp-reveal varejo-ft-card">
+        <div class="varejo-ft__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="1" y="6" width="13" height="11" rx="1"/>
+            <path d="M14 9h4l3 4v4h-7"/>
+            <circle cx="6" cy="19" r="2"/>
+            <circle cx="17" cy="19" r="2"/>
+          </svg>
+        </div>
+        <h3 class="lp-card__title varejo-ft__title">Política de Frete</h3>
+        <ul class="varejo-ft-list">
+          <li><strong>Grátis acima de R$150</strong> — pra todo o Brasil.</li>
+          <li><strong>PAC:</strong> 5 a 10 dias úteis, com seguro.</li>
+          <li><strong>SEDEX:</strong> 1 a 3 dias úteis pra capitais.</li>
+          <li><strong>Rastreio:</strong> código por e-mail e WhatsApp.</li>
+        </ul>
+      </div>
+
+      <div class="lp-card lp-reveal varejo-ft-card">
+        <div class="varejo-ft__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="17 1 21 5 17 9"/>
+            <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+            <polyline points="7 23 3 19 7 15"/>
+            <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+          </svg>
+        </div>
+        <h3 class="lp-card__title varejo-ft__title">Política de Troca</h3>
+        <ul class="varejo-ft-list">
+          <li><strong>7 dias</strong> após receber pra solicitar troca.</li>
+          <li><strong>Sem custo</strong> se for defeito de fabricação.</li>
+          <li><strong>Trocou de tamanho?</strong> A gente envia o novo rápido.</li>
+          <li><strong>Devolução fácil</strong> via Correios com etiqueta pronta.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .varejo-ft-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--ad-space-lg);
+  }
+  .varejo-ft-card { padding: var(--ad-space-xl); }
+  .varejo-ft__icon {
+    width: 48px; height: 48px;
+    color: var(--ad-color-primary);
+    margin-bottom: var(--ad-space-sm);
+  }
+  .varejo-ft__icon svg { width: 100%; height: 100%; }
+  .varejo-ft__title { margin: 0 0 var(--ad-space-md); }
+  .varejo-ft-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--ad-space-sm);
+    font-family: var(--ad-font-text);
+    font-size: var(--ad-type-body-size);
+    line-height: var(--ad-type-body-lh);
+    color: var(--ad-color-ink-muted-80);
+  }
+  .varejo-ft-list li {
+    position: relative;
+    padding-left: var(--ad-space-lg);
+  }
+  .varejo-ft-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 9px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--ad-color-primary);
+  }
+  .varejo-ft-list strong { color: var(--ad-color-ink); font-weight: 600; }
+  @media (max-width: 768px) {
+    .varejo-ft-grid { grid-template-columns: 1fr; gap: var(--ad-space-md); }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Varejo · Frete & Troca",
+  "tag": "section",
+  "class": "lp-section-wrap lp-section-wrap--policies",
+  "enabled_on": { "templates": ["page"] },
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Sem pegadinha" },
+    { "type": "text", "id": "title", "label": "Título", "default": "Frete e Troca sem dor de cabeça" },
+    { "type": "textarea", "id": "lead", "label": "Subtítulo", "default": "Tudo transparente, do envio à eventual troca." }
+  ],
+  "presets": [
+    { "name": "Varejo · Frete & Troca" }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,31 @@
+{%- comment -%}
+  lp-faq-accordion.liquid — FAQ acessível com <details>/<summary>.
+  Aceita parâmetro `items_blocks` (array de blocks do schema) OU
+  `items_json` (array literal de {q, a}).
+
+  Cada item tem schema.org Question/Answer pra SEO.
+
+  Parâmetros:
+    blocks     — section.blocks filtrados por type 'faq_item'
+                 (cada block.settings tem question + answer)
+{%- endcomment -%}
+
+{%- if blocks and blocks.size > 0 -%}
+<div class="lp-faq" itemscope itemtype="https://schema.org/FAQPage">
+  {%- for b in blocks -%}
+    {%- if b.type == 'faq_item' -%}
+      <details class="lp-faq__item lp-reveal" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+        <summary>
+          <span itemprop="name">{{ b.settings.question | escape }}</span>
+          <svg class="lp-faq__chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <polyline points="6 8 10 12 14 8"/>
+          </svg>
+        </summary>
+        <div class="lp-faq__answer" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+          <div itemprop="text">{{ b.settings.answer }}</div>
+        </div>
+      </details>
+    {%- endif -%}
+  {%- endfor -%}
+</div>
+{%- endif -%}

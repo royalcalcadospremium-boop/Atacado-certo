@@ -1,0 +1,91 @@
+{%- comment -%}
+  atacado-faq.liquid — Perguntas frequentes via snippet `lp-faq-accordion`.
+  Cada block "faq_item" tem question (text) + answer (richtext).
+  O snippet já gera schema.org FAQPage / Question / Answer.
+{%- endcomment -%}
+
+{{ 'lp-shared.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'lp-shared.js' | asset_url }}" defer></script>
+
+<section class="lp-section" aria-labelledby="atacado-faq-title">
+  <div class="lp-section__inner lp-section__inner--narrow">
+    <header class="lp-section__head lp-reveal">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="lp-section__eyebrow">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+      <h2 id="atacado-faq-title" class="lp-section__title">{{ section.settings.section_title }}</h2>
+      {%- if section.settings.section_lead != blank -%}
+        <p class="lp-section__lead">{{ section.settings.section_lead }}</p>
+      {%- endif -%}
+    </header>
+
+    {%- render 'lp-faq-accordion', blocks: section.blocks -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Atacado · FAQ",
+  "tag": "section",
+  "class": "lp-section-wrap lp-section-wrap--faq",
+  "enabled_on": { "templates": ["page"] },
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "DÚVIDAS FREQUENTES" },
+    { "type": "text", "id": "section_title", "label": "Título da seção", "default": "Perguntas frequentes" },
+    { "type": "textarea", "id": "section_lead", "label": "Subtítulo", "default": "Tudo o que você precisa saber antes de comprar." }
+  ],
+  "blocks": [
+    {
+      "type": "faq_item",
+      "name": "Pergunta",
+      "settings": [
+        { "type": "text", "id": "question", "label": "Pergunta" },
+        { "type": "richtext", "id": "answer", "label": "Resposta" }
+      ]
+    }
+  ],
+  "max_blocks": 20,
+  "presets": [
+    {
+      "name": "Atacado · FAQ",
+      "blocks": [
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "Qual a quantidade mínima?",
+            "answer": "<p>10 pares por pedido, sem mínimo por marca.</p>"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "Qual o prazo de entrega?",
+            "answer": "<p>Até 7 dias úteis pra capitais, 10 dias interior.</p>"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "Quais formas de pagamento?",
+            "answer": "<p>Pix (5% desconto), cartão em até 12x, boleto, transferência.</p>"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "Posso comprar com CPF?",
+            "answer": "<p>Pode! Atendemos lojistas e revendedores PF e PJ.</p>"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "Aceitam devolução?",
+            "answer": "<p>Sim, 7 dias pra produto com defeito ou divergência.</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

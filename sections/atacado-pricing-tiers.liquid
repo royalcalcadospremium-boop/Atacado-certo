@@ -1,0 +1,112 @@
+{%- comment -%}
+  atacado-pricing-tiers.liquid — 3 tiers de desconto progressivo
+  (10-49 / 50-99 / 100+ pares). Tier do meio é "featured".
+{%- endcomment -%}
+
+{{ 'lp-shared.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'lp-shared.js' | asset_url }}" defer></script>
+
+<section class="lp-section lp-section--parchment" aria-labelledby="atacado-tiers-title">
+  <div class="lp-section__inner">
+    <header class="lp-section__head lp-reveal">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="lp-section__eyebrow">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+      <h2 id="atacado-tiers-title" class="lp-section__title">{{ section.settings.section_title }}</h2>
+      {%- if section.settings.section_lead != blank -%}
+        <p class="lp-section__lead">{{ section.settings.section_lead }}</p>
+      {%- endif -%}
+    </header>
+
+    {%- if section.blocks.size > 0 -%}
+      <div class="lp-tiers" role="list">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'tier' -%}
+            {%- assign _tier_class = 'lp-tier lp-reveal' -%}
+            {%- if block.settings.featured -%}
+              {%- assign _tier_class = 'lp-tier lp-tier--featured lp-reveal' -%}
+            {%- endif -%}
+            <article class="{{ _tier_class }}" role="listitem" {{ block.shopify_attributes }}>
+              {%- if block.settings.badge != blank -%}
+                <span class="lp-tier__badge">{{ block.settings.badge }}</span>
+              {%- endif -%}
+              <p class="lp-tier__qty">{{ block.settings.qty }}</p>
+              <p class="lp-tier__discount">{{ block.settings.discount }}</p>
+              <p class="lp-tier__label">{{ block.settings.label }}</p>
+              {%- if block.settings.desc != blank -%}
+                <p class="lp-tier__desc">{{ block.settings.desc }}</p>
+              {%- endif -%}
+            </article>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Atacado · Pricing tiers",
+  "tag": "section",
+  "class": "lp-section-wrap lp-section-wrap--tiers",
+  "enabled_on": { "templates": ["page"] },
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "DESCONTO PROGRESSIVO" },
+    { "type": "text", "id": "section_title", "label": "Título da seção", "default": "Quanto mais você compra, mais desconto" },
+    { "type": "textarea", "id": "section_lead", "label": "Subtítulo", "default": "Tabela de descontos aplicada automaticamente no carrinho." }
+  ],
+  "blocks": [
+    {
+      "type": "tier",
+      "name": "Faixa de desconto",
+      "settings": [
+        { "type": "checkbox", "id": "featured", "label": "Destacar (badge + borda)", "default": false },
+        { "type": "text", "id": "badge", "label": "Texto do badge (quando destacado)", "default": "MAIS POPULAR" },
+        { "type": "text", "id": "qty", "label": "Quantidade", "default": "10–49 pares" },
+        { "type": "text", "id": "discount", "label": "Desconto", "default": "30% OFF" },
+        { "type": "text", "id": "label", "label": "Label", "default": "Sobre o preço varejo" },
+        { "type": "textarea", "id": "desc", "label": "Descrição curta", "default": "Ideal pra começar a revender." }
+      ]
+    }
+  ],
+  "max_blocks": 3,
+  "presets": [
+    {
+      "name": "Atacado · Pricing tiers",
+      "blocks": [
+        {
+          "type": "tier",
+          "settings": {
+            "featured": false,
+            "qty": "10–49 pares",
+            "discount": "30% OFF",
+            "label": "Sobre o preço varejo",
+            "desc": "Ideal pra começar a revender."
+          }
+        },
+        {
+          "type": "tier",
+          "settings": {
+            "featured": true,
+            "badge": "MAIS POPULAR",
+            "qty": "50–99 pares",
+            "discount": "35% OFF",
+            "label": "Sobre o preço varejo",
+            "desc": "Melhor custo-benefício pra lojistas ativos."
+          }
+        },
+        {
+          "type": "tier",
+          "settings": {
+            "featured": false,
+            "qty": "100+ pares",
+            "discount": "40% OFF",
+            "label": "Sobre o preço varejo",
+            "desc": "Atacado completo pra distribuidores."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

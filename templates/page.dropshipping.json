@@ -1,0 +1,186 @@
+{
+  "layout": "theme",
+  "sections": {
+    "hero": {
+      "type": "dropshipping-hero-video",
+      "settings": {
+        "overlay": 60,
+        "badge": "+200 dropshippers ativos",
+        "title": "Venda Sem Estoque. A Gente Cuida do Resto.",
+        "subtitle": "Pegue qualquer quantidade. Embalamos e enviamos pelo seu nome.",
+        "cta1_label": "Cadastre-se Grátis",
+        "cta1_url": "/account/register",
+        "cta2_label": "Ver Catálogo Dropshipping",
+        "cta2_url": "/collections/all",
+        "cta2_variant": "ghost"
+      }
+    },
+    "oquee": {
+      "type": "dropshipping-o-que-e",
+      "blocks": {
+        "n1": {
+          "type": "node",
+          "settings": {
+            "label": "Cliente",
+            "icon_svg": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='8' r='4'/><path d='M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8'/></svg>"
+          }
+        },
+        "n2": {
+          "type": "node",
+          "settings": {
+            "label": "Sua Loja",
+            "icon_svg": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M3 9l1.5-5h15L21 9'/><path d='M3 9v11h18V9'/><path d='M3 9h18'/><path d='M9 20v-6h6v6'/></svg>"
+          }
+        },
+        "n3": {
+          "type": "node",
+          "settings": {
+            "label": "Royal Entrega",
+            "icon_svg": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M3 7l9-4 9 4-9 4-9-4z'/><path d='M3 7v10l9 4 9-4V7'/><path d='M12 11v10'/></svg>"
+          }
+        }
+      },
+      "block_order": ["n1", "n2", "n3"],
+      "settings": {
+        "eyebrow": "Entenda o modelo",
+        "title": "O que é Dropshipping?",
+        "lead": "Você vende, a Royal embala e envia direto para o seu cliente — com sua marca. Sem estoque, sem capital travado, sem dor de cabeça com logística."
+      }
+    },
+    "como": {
+      "type": "dropshipping-como-funciona",
+      "blocks": {
+        "s1": {
+          "type": "step",
+          "settings": {
+            "title": "Cadastre-se grátis",
+            "text": "Crie sua conta em 1 minuto. Aprovação imediata, sem mensalidade.",
+            "icon_svg": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><circle cx='9' cy='8' r='4'/><path d='M2 21c0-4 3-7 7-7s7 3 7 7'/><path d='M19 8v6M16 11h6'/></svg>"
+          }
+        },
+        "s2": {
+          "type": "step",
+          "settings": {
+            "title": "Escolha os produtos",
+            "text": "Acesse o catálogo completo com fotos profissionais e estoque em tempo real.",
+            "icon_svg": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M4 4h16v16H4z'/><path d='M8 8h8M8 12h8M8 16h5'/></svg>"
+          }
+        },
+        "s3": {
+          "type": "step",
+          "settings": {
+            "title": "Venda no seu canal",
+            "text": "Shopify, Instagram, Shopee, Nuvemshop — onde sua audiência estiver.",
+            "icon_svg": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><rect x='6' y='2' width='12' height='20' rx='2'/><path d='M11 18h2'/></svg>"
+          }
+        },
+        "s4": {
+          "type": "step",
+          "settings": {
+            "title": "Nós embalamos e enviamos",
+            "text": "Despachamos pelo seu nome em até 48h. Você só acompanha.",
+            "icon_svg": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M3 7l9-4 9 4-9 4-9-4z'/><path d='M3 7v10l9 4 9-4V7'/><path d='M12 11v10'/></svg>"
+          }
+        }
+      },
+      "block_order": ["s1", "s2", "s3", "s4"],
+      "settings": {
+        "eyebrow": "Em 4 passos",
+        "title": "Como funciona",
+        "lead": "Do cadastro até a entrega — sem fricção, sem surpresas."
+      }
+    },
+    "vantagens": {
+      "type": "dropshipping-vantagens",
+      "blocks": {
+        "v1": { "type": "card", "settings": { "icon": "📦", "title": "Sem estoque, sem capital travado", "text": "Compre só depois de vender. Zero risco de produto parado." } },
+        "v2": { "type": "card", "settings": { "icon": "✓", "title": "Sem quantidade mínima", "text": "A partir de 1 peça por pedido. Ideal pra começar pequeno e escalar." } },
+        "v3": { "type": "card", "settings": { "icon": "📨", "title": "Embalagem neutra ou personalizada", "text": "Despache com sua marca ou em embalagem sem identificação." } },
+        "v4": { "type": "card", "settings": { "icon": "🔄", "title": "Catálogo em tempo real via API", "text": "Estoque e preços sincronizados automaticamente com sua loja." } },
+        "v5": { "type": "card", "settings": { "icon": "🔌", "title": "Integrações nativas", "text": "Shopify, Yampi, Nuvemshop, Mercado Livre e Shopee em poucos cliques." } },
+        "v6": { "type": "card", "settings": { "icon": "💳", "title": "Pague só quando vender", "text": "Sem mensalidade, sem taxa de cadastro. Só paga o produto após confirmar a venda." } }
+      },
+      "block_order": ["v1", "v2", "v3", "v4", "v5", "v6"],
+      "settings": {
+        "eyebrow": "Por que escolher",
+        "title": "Vantagens do dropshipping Royal",
+        "lead": "Tudo que você precisa pra começar a vender hoje — sem estoque, sem risco."
+      }
+    },
+    "integracoes": {
+      "type": "dropshipping-integracoes",
+      "blocks": {
+        "b1": { "type": "brand", "settings": { "name": "Shopify" } },
+        "b2": { "type": "brand", "settings": { "name": "Yampi" } },
+        "b3": { "type": "brand", "settings": { "name": "Nuvemshop" } },
+        "b4": { "type": "brand", "settings": { "name": "Mercado Livre" } },
+        "b5": { "type": "brand", "settings": { "name": "Shopee" } }
+      },
+      "block_order": ["b1", "b2", "b3", "b4", "b5"],
+      "settings": {
+        "eyebrow": "Plug & play",
+        "title": "Integramos com sua plataforma",
+        "lead": "Sincronização automática de produtos, estoque e pedidos via API."
+      }
+    },
+    "comparativo": {
+      "type": "dropshipping-comparativo",
+      "blocks": {
+        "r1": { "type": "row", "settings": { "label": "Quantidade mínima", "atacado": "10 pares", "dropshipping": "1 peça", "varejo": "1 peça" } },
+        "r2": { "type": "row", "settings": { "label": "Estoque próprio", "atacado": "Sim", "dropshipping": "Não", "varejo": "N/A" } },
+        "r3": { "type": "row", "settings": { "label": "Embalagem neutra", "atacado": "Não", "dropshipping": "Sim", "varejo": "N/A" } },
+        "r4": { "type": "row", "settings": { "label": "Cliente final", "atacado": "Você revende", "dropshipping": "Royal envia", "varejo": "Cliente direto" } },
+        "r5": { "type": "row", "settings": { "label": "Frete", "atacado": "Por pedido", "dropshipping": "Por pedido", "varejo": "Grátis acima R$150" } },
+        "r6": { "type": "row", "settings": { "label": "Margem", "atacado": "Alta (40%+)", "dropshipping": "Média (20-30%)", "varejo": "Preço cheio" } }
+      },
+      "block_order": ["r1", "r2", "r3", "r4", "r5", "r6"],
+      "settings": {
+        "eyebrow": "Compare os modelos",
+        "title": "Atacado vs Dropshipping vs Varejo",
+        "lead": "Cada modelo serve um momento do seu negócio. Veja qual encaixa melhor agora.",
+        "col_label": "Característica",
+        "col_atacado": "Atacado",
+        "col_dropshipping": "Dropshipping",
+        "col_varejo": "Varejo"
+      }
+    },
+    "faq": {
+      "type": "dropshipping-faq",
+      "blocks": {
+        "f1": { "type": "faq_item", "settings": { "question": "Preciso pagar antes pra cadastrar?", "answer": "<p>Não. Cadastro é 100% grátis. Só paga quando faz pedido.</p>" } },
+        "f2": { "type": "faq_item", "settings": { "question": "Como funcionam as integrações?", "answer": "<p>Conectamos via API com Shopify, Yampi, Nuvemshop, Mercado Livre, Shopee.</p>" } },
+        "f3": { "type": "faq_item", "settings": { "question": "A embalagem leva o nome da minha loja?", "answer": "<p>Sim, embalagem neutra ou com sua marca personalizada.</p>" } },
+        "f4": { "type": "faq_item", "settings": { "question": "Qual o prazo de envio?", "answer": "<p>Em até 48h após o pedido (dias úteis).</p>" } },
+        "f5": { "type": "faq_item", "settings": { "question": "Posso usar o catálogo em fotos pra divulgar?", "answer": "<p>Sim, fornecemos pack de fotos profissionais via <a href=\"/pages/baixar-fotos\">/baixar-fotos</a>.</p>" } }
+      },
+      "block_order": ["f1", "f2", "f3", "f4", "f5"],
+      "settings": {
+        "eyebrow": "Dúvidas frequentes",
+        "title": "Perguntas frequentes",
+        "lead": "As respostas mais pedidas por quem está começando."
+      }
+    },
+    "cta_final": {
+      "type": "dropshipping-cta-final",
+      "settings": {
+        "eyebrow": "Bora começar?",
+        "title": "Comece a vender hoje, sem investir em estoque",
+        "lead": "Cadastro grátis em 1 minuto. Sem mensalidade, sem fidelidade. Você só paga quando vende.",
+        "cta1_label": "Começar Agora",
+        "cta1_url": "/account/register",
+        "cta2_label": "Falar no WhatsApp",
+        "cta2_url": "https://wa.me/5500000000000"
+      }
+    }
+  },
+  "order": [
+    "hero",
+    "oquee",
+    "como",
+    "vantagens",
+    "integracoes",
+    "comparativo",
+    "faq",
+    "cta_final"
+  ]
+}

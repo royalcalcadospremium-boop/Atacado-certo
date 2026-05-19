@@ -1,0 +1,217 @@
+{%- comment -%}
+  collection-banner.liquid — Banner customizável no topo das páginas de coleção.
+
+  Cada coleção pode ter seu próprio banner (imagem desktop + mobile + texto + CTA + overlay),
+  configurado via theme customizer. Se nenhuma imagem for definida, a seção NÃO renderiza.
+
+  Settings:
+    - enabled (toggle)
+    - image_desktop, image_mobile (Shopify image_picker)
+    - heading, subtext (opcionais)
+    - cta_text, cta_url (opcionais)
+    - text_position (left/center/right)
+    - overlay_color, overlay_opacity (0-100)
+    - height (small/medium/large)
+{%- endcomment -%}
+
+{%- if section.settings.enabled and section.settings.image_desktop != blank -%}
+  {%- assign _mobile = section.settings.image_mobile | default: section.settings.image_desktop -%}
+  {%- assign _overlay_alpha = section.settings.overlay_opacity | default: 30 | divided_by: 100.0 -%}
+  {%- assign _h = section.settings.height | default: 'medium' -%}
+  {%- assign _pos = section.settings.text_position | default: 'center' -%}
+
+  <section
+    class="cb cb--h-{{ _h }} cb--pos-{{ _pos }}"
+    data-section-id="{{ section.id }}"
+    data-section-type="collection-banner"
+    aria-label="{{ section.settings.heading | default: collection.title | escape }}"
+  >
+    <picture class="cb__picture">
+      <source
+        media="(min-width: 750px)"
+        srcset="
+          {{ section.settings.image_desktop | image_url: width: 800 }} 800w,
+          {{ section.settings.image_desktop | image_url: width: 1200 }} 1200w,
+          {{ section.settings.image_desktop | image_url: width: 1800 }} 1800w,
+          {{ section.settings.image_desktop | image_url: width: 2400 }} 2400w
+        "
+        sizes="100vw"
+      >
+      <img
+        class="cb__img"
+        src="{{ _mobile | image_url: width: 800 }}"
+        srcset="
+          {{ _mobile | image_url: width: 480 }} 480w,
+          {{ _mobile | image_url: width: 800 }} 800w,
+          {{ _mobile | image_url: width: 1200 }} 1200w
+        "
+        sizes="100vw"
+        alt="{{ section.settings.image_desktop.alt | default: section.settings.heading | default: collection.title | escape }}"
+        loading="lazy"
+        decoding="async"
+        width="{{ section.settings.image_desktop.width }}"
+        height="{{ section.settings.image_desktop.height }}"
+      >
+    </picture>
+
+    {%- if _overlay_alpha > 0 -%}
+      <div
+        class="cb__overlay"
+        style="background: {{ section.settings.overlay_color | default: '#000000' }}; opacity: {{ _overlay_alpha }}"
+        aria-hidden="true"
+      ></div>
+    {%- endif -%}
+
+    {%- if section.settings.heading != blank or section.settings.subtext != blank or section.settings.cta_text != blank -%}
+      <div class="cb__inner">
+        {%- if section.settings.heading != blank -%}
+          <h1 class="cb__heading">{{ section.settings.heading | escape }}</h1>
+        {%- endif -%}
+        {%- if section.settings.subtext != blank -%}
+          <p class="cb__subtext">{{ section.settings.subtext | escape }}</p>
+        {%- endif -%}
+        {%- if section.settings.cta_text != blank and section.settings.cta_url != blank -%}
+          <a class="cb__cta" href="{{ section.settings.cta_url }}">{{ section.settings.cta_text | escape }}</a>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  </section>
+
+  <style>
+    .cb {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      isolation: isolate;
+      background: var(--ad-color-canvas-parchment);
+    }
+    .cb--h-small  { height: 200px; }
+    .cb--h-medium { height: 350px; }
+    .cb--h-large  { height: 500px; }
+    @media (max-width: 749px) {
+      .cb--h-small  { height: 160px; }
+      .cb--h-medium { height: 240px; }
+      .cb--h-large  { height: 340px; }
+    }
+
+    .cb__picture {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      display: block;
+      z-index: 1;
+    }
+    .cb__img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .cb__overlay {
+      position: absolute; inset: 0;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .cb__inner {
+      position: relative;
+      z-index: 3;
+      max-width: 1200px;
+      height: 100%;
+      margin: 0 auto;
+      padding: var(--ad-space-xl) var(--ad-space-lg);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      color: var(--ad-color-on-dark);
+    }
+    .cb--pos-left   .cb__inner { align-items: flex-start; text-align: left; }
+    .cb--pos-center .cb__inner { align-items: center; text-align: center; }
+    .cb--pos-right  .cb__inner { align-items: flex-end; text-align: right; }
+
+    .cb__heading {
+      font-family: var(--ad-font-display);
+      font-size: clamp(28px, 4.5vw, var(--ad-type-display-lg-size));
+      font-weight: var(--ad-type-display-lg-weight);
+      line-height: var(--ad-type-display-lg-lh);
+      letter-spacing: var(--ad-type-display-lg-track);
+      margin: 0 0 var(--ad-space-sm);
+      text-shadow: 0 2px 16px rgba(0,0,0,0.4);
+    }
+    .cb__subtext {
+      font-family: var(--ad-font-display);
+      font-size: clamp(16px, 2vw, var(--ad-type-lead-size));
+      font-weight: var(--ad-type-lead-weight);
+      line-height: var(--ad-type-lead-lh);
+      margin: 0 0 var(--ad-space-md);
+      max-width: 560px;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.4);
+    }
+    .cb__cta {
+      display: inline-flex;
+      align-items: center;
+      padding: 12px 24px;
+      background: var(--ad-color-primary);
+      color: var(--ad-color-on-primary);
+      border-radius: var(--ad-radius-pill);
+      font-family: var(--ad-font-text);
+      font-size: var(--ad-type-body-size);
+      font-weight: 600;
+      letter-spacing: var(--ad-type-body-track);
+      text-decoration: none;
+      margin-top: var(--ad-space-sm);
+      transition: opacity 120ms ease-out, transform 120ms ease-out;
+    }
+    .cb__cta:hover { opacity: 0.92; }
+    .cb__cta:active { transform: scale(0.97); }
+  </style>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Banner de Coleção",
+  "tag": "section",
+  "class": "collection-banner-section",
+  "settings": [
+    { "type": "checkbox", "id": "enabled", "label": "Mostrar banner", "default": true },
+    { "type": "header", "content": "Imagens" },
+    { "type": "image_picker", "id": "image_desktop", "label": "Imagem desktop (recomendado 1800×500)" },
+    { "type": "image_picker", "id": "image_mobile", "label": "Imagem mobile (opcional — usa desktop se vazio, recomendado 800×340)" },
+    { "type": "header", "content": "Texto sobreposto (opcional)" },
+    { "type": "text", "id": "heading", "label": "Título" },
+    { "type": "text", "id": "subtext", "label": "Subtítulo" },
+    {
+      "type": "select",
+      "id": "text_position",
+      "label": "Posição do texto",
+      "default": "center",
+      "options": [
+        { "value": "left", "label": "Esquerda" },
+        { "value": "center", "label": "Centro" },
+        { "value": "right", "label": "Direita" }
+      ]
+    },
+    { "type": "header", "content": "Botão CTA (opcional)" },
+    { "type": "text", "id": "cta_text", "label": "Texto do botão" },
+    { "type": "url", "id": "cta_url", "label": "URL do botão" },
+    { "type": "header", "content": "Overlay (escurece a imagem pra dar contraste no texto)" },
+    { "type": "color", "id": "overlay_color", "label": "Cor do overlay", "default": "#000000" },
+    { "type": "range", "id": "overlay_opacity", "label": "Opacidade do overlay (%)", "min": 0, "max": 90, "step": 5, "default": 30 },
+    { "type": "header", "content": "Tamanho" },
+    {
+      "type": "select",
+      "id": "height",
+      "label": "Altura do banner",
+      "default": "medium",
+      "options": [
+        { "value": "small", "label": "Pequeno (200px)" },
+        { "value": "medium", "label": "Médio (350px)" },
+        { "value": "large", "label": "Grande (500px)" }
+      ]
+    }
+  ],
+  "presets": [
+    { "name": "Banner de Coleção" }
+  ],
+  "enabled_on": {
+    "templates": ["collection"]
+  }
+}
+{% endschema %}

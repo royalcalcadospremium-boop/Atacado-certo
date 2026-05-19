@@ -1,0 +1,62 @@
+{%- comment -%}
+  varejo-faq.liquid
+  FAQ accordion renderizado via snippet lp-faq-accordion.
+  Blocks tipo 'faq_item' (question + answer).
+{%- endcomment -%}
+
+{{ 'lp-shared.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'lp-shared.js' | asset_url }}" defer></script>
+
+<section class="lp-section" aria-labelledby="varejo-faq-title-{{ section.id }}">
+  <div class="lp-section__inner lp-section__inner--narrow">
+    <header class="lp-section__head">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="lp-section__eyebrow lp-reveal">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+      {%- if section.settings.title != blank -%}
+        <h2 id="varejo-faq-title-{{ section.id }}" class="lp-section__title lp-reveal">{{ section.settings.title }}</h2>
+      {%- endif -%}
+      {%- if section.settings.lead != blank -%}
+        <p class="lp-section__lead lp-reveal">{{ section.settings.lead }}</p>
+      {%- endif -%}
+    </header>
+
+    {%- render 'lp-faq-accordion', blocks: section.blocks -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Varejo · FAQ",
+  "tag": "section",
+  "class": "lp-section-wrap lp-section-wrap--faq",
+  "enabled_on": { "templates": ["page"] },
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Perguntas frequentes" },
+    { "type": "text", "id": "title", "label": "Título", "default": "Dúvidas? Respondemos." },
+    { "type": "textarea", "id": "lead", "label": "Subtítulo", "default": "Se não achar aqui, chama no WhatsApp — a gente responde rápido." }
+  ],
+  "blocks": [
+    {
+      "type": "faq_item",
+      "name": "Pergunta",
+      "settings": [
+        { "type": "text", "id": "question", "label": "Pergunta", "default": "Pergunta de exemplo?" },
+        { "type": "richtext", "id": "answer", "label": "Resposta", "default": "<p>Resposta de exemplo.</p>" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Varejo · FAQ",
+      "blocks": [
+        { "type": "faq_item", "settings": { "question": "São produtos originais?", "answer": "<p>Sim. 100% originais, com nota fiscal e selo de garantia das marcas.</p>" } },
+        { "type": "faq_item", "settings": { "question": "Quanto tempo demora a entrega?", "answer": "<p>PAC: 5 a 10 dias úteis. SEDEX: 1 a 3 dias úteis pra capitais.</p>" } },
+        { "type": "faq_item", "settings": { "question": "Posso parcelar?", "answer": "<p>Sim, em até 12x sem juros no cartão de crédito.</p>" } },
+        { "type": "faq_item", "settings": { "question": "Como faço a troca?", "answer": "<p>Entre em contato pelo WhatsApp ou e-mail em até 7 dias após receber o produto. Sem custo se for defeito de fabricação.</p>" } },
+        { "type": "faq_item", "settings": { "question": "Que marcas vocês vendem?", "answer": "<p>Nike, Adidas, Mizuno, New Balance, Puma, Hugo Boss, Lacoste, Vans, entre outras.</p>" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

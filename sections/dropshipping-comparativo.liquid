@@ -1,0 +1,124 @@
+{%- comment -%}
+  dropshipping-comparativo.liquid
+  Tabela comparando ATACADO vs DROPSHIPPING vs VAREJO.
+  Cada linha é um block "row" com 4 colunas (label + 3 modelos).
+  Usa lp-compare__check (verde) e lp-compare__cross (cinza) automaticamente
+  quando o valor for exatamente "✓", "Sim", "Não" ou "N/A".
+{%- endcomment -%}
+
+{%- liquid
+  assign col_label = section.settings.col_label | default: 'Característica'
+  assign col_atacado = section.settings.col_atacado | default: 'Atacado'
+  assign col_dropshipping = section.settings.col_dropshipping | default: 'Dropshipping'
+  assign col_varejo = section.settings.col_varejo | default: 'Varejo'
+-%}
+
+<section class="lp-section" aria-labelledby="dropshipping-compare-{{ section.id }}">
+  <div class="lp-section__inner">
+    <header class="lp-section__head lp-reveal">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="lp-section__eyebrow">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+      <h2 id="dropshipping-compare-{{ section.id }}" class="lp-section__title">
+        {{ section.settings.title }}
+      </h2>
+      {%- if section.settings.lead != blank -%}
+        <p class="lp-section__lead">{{ section.settings.lead }}</p>
+      {%- endif -%}
+    </header>
+
+    <div class="lp-reveal" style="overflow-x: auto;">
+      <table class="lp-compare">
+        <thead>
+          <tr>
+            <th scope="col">{{ col_label }}</th>
+            <th scope="col">{{ col_atacado }}</th>
+            <th scope="col">{{ col_dropshipping }}</th>
+            <th scope="col">{{ col_varejo }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'row' -%}
+              <tr {{ block.shopify_attributes }}>
+                <th scope="row">{{ block.settings.label }}</th>
+
+                {%- assign vals = '' | split: '|' -%}
+                {%- assign vals = vals | concat: block.settings.atacado | concat: block.settings.dropshipping | concat: block.settings.varejo -%}
+
+                {%- for v in vals -%}
+                  {%- assign vt = v | strip -%}
+                  {%- if vt == 'Sim' or vt == '✓' -%}
+                    <td><span class="lp-compare__check" aria-label="Sim">✓</span></td>
+                  {%- elsif vt == 'Não' or vt == 'N/A' or vt == '—' -%}
+                    <td><span class="lp-compare__cross" aria-label="{{ vt }}">{{ vt }}</span></td>
+                  {%- else -%}
+                    <td>{{ v }}</td>
+                  {%- endif -%}
+                {%- endfor -%}
+              </tr>
+            {%- endif -%}
+          {%- endfor -%}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Dropshipping · Comparativo",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Compare os modelos"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Título (H2)",
+      "default": "Atacado vs Dropshipping vs Varejo"
+    },
+    {
+      "type": "textarea",
+      "id": "lead",
+      "label": "Texto introdutório",
+      "default": "Cada modelo serve um momento do seu negócio. Veja qual encaixa melhor agora."
+    },
+    { "type": "header", "content": "Cabeçalhos da tabela" },
+    { "type": "text", "id": "col_label", "label": "Coluna 1", "default": "Característica" },
+    { "type": "text", "id": "col_atacado", "label": "Coluna 2", "default": "Atacado" },
+    { "type": "text", "id": "col_dropshipping", "label": "Coluna 3", "default": "Dropshipping" },
+    { "type": "text", "id": "col_varejo", "label": "Coluna 4", "default": "Varejo" }
+  ],
+  "blocks": [
+    {
+      "type": "row",
+      "name": "Linha",
+      "settings": [
+        { "type": "text", "id": "label", "label": "Característica" },
+        { "type": "text", "id": "atacado", "label": "Atacado" },
+        { "type": "text", "id": "dropshipping", "label": "Dropshipping" },
+        { "type": "text", "id": "varejo", "label": "Varejo" }
+      ]
+    }
+  ],
+  "max_blocks": 12,
+  "presets": [
+    {
+      "name": "Dropshipping · Comparativo",
+      "blocks": [
+        { "type": "row", "settings": { "label": "Quantidade mínima", "atacado": "10 pares", "dropshipping": "1 peça", "varejo": "1 peça" } },
+        { "type": "row", "settings": { "label": "Estoque próprio", "atacado": "Sim", "dropshipping": "Não", "varejo": "N/A" } },
+        { "type": "row", "settings": { "label": "Embalagem neutra", "atacado": "Não", "dropshipping": "Sim", "varejo": "N/A" } },
+        { "type": "row", "settings": { "label": "Cliente final", "atacado": "Você revende", "dropshipping": "Royal envia", "varejo": "Cliente direto" } },
+        { "type": "row", "settings": { "label": "Frete", "atacado": "Por pedido", "dropshipping": "Por pedido", "varejo": "Grátis acima R$150" } },
+        { "type": "row", "settings": { "label": "Margem", "atacado": "Alta (40%+)", "dropshipping": "Média (20-30%)", "varejo": "Preço cheio" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

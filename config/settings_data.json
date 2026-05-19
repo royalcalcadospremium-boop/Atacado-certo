@@ -403,7 +403,16 @@
           "show_newsletter": false,
           "newsletter_button": "",
           "newsletter_title": "Newsletter",
-          "newsletter_content": "<p>Se inscreva em nossa newsletter para receber as últimas promoções.</p>"
+          "newsletter_content": "<p>Se inscreva em nossa newsletter para receber as últimas promoções.</p>",
+          "modality_1_emoji": "🏠",
+          "modality_1_text": "ATACADO · 10+ pares",
+          "modality_1_url": "/pages/atacado",
+          "modality_2_emoji": "📦",
+          "modality_2_text": "DROPSHIPPING · qualquer quantidade",
+          "modality_2_url": "/pages/dropshipping",
+          "modality_3_emoji": "🛒",
+          "modality_3_text": "VAREJO · frete grátis R$150+",
+          "modality_3_url": "/pages/varejo"
         }
       },
       "popups": {

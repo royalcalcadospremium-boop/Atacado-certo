@@ -1,0 +1,115 @@
+{%- comment -%}
+  dropshipping-o-que-e.liquid
+  Seção didática "O que é Dropshipping?" com diagrama horizontal 3 nodes + 2 setas.
+  Cliente → Sua Loja → Royal entrega.
+{%- endcomment -%}
+
+<section class="lp-section" aria-labelledby="dropshipping-oquee-{{ section.id }}">
+  <div class="lp-section__inner lp-section__inner--narrow">
+    <header class="lp-section__head lp-reveal">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="lp-section__eyebrow">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+      <h2 id="dropshipping-oquee-{{ section.id }}" class="lp-section__title">
+        {{ section.settings.title }}
+      </h2>
+      {%- if section.settings.lead != blank -%}
+        <p class="lp-section__lead">{{ section.settings.lead }}</p>
+      {%- endif -%}
+    </header>
+
+    <div class="lp-diagram lp-reveal" role="group" aria-label="Fluxo do dropshipping">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'node' -%}
+          <div class="lp-diagram__node" {{ block.shopify_attributes }}>
+            {%- if block.settings.icon_svg != blank -%}
+              <div class="lp-diagram__icon" aria-hidden="true">
+                {{ block.settings.icon_svg }}
+              </div>
+            {%- endif -%}
+            <p class="lp-diagram__label">{{ block.settings.label }}</p>
+          </div>
+          {%- unless forloop.last -%}
+            <span class="lp-diagram__arrow" aria-hidden="true">&rarr;</span>
+          {%- endunless -%}
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Dropshipping · O que é",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Entenda o modelo"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Título (H2)",
+      "default": "O que é Dropshipping?"
+    },
+    {
+      "type": "textarea",
+      "id": "lead",
+      "label": "Texto introdutório",
+      "default": "Você vende, a Royal embala e envia direto para o seu cliente — com sua marca. Sem estoque, sem capital travado, sem dor de cabeça com logística."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "node",
+      "name": "Node do diagrama",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Rótulo",
+          "default": "Cliente"
+        },
+        {
+          "type": "textarea",
+          "id": "icon_svg",
+          "label": "Ícone (SVG inline)",
+          "info": "Cole o SVG completo. Use currentColor para herdar a cor."
+        }
+      ]
+    }
+  ],
+  "max_blocks": 5,
+  "presets": [
+    {
+      "name": "Dropshipping · O que é",
+      "blocks": [
+        {
+          "type": "node",
+          "settings": {
+            "label": "Cliente",
+            "icon_svg": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='8' r='4'/><path d='M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8'/></svg>"
+          }
+        },
+        {
+          "type": "node",
+          "settings": {
+            "label": "Sua Loja",
+            "icon_svg": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M3 9l1.5-5h15L21 9'/><path d='M3 9v11h18V9'/><path d='M3 9h18'/><path d='M9 20v-6h6v6'/></svg>"
+          }
+        },
+        {
+          "type": "node",
+          "settings": {
+            "label": "Royal Entrega",
+            "icon_svg": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M3 7l9-4 9 4-9 4-9-4z'/><path d='M3 7v10l9 4 9-4V7'/><path d='M12 11v10'/></svg>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

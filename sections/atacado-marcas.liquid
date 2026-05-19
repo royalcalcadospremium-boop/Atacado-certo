@@ -1,0 +1,89 @@
+{%- comment -%}
+  atacado-marcas.liquid — Grid de logos de marcas parceiras.
+  Cada block é um logo (image_picker) com nome e link opcionais.
+{%- endcomment -%}
+
+{{ 'lp-shared.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'lp-shared.js' | asset_url }}" defer></script>
+
+<section class="lp-section" aria-labelledby="atacado-marcas-title">
+  <div class="lp-section__inner">
+    <header class="lp-section__head lp-reveal">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="lp-section__eyebrow">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+      <h2 id="atacado-marcas-title" class="lp-section__title">{{ section.settings.section_title }}</h2>
+      {%- if section.settings.section_lead != blank -%}
+        <p class="lp-section__lead">{{ section.settings.section_lead }}</p>
+      {%- endif -%}
+    </header>
+
+    {%- if section.blocks.size > 0 -%}
+      <div class="lp-brands" role="list">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'brand' -%}
+            {%- assign _name = block.settings.name | default: 'Marca' -%}
+            {%- if block.settings.url != blank -%}
+              <a class="lp-brand lp-reveal" role="listitem" href="{{ block.settings.url }}" aria-label="{{ _name | escape }}" {{ block.shopify_attributes }}>
+                {%- if block.settings.image != blank -%}
+                  <img src="{{ block.settings.image | img_url: '320x' }}" alt="{{ _name | escape }}" loading="lazy" width="{{ block.settings.image.width }}" height="{{ block.settings.image.height }}">
+                {%- else -%}
+                  <span>{{ _name }}</span>
+                {%- endif -%}
+              </a>
+            {%- else -%}
+              <div class="lp-brand lp-reveal" role="listitem" {{ block.shopify_attributes }}>
+                {%- if block.settings.image != blank -%}
+                  <img src="{{ block.settings.image | img_url: '320x' }}" alt="{{ _name | escape }}" loading="lazy" width="{{ block.settings.image.width }}" height="{{ block.settings.image.height }}">
+                {%- else -%}
+                  <span>{{ _name }}</span>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Atacado · Marcas",
+  "tag": "section",
+  "class": "lp-section-wrap lp-section-wrap--brands",
+  "enabled_on": { "templates": ["page"] },
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "PARCEIROS OFICIAIS" },
+    { "type": "text", "id": "section_title", "label": "Título da seção", "default": "Marcas que você revende" },
+    { "type": "textarea", "id": "section_lead", "label": "Subtítulo", "default": "100% originais com nota fiscal." }
+  ],
+  "blocks": [
+    {
+      "type": "brand",
+      "name": "Marca",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Logo" },
+        { "type": "text", "id": "name", "label": "Nome da marca" },
+        { "type": "url", "id": "url", "label": "Link (coleção da marca)" }
+      ]
+    }
+  ],
+  "max_blocks": 12,
+  "presets": [
+    {
+      "name": "Atacado · Marcas",
+      "blocks": [
+        { "type": "brand", "settings": { "name": "Marca 1" } },
+        { "type": "brand", "settings": { "name": "Marca 2" } },
+        { "type": "brand", "settings": { "name": "Marca 3" } },
+        { "type": "brand", "settings": { "name": "Marca 4" } },
+        { "type": "brand", "settings": { "name": "Marca 5" } },
+        { "type": "brand", "settings": { "name": "Marca 6" } },
+        { "type": "brand", "settings": { "name": "Marca 7" } },
+        { "type": "brand", "settings": { "name": "Marca 8" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
