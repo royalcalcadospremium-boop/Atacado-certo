@@ -1,0 +1,147 @@
+{%- comment -%}
+  varejo-categorias.liquid
+  Grid 3x2 de categorias clicáveis. Cada block tipo 'category' tem
+  image_picker + título + URL de collection. Cada card vira <a>.
+{%- endcomment -%}
+
+{{ 'lp-shared.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'lp-shared.js' | asset_url }}" defer></script>
+
+<section class="lp-section" aria-labelledby="varejo-categorias-title-{{ section.id }}">
+  <div class="lp-section__inner">
+    {%- if section.settings.title != blank or section.settings.eyebrow != blank -%}
+      <header class="lp-section__head">
+        {%- if section.settings.eyebrow != blank -%}
+          <p class="lp-section__eyebrow lp-reveal">{{ section.settings.eyebrow }}</p>
+        {%- endif -%}
+        {%- if section.settings.title != blank -%}
+          <h2 id="varejo-categorias-title-{{ section.id }}" class="lp-section__title lp-reveal">{{ section.settings.title }}</h2>
+        {%- endif -%}
+        {%- if section.settings.lead != blank -%}
+          <p class="lp-section__lead lp-reveal">{{ section.settings.lead }}</p>
+        {%- endif -%}
+      </header>
+    {%- endif -%}
+
+    <div class="varejo-cat-grid">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'category' -%}
+          <a class="varejo-cat lp-reveal"
+             href="{{ block.settings.collection_url | default: '#' }}"
+             aria-label="Ver categoria {{ block.settings.title | escape }}"
+             {{ block.shopify_attributes }}>
+            <div class="varejo-cat__media">
+              {%- if block.settings.image != blank -%}
+                <img src="{{ block.settings.image | image_url: width: 600 }}"
+                     alt="{{ block.settings.title | escape }}"
+                     loading="lazy"
+                     width="{{ block.settings.image.width }}"
+                     height="{{ block.settings.image.height }}">
+              {%- else -%}
+                {{ 'lifestyle-1' | placeholder_svg_tag: 'varejo-cat__placeholder' }}
+              {%- endif -%}
+            </div>
+            <h3 class="varejo-cat__title">{{ block.settings.title }}</h3>
+          </a>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  .varejo-cat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--ad-space-lg);
+  }
+  .varejo-cat {
+    display: block;
+    text-decoration: none;
+    color: var(--ad-color-ink);
+    background: var(--ad-color-canvas);
+    border: 1px solid var(--ad-color-hairline);
+    border-radius: var(--ad-radius-lg);
+    overflow: hidden;
+    transition: transform 200ms ease-out, border-color 200ms ease-out, box-shadow 200ms ease-out;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .varejo-cat:hover,
+  .varejo-cat:focus-visible {
+    transform: translateY(-2px);
+    border-color: var(--ad-color-primary);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+  .varejo-cat:focus-visible { outline: 2px solid var(--ad-color-primary-focus); outline-offset: 2px; }
+  .varejo-cat__media {
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: var(--ad-color-canvas-parchment);
+  }
+  .varejo-cat__media img,
+  .varejo-cat__placeholder {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 400ms ease-out;
+  }
+  .varejo-cat:hover .varejo-cat__media img {
+    transform: scale(1.04);
+  }
+  .varejo-cat__title {
+    margin: 0;
+    padding: var(--ad-space-md) var(--ad-space-lg);
+    font-family: var(--ad-font-text);
+    font-size: var(--ad-type-body-strong-size);
+    font-weight: var(--ad-type-body-strong-weight);
+    letter-spacing: var(--ad-type-body-strong-track);
+    color: var(--ad-color-ink);
+    text-align: center;
+  }
+  @media (max-width: 1023px) {
+    .varejo-cat-grid { grid-template-columns: repeat(2, 1fr); gap: var(--ad-space-md); }
+  }
+  @media (max-width: 480px) {
+    .varejo-cat-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Varejo · Categorias",
+  "tag": "section",
+  "class": "lp-section-wrap lp-section-wrap--categories",
+  "enabled_on": { "templates": ["page"] },
+  "max_blocks": 6,
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Compre por categoria" },
+    { "type": "text", "id": "title", "label": "Título", "default": "Encontre o seu estilo" },
+    { "type": "textarea", "id": "lead", "label": "Subtítulo", "default": "Calçados, vestuário e acessórios das marcas que você confia." }
+  ],
+  "blocks": [
+    {
+      "type": "category",
+      "name": "Categoria",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Imagem (quadrada recomendada)" },
+        { "type": "text", "id": "title", "label": "Título", "default": "Categoria" },
+        { "type": "url", "id": "collection_url", "label": "Link da coleção", "default": "/collections/all" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Varejo · Categorias",
+      "blocks": [
+        { "type": "category", "settings": { "title": "Chinelos", "collection_url": "/collections/chinelos" } },
+        { "type": "category", "settings": { "title": "Tênis", "collection_url": "/collections/tenis" } },
+        { "type": "category", "settings": { "title": "Camisetas", "collection_url": "/collections/camisetas" } },
+        { "type": "category", "settings": { "title": "Bermudas", "collection_url": "/collections/bermudas" } },
+        { "type": "category", "settings": { "title": "Bonés", "collection_url": "/collections/bones" } },
+        { "type": "category", "settings": { "title": "Calças", "collection_url": "/collections/calcas" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

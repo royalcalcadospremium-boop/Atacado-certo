@@ -1,0 +1,103 @@
+{%- comment -%}
+  varejo-mais-vendidos.liquid
+  Grade de produtos da coleção selecionada (default: mais-vendidos).
+  Usa apple-card pra render. Grid 4-col desktop / 2-col mobile.
+{%- endcomment -%}
+
+{{ 'lp-shared.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'lp-shared.js' | asset_url }}" defer></script>
+
+{%- assign col = collections[section.settings.collection] -%}
+
+<section class="lp-section" aria-labelledby="varejo-mv-title-{{ section.id }}">
+  <div class="lp-section__inner">
+    {%- if section.settings.title != blank or section.settings.eyebrow != blank -%}
+      <header class="lp-section__head">
+        {%- if section.settings.eyebrow != blank -%}
+          <p class="lp-section__eyebrow lp-reveal">{{ section.settings.eyebrow }}</p>
+        {%- endif -%}
+        {%- if section.settings.title != blank -%}
+          <h2 id="varejo-mv-title-{{ section.id }}" class="lp-section__title lp-reveal">{{ section.settings.title }}</h2>
+        {%- endif -%}
+        {%- if section.settings.lead != blank -%}
+          <p class="lp-section__lead lp-reveal">{{ section.settings.lead }}</p>
+        {%- endif -%}
+      </header>
+    {%- endif -%}
+
+    {%- if col and col.products.size > 0 -%}
+      <div class="varejo-products-grid">
+        {%- for product in col.products limit: section.settings.limit -%}
+          <div class="lp-reveal">
+            {%- render 'apple-card',
+                image: product.featured_image,
+                image_alt: product.title,
+                title: product.title,
+                price: product.price | money,
+                price_was: product.compare_at_price > product.price | default: false,
+                href: product.url,
+                action_label: 'Ver produto'
+            -%}
+          </div>
+        {%- endfor -%}
+      </div>
+
+      {%- if section.settings.show_view_all -%}
+        <div class="varejo-products-cta lp-reveal">
+          <a class="lp-cta lp-cta--primary" href="{{ col.url }}">
+            {{ section.settings.view_all_label | default: 'Ver toda a coleção' }}
+          </a>
+        </div>
+      {%- endif -%}
+    {%- else -%}
+      <div class="varejo-products-empty">
+        <p>Selecione uma coleção no customizer para listar os produtos mais vendidos.</p>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+<style>
+  .varejo-products-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--ad-space-md);
+  }
+  .varejo-products-cta {
+    text-align: center;
+    margin-top: var(--ad-space-xl);
+  }
+  .varejo-products-empty {
+    text-align: center;
+    padding: var(--ad-space-xl);
+    color: var(--ad-color-ink-muted-48);
+    font-family: var(--ad-font-text);
+  }
+  @media (max-width: 1023px) {
+    .varejo-products-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 480px) {
+    .varejo-products-grid { grid-template-columns: repeat(2, 1fr); gap: var(--ad-space-sm); }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Varejo · Mais Vendidos",
+  "tag": "section",
+  "class": "lp-section-wrap lp-section-wrap--products",
+  "enabled_on": { "templates": ["page"] },
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Os queridinhos da casa" },
+    { "type": "text", "id": "title", "label": "Título", "default": "Mais vendidos da semana" },
+    { "type": "textarea", "id": "lead", "label": "Subtítulo", "default": "Os modelos que estão saindo do estoque mais rápido." },
+    { "type": "collection", "id": "collection", "label": "Coleção" },
+    { "type": "range", "id": "limit", "label": "Quantidade de produtos", "min": 4, "max": 12, "step": 2, "default": 8 },
+    { "type": "checkbox", "id": "show_view_all", "label": "Mostrar botão \"Ver toda a coleção\"", "default": true },
+    { "type": "text", "id": "view_all_label", "label": "Texto do botão", "default": "Ver toda a coleção" }
+  ],
+  "presets": [
+    { "name": "Varejo · Mais Vendidos" }
+  ]
+}
+{% endschema %}
