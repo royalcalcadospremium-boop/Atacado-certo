@@ -104,28 +104,26 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
       overflow-x: hidden;
     }
 
-    #royal-collection-gummy-{{ section.id }} .rc-container{ max-width: 1320px; margin: 0 auto; padding: 0 16px; width: 100%; }
-    #royal-collection-gummy-{{ section.id }} .rc-title{ color: var(--primary); font-weight: 700; font-size: clamp(22px, 3vw, 36px); margin: 10px 0; }
+    #royal-collection-gummy-{{ section.id }} .rc-container{ max-width: 1440px; margin: 0 auto; padding: 0 24px; width: 100%; }
+    #royal-collection-gummy-{{ section.id }} .rc-title{ color: var(--primary); font-weight: 600; font-size: clamp(28px, 4.5vw, 40px); line-height: 1.10; letter-spacing: -0.28px; margin: 10px 0; }
 
     #royal-collection-gummy-{{ section.id }} .rc-layout{
-      display: grid;
-      grid-template-columns: {% if has_filters %}260px 1fr{% else %}1fr{% endif %};
-      gap: 24px;
+      display: block;
       align-items: start;
     }
 
-    /* GRID CORE */
+    /* GRID CORE — 5 colunas desktop, sem sidebar lateral (filtros no drawer) */
     #royal-collection-gummy-{{ section.id }} .rc-grid{
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 20px;
       width: 100%;
     }
 
-    @media (max-width: 1100px){ #royal-collection-gummy-{{ section.id }} .rc-grid{ grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 1280px){ #royal-collection-gummy-{{ section.id }} .rc-grid{ grid-template-columns: repeat(4, 1fr); } }
+    @media (max-width: 1024px){ #royal-collection-gummy-{{ section.id }} .rc-grid{ grid-template-columns: repeat(3, 1fr); } }
 
     @media (max-width: 767px){
-      #royal-collection-gummy-{{ section.id }} .rc-layout{ grid-template-columns: 1fr; }
       #royal-collection-gummy-{{ section.id }} .rc-sidebar{ display:none; }
       #royal-collection-gummy-{{ section.id }} .rc-grid{ grid-template-columns: repeat(2, 1fr); gap: 10px; }
       #royal-collection-gummy-{{ section.id }} .rc-container{ padding: 0 10px; }
@@ -410,15 +408,6 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     <div class="rc-filter-drawer-overlay" onclick="document.getElementById('filter-drawer').classList.remove('is-open');"></div>
 
     <div class="rc-layout">
-      {%- if has_filters -%}
-      <aside class="rc-sidebar">
-        <div style="font-weight: 800; font-size: 12px; margin-bottom: 15px; border-bottom: 2px solid #111; padding-bottom: 5px;">CATEGORIAS</div>
-        {%- for link in quick_links_menu.links -%}
-          <a href="{{ link.url }}" style="display: block; padding: 10px 0; color: #333; text-decoration: none; font-size: 14px; border-bottom: 1px solid #f5f5f5;">{{ link.title }}</a>
-        {%- endfor -%}
-      </aside>
-      {%- endif -%}
-
       <main>
         {%- paginate collection.products by items_per_page -%}
 

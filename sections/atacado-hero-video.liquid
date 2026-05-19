@@ -42,7 +42,7 @@
   "enabled_on": { "templates": ["page"] },
   "settings": [
     { "type": "header", "content": "Vídeo de fundo" },
-    { "type": "url", "id": "video_url", "label": "URL do vídeo (mp4)", "info": "Use este OU o arquivo abaixo. Suporta Shopify Files / CDN externo." },
+    { "type": "text", "id": "video_url", "label": "URL do vídeo (mp4)", "info": "Use este OU o arquivo abaixo. Suporta Shopify Files / CDN externo." },
     { "type": "image_picker", "id": "poster_image", "label": "Imagem poster (fallback)" },
     { "type": "range", "id": "overlay", "label": "Overlay escuro (%)", "min": 0, "max": 100, "step": 5, "default": 55 },
 
@@ -54,11 +54,11 @@
 
     { "type": "header", "content": "CTA primário" },
     { "type": "text", "id": "cta1_label", "label": "Texto", "default": "Ver Catálogo Atacado" },
-    { "type": "url", "id": "cta1_url", "label": "URL", "default": "/collections/all" },
+    { "type": "text", "id": "cta1_url", "label": "URL", "default": "/collections/all" },
 
     { "type": "header", "content": "CTA secundário (WhatsApp)" },
     { "type": "text", "id": "cta2_label", "label": "Texto", "default": "Falar no WhatsApp" },
-    { "type": "url", "id": "cta2_url", "label": "URL", "default": "https://wa.me/5500000000000?text=Quero%20comprar%20no%20atacado" }
+    { "type": "text", "id": "cta2_url", "label": "URL", "default": "https://wa.me/5500000000000?text=Quero%20comprar%20no%20atacado" }
   ],
   "presets": [
     { "name": "Atacado · Hero" }

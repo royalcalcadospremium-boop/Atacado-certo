@@ -43,7 +43,7 @@
   "enabled_on": { "templates": ["page"] },
   "settings": [
     { "type": "header", "content": "Mídia de fundo" },
-    { "type": "url", "id": "video_url", "label": "URL do vídeo (externo)", "info": "MP4. Se preencher arquivo abaixo, este campo é ignorado." },
+    { "type": "text", "id": "video_url", "label": "URL do vídeo (externo)", "info": "MP4. Se preencher arquivo abaixo, este campo é ignorado." },
     { "type": "video", "id": "video_file", "label": "Arquivo de vídeo (Shopify Files)" },
     { "type": "image_picker", "id": "poster", "label": "Poster (fallback enquanto vídeo carrega)" },
     { "type": "range", "id": "overlay", "label": "Overlay escuro", "min": 0, "max": 100, "step": 5, "unit": "%", "default": 50 },
@@ -56,11 +56,11 @@
 
     { "type": "header", "content": "CTA primário" },
     { "type": "text", "id": "cta1_label", "label": "Texto", "default": "Comprar Agora" },
-    { "type": "url", "id": "cta1_url", "label": "URL", "default": "/collections/all" },
+    { "type": "text", "id": "cta1_url", "label": "URL", "default": "/collections/all" },
 
     { "type": "header", "content": "CTA secundário" },
     { "type": "text", "id": "cta2_label", "label": "Texto", "default": "Ver Lançamentos" },
-    { "type": "url", "id": "cta2_url", "label": "URL", "default": "/collections/lancamentos" },
+    { "type": "text", "id": "cta2_url", "label": "URL", "default": "/collections/lancamentos" },
     {
       "type": "select",
       "id": "cta2_variant",

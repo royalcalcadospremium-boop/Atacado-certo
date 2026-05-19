@@ -116,9 +116,10 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
       align-items:center;
       gap: 8px;
       text-decoration:none;
-      font-weight: 800;
+      font-weight: 600;
       font-size: 14px;
-      line-height: 1;
+      line-height: 1.29;
+      letter-spacing: -0.224px;
       color: {{ section.settings.view_more_color | default: '#1F2A44' }};
       padding: 10px 14px;
       border-radius: 999px;
@@ -139,7 +140,7 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
     }
     @media (max-width: 640px){
       #royal-tabs-cards-{{ section.id }} .headbar{ gap: 10px; }
-      #royal-tabs-cards-{{ section.id }} .viewmore{ padding: 9px 12px; font-size: 13px; }
+      #royal-tabs-cards-{{ section.id }} .viewmore{ padding: 9px 12px; font-size: 14px; }
     }
 
     /* Tabs (pílulas) */
@@ -169,9 +170,10 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
       color: var(--pill-text);
       border-radius: 999px;
       padding: 10px 16px;
-      font-weight: 800;
+      font-weight: 600;
       font-size: 14px;
-      line-height: 1;
+      line-height: 1.29;
+      letter-spacing: -0.224px;
       cursor:pointer;
       white-space: nowrap;
       transition: transform .12s ease, background .12s ease, color .12s ease;
@@ -335,8 +337,9 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
     #royal-tabs-cards-{{ section.id }} .title{
       font-weight: 400;
       color: var(--title);
-      font-size: 16px;
-      line-height: 1.2;
+      font-size: 17px;
+      line-height: 1.47;
+      letter-spacing: -0.374px;
       text-align:center;
       padding: 0 6px;
       display: -webkit-box;
@@ -344,7 +347,7 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
       -webkit-line-clamp: 2;
       overflow: hidden;
       text-overflow: ellipsis;
-      min-height: calc(2 * 1.2em);
+      min-height: calc(2 * 1.47em);
     }
 
     #royal-tabs-cards-{{ section.id }} .prices{
@@ -359,20 +362,25 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
       color: var(--compare);
       font-weight: 400;
       font-size: 12px;
+      line-height: 1.0;
+      letter-spacing: -0.12px;
       text-decoration: line-through;
       opacity: .95;
       min-height: 16px;
     }
     #royal-tabs-cards-{{ section.id }} .now{
       color: var(--price);
-      font-weight: 500;
-      font-size: 20px;
-      letter-spacing: -0.2px;
+      font-weight: 600;
+      font-size: 21px;
+      line-height: 1.19;
+      letter-spacing: 0.231px;
     }
     #royal-tabs-cards-{{ section.id }} .installments{
       color: var(--muted);
       font-weight: 400;
       font-size: 12px;
+      line-height: 1.0;
+      letter-spacing: -0.12px;
       min-height: 16px;
     }
 
@@ -388,8 +396,10 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
       background: var(--btn);
       color: var(--btn-text);
       padding: 14px 16px;
-      font-weight: 700;
-      font-size: 16px;
+      font-weight: 600;
+      font-size: 17px;
+      line-height: 1.24;
+      letter-spacing: -0.374px;
       display:flex;
       align-items:center;
       justify-content:center;
@@ -464,10 +474,11 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
     }
     #royal-tabs-cards-{{ section.id }} .rcm-titlewrap{ min-width: 0; flex: 1; }
     #royal-tabs-cards-{{ section.id }} .rcm-title{
-      font-weight: 720;
-      font-size: 15px;
+      font-weight: 600;
+      font-size: 17px;
+      letter-spacing: -0.374px;
       color: #111827;
-      line-height: 1.15;
+      line-height: 1.24;
       margin: 0 0 2px;
       display:-webkit-box;
       -webkit-line-clamp: 2;
@@ -475,9 +486,11 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
       overflow:hidden;
     }
     #royal-tabs-cards-{{ section.id }} .rcm-sub{
-      font-weight: 450;
-      font-size: 13px;
+      font-weight: 400;
+      font-size: 14px;
+      letter-spacing: -0.224px;
       color: #6B7280;
+      line-height: 1.43;
       margin: 0;
       white-space: nowrap;
       overflow: hidden;
@@ -507,9 +520,11 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
       overflow: hidden;
     }
     #royal-tabs-cards-{{ section.id }} .rcm-hint{
-      font-size: 12.5px;
+      font-size: 12px;
       color: #6B7280;
-      font-weight: 450;
+      font-weight: 400;
+      line-height: 1.0;
+      letter-spacing: -0.12px;
       margin: 0 0 10px;
     }
 
@@ -535,17 +550,21 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
       pointer-events: none;
     }
     #royal-tabs-cards-{{ section.id }} .rcm-size{
-      font-weight: 720;
+      font-weight: 600;
       color: #111827;
-      font-size: 13px;
+      font-size: 14px;
+      letter-spacing: -0.224px;
+      line-height: 1.29;
       min-width: 0;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
     #royal-tabs-cards-{{ section.id }} .rcm-stock{
-      font-weight: 450;
-      font-size: 11px;
+      font-weight: 400;
+      font-size: 12px;
+      letter-spacing: -0.12px;
+      line-height: 1.0;
       color: #6B7280;
       margin-top: 1px;
     }
@@ -563,7 +582,7 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
       border: 1px solid rgba(0,0,0,.12);
       background: #fff;
       cursor:pointer;
-      font-weight: 720;
+      font-weight: 600;
       line-height: 1;
     }
     #royal-tabs-cards-{{ section.id }} .rcm-step button:disabled{
@@ -576,8 +595,9 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
       border-radius: 10px;
       border: 1px solid rgba(0,0,0,.12);
       text-align:center;
-      font-weight: 720;
-      font-size: 13px;
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: -0.224px;
       outline: none;
       padding: 0;
     }
@@ -591,9 +611,11 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
       justify-content: space-between;
     }
     #royal-tabs-cards-{{ section.id }} .rcm-total{
-      font-size: 13px;
+      font-size: 14px;
       color: #6B7280;
-      font-weight: 450;
+      font-weight: 400;
+      letter-spacing: -0.224px;
+      line-height: 1.43;
       white-space: nowrap;
     }
     #royal-tabs-cards-{{ section.id }} .rcm-add{
@@ -606,8 +628,10 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
       align-items:center;
       justify-content:center;
       gap: 10px;
-      font-weight: 800;
+      font-weight: 600;
       font-size: 17px;
+      letter-spacing: -0.374px;
+      line-height: 1.24;
       color: var(--btn-text);
       cursor:pointer;
       transition: transform .12s ease, filter .12s ease, opacity .12s ease;
@@ -623,7 +647,7 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
       #royal-tabs-cards-{{ section.id }} .rcm-row{ padding: 7px 7px; min-height: 42px; }
       #royal-tabs-cards-{{ section.id }} .rcm-step button{ width: 26px; height: 26px; border-radius: 9px; }
       #royal-tabs-cards-{{ section.id }} .rcm-step input{ width: 32px; height: 26px; border-radius: 9px; }
-      #royal-tabs-cards-{{ section.id }} .rcm-add{ height: 50px; font-size: 16px; }
+      #royal-tabs-cards-{{ section.id }} .rcm-add{ height: 50px; font-size: 17px; }
     }
 
     html.rcm-lock, body.rcm-lock{ overflow:hidden !important; height: 100% !important; }
@@ -650,7 +674,9 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
       border-radius: 2px !important;
       padding: 3px 6px !important;
       font-size: 10px !important;
-      font-weight: 700 !important;
+      font-weight: 600 !important;
+      line-height: 1.3 !important;
+      letter-spacing: -0.08px !important;
       top: 8px !important;
       left: 8px !important;
     }
@@ -678,18 +704,22 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
       text-decoration: none !important;
     }
     #royal-tabs-cards-{{ section.id }} .title {
-      font-size: 13px !important;
+      font-size: 14px !important;
       font-weight: 600 !important;
+      line-height: 1.29 !important;
+      letter-spacing: -0.224px !important;
       color: #333333 !important;
       text-align: left !important;
       padding: 0 !important;
-      height: 34px !important;
+      height: 36px !important;
       min-height: 0 !important;
       margin: 0 0 4px !important;
     }
     #royal-tabs-cards-{{ section.id }} .now {
-      font-size: 15px !important;
-      font-weight: 800 !important;
+      font-size: 17px !important;
+      font-weight: 600 !important;
+      line-height: 1.24 !important;
+      letter-spacing: -0.374px !important;
       color: #111111 !important;
     }
     #royal-tabs-cards-{{ section.id }} .compare,
@@ -1312,7 +1342,7 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
             (!avail ? ' disabled' : '') +
             ' style="padding:12px;border:1px solid #ddd;border-radius:4px;background:' + (avail?'#fff':'#f5f5f5') +
             ';cursor:' + (avail?'pointer':'not-allowed') +
-            ';font-weight:700;font-size:13px;opacity:' + (avail?'1':'0.4') + '">' +
+            ';font-weight:600;font-size:14px;letter-spacing:-0.224px;opacity:' + (avail?'1':'0.4') + '">' +
             v.title + '</button>';
         }).join('');
 
@@ -1320,12 +1350,12 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
           '<button onclick="(function(m){m.classList.remove(\'nb-open\');document.body.style.overflow=\'\';})(document.getElementById(\'nb-qb-{{ section.id }}\'))" style="position:absolute;top:15px;right:15px;border:none;background:none;font-size:24px;cursor:pointer;">&times;</button>' +
           '<div style="display:flex;gap:15px;align-items:center;margin-bottom:20px;">' +
             (data.image ? '<img src="' + data.image + '" style="width:70px;height:70px;object-fit:cover;border-radius:8px;">' : '') +
-            '<div><h4 style="margin:0;font-size:14px;">' + data.title + '</h4>' +
-            (data.price ? '<div style="font-weight:800;font-size:16px;">' + data.price + '</div>' : '') +
+            '<div><h4 style="margin:0;font-size:14px;font-weight:600;letter-spacing:-0.224px;">' + data.title + '</h4>' +
+            (data.price ? '<div style="font-weight:600;font-size:17px;letter-spacing:-0.374px;">' + data.price + '</div>' : '') +
             '</div></div>' +
-          '<div style="font-size:12px;font-weight:800;margin-bottom:10px;">ESCOLHA O TAMANHO:</div>' +
+          '<div style="font-size:12px;font-weight:600;letter-spacing:-0.12px;margin-bottom:10px;">ESCOLHA O TAMANHO:</div>' +
           '<div class="nb-sz-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px;">' + variantsHtml + '</div>' +
-          '<button id="nb-add-btn-{{ section.id }}" disabled style="width:100%;padding:16px;background:#111;color:#fff;border:none;border-radius:4px;font-weight:800;cursor:pointer;opacity:0.5;">ADICIONAR À SACOLA</button>';
+          '<button id="nb-add-btn-{{ section.id }}" disabled style="width:100%;padding:16px;background:#111;color:#fff;border:none;border-radius:4px;font-weight:600;font-size:17px;letter-spacing:-0.374px;cursor:pointer;opacity:0.5;">ADICIONAR À SACOLA</button>';
 
         /* Selecionar tamanho */
         qbContent.querySelector('.nb-sz-grid').addEventListener('click', function(e){
