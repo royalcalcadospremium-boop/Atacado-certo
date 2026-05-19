@@ -107,7 +107,14 @@
           "navigation_menu": "main-menu",
           "brand_tagline": "Royal Atacado",
           "cta_text": "Falar no WhatsApp",
-          "cta_url": ""
+          "cta_url": "",
+          "drawer_countdown_enabled": false,
+          "drawer_countdown_text": "Oferta termina em",
+          "drawer_countdown_end": "",
+          "drawer_track_text": "Rastrear pedido",
+          "drawer_track_url": "",
+          "drawer_featured_eyebrow": "Destaque",
+          "drawer_featured_product": ""
         }
       },
       "footer": {
@@ -389,30 +396,20 @@
       "announcement-bar": {
         "type": "announcement-bar",
         "settings": {
-          "overlap_px": 0,
-          "overlap_px_mobile": 0,
-          "show_announcement": true,
-          "announcement_size_desktop": 20,
-          "announcement_size_mobile": 20,
-          "background1": "#3498db",
-          "background2": "#040404",
-          "gradient_direction": "vertical",
-          "text_color": "#ffffff",
-          "mostraricone": true,
+          "show_announcement": false,
+          "force_legacy_text": false,
           "text": "Atacado min. 10 Produtos",
-          "show_newsletter": false,
-          "newsletter_button": "",
-          "newsletter_title": "Newsletter",
-          "newsletter_content": "<p>Se inscreva em nossa newsletter para receber as últimas promoções.</p>",
+          "cta_text": "",
+          "cta_url": "",
           "modality_1_emoji": "🏠",
           "modality_1_text": "ATACADO · 10+ pares",
-          "modality_1_url": "/pages/atacado",
+          "modality_1_url": "",
           "modality_2_emoji": "📦",
           "modality_2_text": "DROPSHIPPING · qualquer quantidade",
-          "modality_2_url": "/pages/dropshipping",
+          "modality_2_url": "",
           "modality_3_emoji": "🛒",
           "modality_3_text": "VAREJO · frete grátis R$150+",
-          "modality_3_url": "/pages/varejo"
+          "modality_3_url": ""
         }
       },
       "popups": {
@@ -1266,9 +1263,9 @@
           "title": "Seu carrinho",
           "subtitle": "Finalize seu pedido com segurança",
           "min_items": 10,
-          "min_empty_text": "Adicione produtos para Completar o atacado.",
+          "min_empty_text": "Adicione produtos para atingir o mínimo de 10 itens.",
           "min_missing_prefix": "Faltam",
-          "min_missing_suffix": "itens para Completar o atacado.",
+          "min_missing_suffix": "itens para atingir o pedido mínimo.",
           "min_ok_text": "Pedido mínimo atingido ✅ Escolha uma vendedora para enviar o orçamento.",
           "empty_title": "Seu carrinho está vazio",
           "empty_text": "Adicione produtos para ver o resumo aqui.",
