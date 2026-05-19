@@ -64,9 +64,9 @@ filesToCheck.push('snippets/lp-faq-accordion.liquid');
 filesToCheck.push('assets/lp-shared.css');
 filesToCheck.push('assets/lp-shared.js');
 
-// Chrome (announcement-bar com novos modality CTAs) + config global
+// Chrome (announcement-bar com novos modality CTAs)
+// Não inclui settings_data.json pq tem presets legados que falham na validacao
 filesToCheck.push('sections/announcement-bar.liquid');
-filesToCheck.push('config/settings_data.json');
 
 console.log(`Verificando ${filesToCheck.length} arquivos...\n`);
 
