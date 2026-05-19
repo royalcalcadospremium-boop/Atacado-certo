@@ -59,9 +59,6 @@ const METAFIELD_NS = env.SHOPIFY_METAFIELD_NAMESPACE || 'custom';
 const METAFIELD_KEY = env.SHOPIFY_METAFIELD_KEY || 'preco_atacado';
 const USE_PROMO = env.OLIST_USE_PROMO_PRICE !== '0';
 const OLIST_LIST_NAME = (env.OLIST_LIST_NAME || 'ATACADO').toUpperCase().trim();
-// Quando SKU NÃO está na Lista ATACADO do Olist, computa um atacado fallback
-// = varejo * (1 - ATACADO_FALLBACK_DISCOUNT_PCT/100). Default 30%. Set para 0 desativa.
-const ATACADO_FALLBACK_PCT = Number(env.ATACADO_FALLBACK_DISCOUNT_PCT || 30);
 const OLIST_API_BASE = 'https://api.tiny.com.br/public-api/v3';
 const OLIST_TOKEN_URL = 'https://accounts.tiny.com.br/realms/tiny/protocol/openid-connect/token';
 
@@ -281,12 +278,7 @@ function pickVarejoPrice(item) {
 async function run() {
   console.log(`\n=== Sync VAREJO + ATACADO Olist → Shopify (${DRY_RUN ? 'DRY-RUN' : 'EXECUTANDO'}) ===`);
   console.log(`variant.price = varejo (precoPromocional Dados Gerais)`);
-  console.log(`${METAFIELD_NS}.${METAFIELD_KEY} = atacado (precoPromocional Lista ${OLIST_LIST_NAME})`);
-  if (ATACADO_FALLBACK_PCT > 0 && ATACADO_FALLBACK_PCT < 100) {
-    console.log(`fallback atacado = varejo × ${(1 - ATACADO_FALLBACK_PCT/100).toFixed(2)} (${ATACADO_FALLBACK_PCT}% off) quando SKU não está na lista ${OLIST_LIST_NAME}\n`);
-  } else {
-    console.log(`fallback atacado: DESATIVADO (SKUs fora da Lista ${OLIST_LIST_NAME} ficam sem metafield)\n`);
-  }
+  console.log(`${METAFIELD_NS}.${METAFIELD_KEY} = atacado (precoPromocional Lista ${OLIST_LIST_NAME})\n`);
 
   // Fase 1: índice Shopify
   const { byProduct, bySku } = await buildShopifyIndex();
@@ -303,7 +295,8 @@ async function run() {
   // queue: Map<productGid, { variants: [{variantGid, varejo}], atacadoValue, productTitle }>
   const productQueue = new Map();
   const skuAtacadoUsed = new Map(); // sku → atacado (pra debug)
-  let total = 0, skipped = 0, missing = 0, missingAtacado = 0, fallbackUsed = 0;
+  const missingAtacadoSkus = [];     // [{sku, varejo, title}] — SKUs sem preço atacado na Lista
+  let total = 0, skipped = 0, missing = 0, missingAtacado = 0;
 
   // Helper: extrai peso do Olist em GRAMAS (Shopify usa GRAMS por padrão).
   // Olist pode retornar pesoBruto/pesoLiquido em "kg" (decimal, ex: "0,250")
@@ -330,17 +323,10 @@ async function run() {
     const hit = bySku.get(sku);
     if (!hit) { missing++; continue; }
 
-    let atacado = atacadoBySku.get(sku);
-    let atacadoFromFallback = false;
+    const atacado = atacadoBySku.get(sku);
     if (!atacado) {
       missingAtacado++;
-      // Fallback: computa atacado = varejo * (1 - %). Garante metafield preenchido
-      // para o tema não cair no fallback global de 15% configurado no Customizer.
-      if (ATACADO_FALLBACK_PCT > 0 && ATACADO_FALLBACK_PCT < 100) {
-        atacado = +(varejo * (1 - ATACADO_FALLBACK_PCT / 100)).toFixed(2);
-        atacadoFromFallback = true;
-        fallbackUsed++;
-      }
+      missingAtacadoSkus.push({ sku, varejo, title: item.descricao || '' });
     }
 
     const pesoG = pickPesoG(item);
@@ -369,8 +355,18 @@ async function run() {
   console.log(`  Sem preço/sku (ignorados):  ${skipped}`);
   console.log(`  Sem match no Shopify:       ${missing}`);
   console.log(`  Sem preço atacado na lista: ${missingAtacado}`);
-  console.log(`  Fallback aplicado:          ${fallbackUsed} (${ATACADO_FALLBACK_PCT}% off varejo)`);
   console.log(`  Produtos a atualizar:       ${productQueue.size}`);
+
+  if (missingAtacadoSkus.length > 0) {
+    console.log(`\n!!! ${missingAtacadoSkus.length} SKU(s) sem preço atacado — precisam entrar na Lista ${OLIST_LIST_NAME} do Olist:`);
+    const sample = missingAtacadoSkus.slice(0, 50);
+    for (const m of sample) {
+      console.log(`  - SKU ${m.sku} | varejo R$ ${m.varejo.toFixed(2)} | ${m.title.substring(0, 60)}`);
+    }
+    if (missingAtacadoSkus.length > 50) {
+      console.log(`  ... e mais ${missingAtacadoSkus.length - 50} SKUs (mostrando só os primeiros 50)`);
+    }
+  }
 
   if (DRY_RUN) {
     let i = 0;
