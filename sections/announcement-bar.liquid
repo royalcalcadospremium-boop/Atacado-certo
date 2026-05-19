@@ -50,10 +50,29 @@
   </div>
 </section>
 
+{%- assign bg_color = section.settings.background_color | default: '#f5f5f7' -%}
+{%- assign bg_gradient_enabled = section.settings.bg_gradient_enabled -%}
+{%- assign bg_grad_1 = section.settings.background_color_1 | default: '#3498db' -%}
+{%- assign bg_grad_2 = section.settings.background_color_2 | default: '#040404' -%}
+{%- assign bg_grad_dir = section.settings.gradient_direction | default: 'vertical' -%}
+{%- assign text_color_setting = section.settings.text_color | default: '#1d1d1f' -%}
+{%- case bg_grad_dir -%}
+  {%- when 'vertical' -%}{%- assign grad_css = 'to bottom' -%}
+  {%- when 'vertical-up' -%}{%- assign grad_css = 'to top' -%}
+  {%- when 'horizontal' -%}{%- assign grad_css = 'to right' -%}
+  {%- when 'horizontal-rev' -%}{%- assign grad_css = 'to left' -%}
+  {%- when 'diagonal' -%}{%- assign grad_css = '135deg' -%}
+  {%- else -%}{%- assign grad_css = 'to bottom' -%}
+{%- endcase -%}
+
 <style>
   #shopify-section-{{ section.id }} .ad-announcement {
-    background-color: var(--ad-color-canvas-parchment);
-    color: var(--ad-color-ink);
+    {%- if bg_gradient_enabled -%}
+    background: linear-gradient({{ grad_css }}, {{ bg_grad_1 }}, {{ bg_grad_2 }});
+    {%- else -%}
+    background-color: {{ bg_color }};
+    {%- endif -%}
+    color: {{ text_color_setting }};
     border-bottom: var(--ad-border-soft);
   }
   #shopify-section-{{ section.id }} .ad-announcement__inner {
@@ -69,10 +88,11 @@
   }
   #shopify-section-{{ section.id }} .ad-announcement__text {
     margin: 0;
-    color: var(--ad-color-ink-muted-80);
+    color: {{ text_color_setting }};
+    opacity: 0.92;
   }
   #shopify-section-{{ section.id }} .ad-announcement__cta {
-    color: var(--ad-color-primary);
+    color: {{ text_color_setting }};
     text-decoration: none;
     white-space: nowrap;
   }
@@ -91,28 +111,28 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    color: var(--ad-color-ink);
+    color: {{ text_color_setting }};
     font-weight: 400;
     text-decoration: none;
     white-space: nowrap;
     padding: 2px 6px;
     border-radius: 4px;
-    transition: color 160ms ease, background-color 160ms ease;
+    transition: opacity 160ms ease;
   }
   #shopify-section-{{ section.id }} .ad-announcement__cta-modality:hover,
   #shopify-section-{{ section.id }} .ad-announcement__cta-modality:focus-visible {
-    color: var(--ad-color-primary);
     text-decoration: underline;
     text-underline-offset: 3px;
+    opacity: 0.85;
   }
   #shopify-section-{{ section.id }} .ad-announcement__cta-emoji {
     font-size: 0.95em;
     line-height: 1;
   }
   #shopify-section-{{ section.id }} .ad-announcement__sep {
-    color: var(--ad-color-ink-muted-40, var(--ad-color-ink-muted-80));
+    color: {{ text_color_setting }};
     user-select: none;
-    opacity: 0.5;
+    opacity: 0.45;
   }
   @media (max-width: 640px) {
     #shopify-section-{{ section.id }} .ad-announcement__inner {
@@ -139,6 +159,22 @@
   "settings": [
     { "type": "checkbox", "id": "show_announcement", "label": "Mostrar barra", "default": true },
     { "type": "checkbox", "id": "force_legacy_text", "label": "Forçar texto único (em vez dos 3 CTAs)", "default": false, "info": "Marque para esconder os 3 CTAs e mostrar apenas o texto abaixo." },
+
+    { "type": "header", "content": "Cores" },
+    { "type": "color", "id": "background_color", "label": "Fundo (sólido)", "default": "#f5f5f7" },
+    { "type": "color", "id": "text_color", "label": "Cor do texto e dos CTAs", "default": "#1d1d1f" },
+
+    { "type": "header", "content": "Fundo em degradê (opcional)" },
+    { "type": "checkbox", "id": "bg_gradient_enabled", "label": "Ativar degradê", "default": false, "info": "Quando ativo, substitui a cor sólida acima." },
+    { "type": "color", "id": "background_color_1", "label": "Cor 1 (início)", "default": "#3498db" },
+    { "type": "color", "id": "background_color_2", "label": "Cor 2 (fim)", "default": "#040404" },
+    { "type": "select", "id": "gradient_direction", "label": "Direção do degradê", "default": "vertical", "options": [
+      { "value": "vertical", "label": "↓ Vertical (cima → baixo)" },
+      { "value": "vertical-up", "label": "↑ Vertical (baixo → cima)" },
+      { "value": "horizontal", "label": "→ Horizontal (esq → dir)" },
+      { "value": "horizontal-rev", "label": "← Horizontal (dir → esq)" },
+      { "value": "diagonal", "label": "↘ Diagonal" }
+    ] },
     { "type": "header", "content": "Modo legado (texto único)" },
     { "type": "paragraph", "content": "Visível apenas se o checkbox acima estiver marcado." },
     { "type": "text", "id": "text", "label": "Texto", "default": "Atacado · Dropshipping · Varejo — direto da fábrica" },
