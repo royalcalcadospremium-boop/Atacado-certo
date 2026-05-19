@@ -1,20 +1,58 @@
 {%- comment -%}
-  Apple-pure announcement bar (Subsistema 1, v2).
-  A single thin parchment strip — minimum chrome, single optional CTA.
-  Sync nudge: 2026-05-16 17:30.
+  Apple-pure announcement bar (Subsistema 1, v3).
+  A single thin parchment strip — minimum chrome.
+  v3: suporta 3 CTAs de modalidade (ATACADO/DROPSHIPPING/VAREJO) linkando às LPs.
+  Fallback: se nenhum dos 3 CTAs estiver preenchido, exibe o texto/link único legado.
+  Sync nudge: 2026-05-18 10:00.
 {%- endcomment -%}
 
 {%- if section.settings.show_announcement -%}
+  {%- assign m1_filled = false -%}
+  {%- assign m2_filled = false -%}
+  {%- assign m3_filled = false -%}
+  {%- if section.settings.modality_1_text != blank and section.settings.modality_1_url != blank -%}
+    {%- assign m1_filled = true -%}
+  {%- endif -%}
+  {%- if section.settings.modality_2_text != blank and section.settings.modality_2_url != blank -%}
+    {%- assign m2_filled = true -%}
+  {%- endif -%}
+  {%- if section.settings.modality_3_text != blank and section.settings.modality_3_url != blank -%}
+    {%- assign m3_filled = true -%}
+  {%- endif -%}
+  {%- assign show_modalities = false -%}
+  {%- if m1_filled and m2_filled and m3_filled -%}
+    {%- assign show_modalities = true -%}
+  {%- endif -%}
+
 <section class="ad-announcement" data-section-id="{{ section.id }}" data-section-type="announcement-bar" role="region" aria-label="Aviso da loja">
   <div class="ad-announcement__inner">
-    {%- if section.settings.text != blank -%}
-      <p class="ad-announcement__text ad-caption">{{ section.settings.text }}</p>
-    {%- endif -%}
-    {%- if section.settings.cta_text != blank and section.settings.cta_url != blank -%}
-      <a class="ad-announcement__cta ad-caption-strong" href="{{ section.settings.cta_url }}">
-        {{ section.settings.cta_text }}
-        <span aria-hidden="true">&rsaquo;</span>
-      </a>
+    {%- if show_modalities -%}
+      <nav class="ad-announcement__modalities" aria-label="Modalidades de compra">
+        <a class="ad-announcement__cta-modality ad-caption" href="{{ section.settings.modality_1_url }}">
+          {%- if section.settings.modality_1_emoji != blank -%}<span class="ad-announcement__cta-emoji" aria-hidden="true">{{ section.settings.modality_1_emoji }}</span>{%- endif -%}
+          <span class="ad-announcement__cta-label">{{ section.settings.modality_1_text }}</span>
+        </a>
+        <span class="ad-announcement__sep" aria-hidden="true">·</span>
+        <a class="ad-announcement__cta-modality ad-caption" href="{{ section.settings.modality_2_url }}">
+          {%- if section.settings.modality_2_emoji != blank -%}<span class="ad-announcement__cta-emoji" aria-hidden="true">{{ section.settings.modality_2_emoji }}</span>{%- endif -%}
+          <span class="ad-announcement__cta-label">{{ section.settings.modality_2_text }}</span>
+        </a>
+        <span class="ad-announcement__sep" aria-hidden="true">·</span>
+        <a class="ad-announcement__cta-modality ad-caption" href="{{ section.settings.modality_3_url }}">
+          {%- if section.settings.modality_3_emoji != blank -%}<span class="ad-announcement__cta-emoji" aria-hidden="true">{{ section.settings.modality_3_emoji }}</span>{%- endif -%}
+          <span class="ad-announcement__cta-label">{{ section.settings.modality_3_text }}</span>
+        </a>
+      </nav>
+    {%- else -%}
+      {%- if section.settings.text != blank -%}
+        <p class="ad-announcement__text ad-caption">{{ section.settings.text }}</p>
+      {%- endif -%}
+      {%- if section.settings.cta_text != blank and section.settings.cta_url != blank -%}
+        <a class="ad-announcement__cta ad-caption-strong" href="{{ section.settings.cta_url }}">
+          {{ section.settings.cta_text }}
+          <span aria-hidden="true">&rsaquo;</span>
+        </a>
+      {%- endif -%}
     {%- endif -%}
   </div>
 </section>
@@ -48,11 +86,53 @@
   #shopify-section-{{ section.id }} .ad-announcement__cta:hover {
     text-decoration: underline;
   }
+  #shopify-section-{{ section.id }} .ad-announcement__modalities {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--ad-space-sm);
+    font-family: var(--ad-font-text);
+  }
+  #shopify-section-{{ section.id }} .ad-announcement__cta-modality {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--ad-color-ink);
+    font-weight: 400;
+    text-decoration: none;
+    white-space: nowrap;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: color 160ms ease, background-color 160ms ease;
+  }
+  #shopify-section-{{ section.id }} .ad-announcement__cta-modality:hover,
+  #shopify-section-{{ section.id }} .ad-announcement__cta-modality:focus-visible {
+    color: var(--ad-color-primary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  #shopify-section-{{ section.id }} .ad-announcement__cta-emoji {
+    font-size: 0.95em;
+    line-height: 1;
+  }
+  #shopify-section-{{ section.id }} .ad-announcement__sep {
+    color: var(--ad-color-ink-muted-40, var(--ad-color-ink-muted-80));
+    user-select: none;
+    opacity: 0.5;
+  }
   @media (max-width: 640px) {
     #shopify-section-{{ section.id }} .ad-announcement__inner {
       padding: 6px var(--ad-space-md);
       gap: var(--ad-space-xs);
       flex-wrap: wrap;
+    }
+    #shopify-section-{{ section.id }} .ad-announcement__modalities {
+      gap: 4px;
+      font-size: 11px;
+    }
+    #shopify-section-{{ section.id }} .ad-announcement__cta-modality {
+      padding: 2px 4px;
     }
   }
 </style>
@@ -63,10 +143,29 @@
   "name": "Barra de anúncio (Apple)",
   "settings": [
     { "type": "checkbox", "id": "show_announcement", "label": "Mostrar barra", "default": true },
+    { "type": "header", "content": "Modo legado (texto único)" },
+    { "type": "paragraph", "content": "Usado apenas se os 3 CTAs de modalidade abaixo NÃO estiverem todos preenchidos." },
     { "type": "text", "id": "text", "label": "Texto", "default": "Atacado · Dropshipping · Varejo — direto da fábrica" },
-    { "type": "header", "content": "Link opcional" },
-    { "type": "text", "id": "cta_text", "label": "Texto do link", "default": "" },
-    { "type": "url", "id": "cta_url", "label": "URL do link" }
+    { "type": "text", "id": "cta_text", "label": "Texto do link (opcional)", "default": "" },
+    { "type": "url", "id": "cta_url", "label": "URL do link (opcional)" },
+
+    { "type": "header", "content": "Modo modalidades (3 CTAs)" },
+    { "type": "paragraph", "content": "Preencha os 3 grupos abaixo para exibir os botões de modalidade no lugar do texto único." },
+
+    { "type": "header", "content": "Modalidade 1 — Atacado" },
+    { "type": "text", "id": "modality_1_emoji", "label": "Emoji / ícone", "default": "🏠" },
+    { "type": "text", "id": "modality_1_text", "label": "Texto", "default": "ATACADO · 10+ pares" },
+    { "type": "url", "id": "modality_1_url", "label": "URL" },
+
+    { "type": "header", "content": "Modalidade 2 — Dropshipping" },
+    { "type": "text", "id": "modality_2_emoji", "label": "Emoji / ícone", "default": "📦" },
+    { "type": "text", "id": "modality_2_text", "label": "Texto", "default": "DROPSHIPPING · qualquer quantidade" },
+    { "type": "url", "id": "modality_2_url", "label": "URL" },
+
+    { "type": "header", "content": "Modalidade 3 — Varejo" },
+    { "type": "text", "id": "modality_3_emoji", "label": "Emoji / ícone", "default": "🛒" },
+    { "type": "text", "id": "modality_3_text", "label": "Texto", "default": "VAREJO · frete grátis R$150+" },
+    { "type": "url", "id": "modality_3_url", "label": "URL" }
   ]
 }
 {% endschema %}
