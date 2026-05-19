@@ -205,6 +205,31 @@ AJUSTE (pedido do Fellipe):
     #RoyalCartDrawer .rcd__totals-label{ color: var(--rcd-muted); font-weight: 800; }
     #RoyalCartDrawer .rcd__totals-value{ font-weight: 950; }
 
+    /* Economia atacado — destaque em vermelho abaixo do total */
+    #RoyalCartDrawer .rcd__savings{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 6px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--rcd-border);
+      color: #d70015;
+    }
+    #RoyalCartDrawer .rcd__savings[hidden]{ display: none; }
+    #RoyalCartDrawer .rcd__savings-label{
+      font-size: var(--ad-type-caption-size);
+      font-weight: var(--ad-type-caption-weight);
+      letter-spacing: var(--ad-type-caption-track);
+      color: #d70015;
+    }
+    #RoyalCartDrawer .rcd__savings-value{
+      font-size: var(--ad-type-body-strong-size);
+      font-weight: var(--ad-type-body-strong-weight);
+      letter-spacing: var(--ad-type-body-strong-track);
+      color: #d70015;
+    }
+
     /* Bloco discreto de peso total */
     #RoyalCartDrawer .rcd__weight{
       display: flex;
@@ -921,6 +946,12 @@ AJUSTE (pedido do Fellipe):
         <strong class="rcd__totals-value" data-rcd-subtotal>{{ cart.total_price | money }}</strong>
       </div>
 
+      {%- comment -%} Economia no atacado — em vermelho, só aparece se houver desconto {%- endcomment -%}
+      <div class="rcd__savings" data-rcd-savings-row hidden>
+        <span class="rcd__savings-label">Você economiza no atacado</span>
+        <span class="rcd__savings-value" data-rcd-savings>—</span>
+      </div>
+
       {%- comment -%} Peso total — bloco discreto, minimalista {%- endcomment -%}
       <div class="rcd__weight" data-rcd-weight-row hidden>
         <span class="rcd__weight-label">Peso total estimado</span>
@@ -1525,6 +1556,34 @@ AJUSTE (pedido do Fellipe):
 
       const weightRowEl = root.querySelector('[data-rcd-weight-row]');
       const weightValEl = root.querySelector('[data-rcd-weight]');
+      const savingsRowEl = root.querySelector('[data-rcd-savings-row]');
+      const savingsValEl = root.querySelector('[data-rcd-savings]');
+
+      // Sanity max: nenhum item de calçado/acessório deve pesar > 5kg unitário.
+      // Se Shopify devolve > 5000g por unidade, é provável bug de unidade (kg gravado como g),
+      // então dividimos por 1000 só para EXIBIR (a correção real é via sync/cleanup).
+      const PER_UNIT_MAX_GRAMS = 5000;
+      const TOTAL_MAX_GRAMS    = 50000; // 50 kg total — qualquer coisa acima é dado corrompido
+      const sanitizeTotalWeight = (cart) => {
+        const items = (cart && cart.items) || [];
+        let total = 0;
+        let hasPerItemGrams = false;
+        for (const it of items) {
+          const qty = Number(it.quantity) || 0;
+          const perUnit = Number(it.grams);
+          if (Number.isFinite(perUnit) && perUnit > 0) {
+            hasPerItemGrams = true;
+            const safePerUnit = perUnit > PER_UNIT_MAX_GRAMS ? perUnit / 1000 : perUnit;
+            total += safePerUnit * qty;
+          }
+        }
+        // Fallback: se nenhum item exposou .grams, usa cart.total_weight
+        if (!hasPerItemGrams) total = Number(cart && cart.total_weight) || 0;
+        // Sanity de cinto + suspensório: se total ainda absurdo (>50kg), divide por 1000.
+        while (total > TOTAL_MAX_GRAMS) total = total / 1000;
+        return Math.round(total);
+      };
+
       const formatWeight = (grams) => {
         const g = Number(grams) || 0;
         if (g <= 0) return '';
@@ -1542,10 +1601,34 @@ AJUSTE (pedido do Fellipe):
         }
       };
 
+      const updateSavingsUI = (cart) => {
+        if (!savingsRowEl || !savingsValEl) return;
+        // Economia = soma de (original_line_price - final_line_price) de cada item.
+        // Cobre: discounts automáticos, compare_at_price em variants (tier atacado).
+        const items = (cart && cart.items) || [];
+        let savingsCents = 0;
+        for (const it of items) {
+          const orig  = Number(it.original_line_price) || 0;
+          const final = Number(it.final_line_price) || Number(it.line_price) || 0;
+          if (orig > final) savingsCents += (orig - final);
+        }
+        // Fallback: cart.total_discount (descontos no cart, ex: Shopify Functions)
+        const cartDiscount = Number(cart.total_discount) || 0;
+        if (cartDiscount > savingsCents) savingsCents = cartDiscount;
+
+        if (savingsCents > 0) {
+          savingsValEl.textContent = '− ' + formatMoneyBRL(savingsCents);
+          savingsRowEl.hidden = false;
+        } else {
+          savingsRowEl.hidden = true;
+        }
+      };
+
       const refreshUIFromCart = (cart) => {
         updateMinUI(sumQty(cart.items || []));
         if(subtotalEl) subtotalEl.textContent = formatMoneyBRL(cart.total_price || 0);
-        updateWeightUI(cart.total_weight || 0);
+        updateWeightUI(sanitizeTotalWeight(cart));
+        updateSavingsUI(cart);
         renderItems(cart);
       };
 

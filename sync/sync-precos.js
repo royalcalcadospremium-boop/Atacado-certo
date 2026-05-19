@@ -298,14 +298,20 @@ async function run() {
   let total = 0, skipped = 0, missing = 0, missingAtacado = 0;
 
   // Helper: extrai peso do Olist em GRAMAS (Shopify usa GRAMS por padrão).
-  // Olist retorna pesoBruto/pesoLiquido em "kg" (texto ou número).
-  // Se ambos vazios/zero, retorna null (não grava, mantém o que estava).
+  // Olist pode retornar pesoBruto/pesoLiquido em "kg" (decimal, ex: "0,250")
+  // OU em "g" (inteiro, ex: "250"). Detecta heuristicamente:
+  //   - valor < 10  → assume kg → multiplica por 1000
+  //   - valor >= 10 → assume já está em gramas (não multiplica)
+  // Isso evita o bug onde "250" (gramas) virava 250.000g = 250kg por unidade.
+  // Sanity cap: peso > 50.000 g (50kg) por unidade é descartado (provável dado corrompido).
   function pickPesoG(item) {
     const raw = item.pesoBruto ?? item.pesoLiquido ?? item.peso ?? null;
     if (raw === null || raw === undefined || raw === '') return null;
-    const kg = Number(String(raw).replace(',', '.'));
-    if (!isFinite(kg) || kg <= 0) return null;
-    return Math.round(kg * 1000); // kg → g
+    const v = Number(String(raw).replace(',', '.'));
+    if (!isFinite(v) || v <= 0) return null;
+    const grams = v < 10 ? Math.round(v * 1000) : Math.round(v);
+    if (grams > 50000) return null; // descarta outliers (> 50kg por unidade)
+    return grams;
   }
 
   for await (const item of iterateOlistProducts()) {
