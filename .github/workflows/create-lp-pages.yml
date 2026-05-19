@@ -1,0 +1,33 @@
+name: Criar Landing Pages (Atacado / Dropshipping / Varejo)
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  create-pages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Montar sync/.env
+        working-directory: sync
+        env:
+          SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_STORE_DOMAIN }}
+          SHOPIFY_ADMIN_TOKEN: ${{ secrets.SHOPIFY_ADMIN_TOKEN }}
+        run: |
+          cat > .env <<EOF
+          SHOPIFY_STORE_DOMAIN=$SHOPIFY_STORE_DOMAIN
+          SHOPIFY_ADMIN_TOKEN=$SHOPIFY_ADMIN_TOKEN
+          EOF
+
+      - name: Criar pages
+        working-directory: sync
+        run: node create-lp-pages.js
