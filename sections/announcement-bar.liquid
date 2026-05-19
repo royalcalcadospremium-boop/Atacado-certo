@@ -1,46 +1,39 @@
 {%- comment -%}
-  Apple-pure announcement bar (Subsistema 1, v3).
-  A single thin parchment strip — minimum chrome.
-  v3: suporta 3 CTAs de modalidade (ATACADO/DROPSHIPPING/VAREJO) linkando às LPs.
-  Fallback: se nenhum dos 3 CTAs estiver preenchido, exibe o texto/link único legado.
-  Sync nudge: 2026-05-18 10:00.
+  Apple-pure announcement bar (Subsistema 1, v4).
+  v4: 3 CTAs (Atacado/Dropshipping/Varejo) sempre renderizam com fallbacks
+  hardcoded apontando pras LPs. Settings sobrescrevem. Opt-out via checkbox.
 {%- endcomment -%}
 
 {%- if section.settings.show_announcement -%}
-  {%- assign m1_filled = false -%}
-  {%- assign m2_filled = false -%}
-  {%- assign m3_filled = false -%}
-  {%- if section.settings.modality_1_text != blank and section.settings.modality_1_url != blank -%}
-    {%- assign m1_filled = true -%}
-  {%- endif -%}
-  {%- if section.settings.modality_2_text != blank and section.settings.modality_2_url != blank -%}
-    {%- assign m2_filled = true -%}
-  {%- endif -%}
-  {%- if section.settings.modality_3_text != blank and section.settings.modality_3_url != blank -%}
-    {%- assign m3_filled = true -%}
-  {%- endif -%}
-  {%- assign show_modalities = false -%}
-  {%- if m1_filled and m2_filled and m3_filled -%}
-    {%- assign show_modalities = true -%}
-  {%- endif -%}
+  {%- assign m1_text  = section.settings.modality_1_text  | default: 'ATACADO · 10+ pares' -%}
+  {%- assign m1_url   = section.settings.modality_1_url   | default: '/pages/atacado' -%}
+  {%- assign m1_emoji = section.settings.modality_1_emoji | default: '🏠' -%}
+  {%- assign m2_text  = section.settings.modality_2_text  | default: 'DROPSHIPPING · qualquer quantidade' -%}
+  {%- assign m2_url   = section.settings.modality_2_url   | default: '/pages/dropshipping' -%}
+  {%- assign m2_emoji = section.settings.modality_2_emoji | default: '📦' -%}
+  {%- assign m3_text  = section.settings.modality_3_text  | default: 'VAREJO · frete grátis R$150+' -%}
+  {%- assign m3_url   = section.settings.modality_3_url   | default: '/pages/varejo' -%}
+  {%- assign m3_emoji = section.settings.modality_3_emoji | default: '🛒' -%}
+  {%- assign show_modalities = true -%}
+  {%- if section.settings.force_legacy_text -%}{%- assign show_modalities = false -%}{%- endif -%}
 
 <section class="ad-announcement" data-section-id="{{ section.id }}" data-section-type="announcement-bar" role="region" aria-label="Aviso da loja">
   <div class="ad-announcement__inner">
     {%- if show_modalities -%}
       <nav class="ad-announcement__modalities" aria-label="Modalidades de compra">
-        <a class="ad-announcement__cta-modality ad-caption" href="{{ section.settings.modality_1_url }}">
-          {%- if section.settings.modality_1_emoji != blank -%}<span class="ad-announcement__cta-emoji" aria-hidden="true">{{ section.settings.modality_1_emoji }}</span>{%- endif -%}
-          <span class="ad-announcement__cta-label">{{ section.settings.modality_1_text }}</span>
+        <a class="ad-announcement__cta-modality ad-caption" href="{{ m1_url }}">
+          {%- if m1_emoji != blank -%}<span class="ad-announcement__cta-emoji" aria-hidden="true">{{ m1_emoji }}</span>{%- endif -%}
+          <span class="ad-announcement__cta-label">{{ m1_text }}</span>
         </a>
         <span class="ad-announcement__sep" aria-hidden="true">·</span>
-        <a class="ad-announcement__cta-modality ad-caption" href="{{ section.settings.modality_2_url }}">
-          {%- if section.settings.modality_2_emoji != blank -%}<span class="ad-announcement__cta-emoji" aria-hidden="true">{{ section.settings.modality_2_emoji }}</span>{%- endif -%}
-          <span class="ad-announcement__cta-label">{{ section.settings.modality_2_text }}</span>
+        <a class="ad-announcement__cta-modality ad-caption" href="{{ m2_url }}">
+          {%- if m2_emoji != blank -%}<span class="ad-announcement__cta-emoji" aria-hidden="true">{{ m2_emoji }}</span>{%- endif -%}
+          <span class="ad-announcement__cta-label">{{ m2_text }}</span>
         </a>
         <span class="ad-announcement__sep" aria-hidden="true">·</span>
-        <a class="ad-announcement__cta-modality ad-caption" href="{{ section.settings.modality_3_url }}">
-          {%- if section.settings.modality_3_emoji != blank -%}<span class="ad-announcement__cta-emoji" aria-hidden="true">{{ section.settings.modality_3_emoji }}</span>{%- endif -%}
-          <span class="ad-announcement__cta-label">{{ section.settings.modality_3_text }}</span>
+        <a class="ad-announcement__cta-modality ad-caption" href="{{ m3_url }}">
+          {%- if m3_emoji != blank -%}<span class="ad-announcement__cta-emoji" aria-hidden="true">{{ m3_emoji }}</span>{%- endif -%}
+          <span class="ad-announcement__cta-label">{{ m3_text }}</span>
         </a>
       </nav>
     {%- else -%}
@@ -145,8 +138,9 @@
   "name": "Barra de anúncio (Apple)",
   "settings": [
     { "type": "checkbox", "id": "show_announcement", "label": "Mostrar barra", "default": true },
+    { "type": "checkbox", "id": "force_legacy_text", "label": "Forçar texto único (em vez dos 3 CTAs)", "default": false, "info": "Marque para esconder os 3 CTAs e mostrar apenas o texto abaixo." },
     { "type": "header", "content": "Modo legado (texto único)" },
-    { "type": "paragraph", "content": "Usado apenas se os 3 CTAs de modalidade abaixo NÃO estiverem todos preenchidos." },
+    { "type": "paragraph", "content": "Visível apenas se o checkbox acima estiver marcado." },
     { "type": "text", "id": "text", "label": "Texto", "default": "Atacado · Dropshipping · Varejo — direto da fábrica" },
     { "type": "text", "id": "cta_text", "label": "Texto do link (opcional)" },
     { "type": "url", "id": "cta_url", "label": "URL do link (opcional)" },
