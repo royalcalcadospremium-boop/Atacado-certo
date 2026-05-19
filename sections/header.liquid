@@ -551,6 +551,10 @@
   var hamburger = document.querySelector('.ad-global-nav__hamburger');
   var drawer = document.getElementById('ad-mobile-drawer');
   if (!hamburger || !drawer) return;
+  // Portal drawer to <body> so it escapes the header's stacking context (isolation: isolate).
+  if (drawer.parentElement !== document.body) {
+    document.body.appendChild(drawer);
+  }
   var closer = drawer.querySelector('.ad-mobile-drawer__close');
 
   function openDrawer() {
