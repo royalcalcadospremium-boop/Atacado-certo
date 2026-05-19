@@ -573,6 +573,176 @@ AJUSTE (pedido do Fellipe):
       text-overflow: ellipsis;
     }
     #RoyalCartDrawer .rcd__vendor span{ font-weight: 950; opacity: .9; white-space: nowrap; }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       APPLE DESIGN.md COMPLIANCE — overrides finais que normalizam
+       toda a tipografia do drawer aos tokens do Subsistema 0 (--ad-*).
+       Substitui weights extra-bold (650/700/800/900/950) e font-family
+       genérico (ui-sans-serif) pela escala oficial Apple: 300/400/600/700
+       + stack system-ui→Inter Variable.
+       ═══════════════════════════════════════════════════════════════════ */
+
+    /* Stack de fonte Apple em TODOS elementos do drawer */
+    #RoyalCartDrawer,
+    #RoyalCartDrawer * {
+      font-family: var(--ad-font-text) !important;
+    }
+
+    /* Título "Seu carrinho" → tagline (21px / 600 / -0.231 tracking) */
+    #RoyalCartDrawer .rcd__title {
+      font-family: var(--ad-font-display) !important;
+      font-size: var(--ad-type-tagline-size) !important;
+      font-weight: var(--ad-type-tagline-weight) !important;
+      line-height: var(--ad-type-tagline-lh) !important;
+      letter-spacing: var(--ad-type-tagline-track) !important;
+    }
+
+    /* Subtitle → caption (14px / 400 / -0.224 tracking) */
+    #RoyalCartDrawer .rcd__subtitle {
+      font-size: var(--ad-type-caption-size) !important;
+      font-weight: var(--ad-type-caption-weight) !important;
+      line-height: var(--ad-type-caption-lh) !important;
+      letter-spacing: var(--ad-type-caption-track) !important;
+      color: var(--ad-color-ink-muted-48) !important;
+    }
+
+    /* Texto de pedido mínimo → caption (14px / 400) */
+    #RoyalCartDrawer .rcd__mintext {
+      font-size: var(--ad-type-caption-size) !important;
+      font-weight: var(--ad-type-caption-weight) !important;
+      line-height: var(--ad-type-caption-lh) !important;
+      letter-spacing: var(--ad-type-caption-track) !important;
+      color: var(--ad-color-ink-muted-48) !important;
+    }
+
+    /* Nome do produto na linha do item → body-strong compacto (14px / 600) */
+    #RoyalCartDrawer .rcd__titlelink,
+    #RoyalCartDrawer .rcd__name {
+      font-size: var(--ad-type-caption-strong-size) !important;
+      font-weight: var(--ad-type-caption-strong-weight) !important;
+      line-height: var(--ad-type-caption-strong-lh) !important;
+      letter-spacing: var(--ad-type-caption-strong-track) !important;
+      color: var(--ad-color-ink) !important;
+    }
+
+    /* Variante inline (39/40 etc) → caption (14px / 400) */
+    #RoyalCartDrawer .rcd__variant-inline,
+    #RoyalCartDrawer .rcd__variant {
+      font-size: var(--ad-type-caption-size) !important;
+      font-weight: var(--ad-type-caption-weight) !important;
+      letter-spacing: var(--ad-type-caption-track) !important;
+      color: var(--ad-color-ink-muted-48) !important;
+    }
+
+    /* Preço unitário do item → body-strong (17px / 600) */
+    #RoyalCartDrawer .rcd__price-final {
+      font-size: var(--ad-type-body-strong-size) !important;
+      font-weight: var(--ad-type-body-strong-weight) !important;
+      line-height: var(--ad-type-body-strong-lh) !important;
+      letter-spacing: var(--ad-type-body-strong-track) !important;
+      color: var(--ad-color-ink) !important;
+    }
+    #RoyalCartDrawer .rcd__price-compare {
+      font-size: var(--ad-type-caption-size) !important;
+      font-weight: var(--ad-type-caption-weight) !important;
+      color: var(--ad-color-ink-muted-48) !important;
+    }
+
+    /* Quantidade — botões e input */
+    #RoyalCartDrawer .rcd__qty-btn,
+    #RoyalCartDrawer .rcd__qty-input {
+      font-size: var(--ad-type-body-size) !important;
+      font-weight: var(--ad-type-body-weight) !important;
+      letter-spacing: 0 !important;
+    }
+
+    /* Total label → body (17px / 400) */
+    #RoyalCartDrawer .rcd__totals-label {
+      font-size: var(--ad-type-body-size) !important;
+      font-weight: var(--ad-type-body-weight) !important;
+      letter-spacing: var(--ad-type-body-track) !important;
+      color: var(--ad-color-ink-muted-80) !important;
+    }
+    /* Total valor → body-strong (17px / 600) */
+    #RoyalCartDrawer .rcd__totals-value {
+      font-size: var(--ad-type-body-strong-size) !important;
+      font-weight: var(--ad-type-body-strong-weight) !important;
+      letter-spacing: var(--ad-type-body-strong-track) !important;
+      color: var(--ad-color-ink) !important;
+    }
+
+    /* Peso total estimado → fine-print (12px / 400) */
+    #RoyalCartDrawer .rcd__weight-label,
+    #RoyalCartDrawer .rcd__weight-value {
+      font-size: var(--ad-type-fine-print-size) !important;
+      font-weight: var(--ad-type-fine-print-weight) !important;
+      letter-spacing: var(--ad-type-fine-print-track) !important;
+    }
+    #RoyalCartDrawer .rcd__weight-label { color: var(--ad-color-ink-muted-48) !important; }
+    #RoyalCartDrawer .rcd__weight-value { color: var(--ad-color-ink) !important; }
+
+    /* Botões principais → body (17px / 400) — Apple pill style */
+    #RoyalCartDrawer .rcd__btn,
+    #RoyalCartDrawer .rcd__btn--primary,
+    #RoyalCartDrawer .rcd__btn--ghost {
+      font-size: var(--ad-type-body-size) !important;
+      font-weight: var(--ad-type-body-weight) !important;
+      line-height: 1 !important;
+      letter-spacing: var(--ad-type-body-track) !important;
+    }
+
+    /* Botão verde "Finalizar aqui no site" — mantém destaque mas com Apple body weight */
+    #RoyalCartDrawer .rcd__btn-finalize {
+      font-size: var(--ad-type-body-size) !important;
+      font-weight: 600 !important;  /* exceção: body-strong pra dar peso visual no CTA */
+      letter-spacing: var(--ad-type-body-track) !important;
+    }
+
+    /* Modal de vendedoras — título, sub, vendor cards */
+    #RoyalCartDrawer .rcd__vmodal-title {
+      font-family: var(--ad-font-display) !important;
+      font-size: var(--ad-type-tagline-size) !important;
+      font-weight: var(--ad-type-tagline-weight) !important;
+      letter-spacing: var(--ad-type-tagline-track) !important;
+    }
+    #RoyalCartDrawer .rcd__vmodal-sub {
+      font-size: var(--ad-type-caption-size) !important;
+      font-weight: var(--ad-type-caption-weight) !important;
+      color: var(--ad-color-ink-muted-80) !important;
+    }
+    #RoyalCartDrawer .rcd__vendor-name {
+      font-size: var(--ad-type-body-strong-size) !important;
+      font-weight: var(--ad-type-body-strong-weight) !important;
+      color: var(--ad-color-ink) !important;
+    }
+    #RoyalCartDrawer .rcd__vendor small {
+      font-size: var(--ad-type-caption-size) !important;
+      font-weight: var(--ad-type-caption-weight) !important;
+      color: var(--ad-color-ink-muted-48) !important;
+    }
+    #RoyalCartDrawer .rcd__vendor span {
+      font-size: var(--ad-type-body-size) !important;
+      font-weight: var(--ad-type-body-weight) !important;
+    }
+
+    /* Empty state */
+    #RoyalCartDrawer .rcd__empty-title {
+      font-family: var(--ad-font-display) !important;
+      font-size: var(--ad-type-display-md-size) !important;
+      font-weight: var(--ad-type-display-md-weight) !important;
+      letter-spacing: var(--ad-type-display-md-track) !important;
+    }
+    #RoyalCartDrawer .rcd__empty-text {
+      font-size: var(--ad-type-body-size) !important;
+      font-weight: var(--ad-type-body-weight) !important;
+      color: var(--ad-color-ink-muted-80) !important;
+    }
+
+    /* Upsell cards */
+    #RoyalCartDrawer .rcd__upsell-card,
+    #RoyalCartDrawer .rcd__upsell-card * {
+      font-family: var(--ad-font-text) !important;
+    }
   </style>
 
   <div class="rcd__overlay" data-rcd-overlay aria-hidden="true"></div>
