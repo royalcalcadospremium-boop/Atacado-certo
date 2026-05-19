@@ -1,0 +1,103 @@
+{%- comment -%}
+  atacado-como-funciona.liquid — 4 passos (Escolha → Adicione → Receba → Venda).
+  Renderiza blocks tipo "step" em grid responsivo (4col → 2col → 1col).
+{%- endcomment -%}
+
+{{ 'lp-shared.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'lp-shared.js' | asset_url }}" defer></script>
+
+<section class="lp-section" aria-labelledby="atacado-como-funciona-title">
+  <div class="lp-section__inner">
+    <header class="lp-section__head lp-reveal">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="lp-section__eyebrow">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+      <h2 id="atacado-como-funciona-title" class="lp-section__title">{{ section.settings.section_title }}</h2>
+      {%- if section.settings.section_lead != blank -%}
+        <p class="lp-section__lead">{{ section.settings.section_lead }}</p>
+      {%- endif -%}
+    </header>
+
+    {%- if section.blocks.size > 0 -%}
+      <ol class="lp-steps" role="list">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'step' -%}
+            <li class="lp-step lp-reveal" {{ block.shopify_attributes }}>
+              <span class="lp-step__num" aria-hidden="true">{{ forloop.index }}</span>
+              {%- if block.settings.icon_svg != blank -%}
+                <span class="lp-step__icon" aria-hidden="true">{{ block.settings.icon_svg }}</span>
+              {%- endif -%}
+              <h3 class="lp-step__title">{{ block.settings.title }}</h3>
+              <p class="lp-step__text">{{ block.settings.text }}</p>
+            </li>
+          {%- endif -%}
+        {%- endfor -%}
+      </ol>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Atacado · Como funciona",
+  "tag": "section",
+  "class": "lp-section-wrap lp-section-wrap--steps",
+  "enabled_on": { "templates": ["page"] },
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "PROCESSO" },
+    { "type": "text", "id": "section_title", "label": "Título da seção", "default": "Como funciona" },
+    { "type": "textarea", "id": "section_lead", "label": "Subtítulo", "default": "Do catálogo à sua loja em 4 passos simples." }
+  ],
+  "blocks": [
+    {
+      "type": "step",
+      "name": "Passo",
+      "settings": [
+        { "type": "textarea", "id": "icon_svg", "label": "SVG do ícone (inline)", "info": "Cole o markup SVG. Recomendado: stroke=\"currentColor\" 1.5px, 72x72 viewBox." },
+        { "type": "text", "id": "title", "label": "Título do passo" },
+        { "type": "textarea", "id": "text", "label": "Descrição" }
+      ]
+    }
+  ],
+  "max_blocks": 4,
+  "presets": [
+    {
+      "name": "Atacado · Como funciona",
+      "blocks": [
+        {
+          "type": "step",
+          "settings": {
+            "icon_svg": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='7'/><path d='m20 20-3.5-3.5'/></svg>",
+            "title": "Escolha os modelos",
+            "text": "Navegue pelo catálogo de marcas premium e selecione os pares que mais vendem."
+          }
+        },
+        {
+          "type": "step",
+          "settings": {
+            "icon_svg": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><path d='M6 7h12l-1.5 12.5a2 2 0 0 1-2 1.5h-5a2 2 0 0 1-2-1.5L6 7Z'/><path d='M9 7V5a3 3 0 0 1 6 0v2'/></svg>",
+            "title": "Adicione 10+ pares",
+            "text": "Quantidade mínima de 10 pares por pedido, sem mínimo por marca."
+          }
+        },
+        {
+          "type": "step",
+          "settings": {
+            "icon_svg": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><path d='M2 17V7h11v10H2Z'/><path d='M13 10h5l3 4v3h-8v-7Z'/><circle cx='6' cy='18' r='2'/><circle cx='17' cy='18' r='2'/></svg>",
+            "title": "Receba em até 7 dias",
+            "text": "Envio rápido com nota fiscal pra todo o Brasil. Capitais em 7 dias úteis."
+          }
+        },
+        {
+          "type": "step",
+          "settings": {
+            "icon_svg": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><path d='M3 17 9 11l4 4 8-8'/><path d='M14 7h7v7'/></svg>",
+            "title": "Venda com margem 50%+",
+            "text": "Preço de atacado que permite revenda lucrativa com margens superiores ao mercado."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
