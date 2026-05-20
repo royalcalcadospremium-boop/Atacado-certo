@@ -10,7 +10,7 @@
 
 {%- if section.settings.show_product_recommendations -%}
 {%- render 'rc-tier-card-assets' -%}
-<section class="section nb-rec-section" data-section-id="{{ section.id }}" data-section-type="product-recommendations" data-section-settings='{{ section_settings }}'>
+<section class="section nb-rec-section" data-section-id="{{ section.id }}" data-section-type="product-recommendations" data-section-settings='{{ section_settings }}' data-product-id="{{ product.id }}" data-rec-limit="10" data-rec-loaded="{% if recommendations.performed or product.metafields.sf_related_products.enabled == 1 %}1{% else %}0{% endif %}">
   {% render 'royal-overlap', id: section.id %}
 
   <style>
@@ -343,6 +343,43 @@
       <div class="modal__inner"></div>
     </div>
   </div>
+
+  {%- comment -%}
+  FIX: na primeira render, recommendations.performed = false e a seção fica vazia
+  (sem produtos). Esse loader busca os recommendations via AJAX e substitui a section
+  pelo HTML completo retornado pelo endpoint (que tem os produtos).
+  {%- endcomment -%}
+  {%- unless recommendations.performed or product.metafields.sf_related_products.enabled == 1 -%}
+    <script>
+      (function() {
+        var sec = document.querySelector('[data-section-type="product-recommendations"][data-section-id="{{ section.id }}"]');
+        if (!sec || sec.dataset.recLoaded === '1' || sec.dataset.recFetching === '1') return;
+        sec.dataset.recFetching = '1';
+        var productId = sec.dataset.productId;
+        var limit = sec.dataset.recLimit || '10';
+        var url = '/recommendations/products?section_id={{ section.id }}&product_id=' + productId + '&limit=' + limit;
+        fetch(url, { credentials: 'same-origin' })
+          .then(function(r) { return r.text(); })
+          .then(function(html) {
+            var parser = new DOMParser();
+            var doc = parser.parseFromString(html, 'text/html');
+            var fresh = doc.querySelector('[data-section-type="product-recommendations"][data-section-id="{{ section.id }}"]');
+            if (!fresh) return;
+            sec.parentNode.replaceChild(fresh, sec);
+            // re-executa <script> inline da seção nova (DOMParser não dispara)
+            fresh.querySelectorAll('script').forEach(function(oldScript) {
+              var s = document.createElement('script');
+              for (var i = 0; i < oldScript.attributes.length; i++) {
+                s.setAttribute(oldScript.attributes[i].name, oldScript.attributes[i].value);
+              }
+              s.text = oldScript.textContent;
+              oldScript.parentNode.replaceChild(s, oldScript);
+            });
+          })
+          .catch(function(){ /* silencia erro de rede */ });
+      })();
+    </script>
+  {%- endunless -%}
 </section>
 {%- endif -%}
 

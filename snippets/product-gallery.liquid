@@ -166,4 +166,49 @@
       </div>
     </div>
   </div>
+
+  {%- comment -%}
+  FIX: thumbnails são <a href="image.jpg"> e o JS do tema não está interceptando o click,
+  então ao clicar abre a imagem em página nova em vez de trocar a foto principal.
+  Este handler intercepta o click, troca a foto no carousel e marca o thumbnail ativo.
+  {%- endcomment -%}
+  <script>
+    (function() {
+      var galleries = document.querySelectorAll('.product-gallery');
+      galleries.forEach(function(gallery) {
+        if (gallery.dataset.rcThumbInit) return;
+        gallery.dataset.rcThumbInit = '1';
+
+        var thumbs = gallery.querySelectorAll('.product-gallery__thumbnail');
+        var items  = gallery.querySelectorAll('.product-gallery__carousel-item');
+        var carousel = gallery.querySelector('.product-gallery__carousel');
+        if (!thumbs.length || !items.length) return;
+
+        function selectMedia(mediaId) {
+          thumbs.forEach(function(t) {
+            t.classList.toggle('is-nav-selected', t.dataset.mediaId === mediaId);
+          });
+          items.forEach(function(it) {
+            it.classList.toggle('is-selected', it.dataset.mediaId === mediaId);
+          });
+          var target = gallery.querySelector('.product-gallery__carousel-item[data-media-id="' + mediaId + '"]');
+          if (target && carousel) {
+            try {
+              target.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+            } catch (e) { /* old browsers */ }
+          }
+        }
+
+        thumbs.forEach(function(thumb) {
+          thumb.addEventListener('click', function(e) {
+            // só intercepta click normal (sem cmd/ctrl/middle-click pra "abrir em nova aba")
+            if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+            e.preventDefault();
+            var id = thumb.dataset.mediaId;
+            if (id) selectMedia(id);
+          });
+        });
+      });
+    })();
+  </script>
 {%- endif -%}
