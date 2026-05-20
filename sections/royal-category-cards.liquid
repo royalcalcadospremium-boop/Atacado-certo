@@ -35,7 +35,11 @@ Royal • Categoria Cards v9.6.1
       /* Quantidade / gap */
       --cards-d: {{ section.settings.desktop_fit_count | default: 5 }};
       --gap-d-auto: calc((100% - (var(--cards-d) * var(--diam-current))) / (var(--cards-d) - 1));
-      --gap: max(8px, var(--gap-d-auto));
+      {%- if section.settings.use_manual_gap_desktop -%}
+        --gap: {{ section.settings.manual_gap_desktop | default: 20 }}px;
+      {%- else -%}
+        --gap: max(8px, var(--gap-d-auto));
+      {%- endif -%}
 
       --gap-m: 14px;
       --visible-m: {{ section.settings.mobile_visible | default: 5 }};
@@ -96,12 +100,33 @@ Royal • Categoria Cards v9.6.1
       }
     }
 
+    /* Título da seção (opcional) */
+    #royal-cats-{{ section.id }} .rcd-section-title{
+      font-size: {{ section.settings.section_title_size | default: 24 }}px;
+      font-weight: 700;
+      color: var(--text);
+      text-align: center;
+      margin: 0 auto {{ section.settings.section_title_margin_bottom | default: 24 }}px;
+      line-height: 1.2;
+      letter-spacing: -0.3px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    }
+    @media (max-width: 749px){
+      #royal-cats-{{ section.id }} .rcd-section-title{
+        font-size: calc({{ section.settings.section_title_size | default: 24 }}px * 0.8);
+        margin-bottom: {{ section.settings.section_title_margin_bottom | default: 24 | divided_by: 2 }}px;
+      }
+    }
+
+    /* Wrapper dos cards (relativo) — pra que navs absolutos não se posicionem relativos ao section quando título está presente */
+    #royal-cats-{{ section.id }} .rcd-cards-wrap{ position: relative; }
+
     /* Trilho */
     #royal-cats-{{ section.id }} .viewport{ position: relative; overflow: hidden; }
     #royal-cats-{{ section.id }} .track{
       display: flex; flex-wrap: nowrap;
       gap: var(--gap);
-      justify-content: flex-start;
+      justify-content: safe center;
       overflow-x: auto; overflow-y: hidden;
       padding: 0;
       /* pan-y: dedo no card so passa scroll VERTICAL pra pagina (sem sambar).
@@ -185,18 +210,25 @@ Royal • Categoria Cards v9.6.1
     }
   </style>
 
-  {% unless is_home %}
-    <button class="nav prev" type="button" aria-label="Anterior">
-      <svg viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </button>
-  {% endunless %}
-  <button class="nav next" type="button" aria-label="Próximo">
-    <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-  </button>
-
-  <div class="viewport">
+  {%- if section.settings.section_title != blank -%}
     <div class="container">
-      <div class="track">
+      <h2 class="rcd-section-title">{{ section.settings.section_title | escape }}</h2>
+    </div>
+  {%- endif -%}
+
+  <div class="rcd-cards-wrap">
+    {% unless is_home %}
+      <button class="nav prev" type="button" aria-label="Anterior">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    {% endunless %}
+    <button class="nav next" type="button" aria-label="Próximo">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+
+    <div class="viewport">
+      <div class="container">
+        <div class="track">
         {%- assign _cats_menu = linklists[section.settings.menu] -%}
         {%- for link in _cats_menu.links -%}
           {%- assign _col = link.object -%}
@@ -215,6 +247,7 @@ Royal • Categoria Cards v9.6.1
             <div class="title">{{ link.title }}</div>
           </a>
         {%- endfor -%}
+        </div>
       </div>
     </div>
   </div>
@@ -300,11 +333,21 @@ Royal • Categoria Cards v9.6.1
   "settings": [
     { "type": "link_list", "id": "menu", "label": "Menu de categorias", "info": "Cada item do menu vira um card. O link deve apontar para uma coleção para exibir a imagem automaticamente." },
 
+    { "type": "header", "content": "Título da seção" },
+    { "type": "text", "id": "section_title", "label": "Título (deixe vazio para ocultar)", "default": "" },
+    { "type": "range", "id": "section_title_size", "label": "Tamanho do título (px)", "min": 14, "max": 48, "step": 1, "default": 24 },
+    { "type": "range", "id": "section_title_margin_bottom", "label": "Espaço abaixo do título (px)", "min": 0, "max": 80, "step": 2, "default": 24 },
+
+    { "type": "header", "content": "Layout dos cards" },
     { "type": "checkbox", "id": "desktop_compact", "label": "Desktop: usar compacto", "default": true },
 
     { "type": "range", "id": "desktop_fit_count", "label": "Desktop: encaixar N", "min": 2, "max": 10, "step": 1, "default": 5 },
 
     { "type": "range", "id": "mobile_visible", "label": "Mobile: cards visíveis", "min": 3, "max": 6, "step": 1, "default": 5 },
+
+    { "type": "header", "content": "Espaçamento entre cards (Desktop)" },
+    { "type": "checkbox", "id": "use_manual_gap_desktop", "label": "Usar gap manual no desktop", "default": false, "info": "Por padrão o gap é calculado automaticamente para preencher a largura. Marque para definir um valor fixo. Combinado com o número de cards que encaixam, os cards centralizam quando sobram espaço." },
+    { "type": "range", "id": "manual_gap_desktop", "label": "Gap manual desktop (px)", "min": 0, "max": 120, "step": 2, "default": 24 },
 
     { "type": "header", "content": "Posição Desktop" },
     { "type": "range", "id": "space_top_desktop", "label": "Espaço acima (px)", "min": 0, "max": 300, "step": 3, "default": 0 },
