@@ -659,7 +659,7 @@
           "desktop_compact": true,
           "desktop_fit_count": 7,
           "mobile_visible": 6,
-          "space_top_desktop": 300,
+          "space_top_desktop": 12,
           "shift_y_desktop": 0,
           "space_top_mobile": 196,
           "shift_y_mobile": 0,
