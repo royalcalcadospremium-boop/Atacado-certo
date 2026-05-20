@@ -1766,6 +1766,84 @@ AJUSTE (pedido do Fellipe):
   </script>
 </section>
 
+{%- comment -%}
+FIX "Comprar Agora": o form <form action="/cart/add"> da PDP está vazio (sem campo name="id"),
+então o submit nativo cai no /cart. Este interceptor pega o variant ID globalmente (input name="id"
+fora do form), faz AJAX em /cart/add.js e abre o RoyalCartDrawer.
+{%- endcomment -%}
+<script>
+  (function () {
+    if (window.__RC_BUY_FIX__) return;
+    window.__RC_BUY_FIX__ = true;
+
+    function findVariantId() {
+      return document.querySelector('input[name="id"]')?.value
+          || document.querySelector('select[name="id"]')?.value
+          || null;
+    }
+    function findQuantity() {
+      var q = document.querySelector('input[name="quantity"]')?.value;
+      return q ? parseInt(q, 10) || 1 : 1;
+    }
+    function openDrawer() {
+      if (window.RoyalCartDrawer && typeof window.RoyalCartDrawer.open === 'function') {
+        try { window.RoyalCartDrawer.open(); return true; } catch(e){}
+      }
+      if (typeof window.__gxOpenCartDrawerAfterAdd === 'function') {
+        try { window.__gxOpenCartDrawerAfterAdd(); return true; } catch(e){}
+      }
+      return false;
+    }
+
+    async function buyNow(ev) {
+      var trigger = ev.target.closest(
+        '.btn-buy, .ymp_mainBtn, .floating-buy-btn, button[name="add"], [data-action="add-to-cart"], .product-form__add-button'
+      );
+      if (!trigger) return;
+
+      // Não intercepta clicks com cmd/ctrl/middle (usuário pode querer outro tab)
+      if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button === 1) return;
+
+      // Roda em capture phase + stopImmediatePropagation pra vencer o jQuery legado
+      ev.preventDefault();
+      ev.stopImmediatePropagation();
+
+      var id = findVariantId();
+      if (!id) {
+        alert('Selecione um tamanho antes de comprar.');
+        return;
+      }
+
+      // Desabilita botão durante request
+      try { trigger.disabled = true; trigger.classList.add('is-loading'); } catch(e){}
+
+      try {
+        var fd = new FormData();
+        fd.append('id', id);
+        fd.append('quantity', String(findQuantity()));
+        var r = await fetch('/cart/add.js', {
+          method: 'POST',
+          body: fd,
+          headers: { 'Accept': 'application/json' }
+        });
+        if (!r.ok) {
+          var err = await r.json().catch(function(){ return {}; });
+          alert(err.description || err.message || 'Não foi possível adicionar ao carrinho.');
+          return;
+        }
+        openDrawer();
+      } catch (e) {
+        alert('Erro de rede. Tente novamente.');
+      } finally {
+        try { trigger.disabled = false; trigger.classList.remove('is-loading'); } catch(e){}
+      }
+    }
+
+    // Capture phase pra rodar ANTES do legacy
+    document.addEventListener('click', buyNow, true);
+  })();
+</script>
+
 {% schema %}
 {
   "name": "Ajax Cart Drawer",
