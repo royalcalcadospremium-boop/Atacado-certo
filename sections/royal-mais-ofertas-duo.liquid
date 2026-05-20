@@ -784,7 +784,11 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
       {% endif %}
     {% endunless %}
 
-    {% assign limit_count = section.settings.products_count | default: 8 %}
+    {%- if section.settings.show_all_products -%}
+      {%- assign limit_count = 50 -%}
+    {%- else -%}
+      {%- assign limit_count = section.settings.products_count | default: 8 -%}
+    {%- endif -%}
 
     {% if fallback_tab %}
       {% assign coll = section.settings.collection_fallback %}
@@ -1473,13 +1477,22 @@ IMPORTANTE: peek_mobile é range inteiro (o cálculo usa times: 0.01).
     { "type": "range", "id": "section_padding_y", "label": "Padding vertical da seção (px)", "min": 0, "max": 60, "step": 2, "default": 26 },
 
     {
+      "type": "checkbox",
+      "id": "show_all_products",
+      "label": "Mostrar todos os produtos da coleção",
+      "default": false,
+      "info": "Quando ativado, ignora 'Produtos por aba' e exibe todos os produtos da coleção (até o limite do Shopify, 50 por seção). Para coleções com mais de 50 produtos, considere dividir em coleções menores."
+    },
+
+    {
       "type": "range",
       "id": "products_count",
       "label": "Produtos por aba",
       "min": 2,
       "max": 80,
       "step": 1,
-      "default": 8
+      "default": 8,
+      "info": "Só é usado quando 'Mostrar todos' está desativado."
     },
 
     { "type": "range", "id": "per_view_desktop", "label": "Cards por tela (desktop)", "min": 2, "max": 7, "step": 1, "default": 4 },
