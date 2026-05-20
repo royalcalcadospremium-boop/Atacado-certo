@@ -657,7 +657,7 @@
         "settings": {
           "menu": "tipos-de-produtos",
           "desktop_compact": true,
-          "desktop_fit_count": 7,
+          "desktop_fit_count": 6,
           "mobile_visible": 6,
           "space_top_desktop": 12,
           "shift_y_desktop": 0,
