@@ -292,9 +292,8 @@
     @media (max-width: 640px){
       #shopify-section-{{ section.id }} .rc-slideshow-progress{ width: 72%; bottom: 12px; gap: 6px; }
       #shopify-section-{{ section.id }} .rc-sp__bar{ height: 3px; }
-      #shopify-section-{{ section.id }} .rc-sp-arrow{ width: 34px; height: 34px; font-size: 16px; }
-      #shopify-section-{{ section.id }} .rc-sp-arrow--prev{ left: 8px; }
-      #shopify-section-{{ section.id }} .rc-sp-arrow--next{ right: 8px; }
+      /* Mobile: sem setas — navegação por swipe (arrastar o dedo) */
+      #shopify-section-{{ section.id }} .rc-sp-arrow{ display: none !important; }
     }
     @media (prefers-reduced-motion: reduce){
       #shopify-section-{{ section.id }} .rc-sp__bar.is-active .rc-sp__fill{ animation: none; width: 100%; }
@@ -375,6 +374,38 @@
       });
       prevArrow.addEventListener('click', function(){ goTo(current - 1); });
       nextArrow.addEventListener('click', function(){ goTo(current + 1); });
+
+      /* Mobile: swipe pra trocar de slide.
+         touchmove em passive:false só bloqueia o scroll/link quando o gesto é
+         HORIZONTAL — gesto vertical deixa a página rolar normal. */
+      var tStartX = 0, tStartY = 0, tDx = 0, tDy = 0, tAxis = null, tSwiped = false;
+      slideshow.addEventListener('touchstart', function(e){
+        if (!e.touches || e.touches.length !== 1) return;
+        tStartX = e.touches[0].clientX;
+        tStartY = e.touches[0].clientY;
+        tDx = 0; tDy = 0; tAxis = null; tSwiped = false;
+      }, { passive: true });
+      slideshow.addEventListener('touchmove', function(e){
+        if (!e.touches || !e.touches.length) return;
+        tDx = e.touches[0].clientX - tStartX;
+        tDy = e.touches[0].clientY - tStartY;
+        if (tAxis === null && (Math.abs(tDx) > 10 || Math.abs(tDy) > 10)) {
+          tAxis = (Math.abs(tDx) > Math.abs(tDy)) ? 'x' : 'y';
+        }
+        if (tAxis === 'x' && e.cancelable) e.preventDefault();
+      }, { passive: false });
+      slideshow.addEventListener('touchend', function(){
+        if (tAxis === 'x' && Math.abs(tDx) > 40) {
+          tSwiped = true;
+          if (tDx < 0) next();          /* arrasta pra esquerda -> próximo */
+          else goTo(current - 1);       /* arrasta pra direita -> anterior */
+        }
+        tAxis = null;
+      }, { passive: true });
+      /* suprime o clique do link do slide se o gesto foi um swipe */
+      slideshow.addEventListener('click', function(e){
+        if (tSwiped) { e.preventDefault(); e.stopPropagation(); tSwiped = false; }
+      }, true);
 
       render();
     })();
