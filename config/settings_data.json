@@ -674,6 +674,9 @@
         "name": "Royal • Categoria Cards",
         "settings": {
           "menu": "tipos-de-produtos",
+          "section_title": "Navegue por categorias",
+          "section_title_size": 24,
+          "section_title_margin_bottom": 24,
           "desktop_compact": true,
           "desktop_fit_count": 6,
           "mobile_visible": 6,
