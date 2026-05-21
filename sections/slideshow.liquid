@@ -242,6 +242,113 @@
   </style>
 {%- endif -%}
 
+{%- comment -%}
+  Barrinhas de progresso estilo "stories" + auto-rotação do hero.
+  O Flickity não inicializa nesse tema, então este controlador próprio faz a troca
+  de slides (toggle .is-selected, que o CSS já mostra/esconde) e sincroniza as barras
+  douradas via animationend — quando a barra ativa termina de encher, avança o slide.
+{%- endcomment -%}
+{%- if section.blocks.size > 1 -%}
+  <style>
+    #shopify-section-{{ section.id }} .slideshow{ position: relative; }
+    #shopify-section-{{ section.id }} .rc-slideshow-progress{
+      position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%);
+      display: flex; gap: 8px; z-index: 6;
+      width: min(420px, 56%); padding: 0; margin: 0;
+    }
+    #shopify-section-{{ section.id }} .rc-sp__bar{
+      flex: 1 1 0; height: 4px; border-radius: 99px;
+      background: rgba(255,255,255,0.38);
+      border: 0; padding: 0; cursor: pointer; overflow: hidden;
+      -webkit-appearance: none; appearance: none;
+    }
+    #shopify-section-{{ section.id }} .rc-sp__fill{
+      display: block; height: 100%; width: 0%;
+      background: #F5B400; border-radius: inherit;
+    }
+    #shopify-section-{{ section.id }} .rc-sp__bar.is-done .rc-sp__fill{ width: 100%; }
+    #shopify-section-{{ section.id }} .rc-sp__bar.is-active .rc-sp__fill{
+      width: 0%;
+      animation: rcSpFill var(--rc-sp-dur, 5000ms) linear forwards;
+    }
+    @keyframes rcSpFill{ from { width: 0%; } to { width: 100%; } }
+    @media (max-width: 640px){
+      #shopify-section-{{ section.id }} .rc-slideshow-progress{ width: 72%; bottom: 12px; gap: 6px; }
+      #shopify-section-{{ section.id }} .rc-sp__bar{ height: 3px; }
+    }
+    @media (prefers-reduced-motion: reduce){
+      #shopify-section-{{ section.id }} .rc-sp__bar.is-active .rc-sp__fill{ animation: none; width: 100%; }
+    }
+  </style>
+
+  <script>
+    (function(){
+      var section = document.getElementById('shopify-section-{{ section.id }}');
+      if (!section) return;
+      var slideshow = section.querySelector('.slideshow');
+      if (!slideshow || slideshow.dataset.rcSpInit) return;
+      var slides = Array.prototype.slice.call(slideshow.querySelectorAll('.slideshow__slide'));
+      if (slides.length < 2) return;
+      slideshow.dataset.rcSpInit = '1';
+
+      var duration = {{ section.settings.cycle_speed | times: 1000 | default: 5000 }};
+      var autoplay = {{ section.settings.autoplay | default: true | json }};
+
+      var wrap = document.createElement('div');
+      wrap.className = 'rc-slideshow-progress';
+      wrap.style.setProperty('--rc-sp-dur', duration + 'ms');
+      for (var i = 0; i < slides.length; i++) {
+        var bar = document.createElement('button');
+        bar.className = 'rc-sp__bar';
+        bar.type = 'button';
+        bar.setAttribute('aria-label', 'Ir para o slide ' + (i + 1));
+        bar.dataset.index = i;
+        var fill = document.createElement('span');
+        fill.className = 'rc-sp__fill';
+        bar.appendChild(fill);
+        wrap.appendChild(bar);
+      }
+      slideshow.appendChild(wrap);
+      var bars = Array.prototype.slice.call(wrap.querySelectorAll('.rc-sp__bar'));
+
+      var current = slides.findIndex(function(s){ return s.classList.contains('is-selected'); });
+      if (current < 0) current = 0;
+
+      function render(){
+        slides.forEach(function(s, i){ s.classList.toggle('is-selected', i === current); });
+        bars.forEach(function(b, i){
+          b.classList.remove('is-active', 'is-done');
+          var f = b.querySelector('.rc-sp__fill');
+          f.style.animation = 'none';
+          void f.offsetWidth; /* reflow pra reiniciar a animação */
+          f.style.animation = '';
+          if (i < current) b.classList.add('is-done');
+          else if (i === current) b.classList.add('is-active');
+        });
+      }
+      function goTo(i){ current = ((i % slides.length) + slides.length) % slides.length; render(); }
+      function next(){ goTo(current + 1); }
+
+      if (autoplay) {
+        wrap.addEventListener('animationend', function(e){
+          if (e.animationName === 'rcSpFill') next();
+        });
+      }
+      bars.forEach(function(b){
+        b.addEventListener('click', function(){ goTo(parseInt(b.dataset.index, 10)); });
+      });
+      slideshow.addEventListener('mouseenter', function(){
+        bars.forEach(function(b){ b.querySelector('.rc-sp__fill').style.animationPlayState = 'paused'; });
+      });
+      slideshow.addEventListener('mouseleave', function(){
+        bars.forEach(function(b){ b.querySelector('.rc-sp__fill').style.animationPlayState = ''; });
+      });
+
+      render();
+    })();
+  </script>
+{%- endif -%}
+
 {% schema %}
 {
   "name": "Slideshow",
