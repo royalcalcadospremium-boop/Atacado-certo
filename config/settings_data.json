@@ -162,11 +162,29 @@
               "button_text": "",
               "link": "https://royalatacado.com.br/products/nike-air-force-1-gold-preto-branco-azul-699db72ceff89?_pos=2&_sid=289c9d7fd&_ss=r"
             }
+          },
+          "image_UUg8kr": {
+            "type": "image",
+            "settings": {
+              "image": "shopify://shop_images/ChatGPT_Image_21_de_mai._de_2026_11_17_16_9.png",
+              "mobile_image": "shopify://shop_images/ChatGPT_Image_21_de_mai._de_2026_23_20_04_10.png",
+              "show_overlay": false,
+              "overlay_opacity": 30,
+              "text_color": "#ffffff",
+              "title": "Slide title",
+              "content": "Tell your story",
+              "content_position": "middle_center",
+              "button_background": "#ffffff",
+              "button_text_color": "#000000",
+              "button_text": "Button",
+              "link": ""
+            }
           }
         },
         "block_order": [
           "fa2eac7c-9fbf-4ea9-a172-eca738a9012d",
-          "image_Hhejpn"
+          "image_Hhejpn",
+          "image_UUg8kr"
         ],
         "settings": {
           "overlap_px": 0,
