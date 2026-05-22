@@ -166,13 +166,13 @@
           "image_UUg8kr": {
             "type": "image",
             "settings": {
-              "image": "shopify://shop_images/ChatGPT_Image_22_de_mai._de_2026_00_10_03.png",
+              "image": "shopify://shop_images/ChatGPT_Image_22_de_mai._de_2026_00_44_25_0a89c957-681a-46cb-a777-89dc56d8aa6d.png",
               "mobile_image": "shopify://shop_images/ChatGPT_Image_21_de_mai._de_2026_23_20_04_10.png",
               "show_overlay": false,
               "overlay_opacity": 30,
               "text_color": "#ffffff",
-              "title": "Slide title",
-              "content": "Tell your story",
+              "title": "",
+              "content": "",
               "content_position": "middle_center",
               "button_background": "#ffffff",
               "button_text_color": "#000000",
