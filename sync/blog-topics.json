@@ -1,0 +1,452 @@
+[
+  {
+    "slug": "como-comecar-revender-roupa-atacado-2026",
+    "title": "Como começar a revender roupa no atacado em 2026: passo a passo",
+    "primary_keyword": "como começar a revender roupa no atacado",
+    "intent": "informational",
+    "audience": "revendedor_iniciante",
+    "category_links": ["camisetas", "bermudas"],
+    "tone": "didatico_amigavel"
+  },
+  {
+    "slug": "como-precificar-tenis-revenda-lucro",
+    "title": "Como precificar tênis para revenda sem perder margem",
+    "primary_keyword": "como precificar tênis para revenda",
+    "intent": "informational",
+    "audience": "revendedor_iniciante",
+    "category_links": ["tenis", "nike"],
+    "tone": "pratico_direto"
+  },
+  {
+    "slug": "como-escolher-fornecedor-atacado-confiavel",
+    "title": "Como escolher um fornecedor de atacado confiável: 9 critérios",
+    "primary_keyword": "fornecedor de atacado confiável",
+    "intent": "informational",
+    "audience": "revendedor_iniciante",
+    "category_links": ["todos-os-produtos"],
+    "tone": "confiavel_especialista"
+  },
+  {
+    "slug": "como-vender-tenis-instagram-2026",
+    "title": "Como vender tênis no Instagram: estratégia que funciona em 2026",
+    "primary_keyword": "como vender tênis no instagram",
+    "intent": "informational",
+    "audience": "revendedor_iniciante",
+    "category_links": ["tenis", "adidas"],
+    "tone": "pratico_direto"
+  },
+  {
+    "slug": "como-montar-loja-virtual-calcados",
+    "title": "Como montar uma loja virtual de calçados gastando pouco",
+    "primary_keyword": "como montar loja virtual de calçados",
+    "intent": "informational",
+    "audience": "dona_loja_fisica",
+    "category_links": ["tenis", "chinelos"],
+    "tone": "didatico_amigavel"
+  },
+  {
+    "slug": "como-funciona-dropshipping-tenis-brasil",
+    "title": "Como funciona o dropshipping de tênis no Brasil",
+    "primary_keyword": "dropshipping de tênis brasil",
+    "intent": "informational",
+    "audience": "dropshipper",
+    "category_links": ["tenis", "puma"],
+    "tone": "didatico_amigavel"
+  },
+  {
+    "slug": "como-identificar-tenis-original-replica",
+    "title": "Como identificar tênis original ou réplica antes de comprar",
+    "primary_keyword": "como saber se o tênis é original",
+    "intent": "informational",
+    "audience": "consumidor_final",
+    "category_links": ["nike", "adidas"],
+    "tone": "confiavel_especialista"
+  },
+  {
+    "slug": "como-revender-camiseta-pack-6-lucro",
+    "title": "Como revender pack de 6 camisetas e dobrar sua margem",
+    "primary_keyword": "revender pack de camisetas atacado",
+    "intent": "informational",
+    "audience": "revendedor_iniciante",
+    "category_links": ["camisetas"],
+    "tone": "pratico_direto"
+  },
+  {
+    "slug": "como-comprar-no-atacado-com-cnpj",
+    "title": "Como comprar no atacado com CNPJ: vantagens e exigências",
+    "primary_keyword": "como comprar no atacado com cnpj",
+    "intent": "informational",
+    "audience": "revendedor_iniciante",
+    "category_links": ["todos-os-produtos"],
+    "tone": "confiavel_especialista"
+  },
+  {
+    "slug": "como-organizar-estoque-pequena-loja",
+    "title": "Como organizar o estoque da sua loja sem planilha complicada",
+    "primary_keyword": "como organizar estoque loja pequena",
+    "intent": "informational",
+    "audience": "dona_loja_fisica",
+    "category_links": ["camisetas", "bermudas"],
+    "tone": "pratico_direto"
+  },
+  {
+    "slug": "como-fazer-foto-produto-vender-mais",
+    "title": "Como fazer foto de produto que realmente vende no celular",
+    "primary_keyword": "como fotografar produto para vender",
+    "intent": "informational",
+    "audience": "revendedor_iniciante",
+    "category_links": ["tenis", "camisetas"],
+    "tone": "pratico_direto"
+  },
+  {
+    "slug": "como-importar-roupa-atacado-china-vale-pena",
+    "title": "Como importar roupa no atacado da China ainda vale a pena?",
+    "primary_keyword": "importar roupa atacado china",
+    "intent": "informational",
+    "audience": "revendedor_experiente",
+    "category_links": ["camisetas", "todos-os-produtos"],
+    "tone": "confiavel_especialista"
+  },
+  {
+    "slug": "como-medir-tamanho-do-pe-corretamente",
+    "title": "Como medir o tamanho do pé em casa em menos de 2 minutos",
+    "primary_keyword": "como medir tamanho do pé",
+    "intent": "informational",
+    "audience": "consumidor_final",
+    "category_links": ["tenis"],
+    "tone": "didatico_amigavel"
+  },
+  {
+    "slug": "como-divulgar-loja-roupa-whatsapp",
+    "title": "Como divulgar loja de roupa no WhatsApp sem ser chato",
+    "primary_keyword": "como divulgar loja no whatsapp",
+    "intent": "informational",
+    "audience": "revendedor_iniciante",
+    "category_links": ["camisetas", "bermudas"],
+    "tone": "pratico_direto"
+  },
+  {
+    "slug": "como-criar-catalogo-digital-revenda",
+    "title": "Como criar um catálogo digital de revenda em 1 tarde",
+    "primary_keyword": "como criar catálogo digital",
+    "intent": "informational",
+    "audience": "revendedor_iniciante",
+    "category_links": ["tenis", "camisetas", "bermudas"],
+    "tone": "didatico_amigavel"
+  },
+  {
+    "slug": "top-7-tenis-mais-vendidos-revenda",
+    "title": "Top 7 tênis mais vendidos para revender em 2026",
+    "primary_keyword": "tênis mais vendidos para revender",
+    "intent": "commercial",
+    "audience": "revendedor_iniciante",
+    "category_links": ["tenis", "nike"],
+    "tone": "pratico_direto"
+  },
+  {
+    "slug": "10-marcas-camiseta-mais-vendem-atacado",
+    "title": "10 marcas de camiseta que mais vendem no atacado",
+    "primary_keyword": "marcas de camiseta atacado",
+    "intent": "commercial",
+    "audience": "revendedor_iniciante",
+    "category_links": ["camisetas"],
+    "tone": "pratico_direto"
+  },
+  {
+    "slug": "melhores-tenis-mizuno-para-corrida",
+    "title": "Os melhores tênis Mizuno para corrida segundo quem corre",
+    "primary_keyword": "melhores tênis mizuno corrida",
+    "intent": "commercial",
+    "audience": "consumidor_final",
+    "category_links": ["mizuno", "tenis"],
+    "tone": "confiavel_especialista"
+  },
+  {
+    "slug": "top-tenis-new-balance-para-revenda",
+    "title": "Top tênis New Balance que valem a pena revender",
+    "primary_keyword": "new balance para revender",
+    "intent": "commercial",
+    "audience": "revendedor_experiente",
+    "category_links": ["new-balance", "tenis"],
+    "tone": "pratico_direto"
+  },
+  {
+    "slug": "5-modelos-adidas-vendem-bem-2026",
+    "title": "5 modelos Adidas que vendem bem o ano todo",
+    "primary_keyword": "modelos adidas mais vendidos",
+    "intent": "commercial",
+    "audience": "revendedor_iniciante",
+    "category_links": ["adidas", "tenis"],
+    "tone": "pratico_direto"
+  },
+  {
+    "slug": "melhores-chinelos-revenda-verao",
+    "title": "Os 8 melhores chinelos para revender no verão",
+    "primary_keyword": "chinelos para revender verão",
+    "intent": "commercial",
+    "audience": "revendedor_iniciante",
+    "category_links": ["chinelos"],
+    "tone": "pratico_direto"
+  },
+  {
+    "slug": "top-bones-marcas-que-vendem-loja",
+    "title": "Top bonés de marca que vendem em qualquer loja",
+    "primary_keyword": "bonés de marca para revender",
+    "intent": "commercial",
+    "audience": "revendedor_iniciante",
+    "category_links": ["bones"],
+    "tone": "pratico_direto"
+  },
+  {
+    "slug": "camisas-selecao-brasileira-retro-mais-procuradas",
+    "title": "Camisas da seleção brasileira retrô mais procuradas hoje",
+    "primary_keyword": "camisa seleção brasileira retrô",
+    "intent": "commercial",
+    "audience": "consumidor_final",
+    "category_links": ["camisetas"],
+    "tone": "confiavel_especialista"
+  },
+  {
+    "slug": "melhores-tenis-hugo-boss-masculino",
+    "title": "Melhores tênis Hugo Boss masculinos: o que comprar primeiro",
+    "primary_keyword": "tênis hugo boss masculino",
+    "intent": "commercial",
+    "audience": "consumidor_final",
+    "category_links": ["hugo-boss", "tenis"],
+    "tone": "confiavel_especialista"
+  },
+  {
+    "slug": "top-tenis-dunk-sb-skate-revenda",
+    "title": "Top tênis Dunk SB que viraram febre na revenda",
+    "primary_keyword": "tênis dunk sb para revenda",
+    "intent": "commercial",
+    "audience": "revendedor_experiente",
+    "category_links": ["dunk-sb", "tenis"],
+    "tone": "pratico_direto"
+  },
+  {
+    "slug": "atacado-vs-dropshipping-qual-escolher",
+    "title": "Atacado ou dropshipping: qual modelo dá mais lucro?",
+    "primary_keyword": "atacado ou dropshipping",
+    "intent": "commercial",
+    "audience": "revendedor_iniciante",
+    "category_links": ["todos-os-produtos"],
+    "tone": "confiavel_especialista"
+  },
+  {
+    "slug": "nike-vs-adidas-qual-vende-mais-revenda",
+    "title": "Nike ou Adidas: qual marca vende mais na revenda?",
+    "primary_keyword": "nike ou adidas para revender",
+    "intent": "commercial",
+    "audience": "revendedor_iniciante",
+    "category_links": ["nike", "adidas"],
+    "tone": "pratico_direto"
+  },
+  {
+    "slug": "puma-vs-new-balance-comparativo",
+    "title": "Puma ou New Balance: comparativo honesto pra revendedor",
+    "primary_keyword": "puma ou new balance",
+    "intent": "commercial",
+    "audience": "revendedor_experiente",
+    "category_links": ["puma", "new-balance"],
+    "tone": "confiavel_especialista"
+  },
+  {
+    "slug": "mizuno-vs-asics-corrida-diferenca",
+    "title": "Mizuno ou Asics para corrida: qual escolher e por quê",
+    "primary_keyword": "mizuno ou asics corrida",
+    "intent": "commercial",
+    "audience": "consumidor_final",
+    "category_links": ["mizuno", "tenis"],
+    "tone": "confiavel_especialista"
+  },
+  {
+    "slug": "loja-fisica-vs-loja-online-revenda",
+    "title": "Loja física ou online: por onde começar a revender?",
+    "primary_keyword": "loja física ou online",
+    "intent": "informational",
+    "audience": "revendedor_iniciante",
+    "category_links": ["todos-os-produtos"],
+    "tone": "didatico_amigavel"
+  },
+  {
+    "slug": "camiseta-basica-vs-estampada-vende-mais",
+    "title": "Camiseta básica ou estampada: qual vende mais no varejo?",
+    "primary_keyword": "camiseta básica ou estampada",
+    "intent": "commercial",
+    "audience": "dona_loja_fisica",
+    "category_links": ["camisetas"],
+    "tone": "pratico_direto"
+  },
+  {
+    "slug": "bermuda-tactel-vs-sarja-revenda",
+    "title": "Bermuda tactel ou sarja: qual gira mais rápido na loja?",
+    "primary_keyword": "bermuda tactel ou sarja",
+    "intent": "commercial",
+    "audience": "dona_loja_fisica",
+    "category_links": ["bermudas"],
+    "tone": "pratico_direto"
+  },
+  {
+    "slug": "shopify-vs-nuvemshop-revendedor-iniciante",
+    "title": "Shopify ou Nuvemshop: qual plataforma pra quem está começando?",
+    "primary_keyword": "shopify ou nuvemshop",
+    "intent": "commercial",
+    "audience": "revendedor_iniciante",
+    "category_links": ["todos-os-produtos"],
+    "tone": "confiavel_especialista"
+  },
+  {
+    "slug": "tendencias-tenis-2026-revendedor",
+    "title": "Tendências de tênis em 2026 que o revendedor precisa observar",
+    "primary_keyword": "tendências de tênis 2026",
+    "intent": "informational",
+    "audience": "revendedor_experiente",
+    "category_links": ["tenis", "dunk-sb"],
+    "tone": "confiavel_especialista"
+  },
+  {
+    "slug": "lancamentos-nike-2026-vale-estoque",
+    "title": "Lançamentos Nike 2026: o que vale colocar no estoque",
+    "primary_keyword": "lançamentos nike 2026",
+    "intent": "commercial",
+    "audience": "revendedor_experiente",
+    "category_links": ["nike", "tenis"],
+    "tone": "pratico_direto"
+  },
+  {
+    "slug": "black-friday-atacado-como-preparar-loja",
+    "title": "Black Friday no atacado: como preparar sua loja com 60 dias",
+    "primary_keyword": "black friday atacado",
+    "intent": "informational",
+    "audience": "dona_loja_fisica",
+    "category_links": ["tenis", "camisetas"],
+    "tone": "pratico_direto"
+  },
+  {
+    "slug": "dia-das-maes-mais-vendidos-loja",
+    "title": "Dia das Mães: o que mais vende em loja de roupa e calçado",
+    "primary_keyword": "produtos mais vendidos dia das mães",
+    "intent": "commercial",
+    "audience": "dona_loja_fisica",
+    "category_links": ["chinelos", "camisetas"],
+    "tone": "didatico_amigavel"
+  },
+  {
+    "slug": "tendencias-verao-chinelo-sandalia-2026",
+    "title": "Tendências de verão 2026 em chinelos e sandálias",
+    "primary_keyword": "tendências chinelos verão 2026",
+    "intent": "informational",
+    "audience": "dona_loja_fisica",
+    "category_links": ["chinelos"],
+    "tone": "didatico_amigavel"
+  },
+  {
+    "slug": "natal-revenda-roupa-calcado-checklist",
+    "title": "Natal na revenda: checklist pra não perder venda em dezembro",
+    "primary_keyword": "vendas de natal loja roupa",
+    "intent": "informational",
+    "audience": "dona_loja_fisica",
+    "category_links": ["camisetas", "tenis"],
+    "tone": "pratico_direto"
+  },
+  {
+    "slug": "copa-mundo-camisa-selecao-bombar-vendas",
+    "title": "Copa do Mundo: como camisa de seleção bomba suas vendas",
+    "primary_keyword": "vender camisa de seleção copa do mundo",
+    "intent": "commercial",
+    "audience": "revendedor_experiente",
+    "category_links": ["camisetas"],
+    "tone": "motivacional"
+  },
+  {
+    "slug": "volta-as-aulas-bone-tenis-camiseta",
+    "title": "Volta às aulas: combo de boné, tênis e camiseta que sai voando",
+    "primary_keyword": "volta às aulas atacado",
+    "intent": "commercial",
+    "audience": "dona_loja_fisica",
+    "category_links": ["bones", "tenis", "camisetas"],
+    "tone": "pratico_direto"
+  },
+  {
+    "slug": "tabela-de-tamanho-tenis-nike-brasileira",
+    "title": "Tabela de tamanho Nike: como converter pro número brasileiro",
+    "primary_keyword": "tabela de tamanho nike",
+    "intent": "informational",
+    "audience": "consumidor_final",
+    "category_links": ["nike", "tenis"],
+    "tone": "didatico_amigavel"
+  },
+  {
+    "slug": "tabela-tamanho-adidas-feminino-masculino",
+    "title": "Tabela de tamanho Adidas feminino e masculino sem mistério",
+    "primary_keyword": "tabela de tamanho adidas",
+    "intent": "informational",
+    "audience": "consumidor_final",
+    "category_links": ["adidas", "tenis"],
+    "tone": "didatico_amigavel"
+  },
+  {
+    "slug": "tabela-camiseta-pp-a-gg-medidas-reais",
+    "title": "Tabela de camiseta do PP ao GG com medidas reais",
+    "primary_keyword": "tabela de medidas camiseta",
+    "intent": "informational",
+    "audience": "consumidor_final",
+    "category_links": ["camisetas"],
+    "tone": "didatico_amigavel"
+  },
+  {
+    "slug": "como-escolher-numeracao-tenis-nao-errar",
+    "title": "Como escolher a numeração do tênis e não errar a compra",
+    "primary_keyword": "como escolher numeração de tênis",
+    "intent": "informational",
+    "audience": "consumidor_final",
+    "category_links": ["tenis", "puma"],
+    "tone": "didatico_amigavel"
+  },
+  {
+    "slug": "tabela-bermuda-cintura-medida-correta",
+    "title": "Tabela de bermuda por cintura: encontre a medida certa",
+    "primary_keyword": "tabela de medidas bermuda",
+    "intent": "informational",
+    "audience": "consumidor_final",
+    "category_links": ["bermudas", "calcas"],
+    "tone": "didatico_amigavel"
+  },
+  {
+    "slug": "7-erros-quem-comeca-revender-roupa",
+    "title": "7 erros de quem está começando a revender roupa",
+    "primary_keyword": "erros ao revender roupa",
+    "intent": "informational",
+    "audience": "revendedor_iniciante",
+    "category_links": ["camisetas", "bermudas"],
+    "tone": "confiavel_especialista"
+  },
+  {
+    "slug": "como-evitar-prejuizo-comprando-atacado",
+    "title": "Como evitar prejuízo comprando no atacado pela primeira vez",
+    "primary_keyword": "evitar prejuízo no atacado",
+    "intent": "informational",
+    "audience": "revendedor_iniciante",
+    "category_links": ["todos-os-produtos"],
+    "tone": "pratico_direto"
+  },
+  {
+    "slug": "bastidores-revenda-tenis-rotina-real",
+    "title": "Bastidores da revenda de tênis: a rotina real de quem vive disso",
+    "primary_keyword": "como é trabalhar com revenda de tênis",
+    "intent": "informational",
+    "audience": "revendedor_iniciante",
+    "category_links": ["tenis", "nike"],
+    "tone": "motivacional"
+  },
+  {
+    "slug": "vale-pena-revender-roupa-marca-2026",
+    "title": "Vale a pena revender roupa de marca em 2026?",
+    "primary_keyword": "vale a pena revender roupa de marca",
+    "intent": "informational",
+    "audience": "revendedor_iniciante",
+    "category_links": ["camisetas", "hugo-boss"],
+    "tone": "confiavel_especialista"
+  }
+]

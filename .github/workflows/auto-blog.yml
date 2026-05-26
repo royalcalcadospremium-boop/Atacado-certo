@@ -1,0 +1,61 @@
+name: Auto Blog (semanal)
+
+on:
+  # Domingo 11:00 UTC = 08:00 BRT
+  schedule:
+    - cron: '0 11 * * 0'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Simular sem postar (1 = dry-run, 0 = publicar como rascunho)'
+        required: false
+        default: '0'
+
+permissions:
+  contents: write   # pra commitar blog-state.json depois da execução
+  models: read      # pra usar GitHub Models API (gpt-4o-mini grátis)
+
+jobs:
+  generate-post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # token padrão funciona pra push de volta nessa mesma branch
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Montar sync/.env
+        working-directory: sync
+        env:
+          SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_STORE_DOMAIN }}
+          SHOPIFY_ADMIN_TOKEN: ${{ secrets.SHOPIFY_ADMIN_TOKEN }}
+        run: |
+          cat > .env <<EOF
+          SHOPIFY_STORE_DOMAIN=$SHOPIFY_STORE_DOMAIN
+          SHOPIFY_ADMIN_TOKEN=$SHOPIFY_ADMIN_TOKEN
+          EOF
+
+      - name: Gerar e publicar post (rascunho)
+        working-directory: sync
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DRY_RUN: ${{ inputs.dry_run || '0' }}
+        run: node auto-blog.js
+
+      - name: Commit do state atualizado
+        if: ${{ inputs.dry_run != '1' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [[ -n "$(git status --porcelain sync/blog-state.json)" ]]; then
+            git add sync/blog-state.json
+            git commit -m "chore(blog): avança state do auto-blog [skip ci]"
+            git push
+          else
+            echo "Sem mudança no state (provavelmente dry-run ou falha antes do POST)."
+          fi
