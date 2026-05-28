@@ -677,7 +677,9 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     // Tier 2: rastreado + estoque = 0 (integração ativa sem estoque)
     // Tier 3: não rastreado (produto manual sem gestão de estoque)
     // Dentro de cada tier: maior estoque primeiro.
+    // EXCEÇÃO: 'lancamento-da-semana' é curado na mão — respeita ordem manual
     (function() {
+      if ('{{ collection.handle }}' === 'lancamento-da-semana') return;
       var grid = document.querySelector('.rc-grid');
       if (!grid || allProducts.length === 0) return;
       function totalInv(p) {
