@@ -419,8 +419,16 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
             3º total_inventory = 0        → sem vinculação (Tiny/Olist) → por último
             O Shopify define available=false automaticamente para produtos rastreados com 0 estoque.
             Produtos sem vinculação sempre têm available=true, mesmo com inventory=0.
+
+            EXCEÇÃO: 'lancamento-da-semana' respeita a ORDEM MANUAL do admin
+            (Classificar: Manualmente). A vitrine é curada na mão e não deve
+            ser reordenada por estoque.
           {%- endcomment -%}
-          {%- assign _sorted = collection.products | sort: 'total_inventory' | reverse -%}
+          {%- if collection.handle == 'lancamento-da-semana' -%}
+            {%- assign _sorted = collection.products -%}
+          {%- else -%}
+            {%- assign _sorted = collection.products | sort: 'total_inventory' | reverse -%}
+          {%- endif -%}
 
           <div class="rc-grid">
             {%- for product in _sorted -%}
