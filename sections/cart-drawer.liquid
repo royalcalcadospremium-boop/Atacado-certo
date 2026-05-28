@@ -1195,13 +1195,14 @@ AJUSTE (pedido do Fellipe):
         };
 
         finalizeBtn.addEventListener('click', async () => {
-          // Estratégia: replicar o mesmo POST que YampiSnippet.liquid faz
-          // no /cart, mas direto daqui pra pular a página intermediária.
-          // Isso vale pra qualquer config do Yampi (skip_cart true ou false).
+          // Estratégia: replicar o mesmo POST que YampiSnippet.liquid faz no /cart.
+          // CRÍTICO: a API Dooki/Yampi exige o header X-Requested-With (igual ao
+          // postAjax do YampiSnippet linhas 180-181) — sem ele a resposta vem sem
+          // checkout_direct_url e o usuário fica preso no /cart.
           setBtnLoading();
           try {
             const cartPayload = await fetch('/cart.json', {
-              headers: { 'Accept': 'application/json' },
+              headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
               credentials: 'same-origin'
             }).then(r => r.json());
             const body = JSON.stringify({
@@ -1211,26 +1212,35 @@ AJUSTE (pedido do Fellipe):
             });
             const r = await fetch('https://api.dooki.com.br/v2/public/shopify/cart', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+              },
               body
             });
             const resp = await r.json();
             if (resp && resp.checkout_direct_url) {
               // limpa o carrinho do Shopify antes (mesma sequência do YampiSnippet linha 88-90)
-              try { await fetch('/cart/clear.js', { method: 'POST' }); } catch(e) {}
+              try {
+                await fetch('/cart/clear.js', {
+                  method: 'POST',
+                  headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+              } catch(e) {}
               const url = (typeof ymp_getUrlWithUtms === 'function')
                 ? ymp_getUrlWithUtms(resp.checkout_direct_url)
                 : resp.checkout_direct_url;
               window.location.href = url;
               return;
             }
-            // Fallback: navega pra /cart e deixa o YampiSnippet completar lá
-            window.location.href = '/cart';
+            // Yampi não conseguiu gerar checkout pra esse carrinho.
+            // NÃO redireciona pra /cart (loop infinito) nem pro checkout nativo
+            // Shopify. Avisa o usuário e mantém ele no drawer pra escolher vendedora.
+            restoreBtn();
+            alert('Não foi possível processar este pedido pelo site agora. Por favor, fale com uma das nossas vendedoras abaixo para finalizar.');
           } catch (e) {
-            window.location.href = '/cart';
-          } finally {
-            // Se ainda estiver na página depois de 4s (não redirecionou), restaura botão
-            setTimeout(restoreBtn, 4000);
+            restoreBtn();
+            alert('Erro de conexão. Por favor, fale com uma das nossas vendedoras abaixo para finalizar.');
           }
         });
       }

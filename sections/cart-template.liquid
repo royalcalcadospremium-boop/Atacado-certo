@@ -63,7 +63,13 @@
       </p>
     </header>
 
-    <form action="{{ routes.cart_url }}" method="post" novalidate class="ad-cart__form" data-cart-form>
+    {%- comment -%}
+      action='#' + onsubmit='return false' = blindagem absoluta contra checkout
+      nativo Shopify. Mesmo se o JS de interceptação falhar, o form NUNCA pode
+      submeter pra /cart com name=checkout (que dispara redirect Shopify→/checkout).
+      Toda navegação de finalização passa pelo modal de vendedora (gerenciado por JS).
+    {%- endcomment -%}
+    <form action="#" method="post" novalidate class="ad-cart__form" data-cart-form onsubmit="event.preventDefault(); return false;">
 
       <div class="ad-cart__inner">
 
@@ -122,7 +128,12 @@
             </p>
 
             <div class="ad-cart__actions">
-              <button type="submit" name="checkout" class="ad-btn ad-btn--primary ad-btn--store-hero ad-cart__checkout" data-checkout-btn>
+              {%- comment -%}
+                type='button' (NÃO submit) garante que clicar não submete o form.
+                Removido name='checkout' (atributo que sinaliza ao Shopify pra
+                redirecionar pro checkout nativo). Toda finalização é via modal.
+              {%- endcomment -%}
+              <button type="button" class="ad-btn ad-btn--primary ad-btn--store-hero ad-cart__checkout" data-checkout-btn>
                 Finalizar Compra
               </button>
               <a class="ad-btn ad-btn--text-link ad-cart__continue" href="/collections/all">Continuar Comprando</a>
@@ -580,10 +591,13 @@
     }
 
     finalizeBtn.addEventListener('click', async function(){
+      // CRÍTICO: a API Dooki/Yampi exige X-Requested-With (postAjax do YampiSnippet
+      // linhas 180-181). Sem isso a resposta vem sem checkout_direct_url e o
+      // usuário fica preso. NUNCA fazer fallback pra /cart aqui — já estamos lá.
       setBtnLoading();
       try {
         var cartPayload = await fetch('/cart.json', {
-          headers: { 'Accept': 'application/json' },
+          headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
           credentials: 'same-origin'
         }).then(function(r){ return r.json(); });
 
@@ -595,25 +609,34 @@
 
         var r = await fetch('https://api.dooki.com.br/v2/public/shopify/cart', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
           body: body
         });
         var resp = await r.json();
 
         if (resp && resp.checkout_direct_url) {
-          try { await fetch('/cart/clear.js', { method: 'POST' }); } catch(e) {}
+          try {
+            await fetch('/cart/clear.js', {
+              method: 'POST',
+              headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+          } catch(e) {}
           var url = (typeof ymp_getUrlWithUtms === 'function')
             ? ymp_getUrlWithUtms(resp.checkout_direct_url)
             : resp.checkout_direct_url;
           window.location.href = url;
           return;
         }
-        // Fallback: navega pra /cart e deixa o YampiSnippet completar lá
-        window.location.href = '/cart';
+        // Yampi não conseguiu gerar checkout. Avisa e força fluxo de vendedora.
+        // NUNCA redireciona pro checkout nativo Shopify nem fica em loop no /cart.
+        restoreBtn();
+        alert('Não foi possível processar este pedido pelo site agora. Por favor, fale com uma das nossas vendedoras abaixo para finalizar.');
       } catch (e) {
-        window.location.href = '/cart';
-      } finally {
-        setTimeout(restoreBtn, 4000);
+        restoreBtn();
+        alert('Erro de conexão. Por favor, fale com uma das nossas vendedoras abaixo para finalizar.');
       }
     });
   }
