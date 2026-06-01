@@ -672,10 +672,14 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     renderFilters();
     restoreFilterState();
 
-    // ORDENAÇÃO: produtos integrados (Olist/Tiny) sempre primeiro
-    // Tier 1: rastreado + tem estoque > 0 (integração ativa com estoque real)
-    // Tier 2: rastreado + estoque = 0 (integração ativa sem estoque)
-    // Tier 3: não rastreado (produto manual sem gestão de estoque)
+    // ORDENAÇÃO: produtos sincronizados com Olist/Tiny SEMPRE primeiro.
+    // Critério de "sincronizado" = tag 'synced-olist' (gravada pelo sync-precos.js).
+    // NÃO usa variant.tracked porque produtos podem ser rastreados sem serem
+    // de fato vinculados ao Olist (ex: gestão de estoque manual via Shopify).
+    //
+    // Tier 2: synced-olist + tem estoque > 0  (Olist com estoque real)
+    // Tier 1: synced-olist + estoque = 0     (Olist sem estoque no momento)
+    // Tier 0: não sincronizado               (produto sem integração ERP)
     // Dentro de cada tier: maior estoque primeiro.
     // EXCEÇÃO: 'lancamento-da-semana' é curado na mão — respeita ordem manual
     (function() {
@@ -685,13 +689,17 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
       function totalInv(p) {
         return (p.variants || []).reduce(function(s, v) { return s + (v.inventory || 0); }, 0);
       }
-      function isTracked(p) {
-        return (p.variants || []).some(function(v) { return v.tracked; });
+      function isSyncedOlist(p) {
+        if (!p.tags || !p.tags.length) return false;
+        for (var i = 0; i < p.tags.length; i++) {
+          if (String(p.tags[i]).toLowerCase() === 'synced-olist') return true;
+        }
+        return false;
       }
       function sortScore(p) {
         var inv = totalInv(p);
-        var tracked = isTracked(p);
-        var tier = tracked ? (inv > 0 ? 2 : 1) : 0;
+        var synced = isSyncedOlist(p);
+        var tier = synced ? (inv > 0 ? 2 : 1) : 0;
         return tier * 10000000 + inv;
       }
       var sorted = allProducts.slice().sort(function(a, b) { return sortScore(b) - sortScore(a); });
