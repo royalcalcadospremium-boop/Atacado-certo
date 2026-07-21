@@ -129,23 +129,6 @@
       "slideshow": {
         "type": "slideshow",
         "blocks": {
-          "fa2eac7c-9fbf-4ea9-a172-eca738a9012d": {
-            "type": "image",
-            "settings": {
-              "image": "shopify://shop_images/ChatGPT_Image_19_de_mai._de_2026_19_58_35_bc6edf0f-1890-4c10-8495-23afca1e49a3.png",
-              "mobile_image": "shopify://shop_images/ChatGPT_Image_19_de_mai._de_2026_18_46_23_6640c79f-bdcb-4a20-97ba-912fc128c25e.png",
-              "show_overlay": false,
-              "overlay_opacity": 30,
-              "text_color": "#ffffff",
-              "title": "",
-              "content": "",
-              "content_position": "middle_center",
-              "button_background": "#ffffff",
-              "button_text_color": "#000000",
-              "button_text": "",
-              "link": "shopify://products/camisa-da-selecao-do-brasil-copa-26-27-jogador-masculina-1-1"
-            }
-          },
           "image_Hhejpn": {
             "type": "image",
             "settings": {
@@ -162,29 +145,10 @@
               "button_text": "",
               "link": "https://royalatacado.com.br/products/nike-air-force-1-gold-preto-branco-azul-699db72ceff89?_pos=2&_sid=289c9d7fd&_ss=r"
             }
-          },
-          "image_UUg8kr": {
-            "type": "image",
-            "settings": {
-              "image": "shopify://shop_images/Design_sem_nome_16_85ee86fe-1fee-405d-8607-58467b9f817a.png",
-              "mobile_image": "shopify://shop_images/Design_sem_nome_15_2b240929-fdf6-4357-ad92-7e8de37d0c74.png",
-              "show_overlay": false,
-              "overlay_opacity": 30,
-              "text_color": "#ffffff",
-              "title": "",
-              "content": "",
-              "content_position": "middle_center",
-              "button_background": "#ffffff",
-              "button_text_color": "#000000",
-              "button_text": "Button",
-              "link": ""
-            }
           }
         },
         "block_order": [
-          "fa2eac7c-9fbf-4ea9-a172-eca738a9012d",
-          "image_Hhejpn",
-          "image_UUg8kr"
+          "image_Hhejpn"
         ],
         "settings": {
           "overlap_px": 0,
