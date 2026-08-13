@@ -1,0 +1,168 @@
+{%- comment -%}
+  ============================================================
+  Pixel do ChatGPT Ads (OpenAI Ads — oaiq)
+  Pixel ID: WKVznKXeH364JGd6HM4Hzm
+  Chamado no <head> do theme.liquid, o mais perto do topo possível.
+
+  Eventos disparados aqui:
+    - contents_viewed  -> página de produto
+    - items_added      -> adicionar ao carrinho (qualquer botão do tema)
+    - checkout_started -> clique em finalizar compra
+
+  O evento de COMPRA (order_created) NÃO fica aqui: o checkout da Shopify
+  não usa o tema. Ele vai em Configurações > Eventos de cliente > Pixel personalizado.
+
+  Valores: "amount" é INTEIRO EM CENTAVOS (padrão da OpenAI Ads).
+  ============================================================
+{%- endcomment -%}
+
+<!-- ChatGPT Ads Pixel -->
+<script>
+  (function (w, d, s, u) {
+    if (w.oaiq) return;
+    var q = function () { q.q.push(arguments); };
+    q.q = [];
+    w.oaiq = q;
+    var js = d.createElement(s);
+    js.async = true;
+    js.src = u;
+    var f = d.getElementsByTagName(s)[0];
+    f.parentNode.insertBefore(js, f);
+  })(window, document, "script", "https://bzrcdn.openai.com/sdk/oaiq.min.js");
+
+  oaiq("init", {
+    pixelId: "WKVznKXeH364JGd6HM4Hzm"
+  });
+</script>
+
+{%- if request.page_type == 'product' and product != blank -%}
+  {%- assign pv = product.selected_or_first_available_variant -%}
+<script>
+  oaiq("measure", "contents_viewed", {
+    type: "contents",
+    amount: {{ pv.price | default: product.price | round }},
+    currency: {{ cart.currency.iso_code | json }},
+    contents: [{
+      id: {{ pv.sku | default: pv.id | json }},
+      name: {{ product.title | json }},
+      content_type: "product",
+      quantity: 1
+    }]
+  });
+</script>
+{%- endif -%}
+
+<script>
+(function () {
+  if (window.__oaiqShopifyHooks) return;
+  window.__oaiqShopifyHooks = true;
+
+  var CURRENCY = {{ cart.currency.iso_code | json }};
+  var cartTotal = {{ cart.total_price | default: 0 }};
+  var cartItems = [];
+
+  function snapshotCart(cart) {
+    if (!cart) return;
+    cartTotal = cart.total_price || 0;
+    cartItems = (cart.items || []).map(function (i) {
+      return {
+        id: String(i.sku || i.variant_id || ''),
+        name: i.product_title || i.title || '',
+        content_type: 'product',
+        quantity: i.quantity || 1
+      };
+    });
+  }
+
+  function refreshCart() {
+    try {
+      fetch('/cart.js', { credentials: 'same-origin' })
+        .then(function (r) { return r.json(); })
+        .then(snapshotCart)
+        .catch(function () {});
+    } catch (e) {}
+  }
+  refreshCart();
+
+  function measureAdded(line) {
+    if (!window.oaiq || !line) return;
+    oaiq('measure', 'items_added', {
+      type: 'contents',
+      amount: Math.round((line.final_line_price != null ? line.final_line_price : (line.price || 0) * (line.quantity || 1))),
+      currency: CURRENCY,
+      contents: [{
+        id: String(line.sku || line.variant_id || line.id || ''),
+        name: line.product_title || line.title || '',
+        content_type: 'product',
+        quantity: line.quantity || 1
+      }]
+    });
+    refreshCart();
+  }
+
+  function isAddUrl(url) { return typeof url === 'string' && url.indexOf('/cart/add') !== -1; }
+
+  /* fetch() */
+  if (window.fetch) {
+    var _fetch = window.fetch;
+    window.fetch = function () {
+      var url = arguments[0];
+      if (url && url.url) url = url.url;
+      var p = _fetch.apply(this, arguments);
+      if (isAddUrl(url)) {
+        p.then(function (res) {
+          if (!res || !res.ok) return;
+          res.clone().json().then(function (data) {
+            if (data && data.items && data.items.length) { data.items.forEach(measureAdded); }
+            else { measureAdded(data); }
+          }).catch(function () {});
+        }).catch(function () {});
+      }
+      return p;
+    };
+  }
+
+  /* XMLHttpRequest */
+  var _open = XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.open = function (method, url) {
+    this.__oaiqAdd = isAddUrl(url);
+    return _open.apply(this, arguments);
+  };
+  var _send = XMLHttpRequest.prototype.send;
+  XMLHttpRequest.prototype.send = function () {
+    var xhr = this;
+    if (xhr.__oaiqAdd) {
+      xhr.addEventListener('load', function () {
+        if (xhr.status < 200 || xhr.status >= 300) return;
+        try {
+          var data = JSON.parse(xhr.responseText);
+          if (data && data.items && data.items.length) { data.items.forEach(measureAdded); }
+          else { measureAdded(data); }
+        } catch (e) {}
+      });
+    }
+    return _send.apply(this, arguments);
+  };
+
+  /* Formulário de add sem AJAX (recarrega a página) */
+  document.addEventListener('submit', function (e) {
+    var form = e.target;
+    if (!form || !form.action || !isAddUrl(form.action)) return;
+    if (!window.oaiq) return;
+    oaiq('measure', 'items_added', { type: 'customer_action', amount: 0, currency: CURRENCY });
+  }, true);
+
+  /* Início do checkout */
+  document.addEventListener('click', function (e) {
+    var el = e.target && e.target.closest ? e.target.closest('[name="checkout"], a[href*="/checkout"], button[href*="/checkout"]') : null;
+    if (!el || !window.oaiq) return;
+    oaiq('measure', 'checkout_started', {
+      type: 'contents',
+      amount: cartTotal || 0,
+      currency: CURRENCY,
+      contents: cartItems
+    });
+  }, true);
+})();
+</script>
+<!-- /ChatGPT Ads Pixel -->

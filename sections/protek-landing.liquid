@@ -1,0 +1,746 @@
+{%- comment -%}
+  ============================================================
+  PROTEK — Landing de venda (clone de achoulevei.com)
+  Uso: crie uma Página no admin e escolha o template "page.protek"
+  Todas as mídias estão no bloco abaixo — troque as URLs aqui.
+  ============================================================
+{%- endcomment -%}
+
+{%- assign cta_url = section.settings.cta_url | default: '/collections/all' -%}
+{%- assign hero_video = section.settings.hero_video | default: 'https://video.wixstatic.com/video/17254b_2c34d44bc9a644a69259ce7fcaf369b4/1080p/mp4/file.mp4' -%}
+
+{%- assign proof_1 = 'https://video.wixstatic.com/video/17254b_91479214bf5a4d9fb336cd7102221485/360p/mp4/file.mp4' -%}
+{%- assign proof_2 = 'https://video.wixstatic.com/video/17254b_66f1c08a7fa24b9bb6ff41f24d4d13a4/360p/mp4/file.mp4' -%}
+{%- assign proof_3 = 'https://video.wixstatic.com/video/17254b_ca750307248e4e3e9fe40401d6aaf7b3/360p/mp4/file.mp4' -%}
+{%- assign proof_4 = 'https://video.wixstatic.com/video/17254b_12388df7c9a841b991749643b98aff6a/360p/mp4/file.mp4' -%}
+{%- assign proof_5 = 'https://video.wixstatic.com/video/17254b_6d66d92396eb4fa3b70f1e5e2aa74af7/360p/mp4/file.mp4' -%}
+
+{%- assign img_features = 'https://imovis.com.br/wp-content/uploads/sites/101/2024/05/explicacao-lf-3.jpg' -%}
+{%- assign img_detail_1 = 'https://static.wixstatic.com/media/17254b_bc04772601cc4e3ba9b1dee98e12f324~mv2.webp/v1/fill/w_536,h_536,al_c,q_80,usm_0.66_1.00_0.01,enc_auto/17254b_bc04772601cc4e3ba9b1dee98e12f324~mv2.webp' -%}
+{%- assign img_detail_2 = 'https://static.wixstatic.com/media/17254b_f06f8c7f5925465cbaa1cbdda97c9f3c~mv2.webp/v1/fill/w_536,h_536,al_c,q_80,usm_0.66_1.00_0.01,enc_auto/17254b_f06f8c7f5925465cbaa1cbdda97c9f3c~mv2.webp' -%}
+{%- assign img_ebook = 'https://static.wixstatic.com/media/17254b_31cfc408289049098a706a3ed15bcb16~mv2.png/v1/fill/w_401,h_493,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/17254b_31cfc408289049098a706a3ed15bcb16~mv2.png' -%}
+{%- assign avatar_1 = 'https://static.wixstatic.com/media/17254b_51dd776cc4db45f3a5166a4b758b54d3~mv2.jpg' -%}
+{%- assign avatar_2 = 'https://static.wixstatic.com/media/17254b_7173b29702714b8eae299fc6bbb6b6b7~mv2.jpg' -%}
+{%- assign avatar_3 = 'https://static.wixstatic.com/media/17254b_ccbf7fe08f3e44918177e88616c49d2a~mv2.jpg' -%}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<style>
+  #protek-lp{
+    --pk-primary:#FF8C42;
+    --pk-fg:#1A1A1A;
+    --pk-muted:#666666;
+    --pk-gray50:#F9FAFB;
+    --pk-border:#E5E7EB;
+    --pk-orange50:#FFF7ED;
+    --pk-orange200:#FED7AA;
+
+    font-family:'Roboto',ui-sans-serif,system-ui,sans-serif;
+    color:var(--pk-fg);
+    background:#fff;
+    line-height:1.5;
+    overflow-x:hidden;
+    width:100%;
+    max-width:100vw;
+  }
+  #protek-lp *,#protek-lp *::before,#protek-lp *::after{box-sizing:border-box;}
+  #protek-lp p,#protek-lp h1,#protek-lp h2,#protek-lp h3,#protek-lp h4,#protek-lp ul,#protek-lp li{margin:0;padding:0;}
+  #protek-lp ul{list-style:none;}
+  #protek-lp img,#protek-lp video{display:block;max-width:100%;}
+  #protek-lp button{font-family:inherit;border:0;cursor:pointer;}
+  #protek-lp a{text-decoration:none;}
+
+  #protek-lp .pk-container{width:100%;margin:0 auto;padding:0 1rem;}
+  #protek-lp .pk-mw-7xl{max-width:80rem;}
+  #protek-lp .pk-mw-6xl{max-width:72rem;}
+  #protek-lp .pk-mw-5xl{max-width:64rem;}
+  #protek-lp .pk-mw-3xl{max-width:48rem;}
+  #protek-lp .pk-section{width:100%;max-width:100vw;overflow-x:hidden;}
+  #protek-lp .pk-bg-gray{background:var(--pk-gray50);}
+  #protek-lp .pk-only-mobile{display:block;}
+  #protek-lp .pk-only-desktop{display:none;}
+
+  /* ---------- reveal ---------- */
+  #protek-lp .pk-reveal{opacity:0;transform:translateY(3rem);transition:opacity .7s ease-out,transform .7s ease-out;}
+  #protek-lp .pk-reveal.pk-in{opacity:1;transform:translateY(0);}
+
+  /* ---------- marquee topo ---------- */
+  #protek-lp .pk-marquee{
+    position:relative;width:100%;overflow:hidden;
+    background:linear-gradient(to right,var(--pk-primary),rgba(255,140,66,.9),var(--pk-primary));
+    color:#fff;padding:.5rem 0;
+  }
+  #protek-lp .pk-marquee-track{
+    display:inline-block;white-space:nowrap;padding-right:3rem;
+    animation:pk-marquee 45s linear infinite;will-change:transform;
+  }
+  #protek-lp .pk-marquee-track:hover{animation-play-state:paused;}
+  #protek-lp .pk-marquee-track span{
+    font-family:'Montserrat',sans-serif;font-weight:900;text-transform:uppercase;
+    letter-spacing:.1em;font-size:.75rem;display:inline-block;
+  }
+  @keyframes pk-marquee{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+
+  /* ---------- hero ---------- */
+  #protek-lp .pk-hero{position:relative;background:#fff;padding:3rem 0 5rem;margin-top:1.5rem;}
+  #protek-lp .pk-hero-glow{position:absolute;inset:0;opacity:.05;overflow:hidden;pointer-events:none;}
+  #protek-lp .pk-hero-glow i{position:absolute;width:18rem;height:18rem;background:var(--pk-primary);border-radius:9999px;filter:blur(64px);mix-blend-mode:multiply;}
+  #protek-lp .pk-hero-glow i:first-child{top:5rem;right:2.5rem;}
+  #protek-lp .pk-hero-glow i:last-child{bottom:5rem;left:2.5rem;opacity:.3;}
+  #protek-lp .pk-hero-grid{position:relative;z-index:1;display:grid;gap:2rem;align-items:center;}
+  #protek-lp .pk-hero-copy{display:flex;flex-direction:column;align-items:center;gap:1.5rem;width:100%;}
+  #protek-lp .pk-h1{
+    font-size:2.25rem;font-weight:800;line-height:1.1;text-align:center;
+    text-transform:capitalize;max-width:42rem;color:var(--pk-fg);
+  }
+  #protek-lp .pk-h1 span{color:var(--pk-primary);}
+  #protek-lp .pk-promo-mobile{
+    font-size:1.125rem;color:var(--pk-muted);line-height:1.625;text-align:center;
+    background:var(--pk-orange50);border:1px solid var(--pk-orange200);border-radius:1rem;padding:1.5rem;
+  }
+  #protek-lp .pk-hero-video-mobile{width:100%;max-width:20rem;height:24rem;overflow:hidden;border-radius:1rem;filter:drop-shadow(0 25px 25px rgba(0,0,0,.15));margin:0 auto;}
+  #protek-lp .pk-hero-video-mobile video{width:100%;height:100%;object-fit:cover;object-position:center top;}
+  #protek-lp .pk-hero-video-desktop{position:relative;height:500px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  #protek-lp .pk-hero-video-desktop video{width:90%;height:100%;object-fit:cover;object-position:center bottom;filter:drop-shadow(0 25px 25px rgba(0,0,0,.15));transition:transform .7s;}
+  #protek-lp .pk-hero-video-desktop video:hover{transform:scale(1.05);}
+  #protek-lp .pk-rating{display:flex;flex-direction:column;align-items:center;gap:.5rem;}
+  #protek-lp .pk-stars{display:flex;align-items:center;gap:.25rem;justify-content:center;}
+  #protek-lp .pk-stars svg{width:1.25rem;height:1.25rem;color:var(--pk-primary);fill:var(--pk-primary);}
+  #protek-lp .pk-rating b{font-weight:700;margin-left:.5rem;font-size:1.125rem;color:var(--pk-primary);}
+  #protek-lp .pk-rating small{color:var(--pk-muted);font-size:.875rem;font-weight:500;}
+  #protek-lp .pk-promo-desktop{font-size:1.25rem;color:var(--pk-muted);line-height:1.625;max-width:42rem;}
+  #protek-lp .pk-warning{font-size:1.125rem;font-weight:500;color:var(--pk-fg);}
+  #protek-lp .pk-cta-card{
+    position:relative;padding:2rem;border-radius:1.5rem;overflow:hidden;
+    background:linear-gradient(to bottom right,rgba(255,255,255,.8),#fff);
+    box-shadow:0 25px 50px -12px rgba(0,0,0,.25);border:1px solid rgba(255,140,66,.2);
+  }
+
+  /* ---------- botões ---------- */
+  #protek-lp .pk-btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:.25rem;white-space:nowrap;
+    font-family:'Montserrat',sans-serif;background:var(--pk-primary);color:#fff;
+    border-radius:9999px;font-weight:700;transition:all .3s ease;
+  }
+  #protek-lp .pk-btn:hover{background:#f97d2c;transform:translateY(-4px);}
+  #protek-lp .pk-btn svg{width:1.5rem;height:1.5rem;margin-left:.5rem;}
+  #protek-lp .pk-btn-hero-mobile{width:100%;padding:1.75rem 2.5rem;font-size:1.25rem;box-shadow:0 8px 30px rgba(255,140,66,.3);}
+  #protek-lp .pk-btn-hero-mobile:hover{box-shadow:0 8px 40px rgba(255,140,66,.4);}
+  #protek-lp .pk-btn-hero{
+    position:relative;z-index:1;width:100%;padding:2rem 3rem;font-size:1.5rem;font-weight:800;
+    background:linear-gradient(to right,var(--pk-primary),var(--pk-primary));
+    box-shadow:0 10px 40px rgba(255,140,66,.4);transition:all .5s ease-in-out;
+  }
+  #protek-lp .pk-btn-hero:hover{box-shadow:0 12px 50px rgba(255,140,66,.6);transform:translateY(-8px) scale(1.03) rotate(1deg);}
+  #protek-lp .pk-btn-hero svg{width:1.75rem;height:1.75rem;margin-left:.75rem;}
+
+  /* ---------- carrossel de depoimentos em vídeo ---------- */
+  #protek-lp .pk-proof{padding:.125rem 0;background:#fff;}
+  #protek-lp .pk-proof-head{text-align:center;margin-bottom:1rem;}
+  #protek-lp .pk-h2{font-family:'Roboto',sans-serif;font-size:1.5rem;font-weight:800;color:var(--pk-fg);}
+  #protek-lp .pk-h2 span{color:var(--pk-primary);}
+  #protek-lp .pk-proof-viewport{overflow:hidden;border-radius:1rem;width:100%;}
+  #protek-lp .pk-proof-track{display:flex;gap:.5rem;padding:0 .5rem;animation:pk-scroll 18s linear infinite;width:max-content;}
+  #protek-lp .pk-proof-track:hover{animation-play-state:paused;}
+  #protek-lp .pk-proof-item{flex-shrink:0;width:12rem;height:16rem;border-radius:.75rem;overflow:hidden;box-shadow:0 10px 15px -3px rgba(0,0,0,.1);}
+  #protek-lp .pk-proof-item video{width:100%;height:100%;object-fit:cover;}
+  @keyframes pk-scroll{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+
+  /* ---------- features ---------- */
+  #protek-lp .pk-features{padding:41px 0;}
+  #protek-lp .pk-features-grid{display:grid;gap:4rem;align-items:center;}
+  #protek-lp .pk-features-img{position:relative;}
+  #protek-lp .pk-features-img::before{content:"";position:absolute;inset:0;background:rgba(255,140,66,.1);border-radius:3rem;transform:rotate(-3deg) scale(1.05);z-index:0;}
+  #protek-lp .pk-features-img img{position:relative;width:100%;border-radius:1.5rem;box-shadow:0 20px 25px -5px rgba(0,0,0,.1);}
+  #protek-lp .pk-features-copy{display:flex;flex-direction:column;gap:2rem;}
+  #protek-lp .pk-h2-lg{font-size:1.875rem;font-weight:800;color:var(--pk-fg);margin-bottom:1rem;}
+  #protek-lp .pk-lead{font-size:1.125rem;color:var(--pk-muted);}
+  #protek-lp .pk-feature-list{display:flex;flex-direction:column;gap:1.5rem;}
+  #protek-lp .pk-feature{display:flex;align-items:flex-start;gap:1rem;background:#fff;padding:1rem;border-radius:1rem;box-shadow:0 1px 2px rgba(0,0,0,.05);transition:box-shadow .3s;}
+  #protek-lp .pk-feature:hover{box-shadow:0 4px 6px -1px rgba(0,0,0,.1);}
+  #protek-lp .pk-feature-icon{background:rgba(255,140,66,.2);padding:.75rem;border-radius:.75rem;flex-shrink:0;display:flex;}
+  #protek-lp .pk-feature-icon svg{width:1.5rem;height:1.5rem;color:var(--pk-primary);}
+  #protek-lp .pk-feature span{font-weight:700;font-size:1.125rem;padding-top:.25rem;color:var(--pk-fg);}
+
+  /* ---------- detalhes ---------- */
+  #protek-lp .pk-details{padding:50px 0;background:#fff;}
+  #protek-lp .pk-details-head{text-align:center;max-width:48rem;margin:0 auto 5rem;}
+  #protek-lp .pk-details-head h2{font-size:1.875rem;font-weight:800;color:var(--pk-fg);margin-bottom:1.5rem;}
+  #protek-lp .pk-details-head p{font-size:1.25rem;color:var(--pk-muted);}
+  #protek-lp .pk-detail-blocks{display:flex;flex-direction:column;gap:6rem;}
+  #protek-lp .pk-detail{display:grid;gap:3rem;align-items:center;}
+  #protek-lp .pk-detail h3{font-size:1.5rem;font-weight:700;color:var(--pk-fg);margin-bottom:1.5rem;}
+  #protek-lp .pk-detail p{font-size:1.125rem;color:var(--pk-muted);line-height:1.625;}
+  #protek-lp .pk-detail-img{width:100%;aspect-ratio:1/1;border-radius:1.5rem;overflow:hidden;box-shadow:0 25px 50px -12px rgba(0,0,0,.25);}
+  #protek-lp .pk-detail-img img{width:100%;height:100%;object-fit:cover;}
+
+  /* ---------- bônus ---------- */
+  #protek-lp .pk-bonus{padding:45px 0;}
+  #protek-lp .pk-bonus-card{background:#fff;border-radius:2rem;padding:2rem;box-shadow:0 20px 25px -5px rgba(0,0,0,.1);border:1px solid rgba(229,231,235,.5);}
+  #protek-lp .pk-bonus-grid{display:grid;gap:3rem;align-items:center;}
+  #protek-lp .pk-badge{display:inline-block;background:var(--pk-primary);color:#fff;padding:.375rem 1rem;border-radius:9999px;font-size:.875rem;font-weight:700;letter-spacing:.025em;}
+  #protek-lp .pk-bonus h3{font-size:1.5rem;font-weight:700;color:var(--pk-fg);margin:1.5rem 0;}
+  #protek-lp .pk-bonus p{color:var(--pk-muted);margin-bottom:1.5rem;}
+  #protek-lp .pk-bonus p b{color:var(--pk-fg);font-weight:700;}
+  #protek-lp .pk-bonus li{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;}
+  #protek-lp .pk-bonus li svg{width:1.25rem;height:1.25rem;color:var(--pk-primary);flex-shrink:0;}
+  #protek-lp .pk-bonus li span{font-weight:500;color:var(--pk-fg);}
+  #protek-lp .pk-bonus-img{position:relative;max-width:24rem;margin:0 auto;}
+  #protek-lp .pk-bonus-img img{width:100%;border-radius:1rem;box-shadow:0 10px 15px -3px rgba(0,0,0,.1);transform:rotate(2deg);transition:transform .5s;}
+  #protek-lp .pk-bonus-img img:hover{transform:rotate(0deg);}
+
+  /* ---------- CTA grande ---------- */
+  #protek-lp .pk-cta{padding:4rem 0;background:#fff;}
+  #protek-lp .pk-cta-wrap{display:flex;flex-direction:column;align-items:center;gap:2rem;}
+  #protek-lp .pk-cta-glow{position:relative;width:100%;}
+  #protek-lp .pk-cta-glow::before{
+    content:"";position:absolute;inset:-.25rem;border-radius:9999px;
+    background:linear-gradient(to right,#F97316,#FB923C,#F97316);filter:blur(32px);opacity:.75;
+    animation:pk-pulse 2s cubic-bezier(.4,0,.6,1) infinite;
+  }
+  @keyframes pk-pulse{0%,100%{opacity:.75;}50%{opacity:.4;}}
+  #protek-lp .pk-btn-cta{
+    position:relative;width:100%;padding:1.5rem 2rem;font-size:1.25rem;font-weight:800;
+    background:linear-gradient(to right,#F97316,#FB923C,#F97316);color:#fff;border-radius:9999px;
+    box-shadow:0 25px 50px -12px rgba(0,0,0,.25);font-family:'Montserrat',sans-serif;
+    display:flex;align-items:center;justify-content:center;gap:.75rem;transition:all .3s ease-out;
+  }
+  #protek-lp .pk-btn-cta:hover{transform:translateY(-4px) scale(1.05);box-shadow:0 20px 60px rgba(249,115,22,.6);}
+  #protek-lp .pk-btn-cta:active{transform:scale(.95);}
+  #protek-lp .pk-cta-note{text-align:center;font-size:.875rem;color:var(--pk-muted);font-weight:500;letter-spacing:.025em;}
+
+  /* ---------- depoimentos ---------- */
+  #protek-lp .pk-reviews{padding:3rem 0;}
+  #protek-lp .pk-reviews-head{text-align:center;margin-bottom:4rem;}
+  #protek-lp .pk-reviews-head h2{font-size:1.875rem;font-weight:800;color:var(--pk-fg);margin-bottom:1rem;}
+  #protek-lp .pk-reviews-head p{font-size:1.25rem;color:var(--pk-muted);}
+  #protek-lp .pk-reviews-head p b{color:var(--pk-fg);font-weight:700;}
+  #protek-lp .pk-reviews-grid{display:grid;gap:2rem;}
+  #protek-lp .pk-review{background:#fff;padding:2rem;border-radius:1.5rem;box-shadow:0 10px 15px -3px rgba(0,0,0,.1);border:1px solid rgba(229,231,235,.5);display:flex;flex-direction:column;}
+  #protek-lp .pk-review-top{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;}
+  #protek-lp .pk-review-top img{width:4rem;height:4rem;border-radius:9999px;object-fit:cover;border:2px solid rgba(255,140,66,.2);}
+  #protek-lp .pk-review-top h4{font-weight:700;font-size:1.125rem;color:var(--pk-fg);}
+  #protek-lp .pk-review-stars{display:flex;gap:.25rem;margin-top:.25rem;}
+  #protek-lp .pk-review-stars svg{width:1rem;height:1rem;color:var(--pk-primary);fill:var(--pk-primary);}
+  #protek-lp .pk-review p{color:var(--pk-muted);line-height:1.625;font-style:italic;flex-grow:1;}
+
+  /* ---------- FAQ ---------- */
+  #protek-lp .pk-faq{padding:3rem 0;background:#fff;}
+  #protek-lp .pk-faq-head{text-align:center;margin-bottom:3rem;}
+  #protek-lp .pk-faq-head h2{font-size:1.875rem;font-weight:800;color:var(--pk-fg);}
+  #protek-lp .pk-faq-list{display:flex;flex-direction:column;gap:1rem;}
+  #protek-lp .pk-faq-item{border:1px solid rgba(229,231,235,.6);border-radius:1rem;overflow:hidden;background:#fff;transition:border-color .3s;}
+  #protek-lp .pk-faq-item:hover{border-color:rgba(255,140,66,.3);}
+  #protek-lp .pk-faq-q{width:100%;display:flex;align-items:center;justify-content:space-between;padding:1.5rem;text-align:left;background:transparent;}
+  #protek-lp .pk-faq-q h3{font-size:1.125rem;font-weight:700;color:var(--pk-fg);padding-right:2rem;}
+  #protek-lp .pk-faq-icon{padding:.5rem;border-radius:9999px;background:rgba(255,140,66,.1);color:var(--pk-primary);display:flex;transition:transform .3s;}
+  #protek-lp .pk-faq-icon svg{width:1.25rem;height:1.25rem;}
+  #protek-lp .pk-faq-item.pk-open .pk-faq-icon{transform:rotate(180deg);}
+  #protek-lp .pk-faq-a{overflow:hidden;max-height:0;opacity:0;transition:max-height .3s ease-in-out,opacity .3s ease-in-out;}
+  #protek-lp .pk-faq-item.pk-open .pk-faq-a{opacity:1;}
+  #protek-lp .pk-faq-a div{padding:0 1.5rem 1.5rem;margin:0 1.5rem;color:var(--pk-muted);line-height:1.625;border-top:1px solid rgba(229,231,235,.3);padding-top:1.5rem;}
+
+  /* ---------- garantia ---------- */
+  #protek-lp .pk-trust{padding:5rem 0;background:var(--pk-primary);color:#fff;text-align:center;}
+  #protek-lp .pk-trust h2{font-size:1.875rem;font-weight:800;margin-bottom:1.5rem;}
+  #protek-lp .pk-trust>div>div>p{font-size:1.125rem;color:rgba(255,255,255,.9);margin:0 auto 3rem;max-width:48rem;line-height:1.625;}
+  #protek-lp .pk-trust p b{color:#fff;font-weight:700;}
+  #protek-lp .pk-trust-grid{display:grid;gap:2rem;}
+  #protek-lp .pk-trust-card{display:flex;flex-direction:column;align-items:center;padding:1.5rem;background:rgba(255,255,255,.1);border-radius:1rem;backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.2);}
+  #protek-lp .pk-trust-card svg{width:2.5rem;height:2.5rem;margin-bottom:1rem;}
+  #protek-lp .pk-trust-card p{font-weight:500;color:rgba(255,255,255,.9);font-size:1rem;margin:0;}
+
+  /* ---------- rodapé opcional ---------- */
+  #protek-lp .pk-footer{background:#fff;color:var(--pk-fg);padding:4rem 0;border-top:1px solid var(--pk-border);}
+  #protek-lp .pk-footer-grid{display:grid;gap:3rem;margin-bottom:3rem;}
+  #protek-lp .pk-footer h3{font-size:1.5rem;font-weight:700;color:var(--pk-primary);margin-bottom:1rem;}
+  #protek-lp .pk-footer h4{font-size:1.125rem;font-weight:700;margin-bottom:1rem;}
+  #protek-lp .pk-footer p,#protek-lp .pk-footer a,#protek-lp .pk-footer span{color:rgba(26,26,26,.8);line-height:1.625;}
+  #protek-lp .pk-footer li{margin-bottom:.75rem;display:flex;align-items:flex-start;gap:.75rem;}
+  #protek-lp .pk-footer li svg{width:1.25rem;height:1.25rem;color:var(--pk-primary);flex-shrink:0;}
+  #protek-lp .pk-footer a:hover{color:var(--pk-primary);}
+  #protek-lp .pk-footer-bottom{border-top:1px solid var(--pk-border);padding-top:2rem;display:flex;flex-direction:column;align-items:center;gap:1rem;}
+  #protek-lp .pk-footer-bottom p,#protek-lp .pk-footer-bottom a{font-size:.875rem;color:rgba(26,26,26,.6);}
+
+  /* ================= md: 768px ================= */
+  @media (min-width:768px){
+    #protek-lp .pk-only-mobile{display:none;}
+    #protek-lp .pk-only-desktop{display:block;}
+    #protek-lp .pk-only-desktop.pk-flex{display:flex;}
+    #protek-lp .pk-marquee-track span{font-size:.875rem;}
+    #protek-lp .pk-h1{font-size:3rem;}
+    #protek-lp .pk-h2{font-size:2.25rem;}
+    #protek-lp .pk-h2-lg,#protek-lp .pk-faq-head h2,#protek-lp .pk-reviews-head h2,#protek-lp .pk-trust h2{font-size:2.25rem;}
+    #protek-lp .pk-details-head h2{font-size:3rem;}
+    #protek-lp .pk-detail h3,#protek-lp .pk-bonus h3{font-size:1.875rem;}
+    #protek-lp .pk-proof-head{margin-bottom:3rem;}
+    #protek-lp .pk-proof-track{gap:1rem;padding:0;animation-duration:30s;}
+    #protek-lp .pk-proof-item{width:16rem;height:20rem;}
+    #protek-lp .pk-detail{grid-template-columns:repeat(2,1fr);}
+    #protek-lp .pk-detail-1 .pk-detail-media{order:2;}
+    #protek-lp .pk-reviews-grid,#protek-lp .pk-trust-grid{grid-template-columns:repeat(3,1fr);}
+    #protek-lp .pk-bonus-grid{grid-template-columns:repeat(2,1fr);}
+    #protek-lp .pk-bonus-card{padding:3rem;}
+    #protek-lp .pk-cta{padding:6rem 0;}
+    #protek-lp .pk-cta-glow{width:auto;}
+    #protek-lp .pk-btn-cta{width:auto;padding:2rem 4rem;font-size:1.5rem;}
+    #protek-lp .pk-cta-note{font-size:1rem;}
+    #protek-lp .pk-footer-grid{grid-template-columns:repeat(3,1fr);}
+    #protek-lp .pk-footer-bottom{flex-direction:row;justify-content:space-between;}
+    #protek-lp .pk-hero{padding:5rem 0 8rem;margin-top:2rem;}
+    #protek-lp .pk-trust>div>div>p{font-size:1.25rem;}
+  }
+
+  /* ================= lg: 1024px ================= */
+  @media (min-width:1024px){
+    #protek-lp .pk-hero-grid{grid-template-columns:repeat(2,1fr);gap:3rem;}
+    #protek-lp .pk-h1{font-size:3.5rem;}
+    #protek-lp .pk-features-grid{grid-template-columns:repeat(2,1fr);}
+    #protek-lp .pk-hero-video-desktop{height:700px;}
+    #protek-lp .pk-hero-video-desktop video{width:100%;}
+    #protek-lp .pk-btn-hero{width:auto;}
+  }
+</style>
+
+<div id="protek-lp">
+
+  <!-- ============ MARQUEE ============ -->
+  <div class="pk-marquee">
+    <div class="pk-marquee-track">
+      <span>🔥 COMPRE 1 E LEVE 2 SÓ HOJE &nbsp;•&nbsp; 🔥 ÚLTIMAS UNIDADES DISPONÍVEIS &nbsp;•&nbsp; 🔥 FRETE GRÁTIS PARA TODO BRASIL &nbsp;•&nbsp; 🔥 MAIS DE 12 MIL CLIENTES &nbsp;•&nbsp; 🔥 OFERTA ESPECIAL POR TEMPO LIMITADO &nbsp;•&nbsp; 🔥 PROTEJA SEUS JOELHOS COM PROTEK &nbsp;•&nbsp; 🔥 COMPRE 1 E LEVE 2 SÓ HOJE &nbsp;•&nbsp; 🔥 ÚLTIMAS UNIDADES DISPONÍVEIS &nbsp;•&nbsp; 🔥 FRETE GRÁTIS PARA TODO BRASIL &nbsp;•&nbsp; 🔥 MAIS DE 12 MIL CLIENTES &nbsp;•&nbsp; 🔥 OFERTA ESPECIAL POR TEMPO LIMITADO &nbsp;•&nbsp; 🔥 PROTEJA SEUS JOELHOS COM PROTEK &nbsp;•&nbsp;</span><span>🔥 COMPRE 1 E LEVE 2 SÓ HOJE &nbsp;•&nbsp; 🔥 ÚLTIMAS UNIDADES DISPONÍVEIS &nbsp;•&nbsp; 🔥 FRETE GRÁTIS PARA TODO BRASIL &nbsp;•&nbsp; 🔥 MAIS DE 12 MIL CLIENTES &nbsp;•&nbsp; 🔥 OFERTA ESPECIAL POR TEMPO LIMITADO &nbsp;•&nbsp; 🔥 PROTEJA SEUS JOELHOS COM PROTEK &nbsp;•&nbsp; 🔥 COMPRE 1 E LEVE 2 SÓ HOJE &nbsp;•&nbsp; 🔥 ÚLTIMAS UNIDADES DISPONÍVEIS &nbsp;•&nbsp; 🔥 FRETE GRÁTIS PARA TODO BRASIL &nbsp;•&nbsp; 🔥 MAIS DE 12 MIL CLIENTES &nbsp;•&nbsp; 🔥 OFERTA ESPECIAL POR TEMPO LIMITADO &nbsp;•&nbsp; 🔥 PROTEJA SEUS JOELHOS COM PROTEK &nbsp;•&nbsp;</span>
+    </div>
+  </div>
+
+  <!-- ============ HERO ============ -->
+  <section class="pk-section pk-hero">
+    <div class="pk-hero-glow"><i></i><i></i></div>
+    <div class="pk-container pk-mw-7xl">
+      <div class="pk-hero-grid">
+
+        <div class="pk-hero-copy pk-reveal">
+          <h1 class="pk-h1">Recupere a liberdade de se movimentar sem dor <span>em apenas 7 dias</span> com PROTEK</h1>
+
+          <p class="pk-promo-mobile pk-only-mobile">🔥 APENAS HOJE: Na compra de 1 PROTEK, você leva a 2ª GRÁTIS + FRETE GRÁTIS para todo Brasil! 😱</p>
+
+          <div class="pk-hero-video-mobile pk-only-mobile">
+            <video src="{{ hero_video }}" autoplay loop muted playsinline preload="auto"></video>
+          </div>
+
+          <div class="pk-only-mobile" style="width:100%;">
+            <a href="{{ cta_url }}" class="pk-btn pk-btn-hero-mobile">COMPRAR AGORA
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+            </a>
+          </div>
+
+          <div class="pk-rating pk-only-desktop pk-flex">
+            <div class="pk-stars">
+              {%- for i in (1..5) -%}
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>
+              {%- endfor -%}
+              <b>4.9/5</b>
+            </div>
+            <small>Aprovada por mais de 2.354 usuários</small>
+          </div>
+
+          <p class="pk-promo-desktop pk-only-desktop">🔥 APENAS HOJE: Na compra de 1 PROTEK, você leva a 2ª GRÁTIS + FRETE GRÁTIS para todo Brasil! 😱</p>
+
+          <div class="pk-only-desktop">
+            <span class="pk-warning">⚠️ ATENÇÃO: Essa condição promocional pode sair do ar a qualquer momento devido à alta demanda.</span>
+          </div>
+
+          <div class="pk-cta-card pk-only-desktop">
+            <a href="{{ cta_url }}" class="pk-btn pk-btn-hero"><span>COMPRAR AGORA</span>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="pk-hero-video-desktop pk-only-desktop pk-flex pk-reveal">
+          <video src="{{ hero_video }}" autoplay loop muted playsinline preload="auto"></video>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ QUEM TEM, RECOMENDA ============ -->
+  <section class="pk-section pk-proof">
+    <div class="pk-container pk-mw-6xl">
+      <div class="pk-proof-head pk-reveal">
+        <h2 class="pk-h2">Quem tem, <span>recomenda</span></h2>
+      </div>
+      <div class="pk-proof-viewport">
+        <div class="pk-proof-track">
+          {%- assign proofs = proof_1 | append: ',' | append: proof_2 | append: ',' | append: proof_3 | append: ',' | append: proof_4 | append: ',' | append: proof_5 | split: ',' -%}
+          {%- for pass in (1..2) -%}
+            {%- for v in proofs -%}
+            <div class="pk-proof-item"><video src="{{ v }}" autoplay loop muted playsinline preload="auto"></video></div>
+            {%- endfor -%}
+          {%- endfor -%}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ O QUE TORNA ÚNICA ============ -->
+  <section class="pk-section pk-features pk-bg-gray">
+    <div class="pk-container pk-mw-6xl">
+      <div class="pk-features-grid">
+        <div class="pk-reveal">
+          <div class="pk-features-img">
+            <img src="{{ img_features }}" alt="PROTEK Features" loading="lazy">
+          </div>
+        </div>
+        <div class="pk-features-copy pk-reveal">
+          <div>
+            <h2 class="pk-h2-lg">O que torna a PROTEK única?</h2>
+            <p class="pk-lead">Utilizando a mais recente tecnologia em suporte ortopédico para garantir que você obtenha o máximo de alívio e conforto.</p>
+          </div>
+          <div class="pk-feature-list">
+            <div class="pk-feature">
+              <div class="pk-feature-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path><path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"></path></svg></div>
+              <span>Ajuda no combate às dores no joelho</span>
+            </div>
+            <div class="pk-feature">
+              <div class="pk-feature-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"></path></svg></div>
+              <span>Ajuda no fortalecimento das articulações</span>
+            </div>
+            <div class="pk-feature">
+              <div class="pk-feature-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div>
+              <span>Auxilia na recuperação do movimento</span>
+            </div>
+            <div class="pk-feature">
+              <div class="pk-feature-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"></path><circle cx="12" cy="8" r="6"></circle></svg></div>
+              <span>Proporciona mais confiança para exercícios</span>
+            </div>
+            <div class="pk-feature">
+              <div class="pk-feature-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path></svg></div>
+              <span>Garantia incondicional de satisfação</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MUITO MAIS QUE UMA JOELHEIRA ============ -->
+  <section class="pk-section pk-details">
+    <div class="pk-container pk-mw-6xl">
+      <div class="pk-details-head pk-reveal">
+        <h2>Muito mais do que uma simples joelheira</h2>
+        <p>É uma revolução no cuidado com seus joelhos.</p>
+      </div>
+      <div class="pk-detail-blocks">
+
+        <div class="pk-detail pk-detail-1">
+          <div class="pk-reveal">
+            <h3>Haste em aço flexível nas laterais e estabilizador em gel</h3>
+            <p>Ergonomia para criar pressão no joelho e um inovador estabilizador em gel, para proteção e apoio da patela. Proporciona conforto e estabilidade para movimentos giratórios nas duas laterais sem perda de flexibilidade.</p>
+          </div>
+          <div class="pk-detail-media pk-reveal">
+            <div class="pk-detail-img"><img src="{{ img_detail_1 }}" alt="Haste em aço flexível e estabilizador em gel" loading="lazy"></div>
+          </div>
+        </div>
+
+        <div class="pk-detail pk-detail-2">
+          <div class="pk-detail-media pk-reveal">
+            <div class="pk-detail-img"><img src="{{ img_detail_2 }}" alt="Fortalecimento das articulações" loading="lazy"></div>
+          </div>
+          <div class="pk-reveal">
+            <h3>Fortalecimento das articulações</h3>
+            <p>Ajuda a retomar a movimentação do joelho e, consequentemente, o fortalecimento das articulações sem gerar desconforto. Ideal para o pós-operatório e reabilitação, contribuindo para que você se recupere mais rápido e com mais confiança.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BÔNUS ============ -->
+  <section class="pk-section pk-bonus pk-bg-gray">
+    <div class="pk-container pk-mw-5xl">
+      <div class="pk-bonus-card pk-reveal">
+        <div class="pk-bonus-grid">
+          <div>
+            <div class="pk-badge">BÔNUS EXCLUSIVO</div>
+            <h3>Livro digital: Guia Definitivo para Joelhos Saudáveis</h3>
+            <p>Normalmente vendido por R$49, você receberá <b>gratuitamente</b> nosso livro digital. Nele, você vai aprender:</p>
+            <ul>
+              {%- assign bonus_items = 'Entendendo as dores no joelho,Nutrientes essenciais para as articulações,Alimentos que combatem a inflamação,Evitando alimentos que pioram a dor' | split: ',' -%}
+              {%- for item in bonus_items -%}
+              <li>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+                <span>{{ item }}</span>
+              </li>
+              {%- endfor -%}
+            </ul>
+          </div>
+          <div class="pk-bonus-img">
+            <img src="{{ img_ebook }}" alt="Guia Definitivo para Joelhos Saudáveis" loading="lazy">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA GRANDE ============ -->
+  <section class="pk-section pk-cta">
+    <div class="pk-container pk-mw-5xl">
+      <div class="pk-cta-wrap pk-reveal">
+        <div class="pk-cta-glow">
+          <a href="{{ cta_url }}" class="pk-btn-cta">🔥 COMPRAR 1 E LEVAR 2 AGORA</a>
+        </div>
+        <p class="pk-cta-note">Oferta especial + frete grátis por tempo limitado</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DEPOIMENTOS ============ -->
+  <section class="pk-section pk-reviews pk-bg-gray">
+    <div class="pk-container pk-mw-6xl">
+      <div class="pk-reviews-head pk-reveal">
+        <h2>PROTEK já ajudou mais de <span style="color:var(--pk-primary);">2 mil usuários</span></h2>
+        <p>Estudos clínicos e depoimentos comprovam a eficácia. <b>Junte-se a eles.</b></p>
+      </div>
+      <div class="pk-reviews-grid">
+
+        <div class="pk-review pk-reveal">
+          <div class="pk-review-top">
+            <img src="{{ avatar_1 }}" alt="Maria Aparecida" loading="lazy">
+            <div>
+              <h4>Maria Aparecida</h4>
+              <div class="pk-review-stars">
+                {%- for i in (1..5) -%}<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>{%- endfor -%}
+              </div>
+            </div>
+          </div>
+          <p>"Eu sentia muita dor quando levantava da cama e até pra subir escada era sofrido. Depois que comecei a usar a PROTEK, senti muito mais firmeza e conforto no joelho. Hoje consigo caminhar com mais segurança e muito menos dor. Melhor compra que fiz esse ano."</p>
+        </div>
+
+        <div class="pk-review pk-reveal">
+          <div class="pk-review-top">
+            <img src="{{ avatar_2 }}" alt="Carlos Roberto" loading="lazy">
+            <div>
+              <h4>Carlos Roberto</h4>
+              <div class="pk-review-stars">
+                {%- for i in (1..5) -%}<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>{%- endfor -%}
+              </div>
+            </div>
+          </div>
+          <p>"Eu gosto muito de caminhar, mas meu joelho estava me limitando demais. A PROTEK ajudou bastante na estabilidade e no conforto durante o dia. Uso até pra sair de casa normalmente. Valeu muito a pena"</p>
+        </div>
+
+        <div class="pk-review pk-reveal">
+          <div class="pk-review-top">
+            <img src="{{ avatar_3 }}" alt="Sandra Helena" loading="lazy">
+            <div>
+              <h4>Sandra Helena</h4>
+              <div class="pk-review-stars">
+                {%- for i in (1..5) -%}<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>{%- endfor -%}
+              </div>
+            </div>
+          </div>
+          <p>"Eu trabalho bastante tempo em pé e meu joelho vivia inchado e dolorido. A sensação de suporte da PROTEK é muito boa. Parece que o joelho fica mais protegido. Hoje consigo passar o dia muito mais confortável."</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section class="pk-section pk-faq" id="faq">
+    <div class="pk-container pk-mw-3xl">
+      <div class="pk-faq-head pk-reveal"><h2>Perguntas frequentes</h2></div>
+      <div class="pk-faq-list">
+
+        <div class="pk-faq-item pk-reveal">
+          <button class="pk-faq-q" type="button">
+            <h3>Ela escorrega durante o uso?</h3>
+            <div class="pk-faq-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg></div>
+          </button>
+          <div class="pk-faq-a"><div>Não. Ela possui faixas de pressão especialmente projetadas na parte interna para segurar a joelheira, independente de quão forte ou rápido você se movimentar ou exercitar.</div></div>
+        </div>
+
+        <div class="pk-faq-item pk-reveal">
+          <button class="pk-faq-q" type="button">
+            <h3>Em que tipos de dores a joelheira auxilia?</h3>
+            <div class="pk-faq-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg></div>
+          </button>
+          <div class="pk-faq-a"><div>Ela ajuda a aliviar dores no joelho em geral, as principais são: Tendinite, Bursite, Artrite, Reumatoide, Inflamação do Tendão, Inflamação do Menisco ou qualquer outro desconforto das articulações. Mas atenção, ela não substitui ligamentos rompidos, cartilagem ou menisco. Caso as dores persistam, procure um médico ou fisioterapeuta.</div></div>
+        </div>
+
+        <div class="pk-faq-item pk-reveal">
+          <button class="pk-faq-q" type="button">
+            <h3>A joelheira tem lado? Pode ser usada em qualquer um dos joelhos?</h3>
+            <div class="pk-faq-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg></div>
+          </button>
+          <div class="pk-faq-a"><div>A joelheira PROTEK é universal, projetada para se ajustar perfeitamente tanto ao joelho direito quanto ao esquerdo. Isso oferece mais praticidade, pois você pode usá-la em qualquer perna, conforme a sua necessidade.</div></div>
+        </div>
+
+        <div class="pk-faq-item pk-reveal">
+          <button class="pk-faq-q" type="button">
+            <h3>Como é definido o tamanho? E se não servir em mim?</h3>
+            <div class="pk-faq-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg></div>
+          </button>
+          <div class="pk-faq-a"><div>De acordo com nossos cálculos, mais de 90% das pessoas se encaixam perfeitamente nos tamanhos indicados para suas faixas de peso. Caso o tamanho escolhido não sirva, enviaremos uma substituição sem nenhum custo para você.</div></div>
+        </div>
+
+        <div class="pk-faq-item pk-reveal">
+          <button class="pk-faq-q" type="button">
+            <h3>O produto possui garantia?</h3>
+            <div class="pk-faq-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg></div>
+          </button>
+          <div class="pk-faq-a"><div>Ao efetuar a compra do produto através do site oficial, você está protegido pela nossa garantia de satisfação total. O que significa que você poderá testar o produto por até 7 dias e se não estiver satisfeito, basta entrar em contato conosco, que prosseguiremos a devolução e o reembolso integral do valor pago.</div></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ GARANTIA ============ -->
+  <section class="pk-section pk-trust">
+    <div class="pk-container pk-mw-5xl">
+      <div class="pk-reveal">
+        <h2>Em dúvida quanto comprar pela internet?</h2>
+        <p>Na PROTEK sua compra é <b>segura</b> e <b>garantida</b>, seu risco é <b>zero</b>. Garantimos a entrega do produto e a sua total satisfação ou seu dinheiro de volta.</p>
+        <div class="pk-trust-grid">
+          <div class="pk-trust-card">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path></svg>
+            <p>Dados pessoais e financeiros não são compartilhados</p>
+          </div>
+          <div class="pk-trust-card">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"></path><path d="M15 18H9"></path><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"></path><circle cx="17" cy="18" r="2"></circle><circle cx="7" cy="18" r="2"></circle></svg>
+            <p>Entrega garantida no prazo e política simples de devolução</p>
+          </div>
+          <div class="pk-trust-card">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+            <p>Loja verificada e auditada pelo Reclame AQUI</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {%- if section.settings.show_footer -%}
+  <!-- ============ RODAPÉ DA LANDING (opcional) ============ -->
+  <footer class="pk-footer">
+    <div class="pk-container pk-mw-6xl">
+      <div class="pk-footer-grid">
+        <div>
+          <h3>PROTEK</h3>
+          <p>Tecnologia avançada em suporte ortopédico para proporcionar alívio e conforto, ajudando você a recuperar a liberdade de movimento.</p>
+        </div>
+        <div>
+          <h4>Links Rápidos</h4>
+          <ul>
+            <li><a href="/">Início</a></li>
+            <li><a href="/pages/contato">Contato</a></li>
+            <li><a href="#faq">Perguntas Frequentes</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Contato</h4>
+          <ul>
+            <li><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg><span>{{ section.settings.footer_email }}</span></li>
+            <li><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg><span>{{ section.settings.footer_phone }}</span></li>
+            <li><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg><span>Brasil</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="pk-footer-bottom">
+        <p>© {{ 'now' | date: '%Y' }} PROTEK. Todos os direitos reservados.</p>
+        <div style="display:flex;gap:1.5rem;">
+          <a href="/policies/privacy-policy">Política de Privacidade</a>
+          <a href="/policies/terms-of-service">Termos de Uso</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  {%- endif -%}
+
+</div>
+
+<script>
+(function(){
+  var root = document.getElementById('protek-lp');
+  if(!root) return;
+
+  /* FAQ acordeão */
+  root.querySelectorAll('.pk-faq-q').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var item = btn.parentElement;
+      var panel = item.querySelector('.pk-faq-a');
+      var open = item.classList.contains('pk-open');
+      root.querySelectorAll('.pk-faq-item.pk-open').forEach(function(o){
+        o.classList.remove('pk-open');
+        o.querySelector('.pk-faq-a').style.maxHeight = '0px';
+      });
+      if(!open){
+        item.classList.add('pk-open');
+        panel.style.maxHeight = panel.scrollHeight + 'px';
+      }
+    });
+  });
+
+  /* Reveal ao rolar */
+  var els = root.querySelectorAll('.pk-reveal');
+  if(!('IntersectionObserver' in window)){
+    els.forEach(function(el){ el.classList.add('pk-in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('pk-in'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+  els.forEach(function(el){ io.observe(el); });
+
+  /* Vídeos: garante autoplay silencioso no mobile */
+  root.querySelectorAll('video').forEach(function(v){
+    v.muted = true;
+    var p = v.play();
+    if(p && p.catch){ p.catch(function(){}); }
+  });
+})();
+</script>
+
+{% schema %}
+{
+  "name": "PROTEK — Landing",
+  "settings": [
+    {
+      "type": "url",
+      "id": "cta_url",
+      "label": "Link dos botões COMPRAR",
+      "info": "Cole aqui o link do produto ou do checkout."
+    },
+    {
+      "type": "text",
+      "id": "hero_video",
+      "label": "URL do vídeo principal (topo)",
+      "info": "Deixe em branco para usar o vídeo padrão."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_footer",
+      "label": "Mostrar rodapé da landing",
+      "default": false,
+      "info": "Sua loja já tem rodapé próprio. Ative só se quiser o rodapé PROTEK também."
+    },
+    {
+      "type": "text",
+      "id": "footer_email",
+      "label": "E-mail do rodapé da landing",
+      "default": "Royalcalcadospremium@gmail.com"
+    },
+    {
+      "type": "text",
+      "id": "footer_phone",
+      "label": "Telefone do rodapé da landing",
+      "default": "(62) 99190-2661"
+    }
+  ]
+}
+{% endschema %}
