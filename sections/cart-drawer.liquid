@@ -979,10 +979,10 @@ AJUSTE (pedido do Fellipe):
       <div class="rcd__vmodal-sub" data-rcd-vmodal-sub>{{ section.settings.modal_subtitle | escape }}</div>
 
       {%- comment -%}
-        Botão verde "Finalizar compra aqui no site" — aparece DINAMICAMENTE via JS
-        somente quando TODOS os items do carrinho estão sincronizados (tag 'synced-olist'
-        ou variant.inventory_management='shopify'). Caso contrário (algum não sync),
-        o JS oculta este bloco e mostra só as vendedoras abaixo.
+        Botão verde "Finalizar compra aqui no site" — aparece por padrão, logo
+        acima do divider "ou consulte uma vendedora". O JS só oculta este bloco
+        quando algum item do carrinho tem a tag 'consultar-vendedor'.
+        Controle de estoque não influencia mais nessa decisão.
       {%- endcomment -%}
       <div class="rcd__site-checkout" id="rcd-site-checkout" hidden>
         <button class="rcd__btn-finalize" type="button" id="rcd-finalize-onsite">
@@ -1137,11 +1137,13 @@ AJUSTE (pedido do Fellipe):
       const itemsWrap = root.querySelector('[data-rcd-items]');
       const subtotalEl = root.querySelector('[data-rcd-subtotal]');
 
-      // ===== Detecção: todos produtos sincronizados Tiny/Olist? =====
-      // Critério: tag 'synced-olist' OU variant.inventory_management='shopify'
+      // ===== Detecção: algum item exige atendimento por vendedora? =====
+      // Critério único: tag 'consultar-vendedor' (marcação manual no admin).
+      // A falta de controle de estoque não esconde mais o botão verde — o
+      // cliente sempre pode fechar sozinho, com a vendedora como opção abaixo.
       // Cache de products já consultados (evita refetch a cada open do modal)
       const productCache = new Map();
-      async function isCartFullySynced() {
+      async function canCheckoutOnSite() {
         try {
           const cart = await fetch('/cart.js', { headers: { 'Accept': 'application/json' } }).then(r => r.json());
           if (!cart.items || cart.items.length === 0) return true;
@@ -1154,16 +1156,11 @@ AJUSTE (pedido do Fellipe):
           }));
           for (const p of products) {
             const tags = (p.tags || []).map(t => String(t).toLowerCase());
-            const hasConsultarVendedor = tags.includes('consultar-vendedor');
-            if (hasConsultarVendedor) return false;
-            const hasSyncedTag = tags.includes('synced-olist');
-            const hasTrackedInventory = (p.variants || []).some(v => v.inventory_management === 'shopify');
-            const isSynced = hasSyncedTag || hasTrackedInventory;
-            if (!isSynced) return false;
+            if (tags.includes('consultar-vendedor')) return false;
           }
           return true;
         } catch (e) {
-          return false; // fallback seguro: oculta botão verde se algo falhar
+          return true; // falha de rede não deve tirar a opção de comprar pelo site
         }
       }
 
@@ -1250,16 +1247,17 @@ AJUSTE (pedido do Fellipe):
         modal.classList.add('is-open');
         modal.setAttribute('aria-hidden','false');
         lockScroll();
-        // Decide assincronamente se mostra o botão verde
+        // Botão verde entra visível; só sai se algum item exigir vendedora.
+        // Começar visível evita o piscar de "só vendedoras" durante o fetch.
         if (siteCheckoutWrap) {
-          siteCheckoutWrap.hidden = true; // start hidden enquanto verifica
-          if (vmodalTitle) vmodalTitle.textContent = 'Escolha uma vendedora';
-          if (vmodalSub) vmodalSub.textContent = 'Selecione para encaminhar seu orçamento no WhatsApp.';
-          const allSynced = await isCartFullySynced();
-          if (allSynced) {
-            siteCheckoutWrap.hidden = false;
-            if (vmodalTitle) vmodalTitle.textContent = 'Como você quer finalizar?';
-            if (vmodalSub) vmodalSub.textContent = 'Você pode pagar agora pelo site ou falar com uma vendedora.';
+          siteCheckoutWrap.hidden = false;
+          if (vmodalTitle) vmodalTitle.textContent = 'Como você quer finalizar?';
+          if (vmodalSub) vmodalSub.textContent = 'Você pode pagar agora pelo site ou falar com uma vendedora.';
+          const podeComprarNoSite = await canCheckoutOnSite();
+          if (!podeComprarNoSite) {
+            siteCheckoutWrap.hidden = true;
+            if (vmodalTitle) vmodalTitle.textContent = 'Escolha uma vendedora';
+            if (vmodalSub) vmodalSub.textContent = 'Selecione para encaminhar seu orçamento no WhatsApp.';
           }
         }
       };
