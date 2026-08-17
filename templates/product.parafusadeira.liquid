@@ -1,0 +1,9 @@
+{% section 'parafusadeira-landing' %}
+
+{%- comment -%} Avaliações reais dos apps já instalados na loja {%- endcomment -%}
+<div id="Areviewsapp" class="page-full">{% render 'aliexpress_reviews', product: product %}</div>
+<div class="lt-block-reviews">
+  <ryviu-widget handle="{{ product.handle }}" product_id="{{ product.id }}" title_product="{{ product.title }}" image_product="{{ product.featured_image.src | img_url: '180x' }}"></ryviu-widget>
+</div>
+
+{% section 'product-recommendations' %}
