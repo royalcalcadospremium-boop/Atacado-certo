@@ -1,0 +1,1223 @@
+{%- comment -%}
+  ============================================================
+  SUTIÃ CORRETOR DE POSTURA — Landing de venda (dropshipping)
+  Uso: crie uma Página no admin e escolha o template "page.postura"
+  Configure o produto e as ofertas (kits) pelo Customizer.
+  ============================================================
+{%- endcomment -%}
+
+{%- assign p = section.settings.produto -%}
+
+{%- comment -%} Preço unitário base: do produto selecionado ou do fallback {%- endcomment -%}
+{%- if p and p.price > 0 -%}
+  {%- assign preco_unit = p.price -%}
+{%- else -%}
+  {%- assign preco_unit = section.settings.preco_fallback | times: 100 -%}
+{%- endif -%}
+
+{%- comment -%} Galeria: imagens do produto ou uploads da section {%- endcomment -%}
+{%- assign tem_imgs_produto = false -%}
+{%- if p and p.images.size > 0 -%}{%- assign tem_imgs_produto = true -%}{%- endif -%}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+  #pc-lp{
+    --pc-rose:#C97B8E;
+    --pc-rose-soft:#FDEEF1;
+    --pc-rose-line:#F3D5DC;
+    --pc-fg:#141414;
+    --pc-muted:#6B6B6B;
+    --pc-line:#E6E6E6;
+    --pc-gray:#F7F7F8;
+    --pc-green:#0F9D58;
+
+    font-family:'Inter',ui-sans-serif,system-ui,-apple-system,sans-serif;
+    color:var(--pc-fg);
+    background:#fff;
+    line-height:1.55;
+    overflow-x:hidden;
+    width:100%;
+    max-width:100vw;
+    -webkit-font-smoothing:antialiased;
+  }
+  #pc-lp *,#pc-lp *::before,#pc-lp *::after{box-sizing:border-box;}
+  #pc-lp p,#pc-lp h1,#pc-lp h2,#pc-lp h3,#pc-lp h4,#pc-lp ul,#pc-lp li,#pc-lp figure{margin:0;padding:0;}
+  #pc-lp ul{list-style:none;}
+  #pc-lp img,#pc-lp video{display:block;max-width:100%;}
+  #pc-lp button{font-family:inherit;border:0;cursor:pointer;background:none;color:inherit;}
+  #pc-lp a{text-decoration:none;color:inherit;}
+  #pc-lp select{font-family:inherit;}
+
+  #pc-lp .pc-wrap{width:100%;margin:0 auto;padding:0 1rem;}
+  #pc-lp .pc-mw-6xl{max-width:72rem;}
+  #pc-lp .pc-mw-5xl{max-width:64rem;}
+  #pc-lp .pc-mw-3xl{max-width:44rem;}
+  #pc-lp .pc-sec{width:100%;max-width:100vw;overflow-x:hidden;padding:3rem 0;}
+  #pc-lp .pc-serif{font-family:'Playfair Display',Georgia,serif;}
+
+  /* ---------- reveal ---------- */
+  #pc-lp .pc-rv{opacity:0;transform:translateY(2rem);transition:opacity .6s ease-out,transform .6s ease-out;}
+  #pc-lp .pc-rv.pc-in{opacity:1;transform:translateY(0);}
+  @media (prefers-reduced-motion:reduce){
+    #pc-lp .pc-rv{opacity:1;transform:none;transition:none;}
+  }
+
+  /* ---------- marquee ---------- */
+  #pc-lp .pc-marquee{background:#000;color:#fff;padding:.55rem 0;overflow:hidden;position:relative;}
+  #pc-lp .pc-marquee-track{display:inline-block;white-space:nowrap;animation:pc-scroll 30s linear infinite;will-change:transform;}
+  #pc-lp .pc-marquee-track span{
+    display:inline-block;padding:0 2rem;font-size:.75rem;font-weight:700;
+    text-transform:uppercase;letter-spacing:.08em;
+  }
+  @keyframes pc-scroll{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+
+  /* ---------- galeria ---------- */
+  #pc-lp .pc-gallery{padding:1.25rem 0 0;}
+  #pc-lp .pc-gal-main{
+    border:1px solid var(--pc-line);border-radius:1rem;overflow:hidden;background:var(--pc-gray);
+    aspect-ratio:1/1;
+  }
+  #pc-lp .pc-gal-main img{width:100%;height:100%;object-fit:cover;}
+  #pc-lp .pc-gal-thumbs{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.5rem;
+  }
+  #pc-lp .pc-gal-thumbs button{
+    border:1px solid var(--pc-line);border-radius:.6rem;overflow:hidden;aspect-ratio:1/1;
+    background:var(--pc-gray);padding:0;transition:border-color .2s;
+  }
+  #pc-lp .pc-gal-thumbs button.pc-active{border-color:var(--pc-fg);border-width:2px;}
+  #pc-lp .pc-gal-thumbs img{width:100%;height:100%;object-fit:cover;}
+
+  /* ---------- cabeçalho do produto ---------- */
+  #pc-lp .pc-rating{display:flex;align-items:center;gap:.5rem;margin-top:1.25rem;flex-wrap:wrap;}
+  #pc-lp .pc-stars{display:flex;gap:.1rem;}
+  #pc-lp .pc-stars svg{width:1.15rem;height:1.15rem;fill:#111;color:#111;}
+  #pc-lp .pc-rating small{font-size:.95rem;color:var(--pc-fg);font-weight:500;}
+  #pc-lp .pc-h1{
+    font-size:1.9rem;font-weight:900;line-height:1.1;text-transform:uppercase;
+    letter-spacing:-.02em;margin-top:.5rem;
+  }
+  #pc-lp .pc-sub{font-size:1.05rem;color:var(--pc-muted);margin-top:.75rem;line-height:1.5;}
+
+  /* ---------- divisor com título ---------- */
+  #pc-lp .pc-divider{display:flex;align-items:center;gap:1rem;margin:2.25rem 0 1.25rem;}
+  #pc-lp .pc-divider::before,#pc-lp .pc-divider::after{content:"";flex:1;height:2px;background:var(--pc-fg);}
+  #pc-lp .pc-divider h2{font-size:1.25rem;font-weight:900;text-transform:uppercase;letter-spacing:-.01em;white-space:nowrap;}
+
+  /* ---------- ofertas / kits ---------- */
+  #pc-lp .pc-offers{display:flex;flex-direction:column;gap:.75rem;}
+  #pc-lp .pc-offer{
+    position:relative;border:1px solid var(--pc-line);border-radius:.9rem;background:var(--pc-gray);
+    padding:1rem;transition:border-color .2s,background .2s,box-shadow .2s;cursor:pointer;display:block;
+  }
+  #pc-lp .pc-offer.pc-sel{border:2px solid var(--pc-fg);background:#fff;box-shadow:0 6px 24px rgba(0,0,0,.07);}
+  #pc-lp .pc-offer-top{display:flex;align-items:center;gap:.75rem;}
+  #pc-lp .pc-radio{
+    width:1.4rem;height:1.4rem;border:2px solid #9A9A9A;border-radius:9999px;flex:none;
+    display:flex;align-items:center;justify-content:center;
+  }
+  #pc-lp .pc-offer.pc-sel .pc-radio{border-color:var(--pc-fg);}
+  #pc-lp .pc-radio i{width:.75rem;height:.75rem;border-radius:9999px;background:var(--pc-fg);display:none;}
+  #pc-lp .pc-offer.pc-sel .pc-radio i{display:block;}
+  #pc-lp .pc-offer-name{font-size:1.15rem;font-weight:700;flex:1;}
+  #pc-lp .pc-offer-prices{text-align:right;line-height:1.2;flex:none;}
+  #pc-lp .pc-offer-prices b{font-size:1.2rem;font-weight:800;display:block;}
+  #pc-lp .pc-offer-prices s{font-size:.95rem;color:#9A9A9A;}
+  #pc-lp .pc-tag{
+    position:absolute;top:-.6rem;left:1rem;background:var(--pc-rose);color:#fff;
+    font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
+    padding:.2rem .55rem;border-radius:9999px;
+  }
+  #pc-lp .pc-units{display:none;margin-top:.9rem;flex-direction:column;gap:.5rem;}
+  #pc-lp .pc-offer.pc-sel .pc-units{display:flex;}
+  #pc-lp .pc-unit{display:flex;align-items:center;gap:.5rem;}
+  #pc-lp .pc-unit-thumb{
+    width:3rem;flex:none;text-align:center;font-size:.7rem;color:var(--pc-muted);font-weight:700;
+  }
+  #pc-lp .pc-unit-thumb img{width:3rem;height:2.4rem;object-fit:cover;border-radius:.35rem;margin-bottom:.15rem;}
+  #pc-lp .pc-unit select{
+    flex:1;min-width:0;appearance:none;-webkit-appearance:none;
+    border:1px solid var(--pc-line);border-radius:.55rem;background:#fff;
+    padding:.6rem 1.9rem .6rem .7rem;font-size:.95rem;font-weight:600;color:var(--pc-fg);cursor:pointer;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23141414' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right .55rem center;background-size:1rem;
+  }
+  #pc-lp .pc-economia{
+    margin-top:.6rem;font-size:.8rem;font-weight:700;color:var(--pc-green);
+  }
+
+  /* ---------- CTA ---------- */
+  #pc-lp .pc-cta{
+    width:100%;background:#000;color:#fff;border-radius:.9rem;
+    padding:1.15rem 1rem;font-size:1.15rem;font-weight:800;text-align:center;
+    margin-top:1.25rem;transition:transform .15s,opacity .2s;letter-spacing:.01em;
+  }
+  #pc-lp .pc-cta:hover{transform:translateY(-2px);}
+  #pc-lp .pc-cta:active{transform:translateY(0);}
+  #pc-lp .pc-cta[disabled]{opacity:.55;cursor:not-allowed;transform:none;}
+  #pc-lp .pc-cta-sub{text-align:center;font-size:.8rem;color:var(--pc-muted);margin-top:.6rem;}
+
+  #pc-lp .pc-pay{display:flex;flex-wrap:wrap;justify-content:center;gap:.4rem;margin-top:1rem;}
+  #pc-lp .pc-pay span{
+    border:1px solid var(--pc-line);border-radius:.4rem;padding:.35rem .6rem;
+    font-size:.7rem;font-weight:800;color:#444;background:#fff;letter-spacing:.02em;
+  }
+
+  /* ---------- garantias curtas ---------- */
+  #pc-lp .pc-assur{display:flex;flex-direction:column;gap:.6rem;margin-top:1.5rem;}
+  #pc-lp .pc-assur-item{
+    display:flex;gap:.75rem;align-items:flex-start;border:1px solid var(--pc-line);
+    border-radius:.75rem;padding:.9rem;background:#fff;
+  }
+  #pc-lp .pc-assur-item svg{width:1.5rem;height:1.5rem;flex:none;color:var(--pc-rose);}
+  #pc-lp .pc-assur-item h4{font-size:.95rem;font-weight:800;}
+  #pc-lp .pc-assur-item p{font-size:.85rem;color:var(--pc-muted);}
+
+  /* ---------- faixa de confiança ---------- */
+  #pc-lp .pc-strip{border-top:1px solid var(--pc-line);border-bottom:1px solid var(--pc-line);padding:1rem 0;}
+  #pc-lp .pc-strip-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;}
+  #pc-lp .pc-strip-item{display:flex;align-items:center;gap:.5rem;justify-content:center;font-size:.85rem;font-weight:700;}
+  #pc-lp .pc-strip-item svg{width:1.25rem;height:1.25rem;color:var(--pc-rose);flex:none;}
+
+  /* ---------- bloco rosa / vídeo ---------- */
+  #pc-lp .pc-soft{background:var(--pc-rose-soft);}
+  #pc-lp .pc-soft h2{
+    font-size:1.75rem;line-height:1.2;text-align:center;text-transform:uppercase;
+    font-weight:700;letter-spacing:.01em;
+  }
+  #pc-lp .pc-video{
+    max-width:22rem;margin:2rem auto 0;border-radius:1rem;overflow:hidden;background:#000;
+    box-shadow:0 20px 40px -20px rgba(0,0,0,.4);
+  }
+  #pc-lp .pc-video video{width:100%;aspect-ratio:9/16;object-fit:cover;}
+
+  #pc-lp .pc-feats{display:flex;flex-direction:column;gap:2.5rem;margin-top:2.5rem;}
+  #pc-lp .pc-feat{text-align:center;max-width:32rem;margin:0 auto;}
+  #pc-lp .pc-feat svg{width:2.5rem;height:2.5rem;margin:0 auto .75rem;color:var(--pc-rose);}
+  #pc-lp .pc-feat h3{font-size:1.35rem;font-weight:700;margin-bottom:.5rem;}
+  #pc-lp .pc-feat p{color:#4A4A4A;font-size:1rem;}
+
+  /* ---------- antes/depois ---------- */
+  #pc-lp .pc-ba{border:1px solid var(--pc-line);border-radius:1rem;overflow:hidden;}
+  #pc-lp .pc-ba-head{background:var(--pc-fg);color:#fff;text-align:center;padding:.85rem;font-weight:900;text-transform:uppercase;letter-spacing:.05em;}
+  #pc-lp .pc-ba-grid{display:grid;grid-template-columns:1fr 1fr;}
+  #pc-lp .pc-ba-cell{position:relative;background:var(--pc-gray);}
+  #pc-lp .pc-ba-cell img{width:100%;aspect-ratio:3/4;object-fit:cover;}
+  #pc-lp .pc-ba-cell span{
+    position:absolute;top:.6rem;left:.6rem;background:#fff;border-radius:.4rem;
+    padding:.25rem .6rem;font-size:.7rem;font-weight:900;text-transform:uppercase;letter-spacing:.05em;
+  }
+  #pc-lp .pc-ba-cell.pc-after span{background:var(--pc-fg);color:#fff;right:.6rem;left:auto;}
+
+  /* ---------- avaliações ---------- */
+  #pc-lp .pc-rev-head{text-align:center;margin-bottom:2rem;}
+  #pc-lp .pc-rev-head .pc-stars{justify-content:center;}
+  #pc-lp .pc-rev-head .pc-stars svg{fill:var(--pc-rose);color:var(--pc-rose);}
+  #pc-lp .pc-rev-head h2{font-size:1.9rem;font-weight:700;text-transform:uppercase;margin-top:.5rem;}
+  #pc-lp .pc-revs{display:grid;gap:1rem;}
+  #pc-lp .pc-rev{border:1px solid var(--pc-line);border-radius:1rem;padding:1.25rem;background:#fff;}
+  #pc-lp .pc-rev-top{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;}
+  #pc-lp .pc-rev-av{
+    width:2.75rem;height:2.75rem;border-radius:9999px;background:var(--pc-rose-soft);
+    display:flex;align-items:center;justify-content:center;font-weight:900;color:var(--pc-rose);flex:none;
+  }
+  #pc-lp .pc-rev h4{font-size:.95rem;font-weight:800;}
+  #pc-lp .pc-rev-ver{font-size:.7rem;color:var(--pc-green);font-weight:700;display:flex;align-items:center;gap:.2rem;}
+  #pc-lp .pc-rev-ver svg{width:.85rem;height:.85rem;}
+  #pc-lp .pc-rev .pc-stars svg{width:.95rem;height:.95rem;fill:var(--pc-rose);color:var(--pc-rose);}
+  #pc-lp .pc-rev p{font-size:.95rem;color:#3A3A3A;margin-top:.5rem;}
+
+  /* ---------- tabela de medidas ---------- */
+  #pc-lp .pc-size-table{width:100%;border-collapse:collapse;font-size:.9rem;}
+  #pc-lp .pc-size-table th,#pc-lp .pc-size-table td{border:1px solid var(--pc-line);padding:.6rem .5rem;text-align:center;}
+  #pc-lp .pc-size-table th{background:var(--pc-fg);color:#fff;font-weight:800;text-transform:uppercase;font-size:.75rem;letter-spacing:.04em;}
+  #pc-lp .pc-size-table tr:nth-child(even) td{background:var(--pc-gray);}
+  #pc-lp .pc-size-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+
+  /* ---------- FAQ ---------- */
+  #pc-lp .pc-faq-list{display:flex;flex-direction:column;gap:.6rem;}
+  #pc-lp .pc-faq-item{border:1px solid var(--pc-line);border-radius:.75rem;overflow:hidden;background:var(--pc-gray);}
+  #pc-lp .pc-faq-q{
+    width:100%;display:flex;align-items:center;justify-content:space-between;gap:1rem;
+    padding:1rem;text-align:left;font-size:1rem;font-weight:600;
+  }
+  #pc-lp .pc-faq-q svg{width:1.25rem;height:1.25rem;flex:none;transition:transform .25s;}
+  #pc-lp .pc-faq-item.pc-open .pc-faq-q svg{transform:rotate(45deg);}
+  #pc-lp .pc-faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease;}
+  #pc-lp .pc-faq-a div{padding:0 1rem 1rem;font-size:.95rem;color:var(--pc-muted);}
+
+  /* ---------- barra fixa mobile ---------- */
+  #pc-lp .pc-sticky{
+    position:fixed;left:0;right:0;bottom:0;z-index:60;background:rgba(255,255,255,.97);
+    backdrop-filter:blur(8px);border-top:1px solid var(--pc-line);padding:.6rem 1rem;
+    display:flex;align-items:center;gap:.75rem;transform:translateY(120%);transition:transform .3s ease;
+    padding-bottom:calc(.6rem + env(safe-area-inset-bottom));
+  }
+  #pc-lp .pc-sticky.pc-show{transform:translateY(0);}
+  #pc-lp .pc-sticky-info{flex:1;min-width:0;line-height:1.2;}
+  #pc-lp .pc-sticky-info strong{display:block;font-size:.8rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  #pc-lp .pc-sticky-info b{font-size:1.05rem;font-weight:900;}
+  #pc-lp .pc-sticky button{
+    background:#000;color:#fff;border-radius:.7rem;padding:.85rem 1.4rem;font-weight:800;font-size:.95rem;flex:none;
+  }
+
+  /* ---------- desktop ---------- */
+  @media (min-width:768px){
+    #pc-lp .pc-wrap{padding:0 2rem;}
+    #pc-lp .pc-sec{padding:4.5rem 0;}
+    #pc-lp .pc-h1{font-size:2.6rem;}
+    #pc-lp .pc-buy-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start;}
+    #pc-lp .pc-gallery{position:sticky;top:1.5rem;}
+    #pc-lp .pc-divider{margin-top:1.5rem;}
+    #pc-lp .pc-strip-grid{grid-template-columns:repeat(4,1fr);}
+    #pc-lp .pc-soft h2{font-size:2.5rem;}
+    #pc-lp .pc-feats{display:grid;grid-template-columns:repeat(2,1fr);gap:3rem;}
+    #pc-lp .pc-revs{grid-template-columns:repeat(3,1fr);}
+    #pc-lp .pc-rev-head h2{font-size:2.5rem;}
+    #pc-lp .pc-sticky{display:none;}
+    #pc-lp .pc-assur{flex-direction:row;}
+    #pc-lp .pc-assur-item{flex:1;}
+  }
+</style>
+
+<div id="pc-lp"
+     data-cart-url="{{ routes.cart_url }}"
+     data-add-url="{{ routes.cart_add_url }}">
+
+  <!-- ============ MARQUEE ============ -->
+  <div class="pc-marquee" aria-hidden="true">
+    <div class="pc-marquee-track">
+      {%- assign frases = section.settings.marquee_texto | split: '|' -%}
+      {%- for x in (1..2) -%}
+        {%- for f in frases -%}<span>{{ f | strip }}</span>{%- endfor -%}
+      {%- endfor -%}
+    </div>
+  </div>
+
+  <!-- ============ BLOCO DE COMPRA ============ -->
+  <section class="pc-sec" style="padding-top:0;">
+    <div class="pc-wrap pc-mw-6xl">
+      <div class="pc-buy-grid">
+
+        <!-- galeria -->
+        <div class="pc-gallery">
+          <div class="pc-gal-main">
+            {%- if tem_imgs_produto -%}
+              <img id="pc-gal-img" src="{{ p.images[0] | image_url: width: 900 }}"
+                   alt="{{ p.title | escape }}" width="900" height="900" fetchpriority="high">
+            {%- elsif section.settings.img_1 != blank -%}
+              <img id="pc-gal-img" src="{{ section.settings.img_1 | image_url: width: 900 }}"
+                   alt="{{ section.settings.titulo | escape }}" width="900" height="900" fetchpriority="high">
+            {%- else -%}
+              <img id="pc-gal-img" src="{{ 'product-1' | placeholder_svg_tag }}" alt="">
+            {%- endif -%}
+          </div>
+
+          {%- if tem_imgs_produto -%}
+            <div class="pc-gal-thumbs">
+              {%- for img in p.images limit: 6 -%}
+                <button type="button" class="pc-thumb{% if forloop.first %} pc-active{% endif %}"
+                        data-full="{{ img | image_url: width: 900 }}" aria-label="Ver imagem {{ forloop.index }}">
+                  <img src="{{ img | image_url: width: 240 }}" alt="" loading="lazy" width="240" height="240">
+                </button>
+              {%- endfor -%}
+            </div>
+          {%- else -%}
+            {%- if section.settings.img_2 != blank or section.settings.img_3 != blank -%}
+            <div class="pc-gal-thumbs">
+              {%- for n in (1..3) -%}
+                {%- case n -%}
+                  {%- when 1 -%}{%- assign im = section.settings.img_1 -%}
+                  {%- when 2 -%}{%- assign im = section.settings.img_2 -%}
+                  {%- when 3 -%}{%- assign im = section.settings.img_3 -%}
+                {%- endcase -%}
+                {%- if im != blank -%}
+                <button type="button" class="pc-thumb{% if n == 1 %} pc-active{% endif %}"
+                        data-full="{{ im | image_url: width: 900 }}" aria-label="Ver imagem {{ n }}">
+                  <img src="{{ im | image_url: width: 240 }}" alt="" loading="lazy" width="240" height="240">
+                </button>
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+            {%- endif -%}
+          {%- endif -%}
+        </div>
+
+        <!-- coluna de oferta -->
+        <div>
+          <div class="pc-rating">
+            <div class="pc-stars" aria-hidden="true">
+              {%- for i in (1..5) -%}
+              <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.26 6.85.83-5.05 4.7 1.34 6.76L12 17.3 5.96 20.55 7.3 13.79 2.25 9.09l6.85-.83z"/></svg>
+              {%- endfor -%}
+            </div>
+            <small>{{ section.settings.nota }} · {{ section.settings.prova_social }}</small>
+          </div>
+
+          <h1 class="pc-h1">{{ section.settings.titulo }}</h1>
+          <p class="pc-sub">{{ section.settings.subtitulo }}</p>
+
+          <div class="pc-divider"><h2>{{ section.settings.titulo_ofertas }}</h2></div>
+
+          <!-- ofertas -->
+          <div class="pc-offers" id="pc-offers">
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'oferta' -%}
+                {%- assign qtd = block.settings.qtd | at_least: 1 -%}
+                {%- assign total_cheio = preco_unit | times: qtd -%}
+                {%- assign pct = block.settings.desconto_pct | at_least: 0 | at_most: 90 -%}
+                {%- assign economia = total_cheio | times: pct | divided_by: 100 -%}
+                {%- assign total_final = total_cheio | minus: economia -%}
+
+                <div class="pc-offer{% if block.settings.selecionado %} pc-sel{% endif %}"
+                     data-offer
+                     data-qtd="{{ qtd }}"
+                     data-preco="{{ total_final }}"
+                     data-label="{{ block.settings.rotulo | escape }}"
+                     data-cupom="{{ block.settings.cupom | escape }}"
+                     role="button" tabindex="0"
+                     {{ block.shopify_attributes }}>
+
+                  {%- if block.settings.selo != blank -%}
+                    <span class="pc-tag">{{ block.settings.selo }}</span>
+                  {%- endif -%}
+
+                  <div class="pc-offer-top">
+                    <span class="pc-radio" aria-hidden="true"><i></i></span>
+                    <span class="pc-offer-name">{{ block.settings.rotulo }}</span>
+                    <span class="pc-offer-prices">
+                      <b>{{ total_final | money }}</b>
+                      {%- if pct > 0 -%}<s>{{ total_cheio | money }}</s>{%- endif -%}
+                    </span>
+                  </div>
+
+                  {%- if qtd > 1 and pct > 0 -%}
+                    <div class="pc-economia">Você economiza {{ economia | money }} ({{ pct }}% OFF)</div>
+                  {%- endif -%}
+
+                  <!-- seletores por unidade -->
+                  <div class="pc-units">
+                    {%- for u in (1..qtd) -%}
+                      <div class="pc-unit" data-unit="{{ u }}">
+                        <div class="pc-unit-thumb">
+                          {%- if tem_imgs_produto -%}
+                            <img src="{{ p.images[0] | image_url: width: 96 }}" alt="" loading="lazy" width="96" height="77">
+                          {%- endif -%}
+                          #{{ u }}
+                        </div>
+                        {%- if p and p.options_with_values.size > 0 -%}
+                          {%- for opt in p.options_with_values -%}
+                            <select data-opt="{{ forloop.index }}" aria-label="{{ opt.name | escape }} — unidade {{ u }}">
+                              {%- for val in opt.values -%}
+                                <option value="{{ val | escape }}">{{ val }}</option>
+                              {%- endfor -%}
+                            </select>
+                          {%- endfor -%}
+                        {%- endif -%}
+                      </div>
+                    {%- endfor -%}
+                  </div>
+                </div>
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+
+          <button type="button" class="pc-cta" id="pc-add">{{ section.settings.cta_texto }}</button>
+          <p class="pc-cta-sub" id="pc-cta-sub">{{ section.settings.cta_subtexto }}</p>
+
+          <div class="pc-pay">
+            {%- assign pagamentos = 'PIX|VISA|MASTER|ELO|AMEX|BOLETO|12x' | split: '|' -%}
+            {%- for pg in pagamentos -%}<span>{{ pg }}</span>{%- endfor -%}
+          </div>
+
+          <!-- mini FAQ -->
+          <div class="pc-faq-list" style="margin-top:1.5rem;">
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'faq_topo' -%}
+              <div class="pc-faq-item" {{ block.shopify_attributes }}>
+                <button class="pc-faq-q" type="button">
+                  <span>{{ block.settings.pergunta }}</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                </button>
+                <div class="pc-faq-a"><div>{{ block.settings.resposta }}</div></div>
+              </div>
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+
+          <div class="pc-assur">
+            <div class="pc-assur-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
+              <div>
+                <h4>{{ section.settings.garantia_titulo }}</h4>
+                <p>{{ section.settings.garantia_texto }}</p>
+              </div>
+            </div>
+            <div class="pc-assur-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>
+              <div>
+                <h4>{{ section.settings.entrega_titulo }}</h4>
+                <p>{{ section.settings.entrega_texto }}</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FAIXA DE CONFIANÇA ============ -->
+  <div class="pc-strip">
+    <div class="pc-wrap pc-mw-6xl">
+      <div class="pc-strip-grid">
+        <div class="pc-strip-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          <span>Entrega rápida</span>
+        </div>
+        <div class="pc-strip-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.9 6.26 6.85.83-5.05 4.7 1.34 6.76L12 17.3 5.96 20.55 7.3 13.79 2.25 9.09l6.85-.83z"/></svg>
+          <span>Conforto sem costura</span>
+        </div>
+        <div class="pc-strip-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          <span>Troca garantida</span>
+        </div>
+        <div class="pc-strip-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <span>Compra segura</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ BLOCO ROSA: VÍDEO + BENEFÍCIOS ============ -->
+  <section class="pc-sec pc-soft">
+    <div class="pc-wrap pc-mw-5xl">
+      <h2 class="pc-serif pc-rv">{{ section.settings.beneficios_titulo }}</h2>
+
+      {%- if section.settings.video_url != blank -%}
+      <div class="pc-video pc-rv">
+        <video src="{{ section.settings.video_url }}"
+               {% if section.settings.video_poster != blank %}poster="{{ section.settings.video_poster | image_url: width: 720 }}"{% endif %}
+               muted playsinline loop autoplay preload="metadata"></video>
+      </div>
+      {%- endif -%}
+
+      <div class="pc-feats">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'beneficio' -%}
+          <div class="pc-feat pc-rv" {{ block.shopify_attributes }}>
+            {%- case block.settings.icone -%}
+              {%- when 'coracao' -%}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+              {%- when 'estrela' -%}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.9 6.26 6.85.83-5.05 4.7 1.34 6.76L12 17.3 5.96 20.55 7.3 13.79 2.25 9.09l6.85-.83z"/></svg>
+              {%- when 'raio' -%}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></svg>
+              {%- else -%}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
+            {%- endcase -%}
+            <h3 class="pc-serif">{{ block.settings.titulo }}</h3>
+            <p>{{ block.settings.texto }}</p>
+          </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ANTES / DEPOIS ============ -->
+  {%- if section.settings.antes_img != blank and section.settings.depois_img != blank -%}
+  <section class="pc-sec">
+    <div class="pc-wrap pc-mw-5xl">
+      <div class="pc-ba pc-rv">
+        <div class="pc-ba-head">{{ section.settings.antes_depois_titulo }}</div>
+        <div class="pc-ba-grid">
+          <div class="pc-ba-cell">
+            <span>Antes</span>
+            <img src="{{ section.settings.antes_img | image_url: width: 700 }}" alt="Postura antes de usar o sutiã corretor" loading="lazy" width="700" height="933">
+          </div>
+          <div class="pc-ba-cell pc-after">
+            <span>Depois</span>
+            <img src="{{ section.settings.depois_img | image_url: width: 700 }}" alt="Postura depois de usar o sutiã corretor" loading="lazy" width="700" height="933">
+          </div>
+        </div>
+      </div>
+      <p style="text-align:center;color:var(--pc-muted);font-size:.85rem;margin-top:.9rem;">
+        {{ section.settings.antes_depois_aviso }}
+      </p>
+    </div>
+  </section>
+  {%- endif -%}
+
+  <!-- ============ AVALIAÇÕES ============ -->
+  <section class="pc-sec" style="background:var(--pc-gray);">
+    <div class="pc-wrap pc-mw-6xl">
+      <div class="pc-rev-head pc-rv">
+        <div class="pc-stars" aria-hidden="true">
+          {%- for i in (1..5) -%}
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.26 6.85.83-5.05 4.7 1.34 6.76L12 17.3 5.96 20.55 7.3 13.79 2.25 9.09l6.85-.83z"/></svg>
+          {%- endfor -%}
+        </div>
+        <h2 class="pc-serif">{{ section.settings.reviews_titulo }}</h2>
+        <p style="color:var(--pc-muted);">{{ section.settings.nota }} · {{ section.settings.prova_social }}</p>
+      </div>
+
+      <div class="pc-revs">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'avaliacao' -%}
+          <div class="pc-rev pc-rv" {{ block.shopify_attributes }}>
+            <div class="pc-rev-top">
+              <div class="pc-rev-av" aria-hidden="true">{{ block.settings.nome | slice: 0 | upcase }}</div>
+              <div>
+                <h4>{{ block.settings.nome }}</h4>
+                <div class="pc-rev-ver">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                  Compra verificada
+                </div>
+              </div>
+            </div>
+            <div class="pc-stars" aria-hidden="true">
+              {%- for i in (1..5) -%}
+              <svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.26 6.85.83-5.05 4.7 1.34 6.76L12 17.3 5.96 20.55 7.3 13.79 2.25 9.09l6.85-.83z"/></svg>
+              {%- endfor -%}
+            </div>
+            <p>{{ block.settings.texto }}</p>
+          </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TABELA DE MEDIDAS ============ -->
+  {%- if section.settings.medidas != blank -%}
+  <section class="pc-sec">
+    <div class="pc-wrap pc-mw-3xl">
+      <div class="pc-divider"><h2>Tabela de medidas</h2></div>
+      <div class="pc-size-scroll pc-rv">
+        <table class="pc-size-table">
+          <thead>
+            <tr>
+              {%- assign cabecalhos = section.settings.medidas_cabecalho | split: ',' -%}
+              {%- for c in cabecalhos -%}<th>{{ c | strip }}</th>{%- endfor -%}
+            </tr>
+          </thead>
+          <tbody>
+            {%- assign linhas = section.settings.medidas | split: ';' -%}
+            {%- for linha in linhas -%}
+              {%- assign celulas = linha | split: ',' -%}
+              <tr>{%- for cel in celulas -%}<td>{{ cel | strip }}</td>{%- endfor -%}</tr>
+            {%- endfor -%}
+          </tbody>
+        </table>
+      </div>
+      <p style="text-align:center;color:var(--pc-muted);font-size:.85rem;margin-top:.9rem;">
+        Na dúvida entre dois tamanhos, escolha o maior — o fecho frontal permite ajuste fino.
+      </p>
+    </div>
+  </section>
+  {%- endif -%}
+
+  <!-- ============ FAQ COMPLETO ============ -->
+  <section class="pc-sec" id="faq" style="background:var(--pc-gray);">
+    <div class="pc-wrap pc-mw-3xl">
+      <div class="pc-divider"><h2>Perguntas frequentes</h2></div>
+      <div class="pc-faq-list">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'faq' -%}
+          <div class="pc-faq-item" style="background:#fff;" {{ block.shopify_attributes }}>
+            <button class="pc-faq-q" type="button">
+              <span>{{ block.settings.pergunta }}</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+            <div class="pc-faq-a"><div>{{ block.settings.resposta }}</div></div>
+          </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA FINAL ============ -->
+  <section class="pc-sec">
+    <div class="pc-wrap pc-mw-3xl" style="text-align:center;">
+      <h2 class="pc-serif pc-rv" style="font-size:1.9rem;text-transform:uppercase;">{{ section.settings.cta_final_titulo }}</h2>
+      <p class="pc-rv" style="color:var(--pc-muted);margin-top:.75rem;">{{ section.settings.cta_final_texto }}</p>
+      <button type="button" class="pc-cta pc-rv" id="pc-add-final" style="max-width:28rem;margin-left:auto;margin-right:auto;">
+        {{ section.settings.cta_texto }}
+      </button>
+      <p class="pc-cta-sub">{{ section.settings.cta_subtexto }}</p>
+    </div>
+  </section>
+
+  <!-- ============ BARRA FIXA MOBILE ============ -->
+  <div class="pc-sticky" id="pc-sticky">
+    <div class="pc-sticky-info">
+      <strong id="pc-sticky-label">{{ section.settings.titulo }}</strong>
+      <b id="pc-sticky-price">{{ preco_unit | money }}</b>
+    </div>
+    <button type="button" id="pc-add-sticky">Comprar</button>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  var root = document.getElementById('pc-lp');
+  if(!root) return;
+
+  var addUrl  = root.dataset.addUrl  || '/cart/add.js';
+  var cartUrl = root.dataset.cartUrl || '/cart';
+
+  {%- if p -%}
+  var VARIANTS = {{ p.variants | json }};
+  {%- else -%}
+  var VARIANTS = [];
+  {%- endif -%}
+
+  /* ---------- galeria ---------- */
+  var mainImg = document.getElementById('pc-gal-img');
+  root.querySelectorAll('.pc-thumb').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if(mainImg && btn.dataset.full) mainImg.src = btn.dataset.full;
+      root.querySelectorAll('.pc-thumb').forEach(function(b){ b.classList.remove('pc-active'); });
+      btn.classList.add('pc-active');
+    });
+  });
+
+  /* ---------- seleção de oferta ---------- */
+  var offers = Array.prototype.slice.call(root.querySelectorAll('[data-offer]'));
+  var stickyLabel = document.getElementById('pc-sticky-label');
+  var stickyPrice = document.getElementById('pc-sticky-price');
+
+  function money(cents){
+    return 'R$ ' + (cents/100).toFixed(2).replace('.', ',');
+  }
+
+  function selected(){
+    return root.querySelector('[data-offer].pc-sel') || offers[0];
+  }
+
+  function syncSticky(){
+    var o = selected();
+    if(!o) return;
+    if(stickyLabel) stickyLabel.textContent = o.dataset.label || '';
+    if(stickyPrice) stickyPrice.textContent = money(parseInt(o.dataset.preco, 10) || 0);
+  }
+
+  function select(o){
+    offers.forEach(function(x){ x.classList.remove('pc-sel'); });
+    o.classList.add('pc-sel');
+    syncSticky();
+  }
+
+  offers.forEach(function(o){
+    o.addEventListener('click', function(e){
+      if(e.target.tagName === 'SELECT') return;
+      select(o);
+    });
+    o.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); select(o); }
+    });
+  });
+  if(!root.querySelector('[data-offer].pc-sel') && offers[0]) offers[0].classList.add('pc-sel');
+  syncSticky();
+
+  /* ---------- resolver variante a partir das opções ---------- */
+  function findVariant(values){
+    for(var i=0;i<VARIANTS.length;i++){
+      var v = VARIANTS[i], ok = true;
+      for(var j=0;j<values.length;j++){
+        var vOpt = v['option' + (j+1)];
+        if(vOpt !== values[j]){ ok = false; break; }
+      }
+      if(ok) return v;
+    }
+    return null;
+  }
+
+  /* ---------- adicionar ao carrinho ---------- */
+  var btns = ['pc-add','pc-add-final','pc-add-sticky']
+    .map(function(id){ return document.getElementById(id); })
+    .filter(Boolean);
+  var ctaSub = document.getElementById('pc-cta-sub');
+
+  function setBusy(on, msg){
+    btns.forEach(function(b){ b.disabled = on; });
+    if(ctaSub && msg) ctaSub.textContent = msg;
+  }
+
+  function addToCart(){
+    var o = selected();
+    if(!o) return;
+
+    if(!VARIANTS.length){
+      window.location.href = cartUrl;
+      return;
+    }
+
+    var items = [], faltando = false;
+    o.querySelectorAll('.pc-unit').forEach(function(unit){
+      var selects = Array.prototype.slice.call(unit.querySelectorAll('select'));
+      var values  = selects.map(function(s){ return s.value; });
+      var variant = selects.length ? findVariant(values) : VARIANTS[0];
+      if(!variant){ faltando = true; return; }
+      items.push({ id: variant.id, quantity: 1 });
+    });
+
+    if(faltando || !items.length){
+      setBusy(false, 'Essa combinação de cor e tamanho está indisponível. Escolha outra.');
+      return;
+    }
+
+    setBusy(true, 'Adicionando ao carrinho...');
+
+    fetch(addUrl + '.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ items: items })
+    })
+    .then(function(r){
+      if(!r.ok) throw new Error('cart');
+      return r.json();
+    })
+    .then(function(){
+      var cupom = (o.dataset.cupom || '').trim();
+      window.location.href = cupom
+        ? '/checkout?discount=' + encodeURIComponent(cupom)
+        : cartUrl;
+    })
+    .catch(function(){
+      setBusy(false, 'Não foi possível adicionar agora. Tente novamente.');
+    });
+  }
+
+  btns.forEach(function(b){ b.addEventListener('click', addToCart); });
+
+  /* ---------- FAQ acordeão ---------- */
+  root.querySelectorAll('.pc-faq-q').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var item  = btn.parentElement;
+      var panel = item.querySelector('.pc-faq-a');
+      var open  = item.classList.contains('pc-open');
+      var list  = item.parentElement;
+      list.querySelectorAll('.pc-faq-item.pc-open').forEach(function(o){
+        o.classList.remove('pc-open');
+        o.querySelector('.pc-faq-a').style.maxHeight = '0px';
+      });
+      if(!open){
+        item.classList.add('pc-open');
+        panel.style.maxHeight = panel.scrollHeight + 'px';
+      }
+    });
+  });
+
+  /* ---------- barra fixa ---------- */
+  var sticky = document.getElementById('pc-sticky');
+  var anchor = document.getElementById('pc-add');
+  if(sticky && anchor && 'IntersectionObserver' in window){
+    new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        sticky.classList.toggle('pc-show', !e.isIntersecting && e.boundingClientRect.top < 0);
+      });
+    }, { threshold: 0 }).observe(anchor);
+  }
+
+  /* ---------- reveal ---------- */
+  var els = root.querySelectorAll('.pc-rv');
+  if(!('IntersectionObserver' in window)){
+    els.forEach(function(el){ el.classList.add('pc-in'); });
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){ e.target.classList.add('pc-in'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    els.forEach(function(el){ io.observe(el); });
+  }
+
+  /* ---------- autoplay silencioso ---------- */
+  root.querySelectorAll('video').forEach(function(v){
+    v.muted = true;
+    var pr = v.play();
+    if(pr && pr.catch){ pr.catch(function(){}); }
+  });
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Sutiã Postura — Landing",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Produto e preço"
+    },
+    {
+      "type": "product",
+      "id": "produto",
+      "label": "Produto (cor / tamanho)",
+      "info": "O preço unitário, as imagens e os seletores de cor/tamanho vêm deste produto."
+    },
+    {
+      "type": "number",
+      "id": "preco_fallback",
+      "label": "Preço unitário de fallback (R$)",
+      "default": 97,
+      "info": "Usado só enquanto nenhum produto estiver selecionado acima."
+    },
+    {
+      "type": "header",
+      "content": "Topo"
+    },
+    {
+      "type": "text",
+      "id": "marquee_texto",
+      "label": "Frases da faixa preta",
+      "default": "Postura perfeita em um gesto|Frete grátis hoje|Elegância e suporte absoluto|Troca garantida em 7 dias",
+      "info": "Separe as frases com |"
+    },
+    {
+      "type": "text",
+      "id": "titulo",
+      "label": "Título do produto",
+      "default": "Sutiã Corretor de Postura"
+    },
+    {
+      "type": "textarea",
+      "id": "subtitulo",
+      "label": "Subtítulo",
+      "default": "Redescubra sua elegância natural com um suporte invisível que corrige sua postura na hora, para um visual confiante e alinhado."
+    },
+    {
+      "type": "text",
+      "id": "nota",
+      "label": "Nota",
+      "default": "4,9/5"
+    },
+    {
+      "type": "text",
+      "id": "prova_social",
+      "label": "Prova social",
+      "default": "+2.500 mulheres"
+    },
+    {
+      "type": "image_picker",
+      "id": "img_1",
+      "label": "Imagem 1 (usada só sem produto selecionado)"
+    },
+    {
+      "type": "image_picker",
+      "id": "img_2",
+      "label": "Imagem 2"
+    },
+    {
+      "type": "image_picker",
+      "id": "img_3",
+      "label": "Imagem 3"
+    },
+    {
+      "type": "header",
+      "content": "Ofertas e CTA"
+    },
+    {
+      "type": "text",
+      "id": "titulo_ofertas",
+      "label": "Título acima dos kits",
+      "default": "Melhore sua postura!"
+    },
+    {
+      "type": "text",
+      "id": "cta_texto",
+      "label": "Texto do botão",
+      "default": "Adicionar ao carrinho"
+    },
+    {
+      "type": "text",
+      "id": "cta_subtexto",
+      "label": "Texto abaixo do botão",
+      "default": "Frete grátis acima de R$150 · Troca garantida em 7 dias"
+    },
+    {
+      "type": "header",
+      "content": "Garantias"
+    },
+    {
+      "type": "text",
+      "id": "garantia_titulo",
+      "label": "Garantia — título",
+      "default": "Satisfeita ou reembolsada"
+    },
+    {
+      "type": "text",
+      "id": "garantia_texto",
+      "label": "Garantia — texto",
+      "default": "Não amou? Devolvemos o seu dinheiro em até 7 dias."
+    },
+    {
+      "type": "text",
+      "id": "entrega_titulo",
+      "label": "Entrega — título",
+      "default": "Envio rápido e discreto"
+    },
+    {
+      "type": "text",
+      "id": "entrega_texto",
+      "label": "Entrega — texto",
+      "default": "Postagem em até 24h úteis, embalagem sem identificação."
+    },
+    {
+      "type": "header",
+      "content": "Bloco de benefícios"
+    },
+    {
+      "type": "text",
+      "id": "beneficios_titulo",
+      "label": "Título do bloco rosa",
+      "default": "Excelência a serviço do seu conforto"
+    },
+    {
+      "type": "text",
+      "id": "video_url",
+      "label": "URL do vídeo (MP4)",
+      "info": "Suba em Settings → Files e cole a URL aqui."
+    },
+    {
+      "type": "image_picker",
+      "id": "video_poster",
+      "label": "Poster do vídeo"
+    },
+    {
+      "type": "header",
+      "content": "Antes e depois"
+    },
+    {
+      "type": "text",
+      "id": "antes_depois_titulo",
+      "label": "Título",
+      "default": "Melhore sua postura"
+    },
+    {
+      "type": "image_picker",
+      "id": "antes_img",
+      "label": "Imagem — antes"
+    },
+    {
+      "type": "image_picker",
+      "id": "depois_img",
+      "label": "Imagem — depois"
+    },
+    {
+      "type": "text",
+      "id": "antes_depois_aviso",
+      "label": "Aviso legal",
+      "default": "Imagens ilustrativas. O sutiã dá suporte postural e não substitui avaliação médica ou fisioterapêutica.",
+      "info": "Mantenha um aviso deste tipo para evitar promessa de resultado terapêutico."
+    },
+    {
+      "type": "header",
+      "content": "Avaliações"
+    },
+    {
+      "type": "text",
+      "id": "reviews_titulo",
+      "label": "Título das avaliações",
+      "default": "Elas amam"
+    },
+    {
+      "type": "header",
+      "content": "Tabela de medidas"
+    },
+    {
+      "type": "text",
+      "id": "medidas_cabecalho",
+      "label": "Cabeçalho (separado por vírgula)",
+      "default": "Tamanho, Busto (cm), Tórax (cm), Manequim BR"
+    },
+    {
+      "type": "textarea",
+      "id": "medidas",
+      "label": "Linhas da tabela",
+      "default": "P, 82-86, 68-72, 38-40; M, 87-92, 73-78, 42-44; G, 93-98, 79-84, 46-48; GG, 99-106, 85-92, 50-52",
+      "info": "Linhas separadas por ; e colunas por ,"
+    },
+    {
+      "type": "header",
+      "content": "CTA final"
+    },
+    {
+      "type": "text",
+      "id": "cta_final_titulo",
+      "label": "Título",
+      "default": "Postura ereta, confiança em alta"
+    },
+    {
+      "type": "textarea",
+      "id": "cta_final_texto",
+      "label": "Texto",
+      "default": "Junte-se às milhares de mulheres que trocaram o desconforto no fim do dia por um suporte que ninguém vê."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "oferta",
+      "name": "Oferta (kit)",
+      "settings": [
+        {
+          "type": "text",
+          "id": "rotulo",
+          "label": "Rótulo",
+          "default": "2 sutiãs"
+        },
+        {
+          "type": "number",
+          "id": "qtd",
+          "label": "Quantidade de peças",
+          "default": 2
+        },
+        {
+          "type": "range",
+          "id": "desconto_pct",
+          "label": "Desconto (%)",
+          "min": 0,
+          "max": 70,
+          "step": 1,
+          "unit": "%",
+          "default": 24,
+          "info": "IMPORTANTE: crie um desconto automático no Shopify com a mesma regra, ou informe o cupom abaixo. Senão o carrinho cobra o preço cheio."
+        },
+        {
+          "type": "text",
+          "id": "cupom",
+          "label": "Código de cupom",
+          "info": "Se preenchido, o cliente vai direto ao checkout com esse cupom aplicado."
+        },
+        {
+          "type": "text",
+          "id": "selo",
+          "label": "Selo (ex.: MAIS VENDIDO)"
+        },
+        {
+          "type": "checkbox",
+          "id": "selecionado",
+          "label": "Selecionado por padrão",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "faq_topo",
+      "name": "FAQ do topo",
+      "settings": [
+        {
+          "type": "text",
+          "id": "pergunta",
+          "label": "Pergunta",
+          "default": "Ele realmente ajuda a corrigir a postura?"
+        },
+        {
+          "type": "textarea",
+          "id": "resposta",
+          "label": "Resposta",
+          "default": "As alças cruzadas puxam os ombros para trás e distribuem o peso do busto, o que reduz a tendência de curvar as costas ao longo do dia. É um suporte postural de uso diário — não substitui acompanhamento médico ou fisioterapêutico."
+        }
+      ]
+    },
+    {
+      "type": "faq",
+      "name": "FAQ (seção completa)",
+      "settings": [
+        {
+          "type": "text",
+          "id": "pergunta",
+          "label": "Pergunta",
+          "default": "É confortável para o dia inteiro?"
+        },
+        {
+          "type": "textarea",
+          "id": "resposta",
+          "label": "Resposta",
+          "default": "Sim. O tecido é respirável e sem costura, e as alças largas não fincam no ombro."
+        }
+      ]
+    },
+    {
+      "type": "beneficio",
+      "name": "Benefício",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icone",
+          "label": "Ícone",
+          "options": [
+            { "value": "coracao", "label": "Coração" },
+            { "value": "estrela", "label": "Estrela" },
+            { "value": "raio", "label": "Raio" },
+            { "value": "selo", "label": "Selo" }
+          ],
+          "default": "coracao"
+        },
+        {
+          "type": "text",
+          "id": "titulo",
+          "label": "Título",
+          "default": "Alças ergonômicas"
+        },
+        {
+          "type": "textarea",
+          "id": "texto",
+          "label": "Texto",
+          "default": "Distribuem o peso e aliviam os ombros com alças largas, feitas para dar suporte constante sem esforço."
+        }
+      ]
+    },
+    {
+      "type": "avaliacao",
+      "name": "Avaliação",
+      "settings": [
+        {
+          "type": "text",
+          "id": "nome",
+          "label": "Nome",
+          "default": "Cliente"
+        },
+        {
+          "type": "textarea",
+          "id": "texto",
+          "label": "Depoimento",
+          "default": "Uso o dia inteiro no trabalho e não marca nada por baixo da roupa."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Sutiã Postura — Landing",
+      "blocks": [
+        { "type": "oferta", "settings": { "rotulo": "1 sutiã", "qtd": 1, "desconto_pct": 0 } },
+        { "type": "oferta", "settings": { "rotulo": "2 sutiãs", "qtd": 2, "desconto_pct": 24, "selo": "Mais vendido", "selecionado": true } },
+        { "type": "oferta", "settings": { "rotulo": "3 sutiãs", "qtd": 3, "desconto_pct": 36, "selo": "Melhor custo" } },
+        { "type": "faq_topo" },
+        { "type": "beneficio", "settings": { "icone": "coracao", "titulo": "Alças ergonômicas", "texto": "Distribuem o peso e aliviam os ombros com alças largas, feitas para dar suporte constante sem esforço." } },
+        { "type": "beneficio", "settings": { "icone": "estrela", "titulo": "Conforto invisível", "texto": "Acabamento sem costura que desliza sobre a pele como uma segunda camada — nada de marcas por baixo da roupa." } },
+        { "type": "beneficio", "settings": { "icone": "raio", "titulo": "Estabilidade total", "texto": "Liberdade de movimento e firmeza o dia inteiro, do escritório à academia." } },
+        { "type": "beneficio", "settings": { "icone": "selo", "titulo": "Caimento sob medida", "texto": "Fecho frontal ajustável que acompanha exatamente as curvas do seu corpo." } },
+        { "type": "avaliacao", "settings": { "nome": "Juliana M.", "texto": "Trabalho 8h no computador e no fim do dia minhas costas doíam muito. Com ele consigo ficar ereta sem nem pensar nisso." } },
+        { "type": "avaliacao", "settings": { "nome": "Patrícia R.", "texto": "O fecho na frente salvou minha vida, coloco e tiro sozinha em segundos. E o tecido não marca nada por baixo da blusa." } },
+        { "type": "avaliacao", "settings": { "nome": "Camila S.", "texto": "Comprei o kit com 2 e já vou pedir mais. Confortável de verdade, não aperta e ainda dá um bom sustento." } },
+        { "type": "faq", "settings": { "pergunta": "É confortável para o dia inteiro?", "resposta": "Sim. O tecido é respirável e sem costura, e as alças largas não fincam no ombro. Nos primeiros dias recomendamos usar de 4 a 6 horas até o corpo se acostumar com o suporte." } },
+        { "type": "faq", "settings": { "pergunta": "Qual é a modelagem?", "resposta": "Modelagem alta com cobertura total do busto, alças cruzadas nas costas e fecho frontal em colchetes ajustáveis. Serve tanto para uso casual quanto para atividades leves." } },
+        { "type": "faq", "settings": { "pergunta": "Como escolher o tamanho?", "resposta": "Use a tabela de medidas desta página, medindo o busto na parte mais larga e o tórax logo abaixo dele. Na dúvida entre dois tamanhos, escolha o maior." } },
+        { "type": "faq", "settings": { "pergunta": "Como lavar?", "resposta": "Lavagem à mão ou em saquinho no ciclo delicado, com água fria e sabão neutro. Não use amaciante, alvejante nem secadora — isso preserva a elasticidade do tecido." } },
+        { "type": "faq", "settings": { "pergunta": "Em quanto tempo chega?", "resposta": "Postamos em até 24h úteis após a confirmação do pagamento. O prazo de entrega aparece no checkout de acordo com o seu CEP." } },
+        { "type": "faq", "settings": { "pergunta": "E se não servir?", "resposta": "Você tem 7 dias para solicitar troca ou devolução com reembolso integral, desde que a peça esteja sem uso e com a etiqueta." } }
+      ]
+    }
+  ]
+}
+{% endschema %}
