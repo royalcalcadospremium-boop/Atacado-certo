@@ -16,12 +16,140 @@
   t.src=v;s=b.getElementsByTagName(e)[0];
   s.parentNode.insertBefore(t,s)}(window, document,'script',
   'https://connect.facebook.net/en_US/fbevents.js');
+  {%- comment -%}
+    Dois pixels ativos de proposito:
+      1142237543398804 — pixel antigo, mantido pra nao quebrar campanha em curso
+      1390369176385770 — SITE ATACADO, usado nas campanhas atuais
+    fbq('track', ...) envia para os dois de uma vez, entao cada evento
+    abaixo aparece nos dois gerenciadores.
+  {%- endcomment -%}
   fbq('init', '1142237543398804');
+  fbq('init', '1390369176385770');
   fbq('track', 'PageView');
+
+  {%- comment -%} ViewContent — pagina de produto {%- endcomment -%}
+  {%- if request.page_type == 'product' and product != blank -%}
+    {%- assign pv = product.selected_or_first_available_variant -%}
+    fbq('track', 'ViewContent', {
+      content_ids: [{{ pv.sku | default: product.id | json }}],
+      content_type: 'product',
+      content_name: {{ product.title | json }},
+      content_category: {{ product.type | default: 'Geral' | json }},
+      value: {{ pv.price | divided_by: 100.0 }},
+      currency: {{ shop.currency | json }}
+    });
+  {%- endif -%}
+
+  {%- if request.page_type == 'search' and search.terms != blank -%}
+    fbq('track', 'Search', { search_string: {{ search.terms | json }} });
+  {%- endif -%}
 </script>
 <noscript><img height="1" width="1" style="display:none"
   src="https://www.facebook.com/tr?id=1142237543398804&ev=PageView&noscript=1"
 /></noscript>
+<noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=1390369176385770&ev=PageView&noscript=1"
+/></noscript>
+
+{%- comment -%}
+  AddToCart e InitiateCheckout — a Shopify nao expoe esses eventos pro tema,
+  entao sao capturados na origem: qualquer chamada a /cart/add (fetch, XHR ou
+  submit de formulario) e qualquer clique que leve ao checkout.
+  Purchase NAO entra aqui: a pagina de obrigado fica fora do tema e so pode
+  ser rastreada pelo canal do Facebook ou por Eventos de Cliente no admin.
+{%- endcomment -%}
+<script>
+(function(){
+  if (typeof fbq === 'undefined') return;
+  var moeda = {{ shop.currency | json }};
+
+  function addToCart(item){
+    if (!item) return;
+    try {
+      fbq('track', 'AddToCart', {
+        content_ids: [item.sku || String(item.product_id || item.id || '')],
+        content_type: 'product',
+        content_name: item.product_title || item.title || '',
+        value: ((item.final_line_price != null ? item.final_line_price
+                : (item.price || 0) * (item.quantity || 1)) / 100),
+        currency: moeda
+      });
+    } catch(e){}
+  }
+
+  function ehCartAdd(url){
+    return typeof url === 'string' && url.indexOf('/cart/add') !== -1;
+  }
+
+  // 1) fetch (usado pelo carrinho lateral do tema)
+  var fetchOriginal = window.fetch;
+  if (fetchOriginal) {
+    window.fetch = function(){
+      var alvo = arguments[0];
+      var url = (alvo && alvo.url) ? alvo.url : alvo;
+      var promessa = fetchOriginal.apply(this, arguments);
+      if (ehCartAdd(url)) {
+        promessa.then(function(res){
+          if (!res || !res.ok) return;
+          res.clone().json().then(addToCart).catch(function(){});
+        }).catch(function(){});
+      }
+      return promessa;
+    };
+  }
+
+  // 2) XHR (apps antigos ainda usam)
+  var xhrOpen = XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.open = function(metodo, url){
+    this.__cartAdd = ehCartAdd(url);
+    return xhrOpen.apply(this, arguments);
+  };
+  var xhrSend = XMLHttpRequest.prototype.send;
+  XMLHttpRequest.prototype.send = function(){
+    if (this.__cartAdd) {
+      this.addEventListener('load', function(){
+        try { addToCart(JSON.parse(this.responseText)); } catch(e){}
+      });
+    }
+    return xhrSend.apply(this, arguments);
+  };
+
+  // 3) submit de formulario (paginas que postam direto, sem ajax)
+  document.addEventListener('submit', function(ev){
+    var form = ev.target;
+    if (!form || !form.action || !ehCartAdd(form.action)) return;
+    var qtd = form.querySelector('[name="quantity"]');
+    try {
+      fbq('track', 'AddToCart', {
+        content_type: 'product',
+        content_name: document.title,
+        contents: [{ quantity: qtd ? (parseInt(qtd.value, 10) || 1) : 1 }],
+        currency: moeda
+      });
+    } catch(e){}
+  }, true);
+
+  // 4) InitiateCheckout — clique que leva ao checkout
+  document.addEventListener('click', function(ev){
+    var alvo = ev.target && ev.target.closest
+      ? ev.target.closest('a[href*="/checkout"], button[name="checkout"], #rcd-finalize-onsite, [data-rcd-request]')
+      : null;
+    if (!alvo) return;
+    fetch('/cart.js', { headers: { 'Accept': 'application/json' } })
+      .then(function(r){ return r.json(); })
+      .then(function(carrinho){
+        fbq('track', 'InitiateCheckout', {
+          num_items: carrinho.item_count,
+          value: (carrinho.total_price || 0) / 100,
+          currency: moeda,
+          content_ids: (carrinho.items || []).map(function(i){
+            return i.sku || String(i.product_id);
+          })
+        });
+      }).catch(function(){});
+  }, true);
+})();
+</script>
 <!-- End Meta Pixel Code -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="{{ settings.accent_color }}">
