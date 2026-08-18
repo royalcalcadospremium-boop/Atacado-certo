@@ -683,7 +683,9 @@
         <tr><th>Suspensão</th><td>Garfo dianteiro com suspensão</td></tr>
         <tr><th>Pneus</th><td>Largos, tipo fat bike</td></tr>
         <tr><th>Itens de série</th><td>Farol dianteiro, banco largo estilo moto, pedais</td></tr>
+        {%- unless product.has_only_default_variant -%}
         <tr><th>Cores disponíveis</th><td>{% for variant in product.variants %}{{ variant.title }}{% unless forloop.last %} · {% endunless %}{% endfor %}</td></tr>
+        {%- endunless -%}
         <tr><th>Indicação</th><td>Deslocamento urbano diário, entregas, lazer e revenda</td></tr>
       </table>
       <p style="margin-top:.9rem;font-size:.82rem;color:var(--bk-muted);text-align:center;">
