@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Radar do Arremate</title>
+<meta name="description" content="Aprenda a identificar e disputar leilões oficiais de imóveis e bens com segurança jurídica.">
+<meta name="robots" content="index, follow">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Radar do Arremate">
+<meta property="og:description" content="Aprenda a identificar e disputar leilões oficiais de imóveis e bens com segurança jurídica.">
+<meta property="og:image" content="assets/og.jpg">
+<meta property="og:locale" content="pt_BR">
+
+<link rel="icon" href="assets/favicon.png">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<!-- =======================================================
+     BARRA DE URGÊNCIA
+     Editar o texto em assets/config.js -> urgencia
+     ======================================================= -->
+<div class="barra-urgencia" id="barraUrgencia" hidden>
+  <span id="textoUrgencia"></span>
+</div>
+
+<main class="container">
+
+  <!-- ============ TOPO / HEADLINE ============ -->
+  <header class="topo-vsl">
+    <p class="selo">Aula gratuita</p>
+
+    <h1 class="headline">
+      O caminho legal para arrematar <span class="realce">imóveis e bens</span>
+      abaixo do preço de mercado
+    </h1>
+
+    <p class="subheadline">
+      Nesta aula eu mostro <strong>onde ficam os editais oficiais</strong>, como
+      ler um edital sem cair em pegadinha e quais são os custos reais de um
+      arremate — do lance até a escritura.
+    </p>
+
+    <p class="aviso-som">
+      <span class="icone-som" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 5 6 9H2v6h4l5 4V5z"/>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+        </svg>
+      </span>
+      Toque no vídeo para começar — ative o som
+    </p>
+  </header>
+
+  <!-- ============ PLAYER ============ -->
+  <div class="moldura-video" id="molduraVideo">
+    <!--
+      COLOQUE SEU VÍDEO AQUI. Três opções:
+
+      1) YouTube / Vimeo  → ajuste videoEmbed em assets/config.js
+      2) Vturb / Panda / VSLPlayer → cole o <script> do player aqui dentro
+      3) Arquivo .mp4 próprio → descomente o bloco abaixo e suba o arquivo
+         para assets/video.mp4
+
+      <video id="player" controls playsinline preload="metadata"
+             poster="assets/capa.jpg">
+        <source src="assets/video.mp4" type="video/mp4">
+      </video>
+    -->
+    <iframe id="player"
+            src="about:blank"
+            title="Aula em vídeo"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            referrerpolicy="strict-origin-when-cross-origin"></iframe>
+
+    <!-- Camada de retomada: aparece quando o visitante já assistiu antes -->
+    <div class="camada-video" id="camadaRetomada" hidden>
+      <p class="titulo-camada" id="tituloCamada">
+        Você parou no meio da aula. Quer continuar de onde parou?
+      </p>
+
+      <button type="button" class="opcao-camada" id="btnContinuar">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="m10 8 6 4-6 4V8z" fill="currentColor" stroke="none"/>
+        </svg>
+        CONTINUAR ASSISTINDO
+      </button>
+
+      <button type="button" class="opcao-camada" id="btnReiniciar">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M14.5 9.5h-4v-2l-3 2.5 3 2.5v-2h4a2.5 2.5 0 0 1 0 5h-3"/>
+        </svg>
+        Assistir do início
+      </button>
+    </div>
+  </div>
+
+  <!-- ============ CTA PRINCIPAL ============ -->
+  <p class="aviso-espera" id="avisoEspera">
+    O botão de acesso aparece durante a aula.
+  </p>
+
+  <a href="checkout.html" class="cta cta-oculto" id="ctaPrincipal">
+    <span class="icone-sacola" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px">
+        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+        <path d="M3 6h18M16 10a4 4 0 0 1-8 0"/>
+      </svg>
+    </span>
+    QUERO ENTRAR NO RADAR DO ARREMATE
+  </a>
+
+  <!-- ============ O QUE VOCÊ VAI APRENDER ============ -->
+  <section class="secao">
+    <h2 class="secao-titulo">O que está dentro do programa</h2>
+
+    <ul class="lista-beneficios">
+      <li>
+        <span class="marca" aria-hidden="true">✓</span>
+        <span><strong>Onde procurar.</strong> Os portais oficiais de leiloeiros
+        públicos, bancos e Justiça — e como separar edital legítimo de anúncio
+        duvidoso.</span>
+      </li>
+      <li>
+        <span class="marca" aria-hidden="true">✓</span>
+        <span><strong>Como ler um edital.</strong> As cláusulas que definem se o
+        negócio é bom ou é uma armadilha: ocupação, dívidas, condomínio, IPTU
+        e responsabilidade do arrematante.</span>
+      </li>
+      <li>
+        <span class="marca" aria-hidden="true">✓</span>
+        <span><strong>A conta completa.</strong> Lance, comissão do leiloeiro,
+        ITBI, registro e custos de desocupação — para você saber o lucro real
+        antes de dar o lance.</span>
+      </li>
+      <li>
+        <span class="marca" aria-hidden="true">✓</span>
+        <span><strong>Checagem jurídica.</strong> As certidões que você puxa
+        antes de qualquer lance e o que fazer quando alguma delas acende
+        um alerta.</span>
+      </li>
+      <li>
+        <span class="marca" aria-hidden="true">✓</span>
+        <span><strong>Comunidade ativa.</strong> Grupo para tirar dúvidas sobre
+        editais em andamento e acompanhar análises de casos reais.</span>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section class="secao">
+    <h2 class="secao-titulo">Perguntas frequentes</h2>
+
+    <div class="faq">
+      <details>
+        <summary>Preciso de muito dinheiro para começar?</summary>
+        <p>Não existe valor mínimo universal — depende do bem e do edital.
+        O programa ensina a calcular quanto capital cada tipo de arremate
+        exige, incluindo os custos que vêm depois do lance, para você
+        escolher o que cabe no seu bolso.</p>
+      </details>
+
+      <details>
+        <summary>Vocês garantem que vou lucrar?</summary>
+        <p>Não. Leilão é investimento e todo investimento tem risco. O que
+        entregamos é método, checklist jurídico e acompanhamento para que
+        você tome decisões informadas — o resultado depende do seu estudo,
+        do seu capital e do mercado.</p>
+      </details>
+
+      <details>
+        <summary>Por quanto tempo tenho acesso?</summary>
+        <p>O acesso vale pelo período da assinatura contratada, com renovação
+        automática que você pode cancelar a qualquer momento na sua área de
+        cliente.</p>
+      </details>
+
+      <details>
+        <summary>Serve para quem nunca participou de um leilão?</summary>
+        <p>Sim. O conteúdo começa do zero: vocabulário, tipos de leilão,
+        como se cadastrar em um portal e como acompanhar o pregão.</p>
+      </details>
+
+      <details>
+        <summary>E se eu não gostar?</summary>
+        <p>Você tem 7 dias corridos a partir da compra para pedir reembolso
+        integral, conforme o art. 49 do Código de Defesa do Consumidor.
+        Basta escrever para o e-mail de suporte.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ============ CTA FINAL ============ -->
+  <section class="secao">
+    <a href="checkout.html" class="cta">
+      GARANTIR MINHA VAGA AGORA
+    </a>
+  </section>
+
+</main>
+
+<footer class="rodape">
+  <p><strong>SUA EMPRESA LTDA</strong> — CNPJ 00.000.000/0001-00</p>
+  <p>Contato: suporte@seudominio.com.br</p>
+  <p style="margin-top:10px">
+    <a href="termos.html">Termos de Uso</a> ·
+    <a href="privacidade.html">Política de Privacidade</a>
+  </p>
+
+  <p class="aviso-legal">
+    Este site não é afiliado ao Facebook, Instagram, Google ou a qualquer
+    portal de leilões. Conteúdo educacional: não constitui consultoria
+    jurídica, recomendação de investimento nem promessa de rentabilidade.
+    Resultados variam conforme dedicação, capital disponível e condições
+    de mercado.
+  </p>
+</footer>
+
+<script src="assets/config.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
