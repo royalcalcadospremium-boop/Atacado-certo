@@ -309,19 +309,7 @@
 <!-- RYVIU APP :: Settings global -->	
     <script> var ryviu_global_settings = {{shop.metafields.ryviu.user_settings }};</script>
 <!-- RYVIU APP -->
-{%- if template contains 'collection' -%}
-  <meta property="og:title" content="{{ collection.title | escape }}">
-  <meta property="og:description" content="{{ collection.description | strip_html | truncate: 200 }}">
-  <meta property="og:url" content="{{ shop.url }}{{ collection.url }}">
-  
-  {% if collection.image %}
-    <meta property="og:image" content="https:{{ collection.image | img_url: '1200x630' }}">
-    <meta property="og:image:secure_url" content="https:{{ collection.image | img_url: '1200x630' }}">
-  {% else %}
-    <meta property="og:image" content="https:{{ shop.logo | img_url: '1200x630' }}">
-    <meta property="og:image:secure_url" content="https:{{ shop.logo | img_url: '1200x630' }}">
-  {% endif %}
-{%- endif -%}
+{%- comment -%}Open Graph de coleção agora sai em snippets/social-meta-tags.liquid (evita tags duplicadas).{%- endcomment -%}
 
 </head>
 

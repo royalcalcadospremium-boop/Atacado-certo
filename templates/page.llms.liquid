@@ -1,0 +1,66 @@
+{%- layout none -%}
+{%- comment -%}
+  llms.txt — resumo da loja para IAs (ChatGPT, Gemini, Perplexity, Claude).
+  Como ativar no Shopify:
+    1. Loja virtual > Páginas > Adicionar página. Título "llms", modelo "page.llms".
+       O texto da página (opcional) entra logo abaixo do resumo — use para
+       explicar diferenciais, políticas e perguntas frequentes.
+    2. Loja virtual > Navegação > Redirecionamentos de URL:
+       de /llms.txt para /pages/llms
+  O conteúdo abaixo se atualiza sozinho com coleções, páginas e posts do blog.
+{%- endcomment -%}
+# {{ shop.name }}
+
+> {{ shop.brand.short_description | default: shop.description | default: shop.name | strip_html | strip_newlines }}
+
+Site oficial: {{ shop.url }}
+Idioma: {{ request.locale.iso_code }} · Moeda: {{ cart.currency.iso_code }}
+{%- if shop.email != blank %}
+Contato: {{ shop.email }}
+{%- endif %}
+{%- if page.content != blank %}
+
+## Sobre a loja
+
+{{ page.content | strip_html | strip }}
+{%- endif %}
+
+## Coleções principais
+{% for c in collections limit: 40 -%}
+{%- if c.products_count > 0 and c.handle != 'frontpage' and c.handle != 'all' %}
+- [{{ c.title | strip_html }}]({{ shop.url }}{{ c.url }}){% if c.description != blank %}: {{ c.description | strip_html | strip_newlines | truncate: 160 }}{% endif %}
+{%- endif -%}
+{%- endfor %}
+
+## Páginas institucionais
+{% for link in linklists['main-menu'].links -%}
+{%- if link.type == 'page_link' or link.type == 'blog_link' %}
+- [{{ link.title | strip_html }}]({{ shop.url }}{{ link.url }})
+{%- endif -%}
+{%- endfor %}
+{%- for link in linklists.footer.links -%}
+{%- unless link.url contains 'http' %}
+- [{{ link.title | strip_html }}]({{ shop.url }}{{ link.url }})
+{%- endunless -%}
+{%- endfor %}
+{%- for policy in shop.policies %}
+- [{{ policy.title }}]({{ shop.url }}{{ policy.url }})
+{%- endfor %}
+
+{%- comment -%}Handles de blog mais comuns; o primeiro existente com posts é listado.{%- endcomment -%}
+{%- assign blog_handles = page.metafields.seo.blog_handle | default: 'news,blog,dicas,noticias' | split: ',' -%}
+{%- for handle in blog_handles -%}
+{%- assign b = blogs[handle] -%}
+{%- if b.articles_count > 0 %}
+
+## Blog: {{ b.title }}
+{% for a in b.articles limit: 30 %}
+- [{{ a.title | strip_html }}]({{ shop.url }}{{ a.url }}): {{ a.excerpt_or_content | strip_html | strip_newlines | truncate: 160 }}
+{%- endfor %}
+{%- break -%}
+{%- endif -%}
+{%- endfor %}
+
+## Mapa do site
+
+- {{ shop.url }}/sitemap.xml

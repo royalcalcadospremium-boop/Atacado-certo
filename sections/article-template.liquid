@@ -12,8 +12,20 @@
 
     <div class="ad-article__meta">
       <time class="ad-article__meta-date ad-caption-strong" datetime="{{ article.published_at | date: '%Y-%m-%d' }}">
-        {{- article.published_at | date: '%d %B %Y' -}}
+        {{- article.published_at | date: '%d/%m/%Y' -}}
       </time>
+
+      {%- assign published_day = article.published_at | date: '%Y-%m-%d' -%}
+      {%- assign updated_day = article.updated_at | date: '%Y-%m-%d' -%}
+      {%- if article.updated_at and updated_day > published_day -%}
+        <span class="ad-article__meta-dot" aria-hidden="true">·</span>
+        <span class="ad-article__meta-updated ad-caption">Atualizado em <time datetime="{{ updated_day }}">{{ article.updated_at | date: '%d/%m/%Y' }}</time></span>
+      {%- endif -%}
+
+      {%- assign words = article.content | strip_html | split: ' ' | size -%}
+      {%- assign reading_minutes = words | divided_by: 200 | at_least: 1 -%}
+      <span class="ad-article__meta-dot" aria-hidden="true">·</span>
+      <span class="ad-article__meta-reading ad-caption">{{ reading_minutes }} min de leitura</span>
 
       {%- if section.settings.show_author and article.author != blank -%}
         <span class="ad-article__meta-dot" aria-hidden="true">·</span>
@@ -38,14 +50,35 @@
         src="{{ article.image | img_url: '1440x' }}"
         srcset="{{ article.image | img_url: '600x' }} 600w, {{ article.image | img_url: '900x' }} 900w, {{ article.image | img_url: '1200x' }} 1200w, {{ article.image | img_url: '1440x' }} 1440w"
         sizes="(min-width: 1440px) 1440px, 100vw"
-        alt="{{ article.image.alt | escape }}"
-        loading="eager">
+        alt="{{ article.image.alt | default: article.title | escape }}"
+        width="{{ article.image.width }}"
+        height="{{ article.image.height }}"
+        loading="eager"
+        fetchpriority="high">
     </figure>
   {%- endif -%}
 
   <div class="ad-article__body ad-body">
     {{ article.content }}
   </div>
+
+  {%- comment -%}
+    FAQ visível do artigo (metafield seo.faq, JSON [{"q": "...", "a": "..."}]).
+    O mesmo conteúdo vira FAQPage em snippets/microdata-schema.liquid — ajuda
+    o Google e as IAs (ChatGPT, Gemini, Perplexity) a citarem a resposta.
+  {%- endcomment -%}
+  {%- assign article_faq = article.metafields.seo.faq.value -%}
+  {%- if article_faq and article_faq.size > 0 -%}
+    <section class="ad-article__faq ad-article__body ad-body" aria-labelledby="faq-{{ section.id }}">
+      <h2 id="faq-{{ section.id }}">Perguntas frequentes</h2>
+      {%- for item in article_faq -%}
+        <details class="ad-article__faq-item"{% if forloop.first %} open{% endif %}>
+          <summary><h3 class="ad-article__faq-question">{{ item.q | strip_html }}</h3></summary>
+          <div class="ad-article__faq-answer"><p>{{ item.a }}</p></div>
+        </details>
+      {%- endfor -%}
+    </section>
+  {%- endif -%}
 
   <div class="ad-article__back">
     {% render 'apple-button', variant: 'text-link', href: blog.url, label: '← Voltar ao blog' %}
@@ -182,6 +215,12 @@
     box-shadow: var(--ad-shadow-product, rgba(0, 0, 0, 0.22) 3px 5px 30px 0);
   }
 
+  .ad-article__faq { margin-top: var(--ad-xl, 40px); }
+  .ad-article__faq-item { border-top: 1px solid rgba(0,0,0,.12); padding: var(--ad-sm, 12px) 0; }
+  .ad-article__faq-item summary { cursor: pointer; list-style: none; }
+  .ad-article__faq-item summary::-webkit-details-marker { display: none; }
+  .ad-article__faq-question { display: inline; margin: 0; }
+  .ad-article__faq-answer { margin-top: var(--ad-xs, 8px); }
   .ad-article__body {
     max-width: 720px;
     margin: 0 auto;

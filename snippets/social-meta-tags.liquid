@@ -1,88 +1,77 @@
 {%- comment -%}
-Add Facebook and Pinterest Open Graph meta tags to product pages
-for friendly Facebook sharing and Pinterest pinning.
-
-More info Open Graph meta tags
-- https://developers.facebook.com/docs/opengraph/using-objects/
-- https://developers.pinterest.com/rich_pins/
-
-Use the Facebook Open Graph Debugger for validation (and cache clearing)
-- http://developers.facebook.com/tools/debug
-
-Validate your Pinterest rich pins
-- https://developers.pinterest.com/rich_pins/validator/
+  Open Graph (Facebook, WhatsApp, Pinterest, LinkedIn) e Twitter/X Card.
+  Toda página sai com título, descrição, URL e imagem — sem imagem o link
+  compartilhado no WhatsApp aparece "pelado". A imagem de fallback é, nesta
+  ordem: imagem do produto/artigo/coleção > imagem de compartilhamento da
+  página (Shopify > Preferências) > logo da marca.
 {%- endcomment -%}
 
+{%- assign og_title = page_title -%}
+{%- assign og_type = 'website' -%}
+{%- assign og_image = page_image -%}
+
 {%- if request.page_type == 'product' -%}
-  <meta property="og:type" content="product">
-  <meta property="og:title" content="{{ product.title | strip_html | escape }}">
-
-  {%- if product.featured_media -%}
-    <meta property="og:image" content="https:{{ product.featured_media | img_url: 'master' }}">
-    <meta property="og:image:secure_url" content="https:{{ product.featured_media | img_url: 'master' }}">
-    <meta property="og:image:width" content="{{ product.featured_media.width }}">
-    <meta property="og:image:height" content="{{ product.featured_media.height }}">
-  {%- endif -%}
-
-  <meta property="product:price:amount" content="{{ product.price | money_without_currency | strip_html | escape }}">
-  <meta property="product:price:currency" content="{{ cart.currency.iso_code }}">
+  {%- assign og_title = product.title -%}
+  {%- assign og_type = 'product' -%}
+  {%- if product.featured_media -%}{%- assign og_image = product.featured_media.preview_image -%}{%- endif -%}
 {%- elsif request.page_type == 'article' -%}
-  <meta property="og:type" content="article">
-  <meta property="og:title" content="{{ article.title | strip_html | escape }}">
-
-  {%- if article.image -%}
-    <meta property="og:image" content="https:{{ article.image | img_url: 'master' }}">
-    <meta property="og:image:secure_url" content="https:{{ article.image | img_url: 'master' }}">
-    <meta property="og:image:width" content="{{ article.image.width }}">
-    <meta property="og:image:height" content="{{ article.image.height }}">
-  {%- endif -%}
+  {%- assign og_title = article.title -%}
+  {%- assign og_type = 'article' -%}
+  {%- if article.image -%}{%- assign og_image = article.image -%}{%- endif -%}
 {%- elsif request.page_type == 'collection' -%}
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="{{ collection.title | strip_html | escape }}">
-  <meta property="og:image" content="https:{{ collection.image | default: collection.products.first.featured_media | img_url: 'master' }}">
-  <meta property="og:image:secure_url" content="https:{{ collection.image | default: collection.products.first.featured_media | img_url: 'master' }}">
-  <meta property="og:image:width" content="{{ collection.products.first.featured_media.width }}">
-  <meta property="og:image:height" content="{{ collection.products.first.featured_media.height }}">
-{%- else -%}
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="{{ page_title | escape }}">
+  {%- assign og_title = collection.title -%}
+  {%- if collection.image -%}
+    {%- assign og_image = collection.image -%}
+  {%- elsif collection.products.first.featured_media -%}
+    {%- assign og_image = collection.products.first.featured_media.preview_image -%}
+  {%- endif -%}
 {%- endif -%}
 
-{%- if page_description -%}
-  <meta property="og:description" content="{{ page_description | escape }}">
+{%- if og_image == blank and shop.brand.logo -%}
+  {%- assign og_image = shop.brand.logo -%}
 {%- endif -%}
 
+{%- assign og_description = page_description | default: shop.description | default: shop.name -%}
+
+<meta property="og:site_name" content="{{ shop.name | escape }}">
+<meta property="og:locale" content="{{ request.locale.iso_code | replace: '-', '_' }}">
+<meta property="og:type" content="{{ og_type }}">
+<meta property="og:title" content="{{ og_title | strip_html | escape }}">
+<meta property="og:description" content="{{ og_description | strip_html | escape }}">
 <meta property="og:url" content="{{ canonical_url }}">
-<meta property="og:site_name" content="{{ shop.name }}">
 
-{%- comment -%}
-This snippet renders meta data needed to create a Twitter card
-for products and articles.
-
-Your cards must be approved by Twitter to be activated
-- https://dev.twitter.com/docs/cards/validation/validator
-
-More information:
-- https://dev.twitter.com/cards/types/summary
-{%- endcomment -%}
-
-<meta name="twitter:card" content="summary">
-{%- if request.page_type == 'product' -%}
-  <meta name="twitter:title" content="{{ product.title | escape }}">
-  <meta name="twitter:description" content="{{ product.description | strip_html | truncatewords: 140, '' | escape }}">
-  <meta name="twitter:image" content="https:{{ product.featured_media | img_url: '600x600', crop: 'center' }}">
-{%- elsif request.page_type == 'article' -%}
-  <meta name="twitter:title" content="{{ article.title }}">
-  <meta name="twitter:description" content="{{ article.excerpt_or_content | strip_html | truncatewords: 140, '' | escape }}">
-
-  {%- if article.image -%}
-    <meta name="twitter:image" content="https:{{ article.image | img_url: '600x600', crop: 'center' }}">
+{%- if og_image != blank -%}
+  <meta property="og:image" content="https:{{ og_image | image_url: width: 1200 }}">
+  <meta property="og:image:secure_url" content="https:{{ og_image | image_url: width: 1200 }}">
+  {%- if og_image.width -%}
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="{{ 1200 | divided_by: og_image.aspect_ratio | round }}">
   {%- endif -%}
-{%- elsif request.page_type == 'collection' -%}
-  <meta name="twitter:title" content="{{ collection.title }}">
-  <meta name="twitter:description" content="{{ collection.description | strip_html | truncatewords: 140, '' | escape }}">
-  <meta name="twitter:image" content="https:{{ collection.image | default: collection.products.first.featured_image | img_url: '600x600', crop: 'center' }}">
-{%- else -%}
-  <meta name="twitter:title" content="{{ page_title | escape }}">
-  <meta name="twitter:description" content="{{ page_description | default: page_title | escape }}">
+  {%- if og_image.alt != blank -%}
+    <meta property="og:image:alt" content="{{ og_image.alt | escape }}">
+  {%- endif -%}
+{%- endif -%}
+
+{%- if request.page_type == 'product' -%}
+  {%- assign og_variant = product.selected_or_first_available_variant -%}
+  <meta property="product:price:amount" content="{{ og_variant.price | divided_by: 100.0 }}">
+  <meta property="product:price:currency" content="{{ cart.currency.iso_code }}">
+  <meta property="product:availability" content="{% if og_variant.available %}in stock{% else %}out of stock{% endif %}">
+  {%- if product.vendor != blank -%}
+    <meta property="product:brand" content="{{ product.vendor | escape }}">
+  {%- endif -%}
+{%- elsif request.page_type == 'article' -%}
+  <meta property="article:published_time" content="{{ article.published_at | date: '%Y-%m-%dT%H:%M:%S%z' }}">
+  <meta property="article:modified_time" content="{{ article.updated_at | default: article.published_at | date: '%Y-%m-%dT%H:%M:%S%z' }}">
+  <meta property="article:section" content="{{ blog.title | escape }}">
+  {%- for tag in article.tags limit: 6 -%}
+    <meta property="article:tag" content="{{ tag | escape }}">
+  {%- endfor -%}
+{%- endif -%}
+
+<meta name="twitter:card" content="{% if og_image != blank %}summary_large_image{% else %}summary{% endif %}">
+<meta name="twitter:title" content="{{ og_title | strip_html | escape }}">
+<meta name="twitter:description" content="{{ og_description | strip_html | truncate: 200 | escape }}">
+{%- if og_image != blank -%}
+  <meta name="twitter:image" content="https:{{ og_image | image_url: width: 1200 }}">
 {%- endif -%}

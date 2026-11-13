@@ -604,7 +604,7 @@
     <div class="product-info-block">
 
       <!-- TITLE -->
-      <h1 class="product-title">{{ product.title }}</h1>
+      {%- if request.page_type == 'product' -%}<h1 class="product-title">{{ product.title }}</h1>{%- else -%}<h2 class="product-title">{{ product.title }}</h2>{%- endif -%}
 
       <!-- RATINGS -->
       <div class="product-ratings">

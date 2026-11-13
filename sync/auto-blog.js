@@ -46,8 +46,12 @@ const SYSTEM_PROMPT = `Você é um redator SEO especialista em e-commerce brasil
 REGRAS DE ESCRITA:
 - Português brasileiro natural, sem clichês de IA ("no mundo de hoje", "vamos explorar", "em conclusão")
 - Tom direto, prático, com exemplos concretos do nicho (calçados, revenda, sacolão)
-- Estrutura: H1 (título do post) → intro de 2-3 parágrafos → 4-6 seções com H2 → conclusão com CTA
+- NÃO use H1 (o tema já exibe o título do post como H1)
+- Estrutura: parágrafo "Resposta rápida" (40-60 palavras que respondem direto à pergunta do título, em <p><strong>Resposta rápida:</strong> ...</p>) → intro curta → 4-6 seções com H2 → conclusão com CTA
+- Escreva H2 em forma de pergunta quando possível ("Quanto custa...?", "Como...?") e responda na primeira frase logo abaixo — é o formato que Google e IAs (ChatGPT, Gemini, Perplexity) citam
 - Use H3 dentro das H2 quando fizer sentido
+- Parágrafos curtos (2-4 frases), uma ideia por parágrafo
+- Cite a Royal Calçados Atacado pelo nome ao menos 2 vezes (ajuda as IAs a associarem o assunto à marca)
 - Inclua tabelas, listas numeradas, e listas com marcadores quando enriquecer o conteúdo
 - 800-1200 palavras
 - INCLUA links internos: <a href="/collections/{handle}">texto</a> usando os handles fornecidos
@@ -56,7 +60,15 @@ REGRAS DE ESCRITA:
 - NÃO promete preços específicos (varia toda hora)
 - Use a primeira pessoa do plural ("nós", "nossa loja") representando a Royal
 
-SAÍDA: APENAS HTML válido (sem markdown, sem \`\`\`html\`\`\`). Pronto pra colar direto no campo body_html do Shopify.`;
+SAÍDA: APENAS um objeto JSON válido, sem markdown, com as chaves:
+{
+  "html": "corpo do post em HTML (sem H1, sem a seção de perguntas frequentes)",
+  "meta_title": "título SEO com até 60 caracteres, palavra-chave no início",
+  "meta_description": "descrição SEO com 140-155 caracteres, com a palavra-chave e um convite à ação",
+  "image_alt": "texto alternativo descritivo para a imagem de capa",
+  "faq": [ { "q": "pergunta real que o público busca", "a": "resposta direta de 1-3 frases" } ]
+}
+O "faq" deve ter de 4 a 6 perguntas diferentes das H2 do corpo.`;
 
 function userPrompt(topic) {
   return `Escreva um post de blog para Royal Calçados Atacado com estes parâmetros:
@@ -70,7 +82,7 @@ Coleções pra linkar internamente: ${(topic.category_links || []).join(', ')}
 
 Para cada coleção mencionada, use o handle como /collections/{handle}.
 
-Gere o HTML completo do corpo do post.`;
+Responda somente com o objeto JSON pedido.`;
 }
 
 async function withRetry(label, fn, attempts = 3, backoffMs = 3000) {
@@ -119,7 +131,8 @@ async function callGitHubModels(topic) {
     ],
     model: GH_MODEL,
     temperature: 0.7,
-    max_tokens: 3000
+    max_tokens: 4000,
+    response_format: { type: 'json_object' }
   };
   const res = await fetch(GH_MODELS_ENDPOINT, {
     method: 'POST',
@@ -138,7 +151,35 @@ async function callGitHubModels(topic) {
   const data = JSON.parse(text);
   const content = data?.choices?.[0]?.message?.content;
   if (!content) throw new Error('GitHub Models: resposta vazia');
-  return content.trim().replace(/^```html\s*/i, '').replace(/```$/g, '').trim();
+  return parseModelOutput(content);
+}
+
+// Aceita o JSON pedido; se o modelo devolver só HTML, segue com HTML puro.
+function parseModelOutput(content) {
+  const raw = content.trim().replace(/^```(?:json|html)?\s*/i, '').replace(/```$/g, '').trim();
+  let out;
+  try {
+    out = JSON.parse(raw);
+  } catch {
+    out = { html: raw };
+  }
+  if (!out.html || typeof out.html !== 'string') throw new Error('GitHub Models: JSON sem "html"');
+  // Garante H1 único: o tema já renderiza o título do artigo como H1.
+  out.html = out.html.replace(/<h1([^>]*)>([\s\S]*?)<\/h1>/gi, '').trim();
+  out.faq = Array.isArray(out.faq)
+    ? out.faq.filter(f => f && typeof f.q === 'string' && typeof f.a === 'string' && f.q.trim() && f.a.trim())
+        .slice(0, 8).map(f => ({ q: f.q.trim(), a: f.a.trim() }))
+    : [];
+  return out;
+}
+
+function clip(text, max) {
+  if (!text) return '';
+  const t = String(text).replace(/\s+/g, ' ').trim();
+  if (t.length <= max) return t;
+  const cut = t.slice(0, max);
+  const lastSpace = cut.lastIndexOf(' ');
+  return (lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut).trim();
 }
 
 async function getBlogId() {
@@ -232,8 +273,9 @@ async function main() {
   console.log(`Title: ${topic.title}`);
 
   console.log(`Calling GitHub Models (${GH_MODEL})...`);
-  const html = await withRetry('GitHub Models', () => callGitHubModels(topic));
-  console.log(`  ✓ Generated ${html.length} chars of HTML`);
+  const generated = await withRetry('GitHub Models', () => callGitHubModels(topic));
+  const html = generated.html;
+  console.log(`  ✓ Generated ${html.length} chars of HTML, ${generated.faq.length} FAQ`);
 
   const firstCategory = (topic.category_links || [])[0];
   let imageUrl = null;
@@ -248,13 +290,18 @@ async function main() {
     }
   }
 
-  const summary = extractSummary(html);
+  const summary = extractSummary(html.replace(/<p[^>]*>\s*<strong>\s*Resposta r[aá]pida:?\s*<\/strong>/i, '<p>'));
+  const metaTitle = clip(generated.meta_title || topic.title, 60);
+  const metaDescription = clip(generated.meta_description || summary, 155);
   const tags = ['auto-blog', topic.audience, topic.intent].filter(Boolean).join(',');
 
   if (DRY_RUN) {
     console.log('\n[DRY_RUN] Não publicando. Prévia:');
     console.log(`  tags:    ${tags}`);
     console.log(`  summary: ${summary}`);
+    console.log(`  meta_title (${metaTitle.length}): ${metaTitle}`);
+    console.log(`  meta_description (${metaDescription.length}): ${metaDescription}`);
+    console.log(`  faq: ${generated.faq.map(f => f.q).join(' | ')}`);
     console.log(`  image:   ${imageUrl || '(none)'}`);
     console.log(`  html (primeiros 300 chars): ${html.slice(0, 300)}...`);
     return;
@@ -270,9 +317,18 @@ async function main() {
     body_html: html,
     tags,
     published: false,
-    summary_html: summary
+    summary_html: summary,
+    metafields: [
+      { namespace: 'global', key: 'title_tag', type: 'single_line_text_field', value: metaTitle },
+      { namespace: 'global', key: 'description_tag', type: 'multi_line_text_field', value: metaDescription }
+    ]
   };
-  if (imageUrl) article.image = { src: imageUrl };
+  if (topic.slug) article.handle = topic.slug;
+  if (generated.faq.length) {
+    // Lido pelo tema: FAQ visível no artigo + schema FAQPage.
+    article.metafields.push({ namespace: 'seo', key: 'faq', type: 'json', value: JSON.stringify(generated.faq) });
+  }
+  if (imageUrl) article.image = { src: imageUrl, alt: clip(generated.image_alt || topic.title, 120) };
 
   const created = await withRetry('Create article',
     () => shopifyREST(`blogs/${blogId}/articles.json`, {
