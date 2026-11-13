@@ -331,7 +331,6 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
         <span class="rc-filter-badge" id="rc-filter-badge">0</span>
       </button>
     </div>
-    </button>
 
     <!-- FILTER DRAWER -->
     <div class="rc-filter-drawer" id="filter-drawer">
@@ -361,7 +360,7 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
                 <input type="checkbox" class="marca-filter" value="{{ link.title | escape }}">
                 {%- if _marcas_imgs -%}
                   {%- if link.object.image -%}
-                    <img src="{{ link.object.image | img_url: '80x80', crop: 'center' }}" class="rc-filter-circle-img" alt="{{ link.title | escape }}">
+                    <img src="{{ link.object.image | image_url: width: 80, height: 80, crop: 'center' }}" class="rc-filter-circle-img" alt="{{ link.title | escape }}" width="80" height="80" loading="lazy">
                   {%- else -%}
                     <div class="rc-filter-circle-placeholder">{{ link.title | slice: 0, 2 | upcase }}</div>
                   {%- endif -%}
@@ -388,7 +387,7 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
                 <input type="checkbox" class="model-filter" value="{{ link.url | escape }}">
                 {%- if _modelos_imgs -%}
                   {%- if link.object.image -%}
-                    <img src="{{ link.object.image | img_url: '80x80', crop: 'center' }}" class="rc-filter-circle-img" alt="{{ link.title | escape }}">
+                    <img src="{{ link.object.image | image_url: width: 80, height: 80, crop: 'center' }}" class="rc-filter-circle-img" alt="{{ link.title | escape }}" width="80" height="80" loading="lazy">
                   {%- else -%}
                     <div class="rc-filter-circle-placeholder">{{ link.title | slice: 0, 2 | upcase }}</div>
                   {%- endif -%}
@@ -455,6 +454,20 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
             <button type="button" class="rc-zip-btn" id="btn-download-all">Baixar fotos + numerações</button>
             <p id="zip-status"></p>
           </div>
+          {%- if paginate.current_page == 1 and collection.description != blank -%}
+            {%- assign desc_words = collection.description | strip_html | split: ' ' | size -%}
+            {%- if desc_words > 20 -%}
+              <section class="rc-collection-seo" aria-label="Sobre {{ collection.title | escape }}">
+                <h2>Sobre {{ collection.title }}</h2>
+                <div class="rc-collection-seo__body">{{ collection.description }}</div>
+              </section>
+              <style>
+                .rc-collection-seo { margin: 40px 0 24px; padding-top: 24px; border-top: 1px solid rgba(0,0,0,.1); font-size: 15px; line-height: 1.6; color: #333; }
+                .rc-collection-seo h2 { font-size: 20px; margin: 0 0 12px; }
+                .rc-collection-seo__body > * + * { margin-top: 12px; }
+              </style>
+            {%- endif -%}
+          {%- endif -%}
         {%- endpaginate -%}
       </main>
     </div>
@@ -465,7 +478,7 @@ Royal • Collection Gummy Style (v1.2.7) — FULL INTEGRATION
     <div class="nb-qb-modal" id="modal-content"></div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
 
   <script>
     // DADOS DOS PRODUTOS (para filtros)

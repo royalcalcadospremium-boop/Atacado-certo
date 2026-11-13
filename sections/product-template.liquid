@@ -7,10 +7,7 @@
 {%- assign current_variant = product.selected_or_first_available_variant -%}
 {%- assign featured_media = current_variant.featured_media | default: product.featured_media -%}
 
-<section class="ad-product" data-section-id="{{ section.id }}" data-section-type="product-template" itemscope itemtype="https://schema.org/Product">
-  <meta itemprop="name" content="{{ product.title | escape }}">
-  <meta itemprop="brand" content="{{ product.vendor | escape }}">
-  <link itemprop="url" href="{{ shop.url }}{{ product.url }}">
+<section class="ad-product" data-section-id="{{ section.id }}" data-section-type="product-template">
 
   <div class="ad-product__inner">
 
@@ -40,18 +37,15 @@
         <p class="ad-product__vendor ad-caption-strong">{{ product.vendor }}</p>
       {%- endif -%}
 
-      <h1 class="ad-product__title ad-display-md" itemprop="name">{{ product.title }}</h1>
+      <h1 class="ad-product__title ad-display-md">{{ product.title }}</h1>
 
-      <div class="ad-product__pricing" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
-        <meta itemprop="priceCurrency" content="{{ shop.currency }}">
-        <link itemprop="availability" href="https://schema.org/{% if current_variant.available %}InStock{% else %}OutOfStock{% endif %}">
+      <div class="ad-product__pricing">
         <p class="ad-product__price ad-lead" data-price>
           <span data-price-now>{{ current_variant.price | money }}</span>
           <span class="ad-product__price-was ad-caption" data-price-was {% if current_variant.compare_at_price <= current_variant.price %}hidden{% endif %}>
             <s data-price-was-text>{% if current_variant.compare_at_price > current_variant.price %}{{ current_variant.compare_at_price | money }}{% endif %}</s>
           </span>
         </p>
-        <meta itemprop="price" content="{{ current_variant.price | divided_by: 100.0 }}">
       </div>
 
       <form action="{{ routes.cart_add_url }}" method="post" enctype="multipart/form-data" class="ad-product__form" data-product-form>
@@ -100,7 +94,7 @@
       {%- if product.description != blank -%}
         <div class="ad-product__desc">
           <h2 class="ad-product__desc-heading ad-tagline">Descrição</h2>
-          <div class="ad-product__desc-body ad-body" itemprop="description">{{ product.description }}</div>
+          <div class="ad-product__desc-body ad-body">{{ product.description }}</div>
         </div>
       {%- endif -%}
 

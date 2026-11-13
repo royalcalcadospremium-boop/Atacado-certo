@@ -9,6 +9,9 @@
 {%- assign navigation_menu = linklists[navigation_menu_handle] -%}
 
 <header class="ad-header" data-section-id="{{ section.id }}" data-section-type="header" role="banner">
+  {%- if request.page_type == 'index' -%}
+    <h1 class="visually-hidden">{{ shop.name }}{% if shop.description != blank %} — {{ shop.description | strip_html | truncate: 120 }}{% endif %}</h1>
+  {%- endif -%}
 
   {%- comment -%} ────────── GLOBAL NAV (64px black) ────────── {%- endcomment -%}
   <nav class="ad-global-nav" aria-label="Navegação principal">
@@ -132,7 +135,7 @@
               {%- when 'promo_card' -%}
                 <a class="ad-drawer-promo" href="{{ block.settings.url | default: '#' }}" {{ block.shopify_attributes }}>
                   {%- if block.settings.image != blank -%}
-                    <img src="{{ block.settings.image | img_url: '600x' }}" alt="" loading="lazy">
+                    <img src="{{ block.settings.image | image_url: width: 600 }}" alt="{{ block.settings.image.alt | escape }}" width="600" height="{{ 600 | divided_by: block.settings.image.aspect_ratio | round }}" loading="lazy">
                   {%- endif -%}
                   <div class="ad-drawer-promo__overlay">
                     {%- if block.settings.heading != blank -%}

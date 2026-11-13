@@ -25,7 +25,7 @@
           <article class="ad-blog__card">
             {%- if article.image -%}
               <a class="ad-blog__media" href="{{ article.url }}" aria-label="{{ article.title | escape }}">
-                <img src="{{ article.image | img_url: '800x' }}" alt="{{ article.title | escape }}" loading="lazy">
+                <img src="{{ article.image | image_url: width: 800 }}" alt="{{ article.image.alt | default: article.title | escape }}" width="800" height="{{ 800 | divided_by: article.image.aspect_ratio | round }}" loading="lazy">
               </a>
             {%- endif -%}
             <div class="ad-blog__body">

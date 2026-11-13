@@ -47,8 +47,8 @@
     <figure class="ad-article__hero">
       <img
         class="ad-article__hero-image"
-        src="{{ article.image | img_url: '1440x' }}"
-        srcset="{{ article.image | img_url: '600x' }} 600w, {{ article.image | img_url: '900x' }} 900w, {{ article.image | img_url: '1200x' }} 1200w, {{ article.image | img_url: '1440x' }} 1440w"
+        src="{{ article.image | image_url: width: 1440 }}"
+        srcset="{{ article.image | image_url: width: 600 }} 600w, {{ article.image | image_url: width: 900 }} 900w, {{ article.image | image_url: width: 1200 }} 1200w, {{ article.image | image_url: width: 1440 }} 1440w"
         sizes="(min-width: 1440px) 1440px, 100vw"
         alt="{{ article.image.alt | default: article.title | escape }}"
         width="{{ article.image.width }}"

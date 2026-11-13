@@ -177,8 +177,8 @@
   {%- if section.settings.hero_v2_enable -%}
     <div class="hero-v2-overlay" aria-hidden="true">
       <div class="hero-v2-overlay__inner container">
-        <p class="hero-v2-overlay__eyebrow">Royal Calçados Atacado</p>
-        <h1 class="hero-v2-overlay__headline">{{ section.settings.hero_v2_headline | escape }}</h1>
+        <p class="hero-v2-overlay__eyebrow">{{ shop.name }}</p>
+        <h2 class="hero-v2-overlay__headline">{{ section.settings.hero_v2_headline | escape }}</h2>
         <p class="hero-v2-overlay__subline">{{ section.settings.hero_v2_subline | escape }}</p>
         <div class="hero-v2-overlay__ctas">
           {%- if section.settings.hero_v2_cta1_text != blank -%}
